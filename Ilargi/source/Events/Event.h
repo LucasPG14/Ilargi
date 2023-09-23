@@ -8,15 +8,11 @@ namespace Ilargi
 	enum class EventType
 	{
 		NONE = 0,
-		WINDOW_CLOSE, WINDOW_RESIZE, WINDOW_DROP, WINDOW_MINIMIZE,
+		WINDOW_CLOSE, WINDOW_RESIZE, WINDOW_DROP,
 		KEY_PRESSED, KEY_RELEASED, KEY_TYPED,
 		MOUSE_BUTTON_PRESSED, MOUSE_BUTTON_RELEASED,
 		MOUSE_MOVE, MOUSE_SCROLL
 	};
-
-#define EVENT_CLASS_TYPE(type) static EventType GetStaticType() { return EventType::##type;}\
-								virtual EventType GetEventType() const override { return GetStaticType(); }\
-								virtual const char* GetName() const override { return #type; }
 
 	class Event
 	{

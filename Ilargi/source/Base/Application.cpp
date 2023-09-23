@@ -1,11 +1,16 @@
 #include "ilargipch.h"
 
+// Main headers
 #include "Application.h"
 #include "Window.h"
+#include "Input.h"
 #include "Panel.h"
 
+// Debugging tools headers
 #include "Debug.h"
+#include "Log.h"
 
+// Event headers
 #include "Events/Event.h"
 #include "Events/WindowEvents.h"
 
@@ -13,6 +18,8 @@ namespace Ilargi
 {
 	Application::Application(const ApplicationProperties& props) : close(false), minimized(false), properties(props)
 	{
+		Log::SetClientName(props.appName);
+
 		WindowProperties windowProps;
 		windowProps.appName = props.appName;
 		windowProps.width = props.width;

@@ -1,7 +1,9 @@
 #pragma once
 
+#include "Log.h"
+
 #if ILG_DEBUG
-#define ILG_ASSERT(x, ...)		{ if (!x) { __debugbreak(); }}
+#define ILG_ASSERT(x, ...)		{ if (!(x)) { ILG_CORE_ERROR(__VA_ARGS__); __debugbreak(); }}
 #else
 #define ILG_ASSERT(x, ...)
 #endif
