@@ -22,8 +22,14 @@ group "Dependencies"
 	include "Ilargi/dependencies/glfw"
 group ""
 
+VULKAN_SDK = os.getenv("VULKAN_SDK")
+
 IncludeDir = {}
 IncludeDir["GLFW"] = "Ilargi/dependencies/glfw/include"
+IncludeDir["VulkanSDK"] = "%{VULKAN_SDK}/Include"
+
+LibraryDir = {}
+LibraryDir["VulkanSDK"] = "%{VULKAN_SDK}/lib"
 
 project "Ilargi"
 	location "Ilargi"
@@ -47,18 +53,20 @@ project "Ilargi"
 	includedirs
 	{
 		"%{prj.name}/source",
-		"%{IncludeDir.GLFW}"
+		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.VulkanSDK}"
 	}
 
 	links 
 	{
-		"GLFW"
+		"GLFW",
+		"%{LibraryDir.VulkanSDK}/vulkan-1.lib"
 	}
 
 	defines
 	{
 		--"_CRT_SECURE_NO_WARNINGS"
-		--"GLFW_INCLUDE_NONE"
+		"GLFW_INCLUDE_NONE"
 	}
 
 	filter "system:windows"
@@ -67,7 +75,6 @@ project "Ilargi"
 		defines
 		{
 			"ILG_PLATFORM_WINDOWS",
-			--"ILG_BUILD_DLL",
 		}
 
 	filter "configurations:Debug"

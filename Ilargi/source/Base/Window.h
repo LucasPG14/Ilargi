@@ -4,8 +4,6 @@ struct GLFWwindow;
 
 namespace Ilargi
 {
-	class Event;
-
 	struct WindowProperties
 	{
 		std::string appName;
@@ -14,11 +12,17 @@ namespace Ilargi
 		;
 	};
 
+	class Event;
+	class GraphicsContext;
+	class Swapchain;
+
 	class Window
 	{
 	public:
 		Window(const WindowProperties& props, std::function<void(Event&)> eventCallback);
-		~Window();
+		virtual ~Window();
+
+		void Destroy();
 
 		void PollEvents();
 
@@ -30,5 +34,8 @@ namespace Ilargi
 
 		std::function<void(Event&)> eventFunc;
 		WindowProperties properties;
+
+		std::shared_ptr<GraphicsContext> context;
+		std::shared_ptr<Swapchain> swapchain;
 	};
 }

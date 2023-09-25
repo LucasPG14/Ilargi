@@ -24,7 +24,6 @@ namespace Ilargi
 		~Application();
 
 		void Update() const;
-		void CleanUp();
 
 		void AddPanel(Panel* panel);
 

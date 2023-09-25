@@ -43,10 +43,6 @@ namespace Ilargi
 				panel->Update();
 		}
 	}
-	
-	void Application::CleanUp()
-	{
-	}
 
 	void Application::AddPanel(Panel* panel)
 	{

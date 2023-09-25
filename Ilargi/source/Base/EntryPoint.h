@@ -10,5 +10,5 @@ int main()
 
 	app->Update();
 	
-	app->CleanUp();
+	delete app;
 }

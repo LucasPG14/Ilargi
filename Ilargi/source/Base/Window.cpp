@@ -9,12 +9,17 @@
 #include "Events/KeyEvents.h"
 #include "Events/MouseEvents.h"
 
+// Other headers
+#include "Renderer/Context.h"
+#include "Renderer/Swapchain.h"
+
 // 3rd Party headers
 #include <GLFW/glfw3.h>
 
 namespace Ilargi
 {
-	Window::Window(const WindowProperties& props, std::function<void(Event&)> eventCallback) : properties(props), eventFunc(eventCallback)
+	Window::Window(const WindowProperties& props, std::function<void(Event&)> eventCallback) 
+		: eventFunc(eventCallback), properties(props), context(nullptr)
 	{
 		int success = glfwInit();
 
@@ -23,7 +28,6 @@ namespace Ilargi
 		ILG_CORE_INFO("GLFW library initialized");
 
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-
 		window = glfwCreateWindow(properties.width, properties.height, properties.appName.c_str(), nullptr, nullptr);
 
 		ILG_ASSERT(window, "Error while creating the GLFW window");
@@ -33,11 +37,21 @@ namespace Ilargi
 		Input::SetWindow(window);
 
 		glfwSetWindowUserPointer(window, this);
-
 		SettingCallbacks();
+
+		context = GraphicsContext::Create(window, properties.appName);
+		swapchain = Swapchain::Create();
 	}
 	
 	Window::~Window()
+	{
+		swapchain->Destroy();
+		context->Destroy();
+		glfwDestroyWindow(window);
+		glfwTerminate();
+	}
+
+	void Window::Destroy()
 	{
 	}
 	

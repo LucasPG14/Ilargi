@@ -8,4 +8,6 @@
 #define ILG_ASSERT(x, ...)
 #endif
 
+#define VK_CHECK_RESULT(x, ...)		{ ILG_ASSERT(x, __VA_ARGS__); }
+
 #define ILG_BIND_FN(x) std::bind(&x, this, std::placeholders::_1)
