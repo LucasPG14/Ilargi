@@ -54,6 +54,21 @@ namespace Ilargi
 	void Window::Destroy()
 	{
 	}
+
+	void Window::StartFrame()
+	{
+		swapchain->StartFrame();
+	}
+
+	void Window::EndFrame()
+	{
+		swapchain->EndFrame();
+	}
+
+	void Window::Present()
+	{
+		swapchain->Present();
+	}
 	
 	void Window::PollEvents()
 	{
@@ -76,6 +91,8 @@ namespace Ilargi
 		{
 			Window& window = *(Window*)glfwGetWindowUserPointer(win);
 
+			//window.GetSwapchain()->SetWidthAndHeight(w, h);
+			
 			WindowResizeEvent resizeEvent(w, h);
 			window.eventFunc(resizeEvent);
 		});

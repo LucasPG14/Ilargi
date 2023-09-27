@@ -20,12 +20,14 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 group "Dependencies"
 	include "Ilargi/dependencies/glfw"
+	include "Ilargi/dependencies/imgui"
 group ""
 
 VULKAN_SDK = os.getenv("VULKAN_SDK")
 
 IncludeDir = {}
 IncludeDir["GLFW"] = "Ilargi/dependencies/glfw/include"
+IncludeDir["ImGUI"] = "Ilargi/dependencies/imgui"
 IncludeDir["VulkanSDK"] = "%{VULKAN_SDK}/Include"
 
 LibraryDir = {}
@@ -54,12 +56,14 @@ project "Ilargi"
 	{
 		"%{prj.name}/source",
 		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.ImGUI}",
 		"%{IncludeDir.VulkanSDK}"
 	}
 
 	links 
 	{
 		"GLFW",
+		"ImGUI",
 		"%{LibraryDir.VulkanSDK}/vulkan-1.lib"
 	}
 

@@ -47,7 +47,9 @@ namespace Ilargi
 	VkPhysicalDevice VulkanContext::physicalDevice = VK_NULL_HANDLE;
 	VkDevice VulkanContext::logicalDevice = VK_NULL_HANDLE;
 	QueueFamilyIndices VulkanContext::indices = {};
+	SwapchainSupportDetails VulkanContext::swapchainSupport = {};
 	VkCommandPool VulkanContext::commandPool = VK_NULL_HANDLE;
+	VkQueue VulkanContext::graphicsQueue = VK_NULL_HANDLE;
 
 	VulkanContext::VulkanContext(GLFWwindow* win, std::string_view appName)
 	{
@@ -164,6 +166,8 @@ namespace Ilargi
 			VK_CHECK_RESULT(vkCreateDevice(physicalDevice, &deviceInfo, nullptr, &logicalDevice) == VK_SUCCESS, "Unable to create logical device");
 		}
 
+		vkGetDeviceQueue(logicalDevice, indices.graphicsFamily, 0, &graphicsQueue);
+
 		// Creating command pool
 		{
 			VkCommandPoolCreateInfo poolInfo = {};
@@ -196,6 +200,41 @@ namespace Ilargi
 		vkDestroyInstance(instance, nullptr);
 	}
 	
+	VkCommandBuffer VulkanContext::BeginSingleCommandBuffer()
+	{
+		VkCommandBufferAllocateInfo allocInfo{};
+		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		allocInfo.commandPool = commandPool;
+		allocInfo.commandBufferCount = 1;
+
+		VkCommandBuffer commandBuffer;
+		vkAllocateCommandBuffers(logicalDevice, &allocInfo, &commandBuffer);
+
+		VkCommandBufferBeginInfo beginInfo = {};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+		vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+		return commandBuffer;
+	}
+
+	void VulkanContext::EndSingleCommandBuffer(VkCommandBuffer commandBuffer)
+	{
+		vkEndCommandBuffer(commandBuffer);
+
+		VkSubmitInfo submitInfo{};
+		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &commandBuffer;
+
+		vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+		vkQueueWaitIdle(graphicsQueue);
+
+		vkFreeCommandBuffers(logicalDevice, commandPool, 1, &commandBuffer);
+	}
+
 	std::vector<const char*> VulkanContext::GetRequiredExtensions()
 	{
 		uint32_t glfwExtensionCount = 0;
@@ -223,7 +262,7 @@ namespace Ilargi
 		bool swapChainAdequate = false;
 		//if (extensionsSupported)
 		//{
-		SwapChainSupportDetails swapchainSupport = QuerySwapchainSupport(device);
+		swapchainSupport = QuerySwapchainSupport(device);
 		swapChainAdequate = !swapchainSupport.formats.empty() && !swapchainSupport.presentModes.empty();
 		//}
 
@@ -231,9 +270,9 @@ namespace Ilargi
 			deviceFeatures.geometryShader && swapChainAdequate;
 	}
 	
-	SwapChainSupportDetails VulkanContext::QuerySwapchainSupport(VkPhysicalDevice device) const
+	SwapchainSupportDetails VulkanContext::QuerySwapchainSupport(VkPhysicalDevice device) const
 	{
-		SwapChainSupportDetails details;
+		SwapchainSupportDetails details;
 
 		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
 

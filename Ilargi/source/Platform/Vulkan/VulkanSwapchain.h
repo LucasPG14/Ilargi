@@ -6,7 +6,7 @@
 
 namespace Ilargi
 {
-	struct SwapChainSupportDetails;
+	struct SwapchainSupportDetails;
 
 	class VulkanSwapchain : public Swapchain
 	{
@@ -15,11 +15,30 @@ namespace Ilargi
 		virtual ~VulkanSwapchain();
 
 		void Destroy() const;
+		
+		void StartFrame() override;
+		void EndFrame() override;
+
+		void Present() override;
+
+		VkRenderPass GetRenderPass() { return renderPass; }
+
+		VkCommandBuffer GetCurrentCommand() { return commandBuffers[currentFrame]; }
 
 	private:
-		void CreateRenderPass(VkDevice device);
+		void RecreateSwapchain();
+		void CreateSwapchain();
+		void CreateFramebuffers();
+		void CleanUpSwapchain() const;
 
-		SwapChainSupportDetails QuerySwapchainSupport(VkPhysicalDevice device) const;
+		void CreateRenderPass(VkDevice device);
+		void CreatingPipeline(VkDevice device);
+
+		void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+
+		VkShaderModule CreateShaderModule(VkDevice device, const std::vector<char>& data);
+
+		SwapchainSupportDetails QuerySwapchainSupport(VkPhysicalDevice device) const;
 		VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) const;
 		VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) const;
 
@@ -37,5 +56,17 @@ namespace Ilargi
 		std::vector<VkFramebuffer> framebuffers;
 
 		std::vector<VkCommandBuffer> commandBuffers;
+
+		std::vector<VkSemaphore> imageAvailable;
+		std::vector<VkSemaphore> renderFinished;
+		std::vector<VkFence> fences;
+
+		uint32_t currentFrame;
+		uint32_t currentImageIndex;
+		VkQueue presentQueue;
+
+		// TODO: This must not be here
+		VkPipelineLayout pipelineLayout;
+		VkPipeline pipeline;
 	};
 }

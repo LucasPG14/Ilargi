@@ -17,7 +17,8 @@ namespace Ilargi
 	{
 		auto now = std::chrono::system_clock::now();
 		auto time = std::chrono::system_clock::to_time_t(now);
-		auto tt = *localtime(&time);
+		tm tt;
+		localtime_s(&tt, &time);
 
 		std::cout << std::format("[{0}:{1}:{2}] Ilargi: {3}", tt.tm_hour, tt.tm_min, tt.tm_sec, str) << std::endl;
 	}
@@ -26,7 +27,8 @@ namespace Ilargi
 	{
 		auto now = std::chrono::system_clock::now();
 		auto time = std::chrono::system_clock::to_time_t(now);
-		auto tt = *localtime(&time);
+		tm tt;
+		localtime_s(&tt, &time);
 
 		std::cout << INFO << std::format("[{0}:{1}:{2}] Ilargi: {3}", tt.tm_hour, tt.tm_min, tt.tm_sec, str) << DEFAULT << std::endl;
 	}
@@ -35,7 +37,9 @@ namespace Ilargi
 	{
 		auto now = std::chrono::system_clock::now();
 		auto time = std::chrono::system_clock::to_time_t(now);
-		auto tt = *localtime(&time);
+		tm tt;
+		localtime_s(&tt, &time);
+
 		std::cout << WARN << std::format("[{0}:{1}:{2}] Ilargi: {3}", tt.tm_hour, tt.tm_min, tt.tm_sec, str) << DEFAULT << std::endl;
 	}
 	
@@ -43,7 +47,9 @@ namespace Ilargi
 	{
 		auto now = std::chrono::system_clock::now();
 		auto time = std::chrono::system_clock::to_time_t(now);
-		auto tt = *localtime(&time);
+		tm tt;
+		localtime_s(&tt, &time);
+
 		std::cout << ERROR << std::format("[{0}:{1}:{2}] Ilargi: {3}", tt.tm_hour, tt.tm_min, tt.tm_sec, str) << DEFAULT << std::endl;
 	}
 	
@@ -51,7 +57,9 @@ namespace Ilargi
 	{
 		auto now = std::chrono::system_clock::now();
 		auto time = std::chrono::system_clock::to_time_t(now);
-		auto tt = *localtime(&time);
+		tm tt;
+		localtime_s(&tt, &time);
+
 		std::cout << std::format("[{0}:{1}:{2}] {3}: {4}", tt.tm_hour, tt.tm_min, tt.tm_sec, clientName, str) << std::endl;
 	}
 	
@@ -59,7 +67,9 @@ namespace Ilargi
 	{
 		auto now = std::chrono::system_clock::now();
 		auto time = std::chrono::system_clock::to_time_t(now);
-		auto tt = *localtime(&time);
+		tm tt;
+		localtime_s(&tt, &time);
+
 		std::cout << INFO << std::format("[{0}:{1}:{2}] {3}: {4}", tt.tm_hour, tt.tm_min, tt.tm_sec, clientName, str) << DEFAULT << std::endl;
 	}
 	
@@ -67,7 +77,9 @@ namespace Ilargi
 	{
 		auto now = std::chrono::system_clock::now();
 		auto time = std::chrono::system_clock::to_time_t(now);
-		auto tt = *localtime(&time);
+		tm tt;
+		localtime_s(&tt, &time);
+
 		std::cout << WARN << std::format("[{0}:{1}:{2}] {3}: {4}", tt.tm_hour, tt.tm_min, tt.tm_sec, clientName, str) << DEFAULT << std::endl;
 	}
 	
@@ -75,7 +87,9 @@ namespace Ilargi
 	{
 		auto now = std::chrono::system_clock::now();
 		auto time = std::chrono::system_clock::to_time_t(now);
-		auto tt = *localtime(&time);
+		tm tt;
+		localtime_s(&tt, &time);
+
 		std::cout << ERROR << std::format("[{0}:{1}:{2}] {3}: {4}", tt.tm_hour, tt.tm_min, tt.tm_sec, clientName, str) << DEFAULT << std::endl;
 	}
 }

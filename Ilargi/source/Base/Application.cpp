@@ -5,6 +5,7 @@
 #include "Window.h"
 #include "Input.h"
 #include "Panel.h"
+#include "ImGUI/ImGuiPanel.h"
 
 // Debugging tools headers
 #include "Debug.h"
@@ -25,10 +26,12 @@ namespace Ilargi
 		windowProps.width = props.width;
 		windowProps.height = props.height;
 		window = std::make_unique<Window>(windowProps, ILG_BIND_FN(Application::OnEvent));
+		imguiPanel = ImGuiPanel::Create(window->GetWindow(), window->GetSwapchain());
 	}
 	
 	Application::~Application()
 	{
+		imguiPanel->Destroy();
 	}
 	
 	void Application::Update() const
@@ -41,6 +44,17 @@ namespace Ilargi
 
 			for (Panel* panel : panels)
 				panel->Update();
+
+			window->StartFrame();
+			imguiPanel->Begin();
+
+			for (Panel* panel : panels)
+				panel->RenderImGui();
+
+			imguiPanel->End();
+			window->EndFrame();
+
+			window->Present();
 		}
 	}
 

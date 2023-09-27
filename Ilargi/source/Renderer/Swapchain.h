@@ -7,6 +7,11 @@ namespace Ilargi
 	public:
 		virtual void Destroy() const = 0;
 
+		virtual void StartFrame() = 0;
+		virtual void EndFrame() = 0;
+		
+		virtual void Present() = 0;
+
 		static std::shared_ptr<Swapchain> Create();
 	};
 }

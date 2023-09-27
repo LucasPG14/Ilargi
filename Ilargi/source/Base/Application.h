@@ -1,7 +1,5 @@
 #pragma once
 
-
-
 namespace Ilargi
 {
 	class Window;
@@ -9,6 +7,7 @@ namespace Ilargi
 	class WindowCloseEvent;
 	class WindowResizeEvent;
 	class Panel;
+	class ImGuiPanel;
 
 	struct ApplicationProperties
 	{
@@ -39,6 +38,7 @@ namespace Ilargi
 		ApplicationProperties properties;
 
 		std::unique_ptr<Window> window;
+		std::shared_ptr<ImGuiPanel> imguiPanel;
 
 		std::vector<Panel*> panels;
 	};

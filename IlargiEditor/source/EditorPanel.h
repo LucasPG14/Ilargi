@@ -11,8 +11,10 @@ namespace Ilargi
 		~EditorPanel();
 
 		void OnInit() override;
-		void Update() override;
 		void OnDestroy() override;
+
+		void Update() override;
+		void RenderImGui() override;
 
 		void OnEvent(Event& event) override;
 

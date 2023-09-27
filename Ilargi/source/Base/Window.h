@@ -24,7 +24,15 @@ namespace Ilargi
 
 		void Destroy();
 
+		void StartFrame();
+		void EndFrame();
+
+		void Present();
+
 		void PollEvents();
+
+		GLFWwindow* GetWindow() const { return window; }
+		const std::shared_ptr<Swapchain> GetSwapchain() const { return swapchain; }
 
 	private:
 

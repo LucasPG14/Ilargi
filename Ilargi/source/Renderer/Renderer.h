@@ -15,9 +15,15 @@ namespace Ilargi
 
 		static void SetMaxFrames(int frms) { maxFrames = frms; }
 		static GraphicsAPI GetGraphicsAPI() { return graphicsAPI; }
+
+		static void Submit(std::function<void()> func) { queue.push_back(func); }
+
+		static void Render();
 	private:
 		static GraphicsAPI graphicsAPI;
 
 		static int maxFrames;
+
+		static std::vector<std::function<void()>> queue;
 	};
 }

@@ -8,11 +8,13 @@
 #include <filesystem>
 #include <functional>
 #include <sstream>
+#include <fstream>
 
 #include <chrono>
 
 // Data structures
 #include <vector>
+#include <queue>
 #include <array>
 #include <unordered_map>
 #include <set>
