@@ -14,10 +14,5 @@ namespace Ilargi
 			queue[i]();
 		
 		queue.clear();
-		//while (!queue.empty())
-		//{
-		//	queue.front()();
-		//	queue.pop();
-		//}
 	}
 }

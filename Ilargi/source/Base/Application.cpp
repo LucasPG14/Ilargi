@@ -46,12 +46,12 @@ namespace Ilargi
 				panel->Update();
 
 			window->StartFrame();
-			imguiPanel->Begin();
+			//imguiPanel->Begin();
 
-			for (Panel* panel : panels)
-				panel->RenderImGui();
+			//for (Panel* panel : panels)
+			//	panel->RenderImGui();
 
-			imguiPanel->End();
+			//imguiPanel->End();
 			window->EndFrame();
 
 			window->Present();

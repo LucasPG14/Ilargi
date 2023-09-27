@@ -1,11 +1,27 @@
 #include "ilargipch.h"
 
+// Main headers
 #include "VulkanSwapchain.h"
 #include "VulkanContext.h"
 #include "Renderer/Renderer.h"
 
+// TODO: To remove
+#include "Renderer/VertexBuffer.h"
+#include "VulkanVertexBuffer.h"
+#include "Renderer/IndexBuffer.h"
+#include "VulkanIndexBuffer.h"
+
 namespace Ilargi
 {
+    const std::vector<Vertex> vertices = 
+    {
+        {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+        {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+        {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+        {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+    };
+    const std::vector<uint32_t> indices = { 0, 1, 2, 2, 3, 0 };
+
     static std::vector<char> readFile(const std::string& filename)
     {
         std::ifstream file(filename, std::ios::ate | std::ios::binary);
@@ -60,7 +76,8 @@ namespace Ilargi
             allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
             allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());
 
-            VK_CHECK_RESULT(vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) == VK_SUCCESS, "Unable to allocate the command buffers")
+            VK_CHECK_RESULT(vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) == VK_SUCCESS,
+                "Unable to allocate the command buffers");
         }
 
         // Creating semaphores and fences
@@ -91,6 +108,9 @@ namespace Ilargi
 
             vkGetDeviceQueue(device, VulkanContext::GetQueueIndices().presentFamily, 0, &presentQueue);
         }
+
+        vertexBuffer = VertexBuffer::Create((void*)(vertices.data()), vertices.size() * sizeof(Vertex));
+        indexBuffer = IndexBuffer::Create((void*)(indices.data()), static_cast<uint32_t>(indices.size()));
     }
 	
 	VulkanSwapchain::~VulkanSwapchain()
@@ -171,6 +191,9 @@ namespace Ilargi
 
         vkDeviceWaitIdle(device);
 
+        vertexBuffer->Destroy();
+        indexBuffer->Destroy();
+
         for (size_t i = 0; i < imageAvailable.size(); ++i)
         {
             vkDestroySemaphore(device, imageAvailable[i], nullptr);
@@ -241,10 +264,12 @@ namespace Ilargi
 
         swapchainInfo.oldSwapchain = swapchain;
 
-        VK_CHECK_RESULT(vkCreateSwapchainKHR(device, &swapchainInfo, nullptr, &swapchain) == VK_SUCCESS, "Unable to create the swapchain");
+        VK_CHECK_RESULT(vkCreateSwapchainKHR(device, &swapchainInfo, nullptr, &swapchain) == VK_SUCCESS, 
+            "Unable to create the swapchain");
 
         swapchainImages.resize(imageCount);
-        VK_CHECK_RESULT(vkGetSwapchainImagesKHR(device, swapchain, &imageCount, swapchainImages.data()) == VK_SUCCESS, "Unable to get swapchain images")
+        VK_CHECK_RESULT(vkGetSwapchainImagesKHR(device, swapchain, &imageCount, swapchainImages.data()) == VK_SUCCESS, 
+            "Unable to get swapchain images")
 
         // Create image views
         {
@@ -295,7 +320,7 @@ namespace Ilargi
                 framebufferInfo.height = extent.height;
                 framebufferInfo.layers = 1;
 
-                VK_CHECK_RESULT(vkCreateFramebuffer(device, &framebufferInfo, nullptr, &framebuffers[i]) == VK_SUCCESS, "Unable to create the framebuffer")
+                VK_CHECK_RESULT(vkCreateFramebuffer(device, &framebufferInfo, nullptr, &framebuffers[i]) == VK_SUCCESS, "Unable to create the framebuffer");
             }
         }
     }
@@ -392,12 +417,29 @@ namespace Ilargi
 
         VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
+        VkVertexInputBindingDescription bindingDescription = {};
+        bindingDescription.binding = 0;
+        bindingDescription.stride = sizeof(Vertex);
+        bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+        std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
+
+        attributeDescriptions[0].binding = 0;
+        attributeDescriptions[0].location = 0;
+        attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+        attributeDescriptions[0].offset = offsetof(Vertex, position);
+
+        attributeDescriptions[1].binding = 0;
+        attributeDescriptions[1].location = 1;
+        attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+        attributeDescriptions[1].offset = offsetof(Vertex, color);
+
         VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-        vertexInputInfo.vertexBindingDescriptionCount = 0;
-        vertexInputInfo.pVertexBindingDescriptions = nullptr; // Optional
-        vertexInputInfo.vertexAttributeDescriptionCount = 0;
-        vertexInputInfo.pVertexAttributeDescriptions = nullptr;
+        vertexInputInfo.vertexBindingDescriptionCount = 1;
+        vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+        vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+        vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
         VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
         inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -538,27 +580,26 @@ namespace Ilargi
 
         vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-        //vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
-        //
-        //VkViewport viewport{};
-        //viewport.x = 0.0f;
-        //viewport.y = 0.0f;
-        //viewport.width = static_cast<float>(extent.width);
-        //viewport.height = static_cast<float>(extent.height);
-        //viewport.minDepth = 0.0f;
-        //viewport.maxDepth = 1.0f;
-        //vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
-        //
-        //VkRect2D scissor{};
-        //scissor.offset = { 0, 0 };
-        //scissor.extent = extent;
-        //vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
-        //
-        //vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+        
+        VkViewport viewport{};
+        viewport.x = 0.0f;
+        viewport.y = 0.0f;
+        viewport.width = static_cast<float>(extent.width);
+        viewport.height = static_cast<float>(extent.height);
+        viewport.minDepth = 0.0f;
+        viewport.maxDepth = 1.0f;
+        vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+        
+        VkRect2D scissor{};
+        scissor.offset = { 0, 0 };
+        scissor.extent = extent;
+        vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+        
+        std::static_pointer_cast<VulkanVertexBuffer>(vertexBuffer)->Bind(commandBuffer);
+        std::static_pointer_cast<VulkanIndexBuffer>(indexBuffer)->Bind(commandBuffer);
 
-        //vkCmdEndRenderPass(commandBuffer);
-
-        //VK_CHECK_RESULT(vkEndCommandBuffer(commandBuffer) == VK_SUCCESS, "Failed to end command buffer");
+        vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
     }
 
     VkShaderModule VulkanSwapchain::CreateShaderModule(VkDevice device, const std::vector<char>& code)

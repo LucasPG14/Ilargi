@@ -28,6 +28,7 @@ VULKAN_SDK = os.getenv("VULKAN_SDK")
 IncludeDir = {}
 IncludeDir["GLFW"] = "Ilargi/dependencies/glfw/include"
 IncludeDir["ImGUI"] = "Ilargi/dependencies/imgui"
+IncludeDir["GLM"] = "Ilargi/dependencies/glm"
 IncludeDir["VulkanSDK"] = "%{VULKAN_SDK}/Include"
 
 LibraryDir = {}
@@ -57,6 +58,7 @@ project "Ilargi"
 		"%{prj.name}/source",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.ImGUI}",
+		"%{IncludeDir.GLM}",
 		"%{IncludeDir.VulkanSDK}"
 	}
 

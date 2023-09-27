@@ -1,5 +1,7 @@
 #include "EditorPanel.h"
 
+#include "Utils/IlargiUI.h"
+
 #include <imgui/imgui.h>
 
 namespace Ilargi
@@ -51,6 +53,11 @@ namespace Ilargi
 		}
 
 		ImGui::Begin("Scene Hierarchy");
+		bool hola = true;
+		UI::Checkbox("My checkbox", &hola);
+
+		float val = 5.0f;
+		UI::Slider("My slider", &val);
 		ImGui::End();
 
 		ImGui::Begin("Inspector");

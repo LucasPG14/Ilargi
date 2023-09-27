@@ -1,6 +1,8 @@
 #include "ilargipch.h"
 
+// Main headers
 #include "VulkanContext.h"
+#include "VulkanAllocator.h"
 
 // 3rd Party headers
 #include <GLFW/glfw3.h>
@@ -177,6 +179,8 @@ namespace Ilargi
 
 			VK_CHECK_RESULT(vkCreateCommandPool(logicalDevice, &poolInfo, nullptr, &commandPool) == VK_SUCCESS, "Unable to create command pool");
 		}
+
+		VulkanAllocator::Init();
 	}
 	
 	VulkanContext::~VulkanContext()
@@ -185,6 +189,8 @@ namespace Ilargi
 	
 	void VulkanContext::Destroy() const
 	{
+		VulkanAllocator::Destroy();
+
 		vkDestroyCommandPool(logicalDevice, commandPool, nullptr);
 
 		vkDestroyDevice(logicalDevice, nullptr);

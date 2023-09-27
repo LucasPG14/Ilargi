@@ -3,10 +3,21 @@
 #include "Renderer/Swapchain.h"
 
 #include <vulkan/vulkan.h>
+#include <glm.hpp>
 
 namespace Ilargi
 {
+	struct Vertex
+	{
+		glm::vec2 position;
+		glm::vec3 color;
+	};
+
 	struct SwapchainSupportDetails;
+
+	// TODO: This needs to be removed
+	class VertexBuffer;
+	class IndexBuffer;
 
 	class VulkanSwapchain : public Swapchain
 	{
@@ -68,5 +79,8 @@ namespace Ilargi
 		// TODO: This must not be here
 		VkPipelineLayout pipelineLayout;
 		VkPipeline pipeline;
+
+		std::shared_ptr<VertexBuffer> vertexBuffer;
+		std::shared_ptr<IndexBuffer> indexBuffer;
 	};
 }
