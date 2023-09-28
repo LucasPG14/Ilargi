@@ -11,6 +11,8 @@ namespace Ilargi
 		VulkanVertexBuffer(void* data, uint32_t size);
 		virtual ~VulkanVertexBuffer();
 
+		void Bind(std::shared_ptr<CommandBuffer> commandBuffer) const override;
+
 		void Destroy() override;
 
 		void Bind(VkCommandBuffer cmdBuffer);

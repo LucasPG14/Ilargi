@@ -23,20 +23,33 @@ namespace Ilargi
 		vmaDestroyAllocator(allocator);
 	}
 	
-	Buffer VulkanAllocator::AllocateBuffer(Buffer& buffer, const VkBufferCreateInfo& bufferInfo, VmaMemoryUsage usage)
+	void VulkanAllocator::AllocateBuffer(Buffer& buffer, const VkBufferCreateInfo& bufferInfo, VmaMemoryUsage usage)
 	{
 		VmaAllocationCreateInfo vmaAllocInfo = {};
 		vmaAllocInfo.usage = usage;
 
 		// Allocate the buffer
 		vmaCreateBuffer(allocator, &bufferInfo, &vmaAllocInfo, &buffer.buffer, &buffer.allocation, nullptr);
-
-		return buffer;
 	}
 	
 	void VulkanAllocator::DestroyBuffer(Buffer& buffer)
 	{
 		vmaDestroyBuffer(allocator, buffer.buffer, buffer.allocation);
+	}
+
+	void VulkanAllocator::AllocateImage(Image& image, const VkImageCreateInfo& imageInfo, VmaMemoryUsage usage)
+	{
+		VmaAllocationCreateInfo vmaallocInfo = {};
+		vmaallocInfo.usage = usage;
+		vmaallocInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
+		vmaallocInfo.priority = 1.0f;
+
+		vmaCreateImage(allocator, &imageInfo, &vmaallocInfo, &image.image, &image.allocation, nullptr);
+	}
+
+	void VulkanAllocator::DestroyImage(Image& image)
+	{
+		vmaDestroyImage(allocator, image.image, image.allocation);
 	}
 	
 	void* VulkanAllocator::MapMemory(const Buffer& buffer)

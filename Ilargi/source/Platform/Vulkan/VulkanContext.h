@@ -39,6 +39,7 @@ namespace Ilargi
 		static SwapchainSupportDetails GetSwapchainSupport() { return swapchainSupport; }
 		
 		static VkCommandPool GetCommandPool() { return commandPool; }
+		static VkDescriptorPool GetDescriptorPool() { return descriptorPool; }
 		
 		static VkQueue GetGraphicsQueue() { return graphicsQueue; }
 
@@ -68,5 +69,7 @@ namespace Ilargi
 		static VkCommandPool commandPool;
 
 		static VkQueue graphicsQueue;
+
+		static VkDescriptorPool descriptorPool;
 	};
 }

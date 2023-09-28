@@ -9,6 +9,7 @@ namespace Ilargi
 {
 	class Swapchain;
 	class VulkanSwapchain;
+	class VulkanCommandBuffer;
 
 	class VulkanImGuiPanel : public ImGuiPanel
 	{
@@ -23,6 +24,7 @@ namespace Ilargi
 
 	private:
 		std::shared_ptr<VulkanSwapchain> vkSwapchain;
+		std::shared_ptr<VulkanCommandBuffer> commandBuffer;
 
 		VkDescriptorPool descriptorPool;
 	};

@@ -45,14 +45,14 @@ namespace Ilargi
 	
 	Window::~Window()
 	{
-		swapchain->Destroy();
-		context->Destroy();
-		glfwDestroyWindow(window);
-		glfwTerminate();
 	}
 
 	void Window::Destroy()
 	{
+		swapchain->Destroy();
+		context->Destroy();
+		glfwDestroyWindow(window);
+		glfwTerminate();
 	}
 
 	void Window::StartFrame()

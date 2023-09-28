@@ -6,10 +6,9 @@ namespace Ilargi
 {
 	struct WindowProperties
 	{
-		std::string appName;
-		int width;
-		int height;
-		;
+		std::string appName = "";
+		int width = 0;
+		int height = 0;
 	};
 
 	class Event;

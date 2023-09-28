@@ -11,10 +11,13 @@ namespace Ilargi
 		VulkanIndexBuffer(void* data, uint32_t indicesCount);
 		virtual ~VulkanIndexBuffer();
 
+		void Bind(std::shared_ptr<CommandBuffer> commandBuffer) const override;
+
 		void Destroy() override;
 
 		void Bind(VkCommandBuffer cmdBuffer);
 
+		uint32_t GetCount() const override { return count; }
 	private:
 		uint32_t count;
 

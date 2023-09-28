@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Base/Panel.h"
+#include <Ilargi.h>
 
 namespace Ilargi
 {
@@ -19,5 +19,13 @@ namespace Ilargi
 		void OnEvent(Event& event) override;
 
 	private:
+		std::shared_ptr<CommandBuffer> commandBuffer;
+		
+		std::shared_ptr<VertexBuffer> vertexBuffer;
+		std::shared_ptr<IndexBuffer> indexBuffer;
+
+		std::shared_ptr<Framebuffer> framebuffer;
+		std::shared_ptr<RenderPass> renderPass;
+		std::shared_ptr<Pipeline> pipeline;
 	};
 }

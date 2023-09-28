@@ -5,6 +5,7 @@
 #include "Window.h"
 #include "Input.h"
 #include "Panel.h"
+#include "Renderer/Renderer.h"
 #include "ImGUI/ImGuiPanel.h"
 
 // Debugging tools headers
@@ -31,7 +32,11 @@ namespace Ilargi
 	
 	Application::~Application()
 	{
+		for (Panel* panel : panels)
+			panel->OnDestroy();
+
 		imguiPanel->Destroy();
+		window->Destroy();
 	}
 	
 	void Application::Update() const
@@ -45,16 +50,19 @@ namespace Ilargi
 			for (Panel* panel : panels)
 				panel->Update();
 
+			Renderer::Submit([this]() { imguiPanel->Begin(); });
+			Renderer::Submit([this]() 
+				{
+					for (Panel* panel : panels)
+						panel->RenderImGui();
+				});
+			Renderer::Submit([this]() { imguiPanel->End(); });
+			
 			window->StartFrame();
-			//imguiPanel->Begin();
-
-			//for (Panel* panel : panels)
-			//	panel->RenderImGui();
-
-			//imguiPanel->End();
-			window->EndFrame();
-
+			Renderer::Render();
 			window->Present();
+
+			Renderer::ClearSubmittedCommands();
 		}
 	}
 

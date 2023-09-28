@@ -1,6 +1,8 @@
 #include "ilargipch.h"
 
 #include "VulkanVertexBuffer.h"
+#include "Renderer/Renderer.h"
+#include "VulkanCommandBuffer.h"
 #include "VulkanContext.h"
 
 namespace Ilargi
@@ -24,8 +26,19 @@ namespace Ilargi
 	{
 	}
 
+	void VulkanVertexBuffer::Bind(std::shared_ptr<CommandBuffer> commandBuffer) const
+	{
+		uint32_t currentFrame = Renderer::GetCurrentFrame();
+		auto cmdBuffer = std::static_pointer_cast<VulkanCommandBuffer>(commandBuffer);
+
+		VkDeviceSize offset = 0;
+		vkCmdBindVertexBuffers(cmdBuffer->GetCurrentCommand(currentFrame), 0, 1, &buffer.buffer, &offset);
+	}
+
 	void VulkanVertexBuffer::Destroy()
 	{
+		vkDeviceWaitIdle(VulkanContext::GetLogicalDevice());
+
 		VulkanAllocator::DestroyBuffer(buffer);
 	}
 	

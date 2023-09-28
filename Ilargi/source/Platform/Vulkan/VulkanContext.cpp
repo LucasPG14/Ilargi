@@ -52,6 +52,7 @@ namespace Ilargi
 	SwapchainSupportDetails VulkanContext::swapchainSupport = {};
 	VkCommandPool VulkanContext::commandPool = VK_NULL_HANDLE;
 	VkQueue VulkanContext::graphicsQueue = VK_NULL_HANDLE;
+	VkDescriptorPool VulkanContext::descriptorPool = VK_NULL_HANDLE;
 
 	VulkanContext::VulkanContext(GLFWwindow* win, std::string_view appName)
 	{
@@ -181,6 +182,32 @@ namespace Ilargi
 		}
 
 		VulkanAllocator::Init();
+
+		{
+			VkDescriptorPoolSize poolSizes[] =
+			{
+				{ VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
+				{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
+				{ VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
+				{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
+				{ VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
+				{ VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
+				{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
+				{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
+				{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
+				{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
+				{ VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
+			};
+
+			VkDescriptorPoolCreateInfo poolInfo = {};
+			poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+			poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+			poolInfo.maxSets = 1000;
+			poolInfo.poolSizeCount = static_cast<uint32_t>(std::size(poolSizes));
+			poolInfo.pPoolSizes = poolSizes;
+
+			VK_CHECK_RESULT(vkCreateDescriptorPool(logicalDevice, &poolInfo, nullptr, &descriptorPool) == VK_SUCCESS, "Unable to create descriptor pool");
+		}
 	}
 	
 	VulkanContext::~VulkanContext()
@@ -190,6 +217,8 @@ namespace Ilargi
 	void VulkanContext::Destroy() const
 	{
 		VulkanAllocator::Destroy();
+
+		vkDestroyDescriptorPool(logicalDevice, descriptorPool, nullptr);
 
 		vkDestroyCommandPool(logicalDevice, commandPool, nullptr);
 

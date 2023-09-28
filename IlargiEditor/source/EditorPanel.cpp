@@ -1,11 +1,27 @@
+#include "ilargipch.h"
+
 #include "EditorPanel.h"
 
-#include "Utils/IlargiUI.h"
-
 #include <imgui/imgui.h>
+#include <glm/glm.hpp>
 
 namespace Ilargi
 {
+	struct Vertex
+	{
+		glm::vec2 position;
+		glm::vec3 color;
+	};
+
+	const std::vector<Vertex> vertices =
+	{
+		{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+		{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+		{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+		{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+	};
+	const std::vector<uint32_t> indices = { 0, 1, 2, 2, 3, 0 };
+
 	EditorPanel::EditorPanel() : Panel("Editor Panel")
 	{
 	}
@@ -16,10 +32,35 @@ namespace Ilargi
 
 	void EditorPanel::OnInit()
 	{
+		commandBuffer = CommandBuffer::Create(Renderer::GetMaxFrames());
+
+		framebuffer = Framebuffer::Create({ 1080, 720, ImageFormat::RGBA_8, false });
+		renderPass = RenderPass::Create({ framebuffer });
+		pipeline = Pipeline::Create({ Shader::Create("shaders/vert.spv", "shaders/frag.spv"), renderPass});
+
+		vertexBuffer = VertexBuffer::Create((void*)vertices.data(), vertices.size() * sizeof(Vertex));
+		indexBuffer = IndexBuffer::Create((void*)indices.data(), indices.size());
+	}
+
+	void EditorPanel::OnDestroy()
+	{
+		vertexBuffer->Destroy();
+		indexBuffer->Destroy();
+		
+		pipeline->Destroy();
+		framebuffer->Destroy();
+		renderPass->Destroy();
 	}
 
 	void EditorPanel::Update()
 	{
+		commandBuffer->BeginCommand();
+		pipeline->Bind(commandBuffer, vertexBuffer, indexBuffer);
+
+		pipeline->Unbind(commandBuffer);
+		commandBuffer->EndCommand();
+
+		Renderer::AddCommand(commandBuffer);
 	}
 
 	void EditorPanel::RenderImGui()
@@ -52,7 +93,9 @@ namespace Ilargi
 			ImGui::DockSpace(id, { 0.0f, 0.0f }, dockspaceFlags);
 		}
 
+
 		ImGui::Begin("Scene Hierarchy");
+		//ImGui::Image(framebuffer->GetID(), {100, 100});
 		bool hola = true;
 		UI::Checkbox("My checkbox", &hola);
 
@@ -77,10 +120,6 @@ namespace Ilargi
 		//}
 
 		ImGui::End();
-	}
-
-	void EditorPanel::OnDestroy()
-	{
 	}
 	
 	void EditorPanel::OnEvent(Event& event)

@@ -1,6 +1,8 @@
 #include "ilargipch.h"
 
 #include "VulkanIndexBuffer.h"
+#include "Renderer/Renderer.h"
+#include "VulkanCommandBuffer.h"
 
 namespace Ilargi
 {
@@ -21,6 +23,14 @@ namespace Ilargi
 	
 	VulkanIndexBuffer::~VulkanIndexBuffer()
 	{
+	}
+
+	void VulkanIndexBuffer::Bind(std::shared_ptr<CommandBuffer> commandBuffer) const
+	{
+		uint32_t currentFrame = Renderer::GetCurrentFrame();
+		auto cmdBuffer = std::static_pointer_cast<VulkanCommandBuffer>(commandBuffer);
+		
+		vkCmdBindIndexBuffer(cmdBuffer->GetCurrentCommand(currentFrame), buffer.buffer, 0, VK_INDEX_TYPE_UINT32);
 	}
 
 	void VulkanIndexBuffer::Destroy()

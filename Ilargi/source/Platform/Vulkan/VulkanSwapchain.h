@@ -7,17 +7,16 @@
 
 namespace Ilargi
 {
-	struct Vertex
-	{
-		glm::vec2 position;
-		glm::vec3 color;
-	};
-
 	struct SwapchainSupportDetails;
 
 	// TODO: This needs to be removed
 	class VertexBuffer;
 	class IndexBuffer;
+
+	class Framebuffer;
+	class RenderPass;
+	class Pipeline;
+	class CommandBuffer;
 
 	class VulkanSwapchain : public Swapchain
 	{
@@ -35,6 +34,11 @@ namespace Ilargi
 		VkRenderPass GetRenderPass() { return renderPass; }
 
 		VkCommandBuffer GetCurrentCommand() { return commandBuffers[currentFrame]; }
+
+		VkFramebuffer GetFramebuffer(uint32_t index) const { return framebuffers[index]; }
+
+		uint32_t GetWidth() const { return extent.width; }
+		uint32_t GetHeight() const { return extent.height; }
 
 	private:
 		void RecreateSwapchain();
@@ -80,7 +84,13 @@ namespace Ilargi
 		VkPipelineLayout pipelineLayout;
 		VkPipeline pipeline;
 
-		std::shared_ptr<VertexBuffer> vertexBuffer;
-		std::shared_ptr<IndexBuffer> indexBuffer;
+		//std::shared_ptr<VertexBuffer> vertexBuffer;
+		//std::shared_ptr<IndexBuffer> indexBuffer;
+		//
+		//std::shared_ptr<Framebuffer> fb;
+		//std::shared_ptr<RenderPass> rp;
+		//std::shared_ptr<Pipeline> pip;
+		//
+		//std::shared_ptr<CommandBuffer> commandBuffer;
 	};
 }

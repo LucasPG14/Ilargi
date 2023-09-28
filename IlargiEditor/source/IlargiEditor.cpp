@@ -1,5 +1,5 @@
 #include <ilargipch.h>
-#include <Ilargi.h>
+#include "Base/EntryPoint.h"
 
 #include "EditorPanel.h"
 
