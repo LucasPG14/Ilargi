@@ -59,7 +59,7 @@ namespace Ilargi
 			Renderer::Submit([this]() { imguiPanel->End(); });
 			
 			window->StartFrame();
-			Renderer::Render();
+			Renderer::RenderQueue();
 			window->Present();
 
 			Renderer::ClearSubmittedCommands();

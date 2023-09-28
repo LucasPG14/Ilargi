@@ -38,8 +38,8 @@ namespace Ilargi
 		renderPass = RenderPass::Create({ framebuffer });
 		pipeline = Pipeline::Create({ Shader::Create("shaders/vert.spv", "shaders/frag.spv"), renderPass});
 
-		vertexBuffer = VertexBuffer::Create((void*)vertices.data(), vertices.size() * sizeof(Vertex));
-		indexBuffer = IndexBuffer::Create((void*)indices.data(), indices.size());
+		vertexBuffer = VertexBuffer::Create((void*)vertices.data(), static_cast<uint32_t>(vertices.size() * sizeof(Vertex)));
+		indexBuffer = IndexBuffer::Create((void*)indices.data(), static_cast<uint32_t>(indices.size()));
 	}
 
 	void EditorPanel::OnDestroy()

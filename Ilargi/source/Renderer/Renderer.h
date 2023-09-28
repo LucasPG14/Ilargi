@@ -7,11 +7,16 @@ namespace Ilargi
 		VULKAN = 0,
 	};
 
+	class Render;
 	class CommandBuffer;
+	class VertexBuffer;
+	class IndexBuffer;
 
 	class Renderer
 	{
 	public:
+
+		static void SubmitGeometry(std::shared_ptr<CommandBuffer> commandBuffer, std::shared_ptr<VertexBuffer> vertexBuffer, std::shared_ptr<IndexBuffer> indexBuffer);
 
 		static int GetMaxFrames() { return maxFrames; }
 		static int GetCurrentFrame() { return currentFrame; }
@@ -29,9 +34,10 @@ namespace Ilargi
 		static void AddCommand(std::shared_ptr<CommandBuffer> cmdBuffer) { submittedCommands.push_back(cmdBuffer); }
 		static void ClearSubmittedCommands() { submittedCommands.clear(); }
 
-		static void Render();
+		static void RenderQueue();
 	private:
 		static GraphicsAPI graphicsAPI;
+		static std::unique_ptr<Render> render;
 
 		static int maxFrames;
 		static int currentFrame;
