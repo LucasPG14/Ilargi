@@ -6,8 +6,6 @@
 #include "VulkanRenderPass.h"
 #include "VulkanCommandBuffer.h"
 #include "VulkanFramebuffer.h"
-#include "VulkanVertexBuffer.h"
-#include "VulkanIndexBuffer.h"
 #include "VulkanShader.h"
 
 namespace Ilargi
@@ -198,26 +196,10 @@ namespace Ilargi
 
 		auto cmdBuffer = std::static_pointer_cast<VulkanCommandBuffer>(commandBuffer)->GetCurrentCommand(Renderer::GetCurrentFrame());
 		vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
-	
-		vertexBuffer->Bind(commandBuffer);
-		indexBuffer->Bind(commandBuffer);
-
-		//vkCmdDrawIndexed(cmdBuffer, indexBuffer->GetCount(), 1, 0, 0, 0);
 	}
 
 	void VulkanPipeline::Unbind(std::shared_ptr<CommandBuffer> commandBuffer)
 	{
 		vkCmdEndRenderPass(std::static_pointer_cast<VulkanCommandBuffer>(commandBuffer)->GetCurrentCommand(Renderer::GetCurrentFrame()));
-	}
-	
-	void VulkanPipeline::Bind(VkCommandBuffer commandBuffer, VkFramebuffer framebuffer, uint32_t width, uint32_t height)
-	{
-		std::static_pointer_cast<VulkanRenderPass>(properties.renderPass)->BeginRenderPass(commandBuffer, framebuffer, width, height);
-		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
-	}
-	
-	void VulkanPipeline::Unbind(VkCommandBuffer commandBuffer)
-	{
-		vkCmdEndRenderPass(commandBuffer);
 	}
 }

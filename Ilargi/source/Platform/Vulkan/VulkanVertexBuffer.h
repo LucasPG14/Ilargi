@@ -14,8 +14,6 @@ namespace Ilargi
 		void Bind(std::shared_ptr<CommandBuffer> commandBuffer) const override;
 
 		void Destroy() override;
-
-		void Bind(VkCommandBuffer cmdBuffer);
 	private:
 		Buffer buffer;
 	};

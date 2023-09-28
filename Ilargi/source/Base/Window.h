@@ -26,8 +26,6 @@ namespace Ilargi
 		void StartFrame();
 		void EndFrame();
 
-		void Present();
-
 		void PollEvents();
 
 		GLFWwindow* GetWindow() const { return window; }

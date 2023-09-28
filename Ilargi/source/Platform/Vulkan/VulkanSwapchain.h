@@ -29,8 +29,6 @@ namespace Ilargi
 		void StartFrame() override;
 		void EndFrame() override;
 
-		void Present() override;
-
 		VkRenderPass GetRenderPass() { return renderPass; }
 
 		VkCommandBuffer GetCurrentCommand() { return commandBuffers[currentFrame]; }
@@ -41,23 +39,17 @@ namespace Ilargi
 		uint32_t GetHeight() const { return extent.height; }
 
 	private:
+		void Present(VkDevice device, VkSemaphore renderFinish, VkFence fence);
+
 		void RecreateSwapchain();
 		void CreateSwapchain();
 		void CreateFramebuffers();
 		void CleanUpSwapchain() const;
 
 		void CreateRenderPass(VkDevice device);
-		void CreatingPipeline(VkDevice device);
 
-		void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
-
-		VkShaderModule CreateShaderModule(VkDevice device, const std::vector<char>& data);
-
-		SwapchainSupportDetails QuerySwapchainSupport(VkPhysicalDevice device) const;
-		VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) const;
-		VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) const;
-
-		VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) const;
+		void QuerySwapchainSupport(VkPhysicalDevice device);
+		VkPresentModeKHR ChooseSwapPresentMode(VkPhysicalDevice device, VkSurfaceKHR surface) const;
 	private:
 		VkSwapchainKHR swapchain;
 
@@ -79,18 +71,5 @@ namespace Ilargi
 		uint32_t currentFrame;
 		uint32_t currentImageIndex;
 		VkQueue presentQueue;
-
-		// TODO: This must not be here
-		VkPipelineLayout pipelineLayout;
-		VkPipeline pipeline;
-
-		//std::shared_ptr<VertexBuffer> vertexBuffer;
-		//std::shared_ptr<IndexBuffer> indexBuffer;
-		//
-		//std::shared_ptr<Framebuffer> fb;
-		//std::shared_ptr<RenderPass> rp;
-		//std::shared_ptr<Pipeline> pip;
-		//
-		//std::shared_ptr<CommandBuffer> commandBuffer;
 	};
 }

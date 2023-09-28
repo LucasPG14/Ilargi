@@ -60,7 +60,7 @@ namespace Ilargi
 			
 			window->StartFrame();
 			Renderer::RenderQueue();
-			window->Present();
+			window->EndFrame();
 
 			Renderer::ClearSubmittedCommands();
 		}

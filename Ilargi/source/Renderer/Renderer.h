@@ -16,6 +16,9 @@ namespace Ilargi
 	{
 	public:
 
+		static void StartFrame();
+		static void SetNewFrame(uint32_t index) { currentFrame = index; }
+
 		static void SubmitGeometry(std::shared_ptr<CommandBuffer> commandBuffer, std::shared_ptr<VertexBuffer> vertexBuffer, std::shared_ptr<IndexBuffer> indexBuffer);
 
 		static int GetMaxFrames() { return maxFrames; }
@@ -24,7 +27,6 @@ namespace Ilargi
 		static void ResetCurrentFrame() { currentFrame = 0; }
 
 		static void SetMaxFrames(int frms) { maxFrames = frms; }
-		static void NewFrame(int frms) { currentFrame = (currentFrame + 1) % maxFrames; }
 		static GraphicsAPI GetGraphicsAPI() { return graphicsAPI; }
 
 		static std::vector<std::shared_ptr<CommandBuffer>>& GetSubmittedCommands() { return submittedCommands; }

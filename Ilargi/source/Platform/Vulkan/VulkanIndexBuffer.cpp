@@ -37,9 +37,4 @@ namespace Ilargi
 	{
 		VulkanAllocator::DestroyBuffer(buffer);
 	}
-	
-	void VulkanIndexBuffer::Bind(VkCommandBuffer cmdBuffer)
-	{
-		vkCmdBindIndexBuffer(cmdBuffer, buffer.buffer, 0, VK_INDEX_TYPE_UINT32);
-	}
 }

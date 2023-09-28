@@ -41,10 +41,4 @@ namespace Ilargi
 
 		VulkanAllocator::DestroyBuffer(buffer);
 	}
-	
-	void VulkanVertexBuffer::Bind(VkCommandBuffer cmdBuffer)
-	{
-		VkDeviceSize offset = 0;
-		vkCmdBindVertexBuffers(cmdBuffer, 0, 1, &buffer.buffer, &offset);
-	}
 }

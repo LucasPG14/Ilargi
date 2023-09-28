@@ -51,7 +51,7 @@ namespace Ilargi
 
 		bool IsDeviceSuitable(VkPhysicalDevice device) const;
 		
-		SwapchainSupportDetails QuerySwapchainSupport(VkPhysicalDevice device) const;
+		bool CanCreateSwapchain(VkPhysicalDevice device) const;
 		QueueFamilyIndices FindQueueFamilies();
 
 	private:

@@ -76,8 +76,8 @@ namespace Ilargi
 		imguiInfo.CheckVkResultFn = CheckResult;
 		ImGui_ImplVulkan_Init(&imguiInfo, vkSwapchain->GetRenderPass());
 
-		io.Fonts->AddFontDefault();
-
+		//io.Fonts->AddFontDefault();
+		io.Fonts->AddFontFromFileTTF("fonts/arial.ttf", 16.0f);
 		{
 			VkCommandBuffer commandBuffer = VulkanContext::BeginSingleCommandBuffer();
 			

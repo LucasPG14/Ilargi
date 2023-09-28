@@ -64,11 +64,6 @@ namespace Ilargi
 	{
 		swapchain->EndFrame();
 	}
-
-	void Window::Present()
-	{
-		swapchain->Present();
-	}
 	
 	void Window::PollEvents()
 	{

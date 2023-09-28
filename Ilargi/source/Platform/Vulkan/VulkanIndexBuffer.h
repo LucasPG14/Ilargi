@@ -15,8 +15,6 @@ namespace Ilargi
 
 		void Destroy() override;
 
-		void Bind(VkCommandBuffer cmdBuffer);
-
 		uint32_t GetCount() const override { return count; }
 	private:
 		uint32_t count;

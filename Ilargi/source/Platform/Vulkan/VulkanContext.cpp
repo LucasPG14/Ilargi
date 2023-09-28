@@ -294,42 +294,21 @@ namespace Ilargi
 
 		//bool extensionsSupported = CheckDeviceExtensionSupport(physicalDevice);
 
-		bool swapChainAdequate = false;
-		//if (extensionsSupported)
-		//{
-		swapchainSupport = QuerySwapchainSupport(device);
-		swapChainAdequate = !swapchainSupport.formats.empty() && !swapchainSupport.presentModes.empty();
-		//}
+		bool swapChainAdequate = CanCreateSwapchain(device);
 
 		return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU &&
 			deviceFeatures.geometryShader && swapChainAdequate;
 	}
 	
-	SwapchainSupportDetails VulkanContext::QuerySwapchainSupport(VkPhysicalDevice device) const
+	bool VulkanContext::CanCreateSwapchain(VkPhysicalDevice device) const
 	{
-		SwapchainSupportDetails details;
-
-		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
-
 		uint32_t formatCount;
 		vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
-
-		if (formatCount != 0)
-		{
-			details.formats.resize(formatCount);
-			vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, details.formats.data());
-		}
 
 		uint32_t presentModeCount;
 		vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
 
-		if (presentModeCount != 0)
-		{
-			details.presentModes.resize(presentModeCount);
-			vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, details.presentModes.data());
-		}
-
-		return details;
+		return formatCount > 0 && presentModeCount > 0;
 	}
 	
 	QueueFamilyIndices VulkanContext::FindQueueFamilies()

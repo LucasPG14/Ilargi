@@ -122,42 +122,4 @@ namespace Ilargi
 
 		vkCmdBeginRenderPass(cmdBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 	}
-
-	void VulkanRenderPass::BeginRenderPass(VkCommandBuffer commandBuffer, VkFramebuffer framebuffer, uint32_t width, uint32_t height) const
-	{
-		//auto commandBuffer = Application::Get().GetWindow().GetSwapchain()
-
-		//auto vulkanFramebuffer = std::static_pointer_cast<VulkanFramebuffer>(properties.framebuffer);
-		
-		VkRenderPassBeginInfo renderPassInfo{};
-		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-		renderPassInfo.renderPass = renderPass;
-		renderPassInfo.framebuffer = framebuffer;
-
-		//uint32_t width = vulkanFramebuffer->GetWidth();
-		//uint32_t height = vulkanFramebuffer->GetHeight();
-
-		renderPassInfo.renderArea.offset = { 0, 0 };
-		renderPassInfo.renderArea.extent = { width, height };
-
-		VkClearValue clearColor = { {{0.0f, 0.0f, 0.0f, 1.0f}} };
-		renderPassInfo.clearValueCount = 1;
-		renderPassInfo.pClearValues = &clearColor;
-
-		VkViewport viewport{};
-		viewport.x = 0.0f;
-		viewport.y = 0.0f;
-		viewport.width = width;
-		viewport.height = height;
-		viewport.minDepth = 0.0f;
-		viewport.maxDepth = 1.0f;
-		vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
-
-		VkRect2D scissor{};
-		scissor.offset = { 0, 0 };
-		scissor.extent = { width, height };
-		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
-
-		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-	}
 }
