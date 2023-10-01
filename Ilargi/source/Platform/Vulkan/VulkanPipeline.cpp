@@ -10,6 +10,27 @@
 
 namespace Ilargi
 {
+	namespace Utils
+	{
+		VkFormat GetVkFormatFromShaderDataType(ShaderDataType type)
+		{
+			switch (type)
+			{
+			case ShaderDataType::FLOAT:		return VK_FORMAT_R32_SFLOAT;
+			case ShaderDataType::FLOAT2:	return VK_FORMAT_R32G32_SFLOAT;
+			case ShaderDataType::FLOAT3:	return VK_FORMAT_R32G32B32_SFLOAT;
+			case ShaderDataType::FLOAT4:	return VK_FORMAT_R32G32B32A32_SFLOAT;
+			case ShaderDataType::INT:		return VK_FORMAT_R32_SINT;
+			case ShaderDataType::INT2:		return VK_FORMAT_R32G32_SINT;
+			case ShaderDataType::INT3:		return VK_FORMAT_R32G32B32_SINT;
+			case ShaderDataType::INT4:		return VK_FORMAT_R32G32B32A32_SINT;
+			}
+
+			ILG_ASSERT(nullptr, "Vk format not found for Shader Data Type")
+			return VkFormat();
+		}
+	}
+
 	VulkanPipeline::VulkanPipeline(const PipelineProperties& props) 
 		: properties(props), pipeline(VK_NULL_HANDLE), pipelineLayout(VK_NULL_HANDLE)
 	{
@@ -45,20 +66,22 @@ namespace Ilargi
 
 		VkVertexInputBindingDescription bindingDescription = {};
 		bindingDescription.binding = 0;
-		bindingDescription.stride = 20;
+		bindingDescription.stride = properties.layout.GetStride();
 		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
-		std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
+		const auto& elements = properties.layout.GetElements();
+		std::vector<VkVertexInputAttributeDescription> attributeDescriptions(elements.size());
+		
+		int i = 0;
+		for (auto& attributeDescription : attributeDescriptions)
+		{
+			attributeDescription.binding = 0;
+			attributeDescription.location = i;
+			attributeDescription.format = Utils::GetVkFormatFromShaderDataType(elements[i].type);
+			attributeDescription.offset = elements[i].offset;
 
-		attributeDescriptions[0].binding = 0;
-		attributeDescriptions[0].location = 0;
-		attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
-		attributeDescriptions[0].offset = 0;
-
-		attributeDescriptions[1].binding = 0;
-		attributeDescriptions[1].location = 1;
-		attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-		attributeDescriptions[1].offset = 8;
+			i++;
+		}
 
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -151,7 +174,7 @@ namespace Ilargi
 		colorBlending.blendConstants[2] = 0.0f; // Optional
 		colorBlending.blendConstants[3] = 0.0f; // Optional
 
-		VkGraphicsPipelineCreateInfo pipelineInfo{};
+		VkGraphicsPipelineCreateInfo pipelineInfo = {};
 		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 		pipelineInfo.stageCount = 2;
 		pipelineInfo.pStages = shaderStages;

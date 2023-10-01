@@ -33,11 +33,22 @@ namespace Ilargi
 	void EditorPanel::OnInit()
 	{
 		commandBuffer = CommandBuffer::Create(Renderer::GetMaxFrames());
-
+		
 		framebuffer = Framebuffer::Create({ 1080, 720, ImageFormat::RGBA_8, false });
 		renderPass = RenderPass::Create({ framebuffer });
-		pipeline = Pipeline::Create({ Shader::Create("shaders/vert.spv", "shaders/frag.spv"), renderPass});
 
+		{
+			PipelineProperties pipelineProperties;
+			pipelineProperties.renderPass = renderPass;
+			pipelineProperties.shader = Shader::Create("shaders/vert.spv", "shaders/frag.spv");
+			pipelineProperties.layout =
+			{
+				{ShaderDataType::FLOAT2, "position"},
+				{ShaderDataType::FLOAT3, "color"}
+			};
+
+			pipeline = Pipeline::Create(pipelineProperties);
+		}
 		vertexBuffer = VertexBuffer::Create((void*)vertices.data(), static_cast<uint32_t>(vertices.size() * sizeof(Vertex)));
 		indexBuffer = IndexBuffer::Create((void*)indices.data(), static_cast<uint32_t>(indices.size()));
 	}
@@ -56,10 +67,12 @@ namespace Ilargi
 	{
 		commandBuffer->BeginCommand();
 		pipeline->Bind(commandBuffer, vertexBuffer, indexBuffer);
+		
+		Renderer::SubmitGeometry(commandBuffer, vertexBuffer, indexBuffer);
 
 		pipeline->Unbind(commandBuffer);
 		commandBuffer->EndCommand();
-
+		
 		Renderer::AddCommand(commandBuffer);
 	}
 
@@ -93,31 +106,36 @@ namespace Ilargi
 			ImGui::DockSpace(id, { 0.0f, 0.0f }, dockspaceFlags);
 		}
 
-
-		ImGui::Begin("Scene Hierarchy");
-		//ImGui::Image(framebuffer->GetID(), {100, 100});
-		bool hola = true;
-		UI::Checkbox("My checkbox", &hola);
-
-		float val = 5.0f;
-		UI::Slider("My slider", &val);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
+		ImGui::Begin("Viewport");
+		ImGui::Image(framebuffer->TransitionImage(), ImGui::GetContentRegionAvail());
 		ImGui::End();
+		ImGui::PopStyleVar();
 
-		ImGui::Begin("Inspector");
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
+		ImGui::Begin("Scene Hierarchy", (bool*)0, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar);
+		ImGui::BeginChild("##", ImGui::GetContentRegionAvail());
+
+		ImGui::EndChild();
 		ImGui::End();
+		ImGui::PopStyleVar();
+		//auto padding = ImGui::GetStyle().WindowPadding;
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
+		ImGui::Begin("Inspector", (bool*)0);
+		ImGui::BeginChild("##", ImGui::GetContentRegionAvail());
 
-		//if (ImGui::BeginMainMenuBar())
-		//{
-		//	if (ImGui::BeginMenu("File"))
-		//	{
-		//		if (ImGui::MenuItem("New Project"))
-		//		{
-		//
-		//		}
-		//		ImGui::EndMenu();
-		//	}
-		//	ImGui::EndMainMenuBar();
-		//}
+		ImGui::EndChild();
+		ImGui::End();
+		ImGui::PopStyleVar();
+
+		ImVec2 size = ImGui::GetIO().DisplaySize;
+		ImVec2 position = ImGui::GetWindowPos();
+		//ImGui::SetNextWindowSize({ size.x , 30 });
+		//ImGui::SetNextWindowPos({ position.x , position.y + size.y - 30 });
+		//ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.06f, 0.06f, 0.06f, 0.94f));
+		ImGui::Begin("Bottom bar", (bool*)0, ImGuiWindowFlags_NoTitleBar);
+		ImGui::End();
+		//ImGui::PopStyleColor();
 
 		ImGui::End();
 	}

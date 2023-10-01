@@ -6,6 +6,8 @@
 #include "VulkanSwapchain.h"
 #include "VulkanCommandBuffer.h"
 
+#include "Utils/IlargiUI.h"
+
 // 3rd Party headers
 #include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
@@ -30,7 +32,7 @@ namespace Ilargi
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 		
-		ImGui::StyleColorsDark();
+		UI::IlargiStyle();
 
 		ImGui_ImplGlfw_InitForVulkan(win, true);
 

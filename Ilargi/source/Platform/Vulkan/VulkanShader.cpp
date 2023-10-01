@@ -56,7 +56,7 @@ namespace Ilargi
 		createInfo.codeSize = code.size();
 		createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
-		VkShaderModule shaderModule;
+		VkShaderModule shaderModule = nullptr;
 		VK_CHECK_RESULT(vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) == VK_SUCCESS, 
 			"Unable to create the shader module");
 

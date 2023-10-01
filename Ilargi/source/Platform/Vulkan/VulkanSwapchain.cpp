@@ -97,7 +97,7 @@ namespace Ilargi
 		std::vector<VkCommandBuffer> vkCommandBuffers;
 		for (int i = 0; i < cmdBuffersSubmit.size(); ++i)
 		{
-			vkCommandBuffers.push_back(std::static_pointer_cast<VulkanCommandBuffer>(cmdBuffersSubmit[i])->GetCurrentCommand(Renderer::GetCurrentFrame()));
+			vkCommandBuffers.push_back(std::static_pointer_cast<VulkanCommandBuffer>(cmdBuffersSubmit[i])->GetCurrentCommand(currentFrame));
 		}
 
 		submitInfo.commandBufferCount = static_cast<uint32_t>(vkCommandBuffers.size());
@@ -293,6 +293,36 @@ namespace Ilargi
 			vkDestroyFramebuffer(device, framebuffers[i], nullptr);
 			vkDestroyImageView(device, imageViews[i], nullptr);
 		}
+	}
+
+	void VulkanSwapchain::TransitionSwapchainImage()
+	{
+		VkCommandBuffer commandBuffer = VulkanContext::BeginSingleCommandBuffer();
+
+		VkImageMemoryBarrier barrier{};
+		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+		barrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		barrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
+		barrier.image = swapchainImages[currentImageIndex];
+		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		barrier.subresourceRange.baseMipLevel = 0;
+		barrier.subresourceRange.levelCount = 1;
+		barrier.subresourceRange.baseArrayLayer = 0;
+		barrier.subresourceRange.layerCount = 1;
+
+		barrier.srcAccessMask = 0;
+		barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+		VkPipelineStageFlags sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+		VkPipelineStageFlags destinationStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
+		vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+
+		VulkanContext::EndSingleCommandBuffer(commandBuffer);
 	}
 
 	void VulkanSwapchain::CreateRenderPass(VkDevice device)

@@ -5,6 +5,8 @@
 #include "VulkanContext.h"
 #include "VulkanUtils.h"
 
+#include <backends/imgui_impl_vulkan.h>
+
 namespace Ilargi
 {
 	VulkanFramebuffer::VulkanFramebuffer(const FramebufferProperties& props) 
@@ -164,5 +166,37 @@ namespace Ilargi
 		vkDestroyImageView(device, imageView, nullptr);
 		vkDestroyFramebuffer(device, framebuffer, nullptr);
 		vkDestroySampler(device, sampler, nullptr);
+	}
+	
+	void* VulkanFramebuffer::TransitionImage()
+	{
+		//VkCommandBuffer commandBuffer = VulkanContext::BeginSingleCommandBuffer();
+
+		//VkImageMemoryBarrier barrier{};
+		//barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+		//barrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		//barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+		//barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		//barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
+		//barrier.image = image.image;
+		//barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		//barrier.subresourceRange.baseMipLevel = 0;
+		//barrier.subresourceRange.levelCount = 1;
+		//barrier.subresourceRange.baseArrayLayer = 0;
+		//barrier.subresourceRange.layerCount = 1;
+
+		//barrier.srcAccessMask = 0;
+		//barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+		//VkPipelineStageFlags sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+		//VkPipelineStageFlags destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+
+		//vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+
+		//VulkanContext::EndSingleCommandBuffer(commandBuffer);
+
+		return ImGui_ImplVulkan_AddTexture(sampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 	}
 }

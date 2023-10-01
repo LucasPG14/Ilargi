@@ -47,8 +47,11 @@ namespace Ilargi
 			if (minimized)
 				continue;
 
-			for (Panel* panel : panels)
-				panel->Update();
+			Renderer::Submit([this]() 
+				{
+					for (Panel* panel : panels)
+						panel->Update();
+				});
 
 			Renderer::Submit([this]() { imguiPanel->Begin(); });
 			Renderer::Submit([this]() 

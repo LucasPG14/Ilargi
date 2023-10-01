@@ -18,8 +18,7 @@ namespace Ilargi
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());
 
-		VK_CHECK_RESULT(vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) == VK_SUCCESS,
-			"Unable to allocate the command buffers");
+		VK_CHECK_RESULT(vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) == VK_SUCCESS, "Unable to allocate the command buffers");
 	}
 	
 	VulkanCommandBuffer::~VulkanCommandBuffer()

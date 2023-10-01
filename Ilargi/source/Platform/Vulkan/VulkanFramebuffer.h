@@ -16,6 +16,8 @@ namespace Ilargi
 		void Init(VkRenderPass renderPass);
 		void Destroy();
 
+		void* TransitionImage();
+
 		const FramebufferProperties& GetProperties() const override { return properties; }
 		const VkFramebuffer GetFramebuffer() const { return framebuffer; }
 

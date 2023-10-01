@@ -27,6 +27,8 @@ namespace Ilargi
 	public:
 		virtual const FramebufferProperties& GetProperties() const = 0;
 
+		virtual void* TransitionImage() = 0;
+
 		virtual void* GetID() const = 0;
 
 		virtual uint32_t GetWidth() const = 0;

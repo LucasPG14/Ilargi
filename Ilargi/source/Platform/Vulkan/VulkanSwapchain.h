@@ -46,6 +46,8 @@ namespace Ilargi
 		void CreateFramebuffers();
 		void CleanUpSwapchain() const;
 
+		void TransitionSwapchainImage();
+
 		void CreateRenderPass(VkDevice device);
 
 		void QuerySwapchainSupport(VkPhysicalDevice device);
