@@ -3,6 +3,8 @@
 #include "Base/Input.h"
 #include "Base/Panel.h"
 
+#include "Scene/Scene.h"
+
 // Renderer
 #include "Renderer/Renderer.h"
 #include "Renderer/RenderPass.h"

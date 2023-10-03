@@ -18,8 +18,7 @@ namespace Ilargi
 		void Bind(std::shared_ptr<CommandBuffer> commandBuffer, std::shared_ptr<VertexBuffer> vertexBuffer, std::shared_ptr<IndexBuffer> indexBuffer) override;
 		void Unbind(std::shared_ptr<CommandBuffer> commandBuffer) override;
 
-		void Bind(VkCommandBuffer commandBuffer, VkFramebuffer framebuffer, uint32_t width, uint32_t height);
-		void Unbind(VkCommandBuffer commandBuffer);
+		const PipelineProperties& GetProperties() const override { return properties; }
 	private:
 		PipelineProperties properties;
 

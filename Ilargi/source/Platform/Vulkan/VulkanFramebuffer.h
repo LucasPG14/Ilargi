@@ -16,13 +16,14 @@ namespace Ilargi
 		void Init(VkRenderPass renderPass);
 		void Destroy();
 
-		void* TransitionImage();
+		void CreateFramebuffer(std::shared_ptr<Pipeline> pipeline);
+		void Resize(std::shared_ptr<Pipeline> pipeline, uint32_t width, uint32_t height) override;
 
 		const FramebufferProperties& GetProperties() const override { return properties; }
 		const VkFramebuffer GetFramebuffer() const { return framebuffer; }
 
-		uint32_t GetWidth() const { return properties.width; }
-		uint32_t GetHeight() const { return properties.height; }
+		uint32_t GetWidth() const override { return properties.width; }
+		uint32_t GetHeight() const override { return properties.height; }
 
 		void* GetID() const { return descriptorSet; }
 

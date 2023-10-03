@@ -104,6 +104,8 @@ namespace Ilargi
 		virtual void Bind(std::shared_ptr<CommandBuffer> commandBuffer, std::shared_ptr<VertexBuffer> vertexBuffer, std::shared_ptr<IndexBuffer> indexBuffer) = 0;
 		virtual void Unbind(std::shared_ptr<CommandBuffer> commandBuffer) = 0;
 
+		virtual const PipelineProperties& GetProperties() const = 0;
+
 		static std::shared_ptr<Pipeline> Create(const PipelineProperties& props);
 	};
 }

@@ -1,6 +1,7 @@
 #include "ilargipch.h"
 
 #include "EditorPanel.h"
+#include "EditorPanels/SceneHierarchyInspectorPanel.h"
 
 #include <imgui/imgui.h>
 #include <glm/glm.hpp>
@@ -22,7 +23,7 @@ namespace Ilargi
 	};
 	const std::vector<uint32_t> indices = { 0, 1, 2, 2, 3, 0 };
 
-	EditorPanel::EditorPanel() : Panel("Editor Panel")
+	EditorPanel::EditorPanel() : Panel("Editor Panel"), needToUpdateFramebuffer(false)
 	{
 	}
 
@@ -32,6 +33,9 @@ namespace Ilargi
 
 	void EditorPanel::OnInit()
 	{
+		scene = std::make_shared<Scene>();
+		hierarchyInspector = new SceneHierarchyInspectorPanel(scene);
+
 		commandBuffer = CommandBuffer::Create(Renderer::GetMaxFrames());
 		
 		framebuffer = Framebuffer::Create({ 1080, 720, ImageFormat::RGBA_8, false });
@@ -65,6 +69,12 @@ namespace Ilargi
 
 	void EditorPanel::Update()
 	{
+		if (needToUpdateFramebuffer)
+		{
+			framebuffer->Resize(pipeline, viewportSize.x, viewportSize.y);
+			needToUpdateFramebuffer = false;
+		}
+
 		commandBuffer->BeginCommand();
 		pipeline->Bind(commandBuffer, vertexBuffer, indexBuffer);
 		
@@ -108,25 +118,19 @@ namespace Ilargi
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
 		ImGui::Begin("Viewport");
-		ImGui::Image(framebuffer->TransitionImage(), ImGui::GetContentRegionAvail());
+		ImVec2 frameViewportSize = ImGui::GetContentRegionAvail();
+		ImGui::Image(framebuffer->GetID(), frameViewportSize);
+
+		if (frameViewportSize.x != viewportSize.x || frameViewportSize.y != viewportSize.y)
+		{
+			viewportSize = { frameViewportSize.x, frameViewportSize.y };
+			needToUpdateFramebuffer = true;
+		}
+
 		ImGui::End();
 		ImGui::PopStyleVar();
 
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
-		ImGui::Begin("Scene Hierarchy", (bool*)0, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar);
-		ImGui::BeginChild("##", ImGui::GetContentRegionAvail());
-
-		ImGui::EndChild();
-		ImGui::End();
-		ImGui::PopStyleVar();
-		//auto padding = ImGui::GetStyle().WindowPadding;
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
-		ImGui::Begin("Inspector", (bool*)0);
-		ImGui::BeginChild("##", ImGui::GetContentRegionAvail());
-
-		ImGui::EndChild();
-		ImGui::End();
-		ImGui::PopStyleVar();
+		hierarchyInspector->Render();
 
 		ImVec2 size = ImGui::GetIO().DisplaySize;
 		ImVec2 position = ImGui::GetWindowPos();

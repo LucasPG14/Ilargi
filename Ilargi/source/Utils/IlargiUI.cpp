@@ -27,6 +27,32 @@ namespace Ilargi::UI
 		ImGui::SameLine(width - 25);
 		ImGui::SliderFloat("##slider", value, min, max);
 	}
+
+    bool BeginTreeNode(void* id, std::string name, ImGuiTreeNodeFlags flags)
+    {
+        ImGui::PushID(id);
+        return ImGui::TreeNodeEx(name.c_str(), flags);
+    }
+
+    void EndTreeNode(void* id, bool open)
+    {
+        if (open)
+            ImGui::TreePop();
+
+        ImGui::PopID();
+    }
+
+    bool BeginCollapsingHeader(void* id, std::string name)
+    {
+        ImGui::PushID(id);
+
+        return ImGui::CollapsingHeader(name.c_str());
+    }
+
+    void EndCollapsingHeader(void* id)
+    {
+        ImGui::TreePop();
+    }
 	
     void IlargiStyle()
     {
@@ -64,15 +90,15 @@ namespace Ilargi::UI
         colors[ImGuiCol_Button] = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
         colors[ImGuiCol_ButtonHovered] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
         colors[ImGuiCol_ButtonActive] = ImVec4(0.06f, 0.53f, 0.98f, 1.00f);
-        colors[ImGuiCol_Header] = ImVec4(0.26f, 0.59f, 0.98f, 0.31f);
-        colors[ImGuiCol_HeaderHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.80f);
-        colors[ImGuiCol_HeaderActive] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+        colors[ImGuiCol_Header] = titleBg;
+        colors[ImGuiCol_HeaderHovered] = titleBg;
+        colors[ImGuiCol_HeaderActive] = titleBg;
         colors[ImGuiCol_Separator] = colors[ImGuiCol_Border];
         colors[ImGuiCol_SeparatorHovered] = ImVec4(0.10f, 0.40f, 0.75f, 0.78f);
-        colors[ImGuiCol_SeparatorActive] = ImVec4(0.10f, 0.40f, 0.75f, 1.00f);
-        colors[ImGuiCol_ResizeGrip] = ImVec4(0.26f, 0.59f, 0.98f, 0.20f);
-        colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
-        colors[ImGuiCol_ResizeGripActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
+        colors[ImGuiCol_SeparatorActive] = { 1.0f, 0.0f, 0.0f, 1.0f };
+        colors[ImGuiCol_ResizeGrip] = {1.0f, 0.0f, 0.0f, 1.0f};
+        colors[ImGuiCol_ResizeGripHovered] = { 1.0f, 0.0f, 0.0f, 0.2f };
+        colors[ImGuiCol_ResizeGripActive] = { 1.0f, 0.0f, 0.0f, 0.4f };
         colors[ImGuiCol_Tab] = titleBgActive;
         colors[ImGuiCol_TabHovered] = titleBgActive;
         colors[ImGuiCol_TabActive] = titleBgActive;

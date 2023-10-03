@@ -35,33 +35,9 @@ namespace Ilargi
 		UI::IlargiStyle();
 
 		ImGui_ImplGlfw_InitForVulkan(win, true);
-
-		//VkDescriptorPoolSize poolSizes[] =
-		//{
-		//	{ VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
-		//	{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
-		//	{ VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
-		//	{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
-		//	{ VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
-		//	{ VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
-		//	{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
-		//	{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
-		//	{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
-		//	{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
-		//	{ VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
-		//};
-
-
-		//VkDescriptorPoolCreateInfo poolInfo = {};
-		//poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-		//poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
-		//poolInfo.maxSets = 1000;
-		//poolInfo.poolSizeCount = static_cast<uint32_t>(std::size(poolSizes));
-		//poolInfo.pPoolSizes = poolSizes;
-
-		//VK_CHECK_RESULT(vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool) == VK_SUCCESS, "Unable to create descriptor pool");
 		
 		auto device = VulkanContext::GetLogicalDevice();
+		uint32_t maxFrames = Renderer::GetMaxFrames();
 
 		ImGui_ImplVulkan_InitInfo imguiInfo = {};
 		imguiInfo.Instance = VulkanContext::GetInstance();
@@ -71,8 +47,8 @@ namespace Ilargi
 		imguiInfo.Queue = VulkanContext::GetGraphicsQueue();
 		imguiInfo.DescriptorPool = VulkanContext::GetDescriptorPool();
 		imguiInfo.Subpass = 0;
-		imguiInfo.MinImageCount = Renderer::GetMaxFrames();
-		imguiInfo.ImageCount = Renderer::GetMaxFrames();
+		imguiInfo.MinImageCount = maxFrames;
+		imguiInfo.ImageCount = maxFrames;
 		imguiInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 		imguiInfo.Allocator = nullptr;
 		imguiInfo.CheckVkResultFn = CheckResult;
@@ -89,7 +65,7 @@ namespace Ilargi
 			ImGui_ImplVulkan_DestroyFontUploadObjects();
 		}
 
-		commandBuffer = std::static_pointer_cast<VulkanCommandBuffer>(CommandBuffer::Create(Renderer::GetMaxFrames()));
+		commandBuffer = std::static_pointer_cast<VulkanCommandBuffer>(CommandBuffer::Create(maxFrames));
 	}
 	
 	VulkanImGuiPanel::~VulkanImGuiPanel()

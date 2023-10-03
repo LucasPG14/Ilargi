@@ -4,6 +4,8 @@
 
 namespace Ilargi
 {
+	class SceneHierarchyInspectorPanel;
+
 	class EditorPanel : public Panel
 	{
 	public:
@@ -19,6 +21,8 @@ namespace Ilargi
 		void OnEvent(Event& event) override;
 
 	private:
+		std::shared_ptr<Scene> scene;
+
 		std::shared_ptr<CommandBuffer> commandBuffer;
 		
 		std::shared_ptr<VertexBuffer> vertexBuffer;
@@ -27,5 +31,10 @@ namespace Ilargi
 		std::shared_ptr<Framebuffer> framebuffer;
 		std::shared_ptr<RenderPass> renderPass;
 		std::shared_ptr<Pipeline> pipeline;
+
+		SceneHierarchyInspectorPanel* hierarchyInspector;
+
+		glm::vec2 viewportSize;
+		bool needToUpdateFramebuffer;
 	};
 }
