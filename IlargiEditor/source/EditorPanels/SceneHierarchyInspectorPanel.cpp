@@ -20,14 +20,17 @@ namespace Ilargi
 	{
 		// --------------------------------------Hierarchy window----------------------------------------------
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
-		ImGui::PushStyleColor(ImGuiCol_HeaderHovered, { 1.0f, 0.0f, 0.0f, 1.0f });
+		ImGui::PushStyleColor(ImGuiCol_HeaderHovered, { 1.0f, 0.0f, 0.0f, 0.75f });
 		ImGui::PushStyleColor(ImGuiCol_HeaderActive, { 1.0f, 0.0f, 0.0f, 1.0f });
-		ImGui::Begin("Scene Hierarchy", (bool*)0, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
+		ImGui::Begin("Scene Hierarchy", (bool*)0, ImGuiWindowFlags_NoCollapse);
 		ImGui::BeginChild("##", ImGui::GetContentRegionAvail());
 
 		const auto& world = scene->GetWorld();
-		auto iterator = world.storage<InfoComponent>()->each();
+		auto iterator = world.storage<InfoComponent>()->reach();
 		
+		auto begIterator = world.storage<InfoComponent>()->rbegin();
+		auto endIterator = world.storage<InfoComponent>()->rend();
+
 		for (const auto& iterate : iterator)
 		{
 			entt::entity entity = iterate._Myfirst._Val;
@@ -36,7 +39,7 @@ namespace Ilargi
 			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
 			if (select)
 			{
-				ImGui::PushStyleColor(ImGuiCol_Header, { 1.0f, 0.0f, 0.0f, 0.20f });
+				ImGui::PushStyleColor(ImGuiCol_Header, { 1.0f, 0.0f, 0.0f, 0.30f });
 				flags |= ImGuiTreeNodeFlags_Selected;
 			}
 			bool open = UI::BeginTreeNode((void*)entity, world.get<InfoComponent>(entity).name, flags);

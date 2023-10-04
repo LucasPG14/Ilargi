@@ -30,6 +30,7 @@ IncludeDir["GLFW"] = "Ilargi/dependencies/glfw/include"
 IncludeDir["ImGUI"] = "Ilargi/dependencies/imgui"
 IncludeDir["GLM"] = "Ilargi/dependencies/glm"
 IncludeDir["entt"] = "Ilargi/dependencies/entt"
+IncludeDir["tinyobj"] = "Ilargi/dependencies/tinyobj"
 IncludeDir["VulkanSDK"] = "%{VULKAN_SDK}/Include"
 
 LibraryDir = {}
@@ -61,6 +62,7 @@ project "Ilargi"
 		"%{IncludeDir.ImGUI}",
 		"%{IncludeDir.GLM}",
 		"%{IncludeDir.entt}",
+		"%{IncludeDir.tinyobj}",
 		"%{IncludeDir.VulkanSDK}"
 	}
 
@@ -123,6 +125,7 @@ project "IlargiEditor"
 		"Ilargi/source",
 		"Ilargi/dependencies",
 		"Ilargi/dependencies/entt",
+		"Ilargi/dependencies/tinyobj",
 		"Ilargi/dependencies/glm",
 	}
 

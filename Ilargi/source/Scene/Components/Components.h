@@ -5,6 +5,9 @@
 
 namespace Ilargi
 {
+	class VertexBuffer;
+	class IndexBuffer;
+
 	struct TransformComponent
 	{
 		glm::mat4 transform;
@@ -13,5 +16,11 @@ namespace Ilargi
 	struct InfoComponent
 	{
 		std::string name;
+	};
+
+	struct MeshComponent
+	{
+		std::shared_ptr<VertexBuffer> vertexBuffer;
+		std::shared_ptr<IndexBuffer> indexBuffer;
 	};
 }

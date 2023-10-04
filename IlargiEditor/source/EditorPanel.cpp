@@ -3,27 +3,15 @@
 #include "EditorPanel.h"
 #include "EditorPanels/SceneHierarchyInspectorPanel.h"
 
+#include "Utils/Importers/TinyObjImporter.h"
+
 #include <imgui/imgui.h>
 #include <glm/glm.hpp>
+#include <gtc/type_ptr.hpp>
 
 namespace Ilargi
 {
-	struct Vertex
-	{
-		glm::vec2 position;
-		glm::vec3 color;
-	};
-
-	const std::vector<Vertex> vertices =
-	{
-		{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-		{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-		{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-		{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
-	};
-	const std::vector<uint32_t> indices = { 0, 1, 2, 2, 3, 0 };
-
-	EditorPanel::EditorPanel() : Panel("Editor Panel"), needToUpdateFramebuffer(false)
+	EditorPanel::EditorPanel() : Panel("Editor Panel"), viewportSize({1080, 720}), needToUpdateFramebuffer(false), hierarchyInspector(nullptr)
 	{
 	}
 
@@ -47,14 +35,23 @@ namespace Ilargi
 			pipelineProperties.shader = Shader::Create("shaders/vert.spv", "shaders/frag.spv");
 			pipelineProperties.layout =
 			{
-				{ShaderDataType::FLOAT2, "position"},
-				{ShaderDataType::FLOAT3, "color"}
+				{ShaderDataType::FLOAT3, "position"},
+				{ShaderDataType::FLOAT3, "color"},
+				{ShaderDataType::FLOAT2, "texCoord"},
 			};
 
 			pipeline = Pipeline::Create(pipelineProperties);
 		}
+
+		std::vector<Vertex> vertices;
+		std::vector<uint32_t> indices;
+
+		ImportModel(vertices, indices);
+
 		vertexBuffer = VertexBuffer::Create((void*)vertices.data(), static_cast<uint32_t>(vertices.size() * sizeof(Vertex)));
 		indexBuffer = IndexBuffer::Create((void*)indices.data(), static_cast<uint32_t>(indices.size()));
+
+		uboCamera = UniformBuffer::Create(sizeof(glm::mat4), Renderer::GetMaxFrames());
 	}
 
 	void EditorPanel::OnDestroy()
@@ -72,13 +69,28 @@ namespace Ilargi
 		if (needToUpdateFramebuffer)
 		{
 			framebuffer->Resize(pipeline, viewportSize.x, viewportSize.y);
+			camera.Resize(viewportSize.x, viewportSize.y);
 			needToUpdateFramebuffer = false;
 		}
 
+		camera.Update();
+
+		//uboCamera->SetData((void*)glm::value_ptr());
+
+		glm::mat4 model[2] = {};
+		model[1] = camera.GetProjectionMatrix() * camera.GetViewMatrix();
+
 		commandBuffer->BeginCommand();
-		pipeline->Bind(commandBuffer, vertexBuffer, indexBuffer);
-		
-		Renderer::SubmitGeometry(commandBuffer, vertexBuffer, indexBuffer);
+				
+		const auto& view = scene->GetWorld().view<TransformComponent, MeshComponent>();
+		for (auto entity : view)
+		{
+			auto [transform, mesh] = view.get<TransformComponent, MeshComponent>(entity);
+
+			model[0] = transform.transform;
+			pipeline->Bind(commandBuffer, model);
+			Renderer::SubmitGeometry(commandBuffer, mesh.vertexBuffer, mesh.indexBuffer);
+		}
 
 		pipeline->Unbind(commandBuffer);
 		commandBuffer->EndCommand();
@@ -116,10 +128,25 @@ namespace Ilargi
 			ImGui::DockSpace(id, { 0.0f, 0.0f }, dockspaceFlags);
 		}
 
+		//ImGui::BeginMainMenuBar();
+		//if (ImGui::BeginMenu("File"))
+		//{
+		//	if (ImGui::MenuItem("New Scene", "Ctrl + N"))
+		//	{
+
+		//	}
+		//	if (ImGui::MenuItem("Open Scene", "Ctrl + O"))
+		//	{
+
+		//	}
+		//	ImGui::EndMenu();
+		//}
+		//ImGui::EndMainMenuBar();
+
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
 		ImGui::Begin("Viewport");
 		ImVec2 frameViewportSize = ImGui::GetContentRegionAvail();
-		ImGui::Image(framebuffer->GetID(), frameViewportSize);
+		ImGui::Image(framebuffer->GetID(), frameViewportSize, { 0.0f, 1.0f }, { 1.0f, 0.0f });
 
 		if (frameViewportSize.x != viewportSize.x || frameViewportSize.y != viewportSize.y)
 		{

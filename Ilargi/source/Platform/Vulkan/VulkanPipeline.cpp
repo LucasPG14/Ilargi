@@ -8,6 +8,9 @@
 #include "VulkanFramebuffer.h"
 #include "VulkanShader.h"
 
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+
 namespace Ilargi
 {
 	namespace Utils
@@ -38,12 +41,17 @@ namespace Ilargi
 
 		// Creating the pipeline layout
 		{
+			VkPushConstantRange pushConstant;
+			pushConstant.offset = 0;
+			pushConstant.size = sizeof(glm::mat4) * 2;
+			pushConstant.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
 			VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 			pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-			pipelineLayoutInfo.setLayoutCount = 0; // Optional
-			pipelineLayoutInfo.pSetLayouts = nullptr; // Optional
-			pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
-			pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
+			pipelineLayoutInfo.setLayoutCount = 0;
+			pipelineLayoutInfo.pSetLayouts = nullptr;
+			pipelineLayoutInfo.pushConstantRangeCount = 1;
+			pipelineLayoutInfo.pPushConstantRanges = &pushConstant;
 
 			VK_CHECK_RESULT(vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout) == VK_SUCCESS, "Unable to create the pipeline layout");
 		}
@@ -213,12 +221,14 @@ namespace Ilargi
 		vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
 	}
 
-	void VulkanPipeline::Bind(std::shared_ptr<CommandBuffer> commandBuffer, std::shared_ptr<VertexBuffer> vertexBuffer, std::shared_ptr<IndexBuffer> indexBuffer)
+	void VulkanPipeline::Bind(std::shared_ptr<CommandBuffer> commandBuffer, void* data)
 	{
 		properties.renderPass->BeginRenderPass(commandBuffer);
 
 		auto cmdBuffer = std::static_pointer_cast<VulkanCommandBuffer>(commandBuffer)->GetCurrentCommand(Renderer::GetCurrentFrame());
 		vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+
+		vkCmdPushConstants(cmdBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::mat4) * 2, data);
 	}
 
 	void VulkanPipeline::Unbind(std::shared_ptr<CommandBuffer> commandBuffer)

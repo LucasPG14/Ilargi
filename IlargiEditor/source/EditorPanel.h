@@ -2,6 +2,8 @@
 
 #include <Ilargi.h>
 
+#include "EditorCamera.h"
+
 namespace Ilargi
 {
 	class SceneHierarchyInspectorPanel;
@@ -32,6 +34,9 @@ namespace Ilargi
 		std::shared_ptr<RenderPass> renderPass;
 		std::shared_ptr<Pipeline> pipeline;
 
+		std::shared_ptr<UniformBuffer> uboCamera;
+
+		EditorCamera camera;
 		SceneHierarchyInspectorPanel* hierarchyInspector;
 
 		glm::vec2 viewportSize;

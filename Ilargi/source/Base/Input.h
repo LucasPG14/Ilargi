@@ -4,6 +4,8 @@ struct GLFWwindow;
 
 #include "Utils/InputCodes.h"
 
+#include <vec2.hpp>
+
 namespace Ilargi
 {
 	class Input
@@ -14,7 +16,7 @@ namespace Ilargi
 		static bool IsKeyPressed(KeyCode::KeyCode key);
 		static bool IsMouseButtonPressed(MouseCode::MouseCode key);
 
-		//static glm::vec2 GetMousePos();
+		static glm::vec2 GetMousePos();
 
 	private:
 		static GLFWwindow* window;

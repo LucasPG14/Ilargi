@@ -14,5 +14,6 @@
 #include "Renderer/CommandBuffer.h"
 #include "Renderer/VertexBuffer.h"
 #include "Renderer/IndexBuffer.h"
+#include "Renderer/UniformBuffer.h"
 
 #include "Utils/IlargiUI.h"

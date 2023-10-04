@@ -15,7 +15,7 @@ namespace Ilargi
 
 		void Destroy();
 
-		void Bind(std::shared_ptr<CommandBuffer> commandBuffer, std::shared_ptr<VertexBuffer> vertexBuffer, std::shared_ptr<IndexBuffer> indexBuffer) override;
+		void Bind(std::shared_ptr<CommandBuffer> commandBuffer, void* data) override;
 		void Unbind(std::shared_ptr<CommandBuffer> commandBuffer) override;
 
 		const PipelineProperties& GetProperties() const override { return properties; }
@@ -24,5 +24,6 @@ namespace Ilargi
 
 		VkPipeline pipeline;
 		VkPipelineLayout pipelineLayout;
+		VkDescriptorSetLayout descriptorSetLayout;
 	};
 }
