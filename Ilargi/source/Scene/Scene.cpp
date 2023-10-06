@@ -25,4 +25,15 @@ namespace Ilargi
 	Scene::~Scene()
 	{
 	}
+	
+	void Scene::Destroy()
+	{
+		auto meshStorage = world.view<MeshComponent>();
+		for (auto entity : meshStorage)
+		{
+			auto mesh = meshStorage.get(entity);
+			mesh._Myfirst._Val.indexBuffer->Destroy();
+			mesh._Myfirst._Val.vertexBuffer->Destroy();
+		}
+	}
 }

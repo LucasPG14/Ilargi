@@ -7,6 +7,10 @@
 namespace Ilargi
 {
 	class SceneHierarchyInspectorPanel;
+	class ResourcesPanel;
+	
+	class VertexBuffer;
+	class IndexBuffer;
 
 	class EditorPanel : public Panel
 	{
@@ -26,9 +30,6 @@ namespace Ilargi
 		std::shared_ptr<Scene> scene;
 
 		std::shared_ptr<CommandBuffer> commandBuffer;
-		
-		std::shared_ptr<VertexBuffer> vertexBuffer;
-		std::shared_ptr<IndexBuffer> indexBuffer;
 
 		std::shared_ptr<Framebuffer> framebuffer;
 		std::shared_ptr<RenderPass> renderPass;
@@ -38,8 +39,11 @@ namespace Ilargi
 
 		EditorCamera camera;
 		SceneHierarchyInspectorPanel* hierarchyInspector;
+		ResourcesPanel* resourcesPanel;
 
 		glm::vec2 viewportSize;
 		bool needToUpdateFramebuffer;
+
+		glm::mat4 constants[2];
 	};
 }

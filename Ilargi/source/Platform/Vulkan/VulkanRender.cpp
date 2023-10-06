@@ -18,12 +18,15 @@ namespace Ilargi
 	
 	void VulkanRender::SubmitGeometry(std::shared_ptr<CommandBuffer> commandBuffer, std::shared_ptr<VertexBuffer> vertexBuffer, std::shared_ptr<IndexBuffer> indexBuffer)
 	{
-		uint32_t currentFrame = Renderer::GetCurrentFrame();
-		
-		auto cmdBuffer = std::static_pointer_cast<VulkanCommandBuffer>(commandBuffer)->GetCurrentCommand(currentFrame);
-		vertexBuffer->Bind(commandBuffer);
-		indexBuffer->Bind(commandBuffer);
+		Renderer::Submit([commandBuffer, vertexBuffer, indexBuffer]()
+			{
+				uint32_t currentFrame = Renderer::GetCurrentFrame();
 
-		vkCmdDrawIndexed(cmdBuffer, indexBuffer->GetCount(), 1, 0, 0, 0);
+				auto cmdBuffer = std::static_pointer_cast<VulkanCommandBuffer>(commandBuffer)->GetCurrentCommand(currentFrame);
+				vertexBuffer->Bind(commandBuffer);
+				indexBuffer->Bind(commandBuffer);
+
+				vkCmdDrawIndexed(cmdBuffer, indexBuffer->GetCount(), 1, 0, 0, 0);
+			});
 	}
 }

@@ -12,7 +12,9 @@ namespace Ilargi
 		Scene();
 		~Scene();
 
-		const entt::registry& GetWorld() { return world; }
+		void Destroy();
+
+		entt::registry& GetWorld() { return world; }
 
 	private:
 		entt::registry world;

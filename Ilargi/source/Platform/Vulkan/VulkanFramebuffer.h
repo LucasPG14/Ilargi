@@ -25,7 +25,7 @@ namespace Ilargi
 		uint32_t GetWidth() const override { return properties.width; }
 		uint32_t GetHeight() const override { return properties.height; }
 
-		void* GetID() const { return descriptorSet; }
+		void* GetID() const;
 
 	private:
 		FramebufferProperties properties;

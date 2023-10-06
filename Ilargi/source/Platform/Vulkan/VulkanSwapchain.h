@@ -33,13 +33,13 @@ namespace Ilargi
 
 		VkCommandBuffer GetCurrentCommand() { return commandBuffers[currentFrame]; }
 
-		VkFramebuffer GetFramebuffer(uint32_t index) const { return framebuffers[index]; }
+		VkFramebuffer GetFramebuffer() const { return framebuffers[currentImageIndex]; }
 
 		uint32_t GetWidth() const { return extent.width; }
 		uint32_t GetHeight() const { return extent.height; }
 
 	private:
-		void Present(VkDevice device, VkSemaphore renderFinish, VkFence fence);
+		void Present(VkDevice device, VkSemaphore renderFinish);
 
 		void RecreateSwapchain();
 		void CreateSwapchain();

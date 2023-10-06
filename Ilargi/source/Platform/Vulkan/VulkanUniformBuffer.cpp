@@ -30,6 +30,17 @@ namespace Ilargi
 	{
 
 	}
+
+	void VulkanUniformBuffer::Destroy()
+	{
+		vkDeviceWaitIdle(VulkanContext::GetLogicalDevice());
+
+		for (int i = 0; i < ubos.size(); ++i)
+		{
+			VulkanAllocator::UnmapMemory(ubos[i]);
+			VulkanAllocator::DestroyBuffer(ubos[i]);
+		}
+	}
 	
 	void VulkanUniformBuffer::SetData(void* data)
 	{

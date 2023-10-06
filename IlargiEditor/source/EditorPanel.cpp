@@ -2,6 +2,7 @@
 
 #include "EditorPanel.h"
 #include "EditorPanels/SceneHierarchyInspectorPanel.h"
+#include "EditorPanels/ResourcesPanel.h"
 
 #include "Utils/Importers/TinyObjImporter.h"
 
@@ -11,7 +12,21 @@
 
 namespace Ilargi
 {
-	EditorPanel::EditorPanel() : Panel("Editor Panel"), viewportSize({1080, 720}), needToUpdateFramebuffer(false), hierarchyInspector(nullptr)
+	const std::vector<Vertex> vertices = 
+	{
+		{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+		{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+		{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+		{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
+	};
+
+	const std::vector<uint16_t> indices = 
+	{
+		0, 1, 2, 2, 3, 0
+	};
+
+	EditorPanel::EditorPanel() : Panel("Editor Panel"), hierarchyInspector(nullptr), resourcesPanel(nullptr), 
+		viewportSize({ 1080, 720 }), needToUpdateFramebuffer(false)
 	{
 	}
 
@@ -23,6 +38,7 @@ namespace Ilargi
 	{
 		scene = std::make_shared<Scene>();
 		hierarchyInspector = new SceneHierarchyInspectorPanel(scene);
+		resourcesPanel = new ResourcesPanel();
 
 		commandBuffer = CommandBuffer::Create(Renderer::GetMaxFrames());
 		
@@ -43,22 +59,15 @@ namespace Ilargi
 			pipeline = Pipeline::Create(pipelineProperties);
 		}
 
-		std::vector<Vertex> vertices;
-		std::vector<uint32_t> indices;
-
-		ImportModel(vertices, indices);
-
-		vertexBuffer = VertexBuffer::Create((void*)vertices.data(), static_cast<uint32_t>(vertices.size() * sizeof(Vertex)));
-		indexBuffer = IndexBuffer::Create((void*)indices.data(), static_cast<uint32_t>(indices.size()));
-
 		uboCamera = UniformBuffer::Create(sizeof(glm::mat4), Renderer::GetMaxFrames());
 	}
 
 	void EditorPanel::OnDestroy()
 	{
-		vertexBuffer->Destroy();
-		indexBuffer->Destroy();
+		uboCamera->Destroy();
 		
+		scene->Destroy();
+
 		pipeline->Destroy();
 		framebuffer->Destroy();
 		renderPass->Destroy();
@@ -68,17 +77,12 @@ namespace Ilargi
 	{
 		if (needToUpdateFramebuffer)
 		{
-			framebuffer->Resize(pipeline, viewportSize.x, viewportSize.y);
+			framebuffer->Resize(pipeline, (uint32_t)viewportSize.x, (uint32_t)viewportSize.y);
 			camera.Resize(viewportSize.x, viewportSize.y);
 			needToUpdateFramebuffer = false;
 		}
 
 		camera.Update();
-
-		//uboCamera->SetData((void*)glm::value_ptr());
-
-		glm::mat4 model[2] = {};
-		model[1] = camera.GetProjectionMatrix() * camera.GetViewMatrix();
 
 		commandBuffer->BeginCommand();
 				
@@ -87,15 +91,18 @@ namespace Ilargi
 		{
 			auto [transform, mesh] = view.get<TransformComponent, MeshComponent>(entity);
 
-			model[0] = transform.transform;
-			pipeline->Bind(commandBuffer, model);
+			const glm::mat4& rotationMat = glm::toMat4(glm::quat(glm::radians(transform.rotation)));
+
+			transform.CalculateTransform();
+			constants[0] = transform.transform;
+			constants[1] = camera.GetProjectionMatrix() * camera.GetViewMatrix();
+			pipeline->Bind(commandBuffer, (void*)constants);
 			Renderer::SubmitGeometry(commandBuffer, mesh.vertexBuffer, mesh.indexBuffer);
 		}
 
 		pipeline->Unbind(commandBuffer);
 		commandBuffer->EndCommand();
-		
-		Renderer::AddCommand(commandBuffer);
+		commandBuffer->Submit();
 	}
 
 	void EditorPanel::RenderImGui()
@@ -146,6 +153,7 @@ namespace Ilargi
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
 		ImGui::Begin("Viewport");
 		ImVec2 frameViewportSize = ImGui::GetContentRegionAvail();
+		
 		ImGui::Image(framebuffer->GetID(), frameViewportSize, { 0.0f, 1.0f }, { 1.0f, 0.0f });
 
 		if (frameViewportSize.x != viewportSize.x || frameViewportSize.y != viewportSize.y)
@@ -158,15 +166,7 @@ namespace Ilargi
 		ImGui::PopStyleVar();
 
 		hierarchyInspector->Render();
-
-		ImVec2 size = ImGui::GetIO().DisplaySize;
-		ImVec2 position = ImGui::GetWindowPos();
-		//ImGui::SetNextWindowSize({ size.x , 30 });
-		//ImGui::SetNextWindowPos({ position.x , position.y + size.y - 30 });
-		//ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.06f, 0.06f, 0.06f, 0.94f));
-		ImGui::Begin("Bottom bar", (bool*)0, ImGuiWindowFlags_NoTitleBar);
-		ImGui::End();
-		//ImGui::PopStyleColor();
+		resourcesPanel->Render();
 
 		ImGui::End();
 	}

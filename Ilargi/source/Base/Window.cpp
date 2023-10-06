@@ -28,7 +28,16 @@ namespace Ilargi
 		ILG_CORE_INFO("GLFW library initialized");
 
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+
+		GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+		const GLFWvidmode* videoMode = glfwGetVideoMode(primaryMonitor);
+
+		int monitorX, monitorY;
+		glfwGetMonitorPos(primaryMonitor, &monitorX, &monitorY);
+
 		window = glfwCreateWindow(properties.width, properties.height, properties.appName.c_str(), nullptr, nullptr);
+
+		glfwSetWindowPos(window, monitorX + (videoMode->width - properties.width) / 2, monitorY + (videoMode->height - properties.height) / 2);
 
 		ILG_ASSERT(window, "Error while creating the GLFW window");
 

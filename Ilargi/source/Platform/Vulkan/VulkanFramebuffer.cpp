@@ -65,8 +65,7 @@ namespace Ilargi
 			imageViewInfo.subresourceRange.baseArrayLayer = 0;
 			imageViewInfo.subresourceRange.layerCount = 1;
 
-			VK_CHECK_RESULT(vkCreateImageView(device, &imageViewInfo, nullptr, &imageView) == VK_SUCCESS,
-				"Unable to create image view");
+			VK_CHECK_RESULT(vkCreateImageView(device, &imageViewInfo, nullptr, &imageView));
 		}
 
 		// Creating the framebuffer
@@ -82,8 +81,7 @@ namespace Ilargi
 			framebufferInfo.height = properties.height;
 			framebufferInfo.layers = 1;
 
-			VK_CHECK_RESULT(vkCreateFramebuffer(device, &framebufferInfo, nullptr, &framebuffer) == VK_SUCCESS,
-				"Unable to create the framebuffer");
+			VK_CHECK_RESULT(vkCreateFramebuffer(device, &framebufferInfo, nullptr, &framebuffer));
 		}
 
 		// Sampler
@@ -112,8 +110,7 @@ namespace Ilargi
 			samplerInfo.minLod = 0.0f;
 			samplerInfo.maxLod = 0.0f;
 
-			VK_CHECK_RESULT(vkCreateSampler(device, &samplerInfo, nullptr, &sampler) == VK_SUCCESS, 
-				"Unable to create sampler for the framebuffer");
+			VK_CHECK_RESULT(vkCreateSampler(device, &samplerInfo, nullptr, &sampler));
 		}
 
 		// 
@@ -127,7 +124,7 @@ namespace Ilargi
 			info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 			info.bindingCount = 1;
 			info.pBindings = binding;
-			VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &info, nullptr, &descriptorSetLayout) == VK_SUCCESS, "");
+			VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &info, nullptr, &descriptorSetLayout));
 
 			std::vector<VkDescriptorSetLayout> layouts(1, descriptorSetLayout);
 			VkDescriptorSetAllocateInfo allocInfo{};
@@ -136,8 +133,7 @@ namespace Ilargi
 			allocInfo.descriptorSetCount = 1;
 			allocInfo.pSetLayouts = layouts.data();
 
-			VK_CHECK_RESULT(vkAllocateDescriptorSets(device, &allocInfo, &descriptorSet) == VK_SUCCESS, 
-				"Unable to allocate the descriptor set");
+			VK_CHECK_RESULT(vkAllocateDescriptorSets(device, &allocInfo, &descriptorSet));
 
 			VkDescriptorImageInfo imageInfo = {};
 			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -183,6 +179,11 @@ namespace Ilargi
 		vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
 
 		CreateFramebuffer(pipeline);
+	}
+
+	void* VulkanFramebuffer::GetID() const
+	{
+		return descriptorSet;
 	}
 	
 	void VulkanFramebuffer::CreateFramebuffer(std::shared_ptr<Pipeline> pipeline)
@@ -232,8 +233,7 @@ namespace Ilargi
 			imageViewInfo.subresourceRange.baseArrayLayer = 0;
 			imageViewInfo.subresourceRange.layerCount = 1;
 
-			VK_CHECK_RESULT(vkCreateImageView(device, &imageViewInfo, nullptr, &imageView) == VK_SUCCESS,
-				"Unable to create image view");
+			VK_CHECK_RESULT(vkCreateImageView(device, &imageViewInfo, nullptr, &imageView));
 		}
 
 		// Creating the framebuffer
@@ -249,8 +249,7 @@ namespace Ilargi
 			framebufferInfo.height = properties.height;
 			framebufferInfo.layers = 1;
 
-			VK_CHECK_RESULT(vkCreateFramebuffer(device, &framebufferInfo, nullptr, &framebuffer) == VK_SUCCESS,
-				"Unable to create the framebuffer");
+			VK_CHECK_RESULT(vkCreateFramebuffer(device, &framebufferInfo, nullptr, &framebuffer));
 		}
 
 		// 
@@ -264,7 +263,7 @@ namespace Ilargi
 			info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 			info.bindingCount = 1;
 			info.pBindings = binding;
-			VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &info, nullptr, &descriptorSetLayout) == VK_SUCCESS, "");
+			VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &info, nullptr, &descriptorSetLayout));
 
 			std::vector<VkDescriptorSetLayout> layouts(1, descriptorSetLayout);
 			VkDescriptorSetAllocateInfo allocInfo{};
@@ -273,8 +272,7 @@ namespace Ilargi
 			allocInfo.descriptorSetCount = 1;
 			allocInfo.pSetLayouts = layouts.data();
 
-			VK_CHECK_RESULT(vkAllocateDescriptorSets(device, &allocInfo, &descriptorSet) == VK_SUCCESS,
-				"Unable to allocate the descriptor set");
+			VK_CHECK_RESULT(vkAllocateDescriptorSets(device, &allocInfo, &descriptorSet));
 
 			VkDescriptorImageInfo imageInfo = {};
 			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;

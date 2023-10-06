@@ -5,6 +5,7 @@ namespace Ilargi
 	class UniformBuffer
 	{
 	public:
+		virtual void Destroy() = 0;
 
 		virtual void SetData(void* data) = 0;
 

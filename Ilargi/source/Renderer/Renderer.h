@@ -46,5 +46,6 @@ namespace Ilargi
 
 		static std::vector<std::function<void()>> queue;
 		static std::vector<std::shared_ptr<CommandBuffer>> submittedCommands;
+		static std::vector<std::shared_ptr<CommandBuffer>> semaphoresToHandle;
 	};
 }

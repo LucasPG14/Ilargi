@@ -4,6 +4,7 @@
 #include "Utils/IlargiUI.h"
 
 #include <imgui/imgui.h>
+#include <gtc/type_ptr.hpp>
 
 namespace Ilargi
 {
@@ -19,11 +20,7 @@ namespace Ilargi
 	void SceneHierarchyInspectorPanel::Render()
 	{
 		// --------------------------------------Hierarchy window----------------------------------------------
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
-		ImGui::PushStyleColor(ImGuiCol_HeaderHovered, { 1.0f, 0.0f, 0.0f, 0.75f });
-		ImGui::PushStyleColor(ImGuiCol_HeaderActive, { 1.0f, 0.0f, 0.0f, 1.0f });
 		ImGui::Begin("Scene Hierarchy", (bool*)0, ImGuiWindowFlags_NoCollapse);
-		ImGui::BeginChild("##", ImGui::GetContentRegionAvail());
 
 		const auto& world = scene->GetWorld();
 		auto iterator = world.storage<InfoComponent>()->reach();
@@ -55,36 +52,37 @@ namespace Ilargi
 		if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0) && !ImGui::IsAnyItemHovered())
 			selected = entt::null;
 
-		ImGui::EndChild();
 		ImGui::End();
-		ImGui::PopStyleVar();
-		ImGui::PopStyleColor(2);
 		// ----------------------------------------------------------------------------------------------------
 
 		// --------------------------------------Inspector window----------------------------------------------
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
 		ImGui::Begin("Inspector", (bool*)0);
-		ImGui::BeginChild("##Inspector", ImGui::GetContentRegionAvail());
 
 		if (selected != entt::null)
 			DrawInspector();
 
-		ImGui::EndChild();
 		ImGui::End();
-		ImGui::PopStyleVar();
 		// ----------------------------------------------------------------------------------------------------
 	}
 	
 	void SceneHierarchyInspectorPanel::DrawInspector()
 	{
+		ImGui::PushStyleColor(ImGuiCol_Header, { 1.0f, 0.0f, 0.0f, 0.15f });
+		ImGui::PushStyleColor(ImGuiCol_HeaderHovered, { 1.0f, 0.0f, 0.0f, 0.30f });
+		ImGui::PushStyleColor(ImGuiCol_HeaderActive, { 1.0f, 0.0f, 0.0f, 0.30f });
 		ImGui::Separator();
 		auto& world = scene->GetWorld();
 		if (world.try_get<TransformComponent>(selected))
 		{
-			const TransformComponent& transformComponent = scene->GetWorld().get<TransformComponent>(selected);
-			UI::BeginCollapsingHeader((void*)selected, "Transform Component");
-			UI::EndCollapsingHeader((void*)selected);
+			TransformComponent& transformComponent = scene->GetWorld().get<TransformComponent>(selected);
+			if (ImGui::CollapsingHeader("Transform Component"))
+			{
+				ImGui::DragFloat3("Position", glm::value_ptr(transformComponent.position));
+				ImGui::DragFloat3("Rotation", glm::value_ptr(transformComponent.rotation));
+				ImGui::DragFloat3("Scale", glm::value_ptr(transformComponent.scale));
+			}
 		}
 		ImGui::Separator();
+		ImGui::PopStyleColor(3);
 	}
 }

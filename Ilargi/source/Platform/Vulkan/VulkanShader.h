@@ -19,6 +19,7 @@ namespace Ilargi
 	private:
 		VkShaderModule CreateShaderModule(VkDevice device, const std::vector<char>& code);
 
+		void ProcessShader(std::string_view code);
 	private:
 		VkShaderModule vertexShader;
 		VkShaderModule fragmentShader;

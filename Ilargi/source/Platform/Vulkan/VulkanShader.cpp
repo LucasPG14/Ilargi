@@ -3,6 +3,10 @@
 #include "VulkanShader.h"
 #include "VulkanContext.h"
 
+#include <shaderc/shaderc.hpp>
+#include <spirv_cross/spirv_cross.hpp>
+#include <spirv_cross/spirv_glsl.hpp>
+
 namespace Ilargi
 {
 	static std::vector<char> readFile(const std::string& filename)
@@ -30,8 +34,8 @@ namespace Ilargi
 	{
 		auto device = VulkanContext::GetLogicalDevice();
 
-		auto vertShaderCode = readFile("shaders/vert.spv");
-		auto fragShaderCode = readFile("shaders/frag.spv");
+		auto vertShaderCode = readFile(vert.data());
+		auto fragShaderCode = readFile(frag.data());
 
 		vertexShader = CreateShaderModule(device, vertShaderCode);
 		fragmentShader = CreateShaderModule(device, fragShaderCode);
@@ -57,8 +61,7 @@ namespace Ilargi
 		createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
 		VkShaderModule shaderModule = nullptr;
-		VK_CHECK_RESULT(vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) == VK_SUCCESS, 
-			"Unable to create the shader module");
+		VK_CHECK_RESULT(vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule));
 
 		return shaderModule;
 	}

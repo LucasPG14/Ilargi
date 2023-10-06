@@ -34,8 +34,7 @@ namespace Ilargi
 			allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 			allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());
 
-			VK_CHECK_RESULT(vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) == VK_SUCCESS,
-				"Unable to allocate the command buffers");
+			VK_CHECK_RESULT(vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()));
 		}
 
 		// Creating semaphores and fences
@@ -53,14 +52,11 @@ namespace Ilargi
 			
 			for (uint32_t i = 0; i < imageCount; ++i)
 			{
-				VK_CHECK_RESULT(vkCreateSemaphore(device, &semaphoreInfo, nullptr, &imageAvailable[i]) == VK_SUCCESS,
-					"Unable to create image available semaphores");
+				VK_CHECK_RESULT(vkCreateSemaphore(device, &semaphoreInfo, nullptr, &imageAvailable[i]));
 
-				VK_CHECK_RESULT(vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinished[i]) == VK_SUCCESS,
-					"Unable to create render finished semaphores");
+				VK_CHECK_RESULT(vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinished[i]));
 
-				VK_CHECK_RESULT(vkCreateFence(device, &fenceInfo, nullptr, &fences[i]) == VK_SUCCESS,
-					"Unable to create fences");
+				VK_CHECK_RESULT(vkCreateFence(device, &fenceInfo, nullptr, &fences[i]));
 			}
 
 			vkGetDeviceQueue(device, VulkanContext::GetQueueIndices().presentFamily, 0, &presentQueue);
@@ -99,17 +95,16 @@ namespace Ilargi
 			vkCommandBuffers.push_back(std::static_pointer_cast<VulkanCommandBuffer>(cmdBuffersSubmit[i])->GetCurrentCommand(currentFrame));
 		}
 
-		submitInfo.commandBufferCount = static_cast<uint32_t>(vkCommandBuffers.size());
+		submitInfo.commandBufferCount = vkCommandBuffers.size();
 		submitInfo.pCommandBuffers = vkCommandBuffers.data();
 
-		vkResetFences(device, 1, &fences[currentFrame]);
-		VK_CHECK_RESULT(vkQueueSubmit(VulkanContext::GetGraphicsQueue(), 1, &submitInfo, fences[currentFrame]) == VK_SUCCESS,
-			"Failed to submit draw command buffer");
+		VK_CHECK_RESULT(vkResetFences(device, 1, &fences[currentFrame]));
+		VK_CHECK_RESULT(vkQueueSubmit(VulkanContext::GetGraphicsQueue(), 1, &submitInfo, fences[currentFrame]));
 
-		Present(device, renderFinished[currentFrame], fences[currentFrame]);
+		Present(device, renderFinished[currentFrame]);
 	}
 
-	void VulkanSwapchain::Present(VkDevice device, VkSemaphore renderFinish, VkFence fence)
+	void VulkanSwapchain::Present(VkDevice device, VkSemaphore renderFinish)
 	{
 		VkPresentInfoKHR presentInfo = {};
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -131,10 +126,9 @@ namespace Ilargi
 			}
 		}
 
+		VK_CHECK_RESULT(vkWaitForFences(device, 1, &fences[currentFrame], VK_TRUE, UINT64_MAX));
+
 		currentFrame = (currentFrame + 1) % Renderer::GetMaxFrames();
-
-		vkWaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX);
-
 		Renderer::SetNewFrame(currentFrame);
 	}
 
@@ -154,7 +148,6 @@ namespace Ilargi
 		vkDestroyRenderPass(device, renderPass, nullptr);
 		
 		CleanUpSwapchain();
-		vkDestroySwapchainKHR(device, swapchain, nullptr);
 	}
 	
 	void VulkanSwapchain::RecreateSwapchain()
@@ -162,10 +155,10 @@ namespace Ilargi
 		vkDeviceWaitIdle(VulkanContext::GetLogicalDevice());
 		CleanUpSwapchain();
 
-		Renderer::ResetCurrentFrame();
-
 		CreateSwapchain();
 		CreateFramebuffers();
+
+		vkDeviceWaitIdle(VulkanContext::GetLogicalDevice());
 	}
 
 	void VulkanSwapchain::CreateSwapchain()
@@ -221,14 +214,12 @@ namespace Ilargi
 		swapchainInfo.presentMode = ChooseSwapPresentMode(physicalDevice, surface);
 		swapchainInfo.clipped = VK_TRUE;
 
-		swapchainInfo.oldSwapchain = swapchain;
+		swapchainInfo.oldSwapchain = nullptr;
 
-		VK_CHECK_RESULT(vkCreateSwapchainKHR(device, &swapchainInfo, nullptr, &swapchain) == VK_SUCCESS, 
-			"Unable to create the swapchain");
+		VK_CHECK_RESULT(vkCreateSwapchainKHR(device, &swapchainInfo, nullptr, &swapchain));
 
 		swapchainImages.resize(imageCount);
-		VK_CHECK_RESULT(vkGetSwapchainImagesKHR(device, swapchain, &imageCount, swapchainImages.data()) == VK_SUCCESS, 
-			"Unable to get swapchain images")
+		VK_CHECK_RESULT(vkGetSwapchainImagesKHR(device, swapchain, &imageCount, swapchainImages.data()))
 
 		// Create image views
 		{
@@ -254,7 +245,7 @@ namespace Ilargi
 				createInfo.subresourceRange.baseArrayLayer = 0;
 				createInfo.subresourceRange.layerCount = 1;
 
-				VK_CHECK_RESULT(vkCreateImageView(device, &createInfo, nullptr, &imageViews[i]) == VK_SUCCESS, "Unable to create image views");
+				VK_CHECK_RESULT(vkCreateImageView(device, &createInfo, nullptr, &imageViews[i]));
 			}
 		}
 	}
@@ -279,7 +270,7 @@ namespace Ilargi
 				framebufferInfo.height = extent.height;
 				framebufferInfo.layers = 1;
 
-				VK_CHECK_RESULT(vkCreateFramebuffer(device, &framebufferInfo, nullptr, &framebuffers[i]) == VK_SUCCESS, "Unable to create the framebuffer");
+				VK_CHECK_RESULT(vkCreateFramebuffer(device, &framebufferInfo, nullptr, &framebuffers[i]));
 			}
 		}
 	}
@@ -292,6 +283,8 @@ namespace Ilargi
 			vkDestroyFramebuffer(device, framebuffers[i], nullptr);
 			vkDestroyImageView(device, imageViews[i], nullptr);
 		}
+
+		vkDestroySwapchainKHR(device, swapchain, nullptr);
 	}
 
 	void VulkanSwapchain::TransitionSwapchainImage()
@@ -381,7 +374,7 @@ namespace Ilargi
 		renderPassInfo.dependencyCount = 1;
 		renderPassInfo.pDependencies = &dependency;
 
-		VK_CHECK_RESULT(vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) == VK_SUCCESS, "Unable to create the render pass");
+		VK_CHECK_RESULT(vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass));
 	}
 
 	void VulkanSwapchain::QuerySwapchainSupport(VkPhysicalDevice device)

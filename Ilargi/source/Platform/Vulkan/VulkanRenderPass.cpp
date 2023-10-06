@@ -69,8 +69,7 @@ namespace Ilargi
 		renderPassInfo.dependencyCount = 1;
 		renderPassInfo.pDependencies = &dependency;
 
-		VK_CHECK_RESULT(vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) == VK_SUCCESS, 
-			"Unable to create the render pass");
+		VK_CHECK_RESULT(vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass));
 
 		std::static_pointer_cast<VulkanFramebuffer>(props.framebuffer)->Init(renderPass);
 	}

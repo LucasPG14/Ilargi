@@ -81,7 +81,7 @@ namespace Ilargi
 				instanceInfo.enabledLayerCount = 0;
 			#endif
 
-			VK_CHECK_RESULT(vkCreateInstance(&instanceInfo, nullptr, &instance) == VK_SUCCESS, "");
+			VK_CHECK_RESULT(vkCreateInstance(&instanceInfo, nullptr, &instance));
 		}
 
 		#ifdef ILG_DEBUG
@@ -104,7 +104,7 @@ namespace Ilargi
 		#endif
 
 		// TODO: Maybe this should done in another way if we need to change GLFW to support other platforms
-		VK_CHECK_RESULT(glfwCreateWindowSurface(instance, win, nullptr, &surface) == VK_SUCCESS, "Unable to create Vulkan Surface");
+		VK_CHECK_RESULT(glfwCreateWindowSurface(instance, win, nullptr, &surface));
 
 		// Creating the physical device
 		{
@@ -166,7 +166,7 @@ namespace Ilargi
 				deviceInfo.enabledLayerCount = 0;
 			#endif
 			
-			VK_CHECK_RESULT(vkCreateDevice(physicalDevice, &deviceInfo, nullptr, &logicalDevice) == VK_SUCCESS, "Unable to create logical device");
+			VK_CHECK_RESULT(vkCreateDevice(physicalDevice, &deviceInfo, nullptr, &logicalDevice));
 		}
 
 		vkGetDeviceQueue(logicalDevice, indices.graphicsFamily, 0, &graphicsQueue);
@@ -178,7 +178,7 @@ namespace Ilargi
 			poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 			poolInfo.queueFamilyIndex = indices.graphicsFamily;
 
-			VK_CHECK_RESULT(vkCreateCommandPool(logicalDevice, &poolInfo, nullptr, &commandPool) == VK_SUCCESS, "Unable to create command pool");
+			VK_CHECK_RESULT(vkCreateCommandPool(logicalDevice, &poolInfo, nullptr, &commandPool));
 		}
 
 		VulkanAllocator::Init();
@@ -206,7 +206,7 @@ namespace Ilargi
 			poolInfo.poolSizeCount = static_cast<uint32_t>(std::size(poolSizes));
 			poolInfo.pPoolSizes = poolSizes;
 
-			VK_CHECK_RESULT(vkCreateDescriptorPool(logicalDevice, &poolInfo, nullptr, &descriptorPool) == VK_SUCCESS, "Unable to create descriptor pool");
+			VK_CHECK_RESULT(vkCreateDescriptorPool(logicalDevice, &poolInfo, nullptr, &descriptorPool));
 		}
 	}
 	

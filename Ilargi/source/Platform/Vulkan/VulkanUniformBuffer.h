@@ -11,6 +11,8 @@ namespace Ilargi
 		VulkanUniformBuffer(uint32_t size, uint32_t framesInFlight);
 		virtual ~VulkanUniformBuffer();
 
+		void Destroy() override;
+
 		void SetData(void* data) override;
 
 	private:
