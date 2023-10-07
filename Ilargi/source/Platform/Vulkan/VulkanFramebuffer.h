@@ -31,7 +31,9 @@ namespace Ilargi
 		FramebufferProperties properties;
 
 		Image image;
+		Image depthImage;
 		VkImageView imageView;
+		VkImageView depthImageView;
 		VkFramebuffer framebuffer;
 
 		VkSampler sampler;

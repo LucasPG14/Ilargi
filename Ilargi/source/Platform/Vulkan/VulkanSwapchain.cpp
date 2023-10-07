@@ -132,7 +132,7 @@ namespace Ilargi
 		Renderer::SetNewFrame(currentFrame);
 	}
 
-	void VulkanSwapchain::Destroy() const
+	void VulkanSwapchain::Destroy()
 	{
 		auto device = VulkanContext::GetLogicalDevice();
 
@@ -248,6 +248,47 @@ namespace Ilargi
 				VK_CHECK_RESULT(vkCreateImageView(device, &createInfo, nullptr, &imageViews[i]));
 			}
 		}
+
+		// Depth image and image view
+		{
+			VkImageCreateInfo imageInfo = {};
+			imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+			imageInfo.imageType = VK_IMAGE_TYPE_2D;
+			imageInfo.extent.width = extent.width;
+			imageInfo.extent.height = extent.height;
+			imageInfo.extent.depth = 1;
+			imageInfo.mipLevels = 1;
+			imageInfo.arrayLayers = 1;
+			imageInfo.format = VK_FORMAT_D32_SFLOAT;
+			imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+			imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+			imageInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+			imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+			imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+			imageInfo.flags = 0;
+
+			VulkanAllocator::AllocateImage(depthImage, imageInfo, VMA_MEMORY_USAGE_GPU_ONLY);
+
+			VkImageViewCreateInfo createInfo{};
+			createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+			createInfo.image = depthImage.image;
+
+			createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+			createInfo.format = VK_FORMAT_D32_SFLOAT;
+
+			createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+
+			createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+			createInfo.subresourceRange.baseMipLevel = 0;
+			createInfo.subresourceRange.levelCount = 1;
+			createInfo.subresourceRange.baseArrayLayer = 0;
+			createInfo.subresourceRange.layerCount = 1;
+
+			VK_CHECK_RESULT(vkCreateImageView(device, &createInfo, nullptr, &depthImageView));
+		}
 	}
 
 	void VulkanSwapchain::CreateFramebuffers()
@@ -259,7 +300,7 @@ namespace Ilargi
 
 			for (size_t i = 0; i < imageViews.size(); i++)
 			{
-				std::array<VkImageView, 1> attachments = { imageViews[i] };
+				std::array<VkImageView, 2> attachments = { imageViews[i], depthImageView };
 
 				VkFramebufferCreateInfo framebufferInfo = {};
 				framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -275,14 +316,17 @@ namespace Ilargi
 		}
 	}
 
-	void VulkanSwapchain::CleanUpSwapchain() const
+	void VulkanSwapchain::CleanUpSwapchain()
 	{
 		auto device = VulkanContext::GetLogicalDevice();
+
+		VulkanAllocator::DestroyImage(depthImage);
 		for (size_t i = 0; i < framebuffers.size(); ++i)
 		{
 			vkDestroyFramebuffer(device, framebuffers[i], nullptr);
 			vkDestroyImageView(device, imageViews[i], nullptr);
 		}
+		vkDestroyImageView(device, depthImageView, nullptr);
 
 		vkDestroySwapchainKHR(device, swapchain, nullptr);
 	}
@@ -335,26 +379,25 @@ namespace Ilargi
 		colorAttachmentRef.attachment = 0;
 		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-		// TODO: Depth attachment
-		//VkAttachmentDescription depthAttachment{};
-		//depthAttachment.format = VK_FORMAT_D32_SFLOAT;
-		//depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-		//depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		//depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		//depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		//depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		//depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		//depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		VkAttachmentDescription depthAttachment{};
+		depthAttachment.format = VK_FORMAT_D32_SFLOAT;
+		depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+		depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-		//VkAttachmentReference depthAttachmentRef{};
-		//depthAttachmentRef.attachment = 1;
-		//depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		VkAttachmentReference depthAttachmentRef{};
+		depthAttachmentRef.attachment = 1;
+		depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
 		VkSubpassDescription subpass = {};
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 		subpass.colorAttachmentCount = 1;
 		subpass.pColorAttachments = &colorAttachmentRef;
-		//subpass.pDepthStencilAttachment = &depthAttachmentRef;
+		subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
 		VkSubpassDependency dependency = {};
 		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -364,7 +407,7 @@ namespace Ilargi
 		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
-		std::array<VkAttachmentDescription, 1> attachments = { colorAttachment };
+		std::array<VkAttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
 		VkRenderPassCreateInfo renderPassInfo = {};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 		renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());

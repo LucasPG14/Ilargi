@@ -17,7 +17,7 @@ namespace Ilargi
 	{
 		uint32_t width;
 		uint32_t height;
-		ImageFormat format;
+		std::vector<ImageFormat> formats;
 
 		bool swapchainTarget;
 	};

@@ -42,7 +42,7 @@ namespace Ilargi
 
 		commandBuffer = CommandBuffer::Create(Renderer::GetMaxFrames());
 		
-		framebuffer = Framebuffer::Create({ 1080, 720, ImageFormat::RGBA_8, false });
+		framebuffer = Framebuffer::Create({ 1080, 720, {ImageFormat::RGBA_8}, false });
 		renderPass = RenderPass::Create({ framebuffer });
 
 		{

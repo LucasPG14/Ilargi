@@ -2,6 +2,7 @@
 
 #include "Renderer/Swapchain.h"
 
+#include "VulkanAllocator.h"
 #include <vulkan/vulkan.h>
 #include <glm.hpp>
 
@@ -24,7 +25,7 @@ namespace Ilargi
 		VulkanSwapchain();
 		virtual ~VulkanSwapchain();
 
-		void Destroy() const;
+		void Destroy();
 		
 		void StartFrame() override;
 		void EndFrame() override;
@@ -44,7 +45,7 @@ namespace Ilargi
 		void RecreateSwapchain();
 		void CreateSwapchain();
 		void CreateFramebuffers();
-		void CleanUpSwapchain() const;
+		void CleanUpSwapchain();
 
 		void TransitionSwapchainImage();
 
@@ -69,6 +70,9 @@ namespace Ilargi
 		std::vector<VkSemaphore> imageAvailable;
 		std::vector<VkSemaphore> renderFinished;
 		std::vector<VkFence> fences;
+
+		Image depthImage;
+		VkImageView depthImageView;
 
 		uint32_t currentFrame;
 		uint32_t currentImageIndex;

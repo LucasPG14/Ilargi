@@ -5,7 +5,7 @@ namespace Ilargi
 	class Swapchain
 	{
 	public:
-		virtual void Destroy() const = 0;
+		virtual void Destroy() = 0;
 
 		virtual void StartFrame() = 0;
 		virtual void EndFrame() = 0;

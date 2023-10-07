@@ -22,7 +22,7 @@ namespace Ilargi
 	{
 		auto device = VulkanContext::GetLogicalDevice();
 
-		VkFormat format = Utils::GetFormatFromImageFormat(properties.format);
+		VkFormat format = Utils::GetFormatFromImageFormat(properties.formats[0]);
 		// Creating the image
 		{
 			VkImageCreateInfo imageInfo{};
@@ -43,6 +43,10 @@ namespace Ilargi
 			imageInfo.flags = 0;
 
 			VulkanAllocator::AllocateImage(image, imageInfo, VMA_MEMORY_USAGE_GPU_ONLY);
+
+			imageInfo.format = VK_FORMAT_D32_SFLOAT;
+			imageInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+			VulkanAllocator::AllocateImage(depthImage, imageInfo, VMA_MEMORY_USAGE_GPU_ONLY);
 		}
 
 		// Creating image view
@@ -66,11 +70,16 @@ namespace Ilargi
 			imageViewInfo.subresourceRange.layerCount = 1;
 
 			VK_CHECK_RESULT(vkCreateImageView(device, &imageViewInfo, nullptr, &imageView));
+			
+			imageViewInfo.image = depthImage.image;
+			imageViewInfo.format = VK_FORMAT_D32_SFLOAT;
+			imageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+			VK_CHECK_RESULT(vkCreateImageView(device, &imageViewInfo, nullptr, &depthImageView));
 		}
 
 		// Creating the framebuffer
 		{
-			std::array<VkImageView, 1> attachments = { imageView };
+			std::array<VkImageView, 2> attachments = { imageView, depthImageView };
 
 			VkFramebufferCreateInfo framebufferInfo = {};
 			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -159,7 +168,9 @@ namespace Ilargi
 		auto device = VulkanContext::GetLogicalDevice();
 
 		VulkanAllocator::DestroyImage(image);
+		VulkanAllocator::DestroyImage(depthImage);
 		vkDestroyImageView(device, imageView, nullptr);
+		vkDestroyImageView(device, depthImageView, nullptr);
 		vkDestroyFramebuffer(device, framebuffer, nullptr);
 		vkDestroySampler(device, sampler, nullptr);
 		vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
@@ -174,7 +185,9 @@ namespace Ilargi
 		vkDeviceWaitIdle(device);
 
 		VulkanAllocator::DestroyImage(image);
+		VulkanAllocator::DestroyImage(depthImage);
 		vkDestroyImageView(device, imageView, nullptr);
+		vkDestroyImageView(device, depthImageView, nullptr);
 		vkDestroyFramebuffer(device, framebuffer, nullptr);
 		vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
 
@@ -190,7 +203,7 @@ namespace Ilargi
 	{
 		auto device = VulkanContext::GetLogicalDevice();
 
-		VkFormat format = Utils::GetFormatFromImageFormat(properties.format);
+		VkFormat format = Utils::GetFormatFromImageFormat(properties.formats[0]);
 		// Creating the image
 		{
 			VkImageCreateInfo imageInfo{};
@@ -211,6 +224,10 @@ namespace Ilargi
 			imageInfo.flags = 0;
 
 			VulkanAllocator::AllocateImage(image, imageInfo, VMA_MEMORY_USAGE_GPU_ONLY);
+
+			imageInfo.format = VK_FORMAT_D32_SFLOAT;
+			imageInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+			VulkanAllocator::AllocateImage(depthImage, imageInfo, VMA_MEMORY_USAGE_GPU_ONLY);
 		}
 
 		// Creating image view
@@ -234,11 +251,16 @@ namespace Ilargi
 			imageViewInfo.subresourceRange.layerCount = 1;
 
 			VK_CHECK_RESULT(vkCreateImageView(device, &imageViewInfo, nullptr, &imageView));
+
+			imageViewInfo.image = depthImage.image;
+			imageViewInfo.format = VK_FORMAT_D32_SFLOAT;
+			imageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+			VK_CHECK_RESULT(vkCreateImageView(device, &imageViewInfo, nullptr, &depthImageView));
 		}
 
 		// Creating the framebuffer
 		{
-			std::array<VkImageView, 1> attachments = { imageView };
+			std::array<VkImageView, 2> attachments = { imageView, depthImageView };
 
 			VkFramebufferCreateInfo framebufferInfo = {};
 			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
