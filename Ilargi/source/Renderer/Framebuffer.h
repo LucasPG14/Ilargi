@@ -22,7 +22,7 @@ namespace Ilargi
 		bool swapchainTarget;
 	};
 
-	class Pipeline;
+	class RenderPass;
 
 	class Framebuffer
 	{
@@ -31,7 +31,7 @@ namespace Ilargi
 
 		virtual void Destroy() = 0;
 
-		virtual void Resize(std::shared_ptr<Pipeline> pipeline, uint32_t width, uint32_t height) = 0;
+		virtual void Resize(std::shared_ptr<RenderPass> renderPass, uint32_t width, uint32_t height) = 0;
 
 		virtual void* GetID() const = 0;
 

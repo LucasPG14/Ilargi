@@ -11,6 +11,7 @@ namespace Ilargi
 	class CommandBuffer;
 	class VertexBuffer;
 	class IndexBuffer;
+	class StaticMesh;
 
 	class Renderer
 	{
@@ -20,6 +21,7 @@ namespace Ilargi
 		static void SetNewFrame(uint32_t index) { currentFrame = index; }
 
 		static void SubmitGeometry(std::shared_ptr<CommandBuffer> commandBuffer, std::shared_ptr<VertexBuffer> vertexBuffer, std::shared_ptr<IndexBuffer> indexBuffer);
+		static void SubmitGeometry(std::shared_ptr<CommandBuffer> commandBuffer, std::shared_ptr<StaticMesh> mesh);
 
 		static int GetMaxFrames() { return maxFrames; }
 		static int GetCurrentFrame() { return currentFrame; }

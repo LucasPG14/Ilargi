@@ -3,8 +3,10 @@
 // Main headers
 #include "VulkanRenderPass.h"
 #include "Renderer/Renderer.h"
+#include "Renderer/Pipeline.h"
 #include "VulkanFramebuffer.h"
 #include "VulkanCommandBuffer.h"
+#include "VulkanPipeline.h"
 #include "VulkanContext.h"
 #include "VulkanUtils.h"
 
@@ -72,6 +74,7 @@ namespace Ilargi
 		VK_CHECK_RESULT(vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass));
 
 		std::static_pointer_cast<VulkanFramebuffer>(props.framebuffer)->Init(renderPass);
+		std::static_pointer_cast<VulkanPipeline>(props.pipeline)->Init(renderPass);
 	}
 	
 	VulkanRenderPass::~VulkanRenderPass()
@@ -87,41 +90,61 @@ namespace Ilargi
 	
 	void VulkanRenderPass::BeginRenderPass(std::shared_ptr<CommandBuffer> commandBuffer) const
 	{
-		auto framebuffer = std::static_pointer_cast<VulkanFramebuffer>(properties.framebuffer);
-		auto cmdBuffer = std::static_pointer_cast<VulkanCommandBuffer>(commandBuffer)->GetCurrentCommand(Renderer::GetCurrentFrame());
+		Renderer::Submit([this, commandBuffer]()
+			{
+				auto framebuffer = std::static_pointer_cast<VulkanFramebuffer>(properties.framebuffer);
+				auto cmdBuffer = std::static_pointer_cast<VulkanCommandBuffer>(commandBuffer)->GetCurrentCommand(Renderer::GetCurrentFrame());
 
-		VkRenderPassBeginInfo renderPassInfo{};
-		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-		renderPassInfo.renderPass = renderPass;
-		renderPassInfo.framebuffer = framebuffer->GetFramebuffer();
+				VkRenderPassBeginInfo renderPassInfo{};
+				renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+				renderPassInfo.renderPass = renderPass;
+				renderPassInfo.framebuffer = framebuffer->GetFramebuffer();
 
-		uint32_t width = framebuffer->GetWidth();
-		uint32_t height = framebuffer->GetHeight();
+				uint32_t width = framebuffer->GetWidth();
+				uint32_t height = framebuffer->GetHeight();
 
-		renderPassInfo.renderArea.offset = { 0, 0 };
-		renderPassInfo.renderArea.extent = { width, height };
+				renderPassInfo.renderArea.offset = { 0, 0 };
+				renderPassInfo.renderArea.extent = { width, height };
 
-		std::array<VkClearValue, 2> clearValues{};
-		clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
-		clearValues[1].depthStencil = { 1.0f, 0 };
+				std::array<VkClearValue, 2> clearValues = {};
+				clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
+				clearValues[1].depthStencil = { 1.0f, 0 };
 
-		renderPassInfo.clearValueCount = clearValues.size();
-		renderPassInfo.pClearValues = clearValues.data();
+				renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+				renderPassInfo.pClearValues = clearValues.data();
 
-		VkViewport viewport{};
-		viewport.x = 0.0f;
-		viewport.y = 0.0f;
-		viewport.width = (float)width;
-		viewport.height = (float)height;
-		viewport.minDepth = 0.0f;
-		viewport.maxDepth = 1.0f;
-		vkCmdSetViewport(cmdBuffer, 0, 1, &viewport);
+				VkViewport viewport{};
+				viewport.x = 0.0f;
+				viewport.y = 0.0f;
+				viewport.width = (float)width;
+				viewport.height = (float)height;
+				viewport.minDepth = 0.0f;
+				viewport.maxDepth = 1.0f;
+				vkCmdSetViewport(cmdBuffer, 0, 1, &viewport);
 
-		VkRect2D scissor{};
-		scissor.offset = { 0, 0 };
-		scissor.extent = { width, height };
-		vkCmdSetScissor(cmdBuffer, 0, 1, &scissor);
+				VkRect2D scissor{};
+				scissor.offset = { 0, 0 };
+				scissor.extent = { width, height };
+				vkCmdSetScissor(cmdBuffer, 0, 1, &scissor);
 
-		vkCmdBeginRenderPass(cmdBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+				vkCmdBeginRenderPass(cmdBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+			});
+	}
+
+	void VulkanRenderPass::EndRenderPass(std::shared_ptr<CommandBuffer> commandBuffer) const
+	{
+		Renderer::Submit([commandBuffer]()
+			{
+				auto cmdBuffer = std::static_pointer_cast<VulkanCommandBuffer>(commandBuffer)->GetCurrentCommand(Renderer::GetCurrentFrame());
+				vkCmdEndRenderPass(cmdBuffer);
+			});
+	}
+	
+	void VulkanRenderPass::PushConstants(std::shared_ptr<CommandBuffer> commandBuffer, void* data)
+	{
+		Renderer::Submit([this, commandBuffer, data]()
+		{
+			//properties.pipeline->PushConstants(commandBuffer, data);
+		});
 	}
 }

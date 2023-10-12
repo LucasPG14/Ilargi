@@ -93,7 +93,6 @@ namespace Ilargi
 	{
 		Layout layout;
 		std::shared_ptr<Shader> shader;
-		std::shared_ptr<RenderPass> renderPass;
 	};
 
 	class Pipeline
@@ -101,7 +100,9 @@ namespace Ilargi
 	public:
 		virtual void Destroy() = 0;
 
-		virtual void Bind(std::shared_ptr<CommandBuffer> commandBuffer, void* data) = 0;
+		virtual void PushConstants(std::shared_ptr<CommandBuffer> commandBuffer, uint32_t offset, uint32_t size, void* data) = 0;
+
+		virtual void Bind(std::shared_ptr<CommandBuffer> commandBuffer) = 0;
 		virtual void Unbind(std::shared_ptr<CommandBuffer> commandBuffer) = 0;
 
 		virtual const PipelineProperties& GetProperties() const = 0;

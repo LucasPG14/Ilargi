@@ -13,7 +13,7 @@ namespace Ilargi
 		const glm::mat4& GetViewMatrix() const { return viewMatrix; }
 		const glm::mat4& GetProjectionMatrix() const { return projectionMatrix; }
 
-		const glm::mat4 GetViewProjectionMatrix() const { return projectionMatrix * viewMatrix; }
+		const glm::mat4& GetViewProjectionMatrix() const { return projectionMatrix * viewMatrix; }
 
 		void Update();
 

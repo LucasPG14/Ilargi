@@ -15,6 +15,9 @@ namespace Ilargi
 		void Destroy() override;
 
 		void BeginRenderPass(std::shared_ptr<CommandBuffer> commandBuffer) const override;
+		void EndRenderPass(std::shared_ptr<CommandBuffer> commandBuffer) const override;
+
+		void PushConstants(std::shared_ptr<CommandBuffer> commandBuffer, void* data) override;
 
 		const RenderPassProperties& GetProperties() const override { return properties; }
 

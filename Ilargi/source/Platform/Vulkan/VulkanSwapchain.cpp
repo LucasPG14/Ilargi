@@ -95,7 +95,7 @@ namespace Ilargi
 			vkCommandBuffers.push_back(std::static_pointer_cast<VulkanCommandBuffer>(cmdBuffersSubmit[i])->GetCurrentCommand(currentFrame));
 		}
 
-		submitInfo.commandBufferCount = vkCommandBuffers.size();
+		submitInfo.commandBufferCount = static_cast<uint32_t>(vkCommandBuffers.size());
 		submitInfo.pCommandBuffers = vkCommandBuffers.data();
 
 		VK_CHECK_RESULT(vkResetFences(device, 1, &fences[currentFrame]));

@@ -19,6 +19,7 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 -- Creating Ilargi project
 
 group "Dependencies"
+	include "Ilargi/dependencies/Assimp"
 	include "Ilargi/dependencies/glfw"
 	include "Ilargi/dependencies/imgui"
 group ""
@@ -26,22 +27,31 @@ group ""
 VULKAN_SDK = os.getenv("VULKAN_SDK")
 
 IncludeDir = {}
+IncludeDir["Assimp"] = "Ilargi/dependencies/Assimp/include"
 IncludeDir["GLFW"] = "Ilargi/dependencies/glfw/include"
 IncludeDir["ImGUI"] = "Ilargi/dependencies/imgui"
 IncludeDir["GLM"] = "Ilargi/dependencies/glm"
 IncludeDir["entt"] = "Ilargi/dependencies/entt"
-IncludeDir["tinyobj"] = "Ilargi/dependencies/tinyobj"
 IncludeDir["VulkanSDK"] = "%{VULKAN_SDK}/Include"
 
 LibraryDir = {}
 LibraryDir["VulkanSDK"] = "%{VULKAN_SDK}/lib"
+
+Library = {}
+Library["ShaderC_Debug"] = "%{LibraryDir.VulkanSDK}/shaderc_sharedd.lib"
+Library["SPIRV_Cross_Debug"] = "%{LibraryDir.VulkanSDK}/spirv-cross-cored.lib"
+Library["SPIRV_Cross_GLSL_Debug"] = "%{LibraryDir.VulkanSDK}/spirv-cross-glsld.lib"
+
+Library["ShaderC_Release"] = "%{LibraryDir.VulkanSDK}/shaderc_shared.lib"
+Library["SPIRV_Cross_Release"] = "%{LibraryDir.VulkanSDK}/spirv-cross-core.lib"
+Library["SPIRV_Cross_GLSL_Release"] = "%{LibraryDir.VulkanSDK}/spirv-cross-glsl.lib"
 
 project "Ilargi"
 	location "Ilargi"
 	kind "StaticLib"
 	language "C++"
 	cppdialect "C++20"
-	staticruntime "on"
+	staticruntime "off"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -60,9 +70,9 @@ project "Ilargi"
 		"%{prj.name}/source",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.ImGUI}",
+		"%{IncludeDir.Assimp}",
 		"%{IncludeDir.GLM}",
 		"%{IncludeDir.entt}",
-		"%{IncludeDir.tinyobj}",
 		"%{IncludeDir.VulkanSDK}"
 	}
 
@@ -70,6 +80,7 @@ project "Ilargi"
 	{
 		"GLFW",
 		"ImGUI",
+		"Assimp",
 		"%{LibraryDir.VulkanSDK}/vulkan-1.lib"
 	}
 
@@ -92,15 +103,36 @@ project "Ilargi"
 		runtime "Debug"
 		symbols "on"
 
+		links
+		{
+			"%{Library.ShaderC_Debug}",
+			"%{Library.SPIRV_Cross_Debug}",
+			"%{Library.SPIRV_Cross_GLSL_Debug}"
+		}
+
 	filter "configurations:Release"
 		defines "ILG_RELEASE"
 		runtime "Release"
 		optimize "on"
 
+		links
+		{
+			"%{Library.ShaderC_Release}",
+			"%{Library.SPIRV_Cross_Release}",
+			"%{Library.SPIRV_Cross_GLSL_Release}"
+		}
+
 	filter "configurations:Dist"
 		defines "ILG_DIST"
 		runtime "Release"
 		optimize "on"
+
+		links
+		{
+			"%{Library.ShaderC_Release}",
+			"%{Library.SPIRV_Cross_Release}",
+			"%{Library.SPIRV_Cross_GLSL_Release}",
+		}
 
 -- Creating Ilargi Editor project
 
@@ -109,7 +141,7 @@ project "IlargiEditor"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++20"
-	staticruntime "on"
+	staticruntime "off"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -125,7 +157,7 @@ project "IlargiEditor"
 		"Ilargi/source",
 		"Ilargi/dependencies",
 		"Ilargi/dependencies/entt",
-		"Ilargi/dependencies/tinyobj",
+		"Ilargi/dependencies/optick/src",
 		"Ilargi/dependencies/glm",
 	}
 

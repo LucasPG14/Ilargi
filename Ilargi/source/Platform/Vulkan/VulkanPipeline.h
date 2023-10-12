@@ -13,9 +13,12 @@ namespace Ilargi
 		VulkanPipeline(const PipelineProperties& props);
 		virtual ~VulkanPipeline();
 
+		void Init(VkRenderPass renderPass);
 		void Destroy();
 
-		void Bind(std::shared_ptr<CommandBuffer> commandBuffer, void* data) override;
+		void PushConstants(std::shared_ptr<CommandBuffer> commandBuffer, uint32_t offset, uint32_t size, void* data) override;
+
+		void Bind(std::shared_ptr<CommandBuffer> commandBuffer) override;
 		void Unbind(std::shared_ptr<CommandBuffer> commandBuffer) override;
 
 		const PipelineProperties& GetProperties() const override { return properties; }

@@ -4,7 +4,7 @@
 #include "EditorPanels/SceneHierarchyInspectorPanel.h"
 #include "EditorPanels/ResourcesPanel.h"
 
-#include "Utils/Importers/TinyObjImporter.h"
+#include "Utils/Importers/ModelImporter.h"
 
 #include <imgui/imgui.h>
 #include <glm/glm.hpp>
@@ -12,19 +12,6 @@
 
 namespace Ilargi
 {
-	const std::vector<Vertex> vertices = 
-	{
-		{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-		{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-		{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-		{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
-	};
-
-	const std::vector<uint16_t> indices = 
-	{
-		0, 1, 2, 2, 3, 0
-	};
-
 	EditorPanel::EditorPanel() : Panel("Editor Panel"), hierarchyInspector(nullptr), resourcesPanel(nullptr), 
 		viewportSize({ 1080, 720 }), needToUpdateFramebuffer(false)
 	{
@@ -43,22 +30,22 @@ namespace Ilargi
 		commandBuffer = CommandBuffer::Create(Renderer::GetMaxFrames());
 		
 		framebuffer = Framebuffer::Create({ 1080, 720, {ImageFormat::RGBA_8}, false });
-		renderPass = RenderPass::Create({ framebuffer });
-
+		
 		{
 			PipelineProperties pipelineProperties;
-			pipelineProperties.renderPass = renderPass;
-			pipelineProperties.shader = Shader::Create("shaders/vert.spv", "shaders/frag.spv");
+			pipelineProperties.shader = Shader::Create("shaders/shaderfull.vert");
 			pipelineProperties.layout =
 			{
-				{ShaderDataType::FLOAT3, "position"},
-				{ShaderDataType::FLOAT3, "color"},
-				{ShaderDataType::FLOAT2, "texCoord"},
+				{ ShaderDataType::FLOAT3, "position" },
+				{ ShaderDataType::FLOAT3, "normal" },
+				{ ShaderDataType::FLOAT3, "tangent" },
+				{ ShaderDataType::FLOAT3, "bitangent" },
+				{ ShaderDataType::FLOAT2, "texCoord" },
 			};
 
-			pipeline = Pipeline::Create(pipelineProperties);
+			renderPass = RenderPass::Create({ framebuffer, Pipeline::Create(pipelineProperties) });
 		}
-
+		
 		uboCamera = UniformBuffer::Create(sizeof(glm::mat4), Renderer::GetMaxFrames());
 	}
 
@@ -68,7 +55,6 @@ namespace Ilargi
 		
 		scene->Destroy();
 
-		pipeline->Destroy();
 		framebuffer->Destroy();
 		renderPass->Destroy();
 	}
@@ -77,7 +63,7 @@ namespace Ilargi
 	{
 		if (needToUpdateFramebuffer)
 		{
-			framebuffer->Resize(pipeline, (uint32_t)viewportSize.x, (uint32_t)viewportSize.y);
+			framebuffer->Resize(renderPass, (uint32_t)viewportSize.x, (uint32_t)viewportSize.y);
 			camera.Resize(viewportSize.x, viewportSize.y);
 			needToUpdateFramebuffer = false;
 		}
@@ -85,22 +71,25 @@ namespace Ilargi
 		camera.Update();
 
 		commandBuffer->BeginCommand();
-				
-		const auto& view = scene->GetWorld().view<TransformComponent, MeshComponent>();
+		renderPass->BeginRenderPass(commandBuffer);
+		const auto& view = scene->GetWorld().view<TransformComponent, StaticMeshComponent>();
 		for (auto entity : view)
 		{
-			auto [transform, mesh] = view.get<TransformComponent, MeshComponent>(entity);
+			auto [transform, mesh] = view.get<TransformComponent, StaticMeshComponent>(entity);
 
 			const glm::mat4& rotationMat = glm::toMat4(glm::quat(glm::radians(transform.rotation)));
 
 			transform.CalculateTransform();
 			constants[0] = transform.transform;
 			constants[1] = camera.GetProjectionMatrix() * camera.GetViewMatrix();
-			pipeline->Bind(commandBuffer, (void*)constants);
-			Renderer::SubmitGeometry(commandBuffer, mesh.vertexBuffer, mesh.indexBuffer);
+
+			renderPass->GetProperties().pipeline->Bind(commandBuffer);
+			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 0, 64, glm::value_ptr(transform.transform));
+			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 64, 64, glm::value_ptr(constants[1]));
+			Renderer::SubmitGeometry(commandBuffer, mesh.staticMesh);
 		}
 
-		pipeline->Unbind(commandBuffer);
+		renderPass->EndRenderPass(commandBuffer);
 		commandBuffer->EndCommand();
 		commandBuffer->Submit();
 	}

@@ -1,7 +1,7 @@
 #include "ilargipch.h"
 
 #include "SceneHierarchyInspectorPanel.h"
-#include "Utils/IlargiUI.h"
+#include "Utils/UI/IlargiUI.h"
 
 #include <imgui/imgui.h>
 #include <gtc/type_ptr.hpp>

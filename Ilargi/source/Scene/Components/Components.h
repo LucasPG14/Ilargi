@@ -9,6 +9,7 @@ namespace Ilargi
 {
 	class VertexBuffer;
 	class IndexBuffer;
+	class StaticMesh;
 
 	struct TransformComponent
 	{
@@ -30,10 +31,9 @@ namespace Ilargi
 		std::string name;
 	};
 
-	struct MeshComponent
+	struct StaticMeshComponent
 	{
-		std::shared_ptr<VertexBuffer> vertexBuffer;
-		std::shared_ptr<IndexBuffer> indexBuffer;
+		std::shared_ptr<StaticMesh> staticMesh;
 	};
 
 	struct DirectionalLightComponent

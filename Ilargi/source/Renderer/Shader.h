@@ -6,6 +6,6 @@ namespace Ilargi
 	{
 	public:
 
-		static std::shared_ptr<Shader> Create(std::string_view vert, std::string_view frag);
+		static std::shared_ptr<Shader> Create(std::string_view vert);
 	};
 }

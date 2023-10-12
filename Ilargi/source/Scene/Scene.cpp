@@ -2,24 +2,24 @@
 
 #include "Scene.h"
 #include "Renderer/VertexBuffer.h"
+#include "Renderer/VertexBuffer.h"
 #include "Renderer/IndexBuffer.h"
 
-#include "Utils/Importers/TinyObjImporter.h"
+#include "Utils/Importers/ModelImporter.h"
 
 namespace Ilargi
 {
 	Scene::Scene()
 	{
-		std::vector<Vertex> vertices;
-		std::vector<uint32_t> indices;
+		std::shared_ptr<StaticMesh> mesh = ModelImporter::ImportModel("models/viking_room2.obj");
 
-		ImportModel(vertices, indices);
-
-		entt::entity entity = world.create();
-		world.emplace<TransformComponent>(entity, glm::mat4(1.0f));
-		world.emplace<InfoComponent>(entity, "Model");
-		world.emplace<MeshComponent>(entity, VertexBuffer::Create((void*)vertices.data(), static_cast<uint32_t>(vertices.size() * sizeof(Vertex))),
-			IndexBuffer::Create((void*)indices.data(), static_cast<uint32_t>(indices.size())));
+		for (int i = 0; i < 1; ++i)
+		{
+			entt::entity entity = world.create();
+			world.emplace<TransformComponent>(entity, glm::mat4(1.0f));
+			world.emplace<InfoComponent>(entity, "Model");
+			world.emplace<StaticMeshComponent>(entity, mesh);
+		}
 	}
 	
 	Scene::~Scene()
@@ -28,12 +28,14 @@ namespace Ilargi
 	
 	void Scene::Destroy()
 	{
-		auto meshStorage = world.view<MeshComponent>();
+		auto meshStorage = world.view<StaticMeshComponent>();
 		for (auto entity : meshStorage)
 		{
-			auto mesh = meshStorage.get(entity);
-			mesh._Myfirst._Val.indexBuffer->Destroy();
-			mesh._Myfirst._Val.vertexBuffer->Destroy();
+			//auto mesh = meshStorage.get(entity);
+			//mesh._Myfirst._Val.staticMesh->Destroy();
+			//mesh._Myfirst._Val.vertexBuffer->Destroy();
+			//world.destroy(entity);
 		}
+		world.clear();
 	}
 }

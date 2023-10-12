@@ -16,8 +16,8 @@ namespace Ilargi
 		void Init(VkRenderPass renderPass);
 		void Destroy();
 
-		void CreateFramebuffer(std::shared_ptr<Pipeline> pipeline);
-		void Resize(std::shared_ptr<Pipeline> pipeline, uint32_t width, uint32_t height) override;
+		//void CreateFramebuffer(std::shared_ptr<Pipeline> pipeline);
+		void Resize(std::shared_ptr<RenderPass> renderPass, uint32_t width, uint32_t height) override;
 
 		const FramebufferProperties& GetProperties() const override { return properties; }
 		const VkFramebuffer GetFramebuffer() const { return framebuffer; }
