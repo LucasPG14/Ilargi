@@ -37,7 +37,7 @@ namespace Ilargi
 		ImGui_ImplGlfw_InitForVulkan(win, true);
 		
 		auto device = VulkanContext::GetLogicalDevice();
-		uint32_t maxFrames = Renderer::GetMaxFrames();
+		uint32_t maxFrames = Renderer::GetConfig().maxFrames;
 
 		ImGui_ImplVulkan_InitInfo imguiInfo = {};
 		imguiInfo.Instance = VulkanContext::GetInstance();

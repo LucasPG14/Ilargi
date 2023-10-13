@@ -8,17 +8,6 @@
 
 namespace Ilargi
 {
-	struct SwapchainSupportDetails;
-
-	// TODO: This needs to be removed
-	class VertexBuffer;
-	class IndexBuffer;
-
-	class Framebuffer;
-	class RenderPass;
-	class Pipeline;
-	class CommandBuffer;
-
 	class VulkanSwapchain : public Swapchain
 	{
 	public:

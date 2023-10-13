@@ -4,7 +4,7 @@
 
 namespace Ilargi
 {
-	struct Buffer
+	struct VulkanBuffer
 	{
 		VkBuffer buffer;
 		VmaAllocation allocation;
@@ -22,14 +22,14 @@ namespace Ilargi
 		static void Init();
 		static void Destroy();
 
-		static void AllocateBuffer(Buffer& buffer, const VkBufferCreateInfo& bufferInfo, VmaMemoryUsage usage);
-		static void DestroyBuffer(Buffer& buffer);
+		static void AllocateBuffer(VulkanBuffer& buffer, const VkBufferCreateInfo& bufferInfo, VmaMemoryUsage usage);
+		static void DestroyBuffer(VulkanBuffer& buffer);
 
 		static void AllocateImage(Image& image, const VkImageCreateInfo& imageInfo, VmaMemoryUsage usage);
 		static void DestroyImage(Image& image);
 
-		static void* MapMemory(const Buffer& buffer);
-		static void UnmapMemory(Buffer& buffer);
+		static void* MapMemory(const VulkanBuffer& buffer);
+		static void UnmapMemory(VulkanBuffer& buffer);
 
 	private:
 		static VmaAllocator allocator;

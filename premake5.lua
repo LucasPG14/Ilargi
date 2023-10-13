@@ -32,6 +32,7 @@ IncludeDir["GLFW"] = "Ilargi/dependencies/glfw/include"
 IncludeDir["ImGUI"] = "Ilargi/dependencies/imgui"
 IncludeDir["GLM"] = "Ilargi/dependencies/glm"
 IncludeDir["entt"] = "Ilargi/dependencies/entt"
+IncludeDir["pcg"] = "Ilargi/dependencies/pcg/include"
 IncludeDir["VulkanSDK"] = "%{VULKAN_SDK}/Include"
 
 LibraryDir = {}
@@ -73,6 +74,7 @@ project "Ilargi"
 		"%{IncludeDir.Assimp}",
 		"%{IncludeDir.GLM}",
 		"%{IncludeDir.entt}",
+		"%{IncludeDir.pcg}",
 		"%{IncludeDir.VulkanSDK}"
 	}
 

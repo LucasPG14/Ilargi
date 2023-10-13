@@ -91,8 +91,10 @@ namespace Ilargi
 
 	struct PipelineProperties
 	{
+		std::string name;
 		Layout layout;
 		std::shared_ptr<Shader> shader;
+		bool depth;
 	};
 
 	class Pipeline
@@ -103,7 +105,6 @@ namespace Ilargi
 		virtual void PushConstants(std::shared_ptr<CommandBuffer> commandBuffer, uint32_t offset, uint32_t size, void* data) = 0;
 
 		virtual void Bind(std::shared_ptr<CommandBuffer> commandBuffer) = 0;
-		virtual void Unbind(std::shared_ptr<CommandBuffer> commandBuffer) = 0;
 
 		virtual const PipelineProperties& GetProperties() const = 0;
 

@@ -15,6 +15,6 @@ namespace Ilargi
 
 		void Destroy() override;
 	private:
-		Buffer buffer;
+		VulkanBuffer buffer;
 	};
 }

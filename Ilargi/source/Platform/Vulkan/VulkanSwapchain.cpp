@@ -5,11 +5,25 @@
 #include "VulkanContext.h"
 #include "Renderer/Renderer.h"
 
-// TODO: To remove
 #include "VulkanCommandBuffer.h"
 
 namespace Ilargi
 {
+	namespace Utils
+	{
+		static uint32_t GetAASamples(VkSampleCountFlags sampleCount)
+		{
+			if (sampleCount & VK_SAMPLE_COUNT_64_BIT) { return VK_SAMPLE_COUNT_64_BIT; }
+			if (sampleCount & VK_SAMPLE_COUNT_32_BIT) { return VK_SAMPLE_COUNT_32_BIT; }
+			if (sampleCount & VK_SAMPLE_COUNT_16_BIT) { return VK_SAMPLE_COUNT_16_BIT; }
+			if (sampleCount & VK_SAMPLE_COUNT_8_BIT) { return VK_SAMPLE_COUNT_8_BIT; }
+			if (sampleCount & VK_SAMPLE_COUNT_4_BIT) { return VK_SAMPLE_COUNT_4_BIT; }
+			if (sampleCount & VK_SAMPLE_COUNT_2_BIT) { return VK_SAMPLE_COUNT_2_BIT; }
+
+			return VK_SAMPLE_COUNT_1_BIT;
+		}
+	}
+
 	VulkanSwapchain::VulkanSwapchain() : swapchain(VK_NULL_HANDLE), currentFrame(0), currentImageIndex(0)
 	{
 		auto device = VulkanContext::GetLogicalDevice();
@@ -22,7 +36,7 @@ namespace Ilargi
 
 		CreateFramebuffers();
 
-		uint32_t imageCount = Renderer::GetMaxFrames();
+		uint32_t imageCount = Renderer::GetConfig().maxFrames;
 
 		// Creating command buffers
 		{
@@ -128,7 +142,7 @@ namespace Ilargi
 
 		VK_CHECK_RESULT(vkWaitForFences(device, 1, &fences[currentFrame], VK_TRUE, UINT64_MAX));
 
-		currentFrame = (currentFrame + 1) % Renderer::GetMaxFrames();
+		currentFrame = (currentFrame + 1) % Renderer::GetConfig().maxFrames;
 		Renderer::SetNewFrame(currentFrame);
 	}
 
@@ -167,19 +181,29 @@ namespace Ilargi
 		auto physicalDevice = VulkanContext::GetPhysicalDevice();
 		auto surface = VulkanContext::GetSurface();
 		
+		VkPhysicalDeviceProperties physicalDeviceProperties;
+		vkGetPhysicalDeviceProperties(physicalDevice, &physicalDeviceProperties);
+
+		RendererConfig config;
+		VkSampleCountFlags counts = physicalDeviceProperties.limits.framebufferColorSampleCounts & physicalDeviceProperties.limits.framebufferDepthSampleCounts;
+
+		config.maxAASamples = Utils::GetAASamples(counts);
+
 		VkSurfaceCapabilitiesKHR capabilities;
 		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &capabilities);
 
 		QuerySwapchainSupport(VulkanContext::GetPhysicalDevice());
 		extent = capabilities.currentExtent;
-
+		
 		uint32_t imageCount = capabilities.minImageCount + 1;
 
 		if (capabilities.maxImageCount > 0 && imageCount > capabilities.maxImageCount)
 		{
 			imageCount = capabilities.maxImageCount;
 		}
-		Renderer::SetMaxFrames(imageCount);
+		config.maxFrames = imageCount;
+		
+		Renderer::Init(config);
 
 		VkSwapchainCreateInfoKHR swapchainInfo = {};
 		swapchainInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -379,7 +403,7 @@ namespace Ilargi
 		colorAttachmentRef.attachment = 0;
 		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-		VkAttachmentDescription depthAttachment{};
+		VkAttachmentDescription depthAttachment = {};
 		depthAttachment.format = VK_FORMAT_D32_SFLOAT;
 		depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 		depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -389,7 +413,7 @@ namespace Ilargi
 		depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 		depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-		VkAttachmentReference depthAttachmentRef{};
+		VkAttachmentReference depthAttachmentRef = {};
 		depthAttachmentRef.attachment = 1;
 		depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 

@@ -18,7 +18,7 @@ namespace Ilargi
 	private:
 		uint32_t size;
 
-		std::vector<Buffer> ubos;
+		std::vector<VulkanBuffer> ubos;
 		std::vector<void*> uniformBuffersMapped;
 	};
 }

@@ -15,7 +15,7 @@ namespace Ilargi
 
 		for (int i = 0; i < 1; ++i)
 		{
-			entt::entity entity = world.create();
+			Entity entity = world.create();
 			world.emplace<TransformComponent>(entity, glm::mat4(1.0f));
 			world.emplace<InfoComponent>(entity, "Model");
 			world.emplace<StaticMeshComponent>(entity, mesh);

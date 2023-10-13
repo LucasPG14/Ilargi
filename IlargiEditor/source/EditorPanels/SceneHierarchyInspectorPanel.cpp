@@ -3,6 +3,8 @@
 #include "SceneHierarchyInspectorPanel.h"
 #include "Utils/UI/IlargiUI.h"
 
+#include "Resources/Mesh.h"
+
 #include <imgui/imgui.h>
 #include <gtc/type_ptr.hpp>
 
@@ -80,6 +82,16 @@ namespace Ilargi
 				ImGui::DragFloat3("Position", glm::value_ptr(transformComponent.position));
 				ImGui::DragFloat3("Rotation", glm::value_ptr(transformComponent.rotation));
 				ImGui::DragFloat3("Scale", glm::value_ptr(transformComponent.scale));
+			}
+		}
+		ImGui::Separator();
+
+		if (world.try_get<TransformComponent>(selected))
+		{
+			StaticMeshComponent& meshComponent = scene->GetWorld().get<StaticMeshComponent>(selected);
+			if (ImGui::CollapsingHeader("Static Mesh Component"))
+			{
+				ImGui::ColorPicker4("##Color", glm::value_ptr(meshComponent.staticMesh->GetColor()));
 			}
 		}
 		ImGui::Separator();

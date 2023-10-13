@@ -6,6 +6,8 @@
 
 namespace Ilargi
 {
+	using Entity = entt::entity;
+
 	class Scene
 	{
 	public:

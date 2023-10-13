@@ -19,6 +19,6 @@ namespace Ilargi
 	private:
 		uint32_t count;
 
-		Buffer buffer;
+		VulkanBuffer buffer;
 	};
 }

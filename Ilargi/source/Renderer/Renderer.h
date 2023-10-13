@@ -13,9 +13,16 @@ namespace Ilargi
 	class IndexBuffer;
 	class StaticMesh;
 
+	struct RendererConfig
+	{
+		uint32_t maxFrames;
+		uint32_t maxAASamples;
+	};
+
 	class Renderer
 	{
 	public:
+		static void Init(const RendererConfig& conf) { config = conf; }
 
 		static void StartFrame();
 		static void SetNewFrame(uint32_t index) { currentFrame = index; }
@@ -23,12 +30,9 @@ namespace Ilargi
 		static void SubmitGeometry(std::shared_ptr<CommandBuffer> commandBuffer, std::shared_ptr<VertexBuffer> vertexBuffer, std::shared_ptr<IndexBuffer> indexBuffer);
 		static void SubmitGeometry(std::shared_ptr<CommandBuffer> commandBuffer, std::shared_ptr<StaticMesh> mesh);
 
-		static int GetMaxFrames() { return maxFrames; }
-		static int GetCurrentFrame() { return currentFrame; }
+		static const RendererConfig& GetConfig() { return config; }
+		static const int GetCurrentFrame() { return currentFrame; }
 
-		static void ResetCurrentFrame() { currentFrame = 0; }
-
-		static void SetMaxFrames(int frms) { maxFrames = frms; }
 		static GraphicsAPI GetGraphicsAPI() { return graphicsAPI; }
 
 		static std::vector<std::shared_ptr<CommandBuffer>>& GetSubmittedCommands() { return submittedCommands; }
@@ -43,7 +47,7 @@ namespace Ilargi
 		static GraphicsAPI graphicsAPI;
 		static std::unique_ptr<Render> render;
 
-		static int maxFrames;
+		static RendererConfig config;
 		static int currentFrame;
 
 		static std::vector<std::function<void()>> queue;

@@ -4,6 +4,8 @@
 #include "EditorPanels/SceneHierarchyInspectorPanel.h"
 #include "EditorPanels/ResourcesPanel.h"
 
+#include "Resources/Mesh.h"
+
 #include "Utils/Importers/ModelImporter.h"
 
 #include <imgui/imgui.h>
@@ -27,13 +29,15 @@ namespace Ilargi
 		hierarchyInspector = new SceneHierarchyInspectorPanel(scene);
 		resourcesPanel = new ResourcesPanel();
 
-		commandBuffer = CommandBuffer::Create(Renderer::GetMaxFrames());
+		commandBuffer = CommandBuffer::Create(Renderer::GetConfig().maxFrames);
 		
 		framebuffer = Framebuffer::Create({ 1080, 720, {ImageFormat::RGBA_8}, false });
 		
 		{
 			PipelineProperties pipelineProperties;
+			pipelineProperties.name = "Geometry";
 			pipelineProperties.shader = Shader::Create("shaders/shaderfull.vert");
+			pipelineProperties.depth = true;
 			pipelineProperties.layout =
 			{
 				{ ShaderDataType::FLOAT3, "position" },
@@ -46,7 +50,7 @@ namespace Ilargi
 			renderPass = RenderPass::Create({ framebuffer, Pipeline::Create(pipelineProperties) });
 		}
 		
-		uboCamera = UniformBuffer::Create(sizeof(glm::mat4), Renderer::GetMaxFrames());
+		uboCamera = UniformBuffer::Create(sizeof(glm::mat4), Renderer::GetConfig().maxFrames);
 	}
 
 	void EditorPanel::OnDestroy()
@@ -72,6 +76,8 @@ namespace Ilargi
 
 		commandBuffer->BeginCommand();
 		renderPass->BeginRenderPass(commandBuffer);
+		constants[0] = camera.GetProjectionMatrix() * camera.GetViewMatrix();
+
 		const auto& view = scene->GetWorld().view<TransformComponent, StaticMeshComponent>();
 		for (auto entity : view)
 		{
@@ -80,12 +86,11 @@ namespace Ilargi
 			const glm::mat4& rotationMat = glm::toMat4(glm::quat(glm::radians(transform.rotation)));
 
 			transform.CalculateTransform();
-			constants[0] = transform.transform;
-			constants[1] = camera.GetProjectionMatrix() * camera.GetViewMatrix();
-
+			
 			renderPass->GetProperties().pipeline->Bind(commandBuffer);
 			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 0, 64, glm::value_ptr(transform.transform));
-			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 64, 64, glm::value_ptr(constants[1]));
+			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 64, 64, glm::value_ptr(constants[0]));
+			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 128, 16, glm::value_ptr(mesh.staticMesh->GetColor()));
 			Renderer::SubmitGeometry(commandBuffer, mesh.staticMesh);
 		}
 

@@ -75,7 +75,7 @@ namespace Ilargi
 
 		const std::filesystem::path GetCacheDirectory()
 		{
-			return "cache/vulkan/";
+			return "cache/vulkan/shaders/";
 		}
 	}
 
@@ -124,6 +124,8 @@ namespace Ilargi
 		size_t typeLength = strlen(type);
 		size_t pos = code.find(type, 0);
 
+		std::vector<VkPushConstantRange> constantsRange;
+
 		while (pos != std::string::npos)
 		{
 			size_t eol = code.find_first_of("\r\n", pos);
@@ -165,7 +167,7 @@ namespace Ilargi
 
 			ILG_CORE_TRACE("VulkanShader::Reflect - {0} {1}", Utils::ShaderStageToString(stage), filePath);
 
-			ReflectShader(result);
+			ReflectShader(result, stage);
 
 			shaders.push_back({ stage, shaderModule });
 		}
@@ -189,15 +191,14 @@ namespace Ilargi
 		return std::vector<uint32_t>(module.cbegin(), module.cend());
 	}
 	
-	void VulkanShader::ReflectShader(const std::vector<uint32_t>& code)
+	void VulkanShader::ReflectShader(const std::vector<uint32_t>& code, VkShaderStageFlags stage)
 	{
 		spirv_cross::Compiler compiler(code);
 		spirv_cross::ShaderResources resources = compiler.get_shader_resources();
 
-
 		// Reflecting push constants
-		auto pushConstants = resources.push_constant_buffers;
-		for (auto& pushConstant : pushConstants)
+		auto constants = resources.push_constant_buffers;
+		for (auto& pushConstant : constants)
 		{
 			const auto& type = compiler.get_type(pushConstant.base_type_id);
 			uint32_t size = static_cast<uint32_t>(compiler.get_declared_struct_size(type));
@@ -208,10 +209,17 @@ namespace Ilargi
 			ILG_CORE_TRACE("	Size: {0}", size);
 			ILG_CORE_TRACE("	Binding: {0}", binding);
 			ILG_CORE_TRACE("	Members: {0}", membersCount);
+
+			VkPushConstantRange pushConstant;
+			pushConstant.offset = 0;
+			pushConstant.size = size;
+			pushConstant.stageFlags = stage;
+			
+			pushConstants.push_back(pushConstant);
 		}
 
-		auto uniformBuffers = resources.uniform_buffers;
-		for (auto& uniformBuffer : pushConstants)
+		auto resUniformBuffers = resources.uniform_buffers;
+		for (auto& uniformBuffer : resUniformBuffers)
 		{
 			const auto& type = compiler.get_type(uniformBuffer.base_type_id);
 			uint32_t size = static_cast<uint32_t>(compiler.get_declared_struct_size(type));
@@ -222,6 +230,8 @@ namespace Ilargi
 			ILG_CORE_TRACE("	Size: {0}", size);
 			ILG_CORE_TRACE("	Binding: {0}", binding);
 			ILG_CORE_TRACE("	Members: {0}", membersCount);
+
+			//uniformBuffers.push_back();
 		}
 	}
 }

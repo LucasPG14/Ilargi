@@ -18,6 +18,6 @@ namespace Ilargi
 	private:
 		std::shared_ptr<Scene> scene;
 
-		entt::entity selected;
+		Entity selected;
 	};
 }
