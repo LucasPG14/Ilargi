@@ -28,8 +28,8 @@ namespace Ilargi
 		WindowResizeEvent(unsigned int w, unsigned int h)
 			: width(w), height(h) {}
 
-		inline unsigned int GetWidth() const { return width; }
-		inline unsigned int GetHeight() const { return height; }
+		inline const unsigned int GetWidth() const { return width; }
+		inline const unsigned int GetHeight() const { return height; }
 
 		std::string ToString() const override
 		{

@@ -9,6 +9,8 @@ namespace Ilargi
 	public:
 		KeyPressedEvent(int k, int c) : key(k), count(c) {}
 
+		inline const int GetKey() const { return key; }
+
 		std::string ToString() const override
 		{
 			std::stringstream ss;
@@ -29,6 +31,8 @@ namespace Ilargi
 	{
 	public:
 		KeyReleasedEvent(int k) : key(k) {}
+
+		inline const int GetKey() const { return key; }
 
 		std::string ToString() const override
 		{

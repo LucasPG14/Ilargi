@@ -24,7 +24,7 @@ namespace Ilargi
 		return k == GLFW_PRESS;
 	}
 	
-	glm::vec2 Input::GetMousePos()
+	const glm::vec2 Input::GetMousePos()
 	{
 		double x, y;
 		glfwGetCursorPos(window, &x, &y);

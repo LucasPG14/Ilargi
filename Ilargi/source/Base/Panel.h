@@ -9,7 +9,7 @@ namespace Ilargi
 	class Panel
 	{
 	public:
-		Panel(const std::string& pName = "Default Name") : panelName(pName) {}
+		Panel(const char* pName = "Default Name") : panelName(pName) {}
 		~Panel() {}
 
 		virtual void OnInit() = 0;

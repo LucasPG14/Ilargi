@@ -235,7 +235,7 @@ namespace Ilargi
 		vkDestroyInstance(instance, nullptr);
 	}
 	
-	VkCommandBuffer VulkanContext::BeginSingleCommandBuffer()
+	const VkCommandBuffer VulkanContext::BeginSingleCommandBuffer()
 	{
 		VkCommandBufferAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -255,7 +255,7 @@ namespace Ilargi
 		return commandBuffer;
 	}
 
-	void VulkanContext::EndSingleCommandBuffer(VkCommandBuffer commandBuffer)
+	void VulkanContext::EndSingleCommandBuffer(const VkCommandBuffer commandBuffer)
 	{
 		vkEndCommandBuffer(commandBuffer);
 
@@ -270,7 +270,7 @@ namespace Ilargi
 		vkFreeCommandBuffers(logicalDevice, commandPool, 1, &commandBuffer);
 	}
 
-	std::vector<const char*> VulkanContext::GetRequiredExtensions()
+	const std::vector<const char*> VulkanContext::GetRequiredExtensions() const
 	{
 		uint32_t glfwExtensionCount = 0;
 		const char** glfwExtensions;
@@ -311,7 +311,7 @@ namespace Ilargi
 		return formatCount > 0 && presentModeCount > 0;
 	}
 	
-	QueueFamilyIndices VulkanContext::FindQueueFamilies()
+	const QueueFamilyIndices VulkanContext::FindQueueFamilies() const
 	{
 		QueueFamilyIndices indices = {};
 		// Logic to find queue family indices to populate struct with

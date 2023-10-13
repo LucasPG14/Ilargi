@@ -16,6 +16,7 @@ namespace Ilargi
 
 		void Destroy();
 
+		const entt::registry& GetWorld() const { return world; }
 		entt::registry& GetWorld() { return world; }
 
 	private:

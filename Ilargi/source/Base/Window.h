@@ -15,18 +15,20 @@ namespace Ilargi
 	class GraphicsContext;
 	class Swapchain;
 
+	using EventCallback = std::function<void(Event&)>;
+
 	class Window
 	{
 	public:
-		Window(const WindowProperties& props, std::function<void(Event&)> eventCallback);
+		Window(const WindowProperties& props, EventCallback eventCallback);
 		virtual ~Window();
 
 		void Destroy();
 
-		void StartFrame();
-		void EndFrame();
+		void StartFrame() const;
+		void EndFrame() const;
 
-		void PollEvents();
+		void PollEvents() const;
 
 		GLFWwindow* GetWindow() const { return window; }
 		const std::shared_ptr<Swapchain> GetSwapchain() const { return swapchain; }
@@ -37,7 +39,7 @@ namespace Ilargi
 	private:
 		GLFWwindow* window;
 
-		std::function<void(Event&)> eventFunc;
+		EventCallback eventFunc;
 		WindowProperties properties;
 
 		std::shared_ptr<GraphicsContext> context;

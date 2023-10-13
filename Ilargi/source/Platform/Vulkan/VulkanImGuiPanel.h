@@ -7,7 +7,6 @@ struct GLFWwindow;
 
 namespace Ilargi
 {
-	class Swapchain;
 	class VulkanSwapchain;
 	class VulkanCommandBuffer;
 

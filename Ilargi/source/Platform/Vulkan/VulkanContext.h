@@ -43,16 +43,16 @@ namespace Ilargi
 		
 		static VkQueue GetGraphicsQueue() { return graphicsQueue; }
 
-		static VkCommandBuffer BeginSingleCommandBuffer();
-		static void EndSingleCommandBuffer(VkCommandBuffer commandBuffer);
+		static const VkCommandBuffer BeginSingleCommandBuffer();
+		static void EndSingleCommandBuffer(const VkCommandBuffer commandBuffer);
 
 	private:
-		std::vector<const char*> GetRequiredExtensions();
+		const std::vector<const char*> GetRequiredExtensions() const;
 
 		bool IsDeviceSuitable(VkPhysicalDevice device) const;
 		
 		bool CanCreateSwapchain(VkPhysicalDevice device) const;
-		QueueFamilyIndices FindQueueFamilies();
+		const QueueFamilyIndices FindQueueFamilies() const;
 
 	private:
 		static VkInstance instance;

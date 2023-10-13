@@ -9,7 +9,7 @@ namespace Ilargi
 	public:
 		MouseButtonPressedEvent(int btn) : button(btn) {}
 
-		inline int GetButton() const { return button; }
+		inline const int GetButton() const { return button; }
 
 		std::string ToString() const override
 		{

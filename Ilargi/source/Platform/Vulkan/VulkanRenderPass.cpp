@@ -140,7 +140,7 @@ namespace Ilargi
 			});
 	}
 	
-	void VulkanRenderPass::PushConstants(std::shared_ptr<CommandBuffer> commandBuffer, void* data)
+	void VulkanRenderPass::PushConstants(std::shared_ptr<CommandBuffer> commandBuffer, void* data) const
 	{
 		Renderer::Submit([this, commandBuffer, data]()
 		{

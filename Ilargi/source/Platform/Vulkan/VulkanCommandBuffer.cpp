@@ -25,7 +25,6 @@ namespace Ilargi
 		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
 		VK_CHECK_RESULT(vkCreateFence(device, &fenceInfo, nullptr, &fence));
-		//VK_CHECK_RESULT(vkCreateSemaphore(device, &fenceInfo, nullptr, &fence));
 	}
 	
 	VulkanCommandBuffer::~VulkanCommandBuffer()
@@ -44,7 +43,6 @@ namespace Ilargi
 				beginInfo.pInheritanceInfo = nullptr; // Optional
 
 				VK_CHECK_RESULT(vkBeginCommandBuffer(commandBuffers[currentFrame], &beginInfo));
-				//vkResetQueryPool(VulkanContext::GetLogicalDevice(), queryPools[currentFrame], 0, queryPoolCount);
 			});
 	}
 	

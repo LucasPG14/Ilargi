@@ -16,9 +16,9 @@ namespace Ilargi
 		void Init(VkRenderPass renderPass);
 		void Destroy();
 
-		void PushConstants(std::shared_ptr<CommandBuffer> commandBuffer, uint32_t offset, uint32_t size, void* data) override;
+		void PushConstants(std::shared_ptr<CommandBuffer> commandBuffer, uint32_t offset, uint32_t size, void* data) const override;
 
-		void Bind(std::shared_ptr<CommandBuffer> commandBuffer) override;
+		void Bind(std::shared_ptr<CommandBuffer> commandBuffer) const override;
 
 		const PipelineProperties& GetProperties() const override { return properties; }
 	private:

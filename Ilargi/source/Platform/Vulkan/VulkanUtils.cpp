@@ -6,7 +6,7 @@ namespace Ilargi
 {
 	namespace Utils
 	{
-		VkFormat GetFormatFromImageFormat(ImageFormat format)
+		const VkFormat GetFormatFromImageFormat(ImageFormat format)
 		{
 			switch (format)
 			{

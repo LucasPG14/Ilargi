@@ -18,7 +18,7 @@
 
 namespace Ilargi
 {
-	Window::Window(const WindowProperties& props, std::function<void(Event&)> eventCallback) 
+	Window::Window(const WindowProperties& props, EventCallback eventCallback)
 		: eventFunc(eventCallback), properties(props), context(nullptr)
 	{
 		int success = glfwInit();
@@ -64,17 +64,17 @@ namespace Ilargi
 		glfwTerminate();
 	}
 
-	void Window::StartFrame()
+	void Window::StartFrame() const
 	{
 		swapchain->StartFrame();
 	}
 
-	void Window::EndFrame()
+	void Window::EndFrame() const
 	{
 		swapchain->EndFrame();
 	}
 	
-	void Window::PollEvents()
+	void Window::PollEvents() const
 	{
 		glfwPollEvents();
 	}

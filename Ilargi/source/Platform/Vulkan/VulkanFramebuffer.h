@@ -14,17 +14,17 @@ namespace Ilargi
 		virtual ~VulkanFramebuffer();
 
 		void Init(VkRenderPass renderPass);
-		void Destroy();
+		void Destroy() override;
 
 		void Resize(std::shared_ptr<RenderPass> renderPass, uint32_t width, uint32_t height) override;
 
 		const FramebufferProperties& GetProperties() const override { return properties; }
 		const VkFramebuffer GetFramebuffer() const { return framebuffer; }
 
-		uint32_t GetWidth() const override { return properties.width; }
-		uint32_t GetHeight() const override { return properties.height; }
+		const uint32_t GetWidth() const override { return properties.width; }
+		const uint32_t GetHeight() const override { return properties.height; }
 
-		void* GetID() const;
+		void* GetID() const override;
 
 	private:
 		FramebufferProperties properties;

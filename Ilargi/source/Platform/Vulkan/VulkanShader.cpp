@@ -11,7 +11,7 @@ namespace Ilargi
 {
 	namespace Utils
 	{
-		VkShaderStageFlagBits GetShaderStageFromString(const std::string& type)
+		const VkShaderStageFlagBits GetShaderStageFromString(const std::string& type)
 		{
 			if (type == "vertex") return VK_SHADER_STAGE_VERTEX_BIT;
 			if (type == "fragment") return VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -20,7 +20,7 @@ namespace Ilargi
 			return VK_SHADER_STAGE_VERTEX_BIT;
 		}
 
-		std::string ShaderStageToString(VkShaderStageFlagBits stage)
+		const std::string ShaderStageToString(VkShaderStageFlagBits stage)
 		{
 			switch (stage)
 			{
@@ -32,7 +32,7 @@ namespace Ilargi
 			return "";
 		}
 
-		std::string ReadFile(const std::string& path)
+		const std::string ReadFile(const std::string& path)
 		{
 			std::string result;
 			std::ifstream in(path, std::ios::in | std::ios::binary);
@@ -49,7 +49,7 @@ namespace Ilargi
 			return result;
 		}
 
-		shaderc_shader_kind GLShaderStageToShaderC(VkShaderStageFlagBits stage)
+		const shaderc_shader_kind GLShaderStageToShaderC(VkShaderStageFlagBits stage)
 		{
 			switch (stage)
 			{
@@ -101,19 +101,6 @@ namespace Ilargi
 		}
 
 		shaders.clear();
-	}
-	
-	VkShaderModule VulkanShader::CreateShaderModule(VkDevice device, const std::vector<char>& code)
-	{
-		VkShaderModuleCreateInfo createInfo = {};
-		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-		createInfo.codeSize = code.size();
-		createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
-
-		VkShaderModule shaderModule = nullptr;
-		VK_CHECK_RESULT(vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule));
-
-		return shaderModule;
 	}
 	
 	void VulkanShader::ProcessShader(std::string code)
@@ -173,7 +160,7 @@ namespace Ilargi
 		}
 	}
 	
-	const std::vector<uint32_t> VulkanShader::ConvertToSpirV(VkShaderStageFlagBits stage, std::string_view code)
+	const std::vector<uint32_t> VulkanShader::ConvertToSpirV(VkShaderStageFlagBits stage, std::string_view code) const
 	{
 		shaderc::Compiler compiler;
 		shaderc::CompileOptions options;

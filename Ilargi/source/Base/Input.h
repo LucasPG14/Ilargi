@@ -16,7 +16,7 @@ namespace Ilargi
 		static bool IsKeyPressed(KeyCode::KeyCode key);
 		static bool IsMouseButtonPressed(MouseCode::MouseCode key);
 
-		static glm::vec2 GetMousePos();
+		static const glm::vec2 GetMousePos();
 
 	private:
 		static GLFWwindow* window;

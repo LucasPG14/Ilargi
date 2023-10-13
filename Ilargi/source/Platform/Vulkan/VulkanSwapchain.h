@@ -19,14 +19,14 @@ namespace Ilargi
 		void StartFrame() override;
 		void EndFrame() override;
 
-		VkRenderPass GetRenderPass() { return renderPass; }
+		const VkRenderPass GetRenderPass() const { return renderPass; }
 
-		VkCommandBuffer GetCurrentCommand() { return commandBuffers[currentFrame]; }
+		const VkCommandBuffer GetCurrentCommand() const { return commandBuffers[currentFrame]; }
 
-		VkFramebuffer GetFramebuffer() const { return framebuffers[currentImageIndex]; }
+		const VkFramebuffer GetFramebuffer() const { return framebuffers[currentImageIndex]; }
 
-		uint32_t GetWidth() const { return extent.width; }
-		uint32_t GetHeight() const { return extent.height; }
+		const uint32_t GetWidth() const { return extent.width; }
+		const uint32_t GetHeight() const { return extent.height; }
 
 	private:
 		void Present(VkDevice device, VkSemaphore renderFinish);
@@ -35,8 +35,6 @@ namespace Ilargi
 		void CreateSwapchain();
 		void CreateFramebuffers();
 		void CleanUpSwapchain();
-
-		void TransitionSwapchainImage();
 
 		void CreateRenderPass(VkDevice device);
 
@@ -50,18 +48,21 @@ namespace Ilargi
 
 		VkRenderPass renderPass;
 
+		// Color attachments
 		std::vector<VkImage> swapchainImages;
 		std::vector<VkImageView> imageViews;
 		std::vector<VkFramebuffer> framebuffers;
 
+		// Depth attachments
+		Image depthImage;
+		VkImageView depthImageView;
+
 		std::vector<VkCommandBuffer> commandBuffers;
 
+		// Synchronization objects
 		std::vector<VkSemaphore> imageAvailable;
 		std::vector<VkSemaphore> renderFinished;
 		std::vector<VkFence> fences;
-
-		Image depthImage;
-		VkImageView depthImageView;
 
 		uint32_t currentFrame;
 		uint32_t currentImageIndex;

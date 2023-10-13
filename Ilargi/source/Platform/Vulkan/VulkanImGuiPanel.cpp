@@ -77,8 +77,6 @@ namespace Ilargi
 
 		vkDeviceWaitIdle(device);
 
-		//vkDestroyDescriptorPool(device, descriptorPool, nullptr);
-
 		ImGui_ImplVulkan_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
