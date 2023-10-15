@@ -188,6 +188,7 @@ namespace Ilargi
 		VkSampleCountFlags counts = physicalDeviceProperties.limits.framebufferColorSampleCounts & physicalDeviceProperties.limits.framebufferDepthSampleCounts;
 
 		config.maxAASamples = Utils::GetAASamples(counts);
+		config.maxAnisotropy = physicalDeviceProperties.limits.maxSamplerAnisotropy;
 
 		VkSurfaceCapabilitiesKHR capabilities;
 		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &capabilities);

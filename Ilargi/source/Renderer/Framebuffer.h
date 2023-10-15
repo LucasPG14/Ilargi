@@ -4,13 +4,13 @@ namespace Ilargi
 {
 	enum class ImageFormat
 	{
-		RGBA_8,
-		RGBA_16,
-		RGBA_32,
+		RGBA8,
+		RGBA16,
+		RGBA32,
 
-		RED_8,
-		RED_16,
-		RED_32,
+		RED8,
+		RED16,
+		RED32,
 	};
 
 	struct FramebufferProperties

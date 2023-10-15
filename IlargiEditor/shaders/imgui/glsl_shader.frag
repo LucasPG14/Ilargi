@@ -12,4 +12,5 @@ void main()
 {
     vec4 color = In.Color * texture(sTexture, In.UV.st);
     fColor = vec4(pow(color.rgb, vec3(2.2)), color.a);
+    //fColor = vec4(color);
 }

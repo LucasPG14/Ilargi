@@ -7,7 +7,7 @@ layout(location = 2) in vec3 inTangent;
 layout(location = 3) in vec3 inBitangent;
 layout(location = 4) in vec2 inTexCoord;
 
-layout(binding = 0) uniform UniformBufferObject 
+layout(set = 0, binding = 0) uniform UniformBufferObject 
 {
     mat4 viewProj;
 } ubo;
@@ -20,26 +20,28 @@ layout(push_constant) uniform Constants
 } pushConstants;
 
 layout(location = 0) out vec3 fragColor;
+layout(location = 1) out vec2 vTexCoord;
 
 void main() 
 {
     gl_Position = pushConstants.viewProj * pushConstants.modelMatrix * vec4(inPosition, 1.0); 
     fragColor = inPosition;
+    vTexCoord = inTexCoord;
 }
 
 #type fragment
 #version 450
 
 layout(location = 0) in vec3 fragColor;
+layout(location = 1) in vec2 vTexCoord;
 
 layout(location = 0) out vec4 outColor;
 
-layout(push_constant) uniform Material
-{
-    vec4 color;
-} material;
+layout(binding = 0) uniform sampler2D texSampler;
 
 void main() 
 {
-    outColor = vec4(fragColor, 1.0);
+    vec4 col = texture(texSampler, vTexCoord);
+    col.rgb = col.rgb * 2.2;
+    outColor = vec4(col.xyz, 1.0);
 }

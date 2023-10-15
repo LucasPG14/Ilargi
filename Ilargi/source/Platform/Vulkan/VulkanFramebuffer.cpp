@@ -10,7 +10,8 @@
 namespace Ilargi
 {
 	VulkanFramebuffer::VulkanFramebuffer(const FramebufferProperties& props) 
-		: properties(props), image(), imageView(VK_NULL_HANDLE), framebuffer(VK_NULL_HANDLE), sampler(VK_NULL_HANDLE)
+		: properties(props), image(), depthImage(), imageView(VK_NULL_HANDLE), depthImageView(VK_NULL_HANDLE), 
+		framebuffer(VK_NULL_HANDLE), sampler(VK_NULL_HANDLE), descriptorSetLayout(VK_NULL_HANDLE), descriptorSet(VK_NULL_HANDLE)
 	{
 	}
 	
@@ -23,6 +24,7 @@ namespace Ilargi
 		auto device = VulkanContext::GetLogicalDevice();
 
 		VkFormat format = Utils::GetFormatFromImageFormat(properties.formats[0]);
+		
 		// Creating the image
 		{
 			VkImageCreateInfo imageInfo{};

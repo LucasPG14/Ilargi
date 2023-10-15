@@ -36,6 +36,8 @@ namespace Ilargi
 		std::shared_ptr<Pipeline> pipeline;
 
 		std::shared_ptr<UniformBuffer> uboCamera;
+		
+		std::shared_ptr<Texture2D> texture;
 
 		EditorCamera camera;
 		SceneHierarchyInspectorPanel* hierarchyInspector;

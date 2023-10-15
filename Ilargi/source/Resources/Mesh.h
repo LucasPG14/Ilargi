@@ -10,6 +10,8 @@ namespace Ilargi
 {
 	class VertexBuffer;
 	class IndexBuffer;
+	class Material;
+	class Shader;
 
 	struct StaticVertex
 	{
@@ -42,10 +44,14 @@ namespace Ilargi
 
 		// TODO: This must not be here, change when the resource architecture is done
 		glm::vec4& GetColor() { return color; }
+		const std::shared_ptr<Material> GetMaterial() const { return material; }
+
+		void CreateMaterial(std::shared_ptr<Shader> shader);
 
 	private:
 		std::vector<StaticSubmesh> submeshes;
 
+		std::shared_ptr<Material> material;
 		glm::vec4 color = glm::vec4(1.0);
 	};
 }

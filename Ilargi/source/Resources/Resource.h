@@ -6,9 +6,9 @@ namespace Ilargi
 	{
 		NONE = 0,
 		MESH,
+		TEXTURE,
+		MATERIAL
 		//SCENE,
-		//TEXTURE,
-		//MATERIAL
 	};
 
 	class Resource

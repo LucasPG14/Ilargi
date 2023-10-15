@@ -31,8 +31,7 @@ namespace Ilargi
 
 		commandBuffer = CommandBuffer::Create(Renderer::GetConfig().maxFrames);
 		
-		framebuffer = Framebuffer::Create({ 1080, 720, {ImageFormat::RGBA_8}, false });
-		
+		framebuffer = Framebuffer::Create({ 1080, 720, {ImageFormat::RGBA8}, false });	
 		{
 			PipelineProperties pipelineProperties;
 			pipelineProperties.name = "Geometry";
@@ -48,9 +47,16 @@ namespace Ilargi
 			};
 
 			renderPass = RenderPass::Create({ framebuffer, Pipeline::Create(pipelineProperties) });
+			
+			const auto& view = scene->GetWorld().view<TransformComponent, StaticMeshComponent>();
+			for (auto entity : view)
+			{
+				view.get<StaticMeshComponent>(entity).staticMesh->CreateMaterial(pipelineProperties.shader);
+			}
 		}
 		
 		uboCamera = UniformBuffer::Create(sizeof(glm::mat4), Renderer::GetConfig().maxFrames);
+
 	}
 
 	void EditorPanel::OnDestroy()
@@ -88,6 +94,7 @@ namespace Ilargi
 			transform.CalculateTransform();
 			
 			renderPass->GetProperties().pipeline->Bind(commandBuffer);
+			renderPass->GetProperties().pipeline->BindDescriptorSet(commandBuffer, mesh.staticMesh->GetMaterial());
 			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 0, 64, glm::value_ptr(transform.transform));
 			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 64, 64, glm::value_ptr(constants[0]));
 			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 128, 16, glm::value_ptr(mesh.staticMesh->GetColor()));

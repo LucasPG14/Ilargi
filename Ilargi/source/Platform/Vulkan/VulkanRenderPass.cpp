@@ -95,7 +95,7 @@ namespace Ilargi
 				auto framebuffer = std::static_pointer_cast<VulkanFramebuffer>(properties.framebuffer);
 				auto cmdBuffer = std::static_pointer_cast<VulkanCommandBuffer>(commandBuffer)->GetCurrentCommand(Renderer::GetCurrentFrame());
 
-				VkRenderPassBeginInfo renderPassInfo{};
+				VkRenderPassBeginInfo renderPassInfo = {};
 				renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 				renderPassInfo.renderPass = renderPass;
 				renderPassInfo.framebuffer = framebuffer->GetFramebuffer();

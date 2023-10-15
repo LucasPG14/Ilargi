@@ -7,6 +7,7 @@ namespace Ilargi
 	class CommandBuffer;
 	class VertexBuffer;
 	class IndexBuffer;
+	class Material;
 
 	enum class ShaderDataType
 	{
@@ -105,6 +106,7 @@ namespace Ilargi
 		virtual void PushConstants(std::shared_ptr<CommandBuffer> commandBuffer, uint32_t offset, uint32_t size, void* data) const = 0;
 
 		virtual void Bind(std::shared_ptr<CommandBuffer> commandBuffer) const = 0;
+		virtual void BindDescriptorSet(std::shared_ptr<CommandBuffer> commandBuffer, std::shared_ptr<Material> material) const = 0;
 
 		virtual const PipelineProperties& GetProperties() const = 0;
 

@@ -11,12 +11,19 @@ namespace Ilargi
 	class CommandBuffer;
 	class VertexBuffer;
 	class IndexBuffer;
+	class Shader;
 	class StaticMesh;
 
 	struct RendererConfig
 	{
 		uint32_t maxFrames;
 		uint32_t maxAASamples;
+		uint32_t maxAnisotropy;
+	};
+
+	struct RendererData
+	{
+		//glm::mat4 viewProj;
 	};
 
 	class Renderer
@@ -24,10 +31,8 @@ namespace Ilargi
 	public:
 		static void Init(const RendererConfig& conf) { config = conf; }
 
-		static void StartFrame();
 		static void SetNewFrame(uint32_t index) { currentFrame = index; }
 
-		static void SubmitGeometry(std::shared_ptr<CommandBuffer> commandBuffer, std::shared_ptr<VertexBuffer> vertexBuffer, std::shared_ptr<IndexBuffer> indexBuffer);
 		static void SubmitGeometry(std::shared_ptr<CommandBuffer> commandBuffer, std::shared_ptr<StaticMesh> mesh);
 
 		static const RendererConfig& GetConfig() { return config; }

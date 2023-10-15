@@ -33,6 +33,7 @@ IncludeDir["ImGUI"] = "Ilargi/dependencies/imgui"
 IncludeDir["GLM"] = "Ilargi/dependencies/glm"
 IncludeDir["entt"] = "Ilargi/dependencies/entt"
 IncludeDir["pcg"] = "Ilargi/dependencies/pcg/include"
+IncludeDir["stb"] = "Ilargi/dependencies/stb"
 IncludeDir["VulkanSDK"] = "%{VULKAN_SDK}/Include"
 
 LibraryDir = {}
@@ -74,7 +75,7 @@ project "Ilargi"
 		"%{IncludeDir.Assimp}",
 		"%{IncludeDir.GLM}",
 		"%{IncludeDir.entt}",
-		"%{IncludeDir.pcg}",
+		"%{IncludeDir.stb}",
 		"%{IncludeDir.VulkanSDK}"
 	}
 
@@ -161,6 +162,7 @@ project "IlargiEditor"
 		"Ilargi/dependencies/entt",
 		"Ilargi/dependencies/optick/src",
 		"Ilargi/dependencies/glm",
+		"Ilargi/dependencies/stb"
 	}
 
 	links

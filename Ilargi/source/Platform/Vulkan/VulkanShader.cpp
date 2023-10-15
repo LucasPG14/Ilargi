@@ -102,6 +102,23 @@ namespace Ilargi
 
 		shaders.clear();
 	}
+
+	VkDescriptorSet VulkanShader::AllocateDescriptorSet()
+	{
+		auto device = VulkanContext::GetLogicalDevice();
+
+		VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
+
+		VkDescriptorSetAllocateInfo allocInfo = {};
+		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		allocInfo.descriptorPool = VulkanContext::GetDescriptorPool();
+		allocInfo.descriptorSetCount = 1;
+		allocInfo.pSetLayouts = &descriptorSetLayout;
+
+		VK_CHECK_RESULT(vkAllocateDescriptorSets(device, &allocInfo, &descriptorSet));
+
+		return descriptorSet;
+	}
 	
 	void VulkanShader::ProcessShader(std::string code)
 	{
@@ -158,6 +175,21 @@ namespace Ilargi
 
 			shaders.push_back({ stage, shaderModule });
 		}
+
+		// TODO: Change this and automatize with reflect function
+		VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
+		samplerLayoutBinding.binding = 0;
+		samplerLayoutBinding.descriptorCount = 1;
+		samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		samplerLayoutBinding.pImmutableSamplers = nullptr;
+		samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+		VkDescriptorSetLayoutCreateInfo layoutInfo{};
+		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		layoutInfo.bindingCount = 1;
+		layoutInfo.pBindings = &samplerLayoutBinding;
+
+		VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout));
 	}
 	
 	const std::vector<uint32_t> VulkanShader::ConvertToSpirV(VkShaderStageFlagBits stage, std::string_view code) const
@@ -192,7 +224,7 @@ namespace Ilargi
 			uint32_t binding = compiler.get_decoration(pushConstant.id, spv::DecorationBinding);
 			uint32_t membersCount = static_cast<uint32_t>(type.member_types.size());
 
-			ILG_CORE_TRACE("Push Constant: {0}", pushConstant.name.c_str());
+			ILG_CORE_TRACE("Push Constant: {0}", compiler.get_name(pushConstant.base_type_id));
 			ILG_CORE_TRACE("	Size: {0}", size);
 			ILG_CORE_TRACE("	Binding: {0}", binding);
 			ILG_CORE_TRACE("	Members: {0}", membersCount);
@@ -205,6 +237,7 @@ namespace Ilargi
 			pushConstants.push_back(pushConstant);
 		}
 
+		// Reflecting uniform buffers
 		auto resUniformBuffers = resources.uniform_buffers;
 		for (auto& uniformBuffer : resUniformBuffers)
 		{
@@ -219,6 +252,47 @@ namespace Ilargi
 			ILG_CORE_TRACE("	Members: {0}", membersCount);
 
 			//uniformBuffers.push_back();
+		}
+
+		// Reflecting sampled images
+		auto sampledImages = resources.sampled_images;
+		for (auto& sampledImage : sampledImages)
+		{
+			const auto& type = compiler.get_type(sampledImage.base_type_id);
+			uint32_t binding = compiler.get_decoration(sampledImage.id, spv::DecorationBinding);
+
+			ILG_CORE_TRACE("Sampler2D: {0}", sampledImage.name.c_str());
+			ILG_CORE_TRACE("	Binding: {0}", binding);
+		}
+
+		// Reflecting separate images
+		auto sepImages = resources.separate_images;
+		for (auto& separateImage : sepImages)
+		{
+			const auto& type = compiler.get_type(separateImage.base_type_id);
+			uint32_t size = static_cast<uint32_t>(compiler.get_declared_struct_size(type));
+			uint32_t binding = compiler.get_decoration(separateImage.id, spv::DecorationBinding);
+			uint32_t membersCount = static_cast<uint32_t>(type.member_types.size());
+
+			ILG_CORE_TRACE("Uniform Buffer: {0}", separateImage.name.c_str());
+			ILG_CORE_TRACE("	Size: {0}", size);
+			ILG_CORE_TRACE("	Binding: {0}", binding);
+			ILG_CORE_TRACE("	Members: {0}", membersCount);
+		}
+
+		// Reflecting separate images
+		auto sepSamplers = resources.separate_samplers;
+		for (auto& separateSampler : sepSamplers)
+		{
+			const auto& type = compiler.get_type(separateSampler.base_type_id);
+			uint32_t size = static_cast<uint32_t>(compiler.get_declared_struct_size(type));
+			uint32_t binding = compiler.get_decoration(separateSampler.id, spv::DecorationBinding);
+			uint32_t membersCount = static_cast<uint32_t>(type.member_types.size());
+
+			ILG_CORE_TRACE("Uniform Buffer: {0}", separateSampler.name.c_str());
+			ILG_CORE_TRACE("	Size: {0}", size);
+			ILG_CORE_TRACE("	Binding: {0}", binding);
+			ILG_CORE_TRACE("	Members: {0}", membersCount);
 		}
 	}
 }

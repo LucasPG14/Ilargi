@@ -13,16 +13,6 @@ namespace Ilargi
 	int Renderer::currentFrame = 0;
 	std::vector<std::function<void()>> Renderer::queue = {};
 	std::vector<std::shared_ptr<CommandBuffer>> Renderer::submittedCommands = {};
-	
-	void Renderer::StartFrame()
-	{
-		currentFrame = (currentFrame + 1) % config.maxFrames;
-	}
-
-	void Renderer::SubmitGeometry(std::shared_ptr<CommandBuffer> commandBuffer, std::shared_ptr<VertexBuffer> vertexBuffer, std::shared_ptr<IndexBuffer> indexBuffer)
-	{
-		render->SubmitGeometry(commandBuffer, vertexBuffer, indexBuffer);
-	}
 
 	void Renderer::SubmitGeometry(std::shared_ptr<CommandBuffer> commandBuffer, std::shared_ptr<StaticMesh> mesh)
 	{
