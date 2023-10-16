@@ -1,29 +1,98 @@
 #pragma once
 
-namespace Ilargi
+namespace Ilargi::imath
 {
 	struct vec4
 	{
 		float x, y, z, w;
 
 		constexpr vec4() = default;
-		constexpr vec4(float value);
-		constexpr vec4(float vX, float vY, float vZ, float vW);
+		constexpr vec4(float value) : x(value), y(value), z(value), w(value) {}
+		constexpr vec4(float vX, float vY, float vZ, float vW) : x(vX), y(vY), z(vZ), w(vW) {}
 
 		constexpr float& operator[](int i) { return (&x)[i]; }
 		constexpr const float& operator[](int i) const { return (&x)[i]; }
 
-		constexpr vec4& operator*=(const float scale);
-		constexpr vec4& operator*=(const vec4& v);
+		constexpr vec4& operator*=(const float scale)
+		{
+			x *= scale;
+			y *= scale;
+			z *= scale;
+			w *= scale;
 
-		constexpr vec4& operator/=(const float scale);
-		constexpr vec4& operator/=(const vec4& v);
+			return *this;
+		}
+
+		constexpr vec4& operator*=(const vec4& v)
+		{
+			x *= v.x;
+			y *= v.y;
+			z *= v.z;
+			w *= v.w;
+
+			return *this;
+		}
+
+		constexpr vec4& operator/=(const float scale)
+		{
+			float s = 1.0f / scale;
+			x *= s;
+			y *= s;
+			z *= s;
+			w *= s;
+
+			return *this;
+		}
+
+		constexpr vec4& operator/=(const vec4& v)
+		{
+			x /= v.x;
+			y /= v.y;
+			z /= v.z;
+			w /= v.w;
+
+			return *this;
+		}
 								    
-		constexpr vec4& operator+=(const float scale);
-		constexpr vec4& operator+=(const vec4& v);
+		constexpr vec4& operator+=(const float scale)
+		{
+			x += scale;
+			y += scale;
+			z += scale;
+			w += scale;
+
+			return *this;
+		}
+
+		constexpr vec4& operator+=(const vec4& v)
+		{
+			x += v.x;
+			y += v.y;
+			z += v.z;
+			w += v.w;
+
+			return *this;
+		}
 								    
-		constexpr vec4& operator-=(const float scale);
-		constexpr vec4& operator-=(const vec4& v);
+		constexpr vec4& operator-=(const float scale)
+		{
+			x -= scale;
+			y -= scale;
+			z -= scale;
+			w -= scale;
+
+			return *this;
+		}
+
+		constexpr vec4& operator-=(const vec4& v)
+		{
+			x -= v.x;
+			y -= v.y;
+			z -= v.z;
+			w -= v.w;
+
+			return *this;
+		}
 	};
 
 	constexpr vec4 operator*(const vec4& v, float scale)
