@@ -1,0 +1,59 @@
+#pragma once
+
+namespace Ilargi
+{
+	struct vec4
+	{
+		float x, y, z, w;
+
+		constexpr vec4() = default;
+		constexpr vec4(float value);
+		constexpr vec4(float vX, float vY, float vZ, float vW);
+
+		constexpr float& operator[](int i) { return (&x)[i]; }
+		constexpr const float& operator[](int i) const { return (&x)[i]; }
+
+		constexpr vec4& operator*=(const float scale);
+		constexpr vec4& operator*=(const vec4& v);
+
+		constexpr vec4& operator/=(const float scale);
+		constexpr vec4& operator/=(const vec4& v);
+								    
+		constexpr vec4& operator+=(const float scale);
+		constexpr vec4& operator+=(const vec4& v);
+								    
+		constexpr vec4& operator-=(const float scale);
+		constexpr vec4& operator-=(const vec4& v);
+	};
+
+	constexpr vec4 operator*(const vec4& v, float scale)
+	{
+		return vec4(v.x * scale, v.y * scale, v.z * scale, v.w * scale);
+	}
+
+	constexpr vec4 operator*(const vec4& v1, vec4 v2)
+	{
+		return vec4(v1.x * v2.x, v1.y * v2.y, v1.z * v2.z, v1.w * v2.w);
+	}
+
+	constexpr vec4 operator/(const vec4& v, float scale)
+	{
+		float s = 1.0f / scale;
+		return vec4(v.x * s, v.y * s, v.z * s, v.w * s);
+	}
+
+	constexpr vec4 operator/(const vec4& v1, vec4 v2)
+	{
+		return vec4(v1.x / v2.x, v1.y / v2.y, v1.z / v2.z, v1.w / v2.w);
+	}
+
+	constexpr vec4 operator+(const vec4& v1, float value)
+	{
+		return vec4(v1.x + value, v1.y + value, v1.z + value, v1.w + value);
+	}
+
+	constexpr vec4 operator+(const vec4& v1, vec4 v2)
+	{
+		return vec4(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z, v1.w + v2.w);
+	}
+}

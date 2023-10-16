@@ -19,7 +19,7 @@ namespace Ilargi
 	{
 		uint32_t maxFrames;
 		uint32_t maxAASamples;
-		uint32_t maxAnisotropy;
+		float maxAnisotropy;
 	};
 
 	struct RendererData

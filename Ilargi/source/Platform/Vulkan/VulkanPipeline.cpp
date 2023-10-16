@@ -75,7 +75,7 @@ namespace Ilargi
 			pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 			pipelineLayoutInfo.setLayoutCount = 1;
 			pipelineLayoutInfo.pSetLayouts = shader->GetDescriptorSetLayout();
-			pipelineLayoutInfo.pushConstantRangeCount = shader->GetPushConstants().size();
+			pipelineLayoutInfo.pushConstantRangeCount = static_cast<uint32_t>(shader->GetPushConstants().size());
 			pipelineLayoutInfo.pPushConstantRanges = shader->GetPushConstants().data();
 
 			VK_CHECK_RESULT(vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout));
@@ -304,7 +304,7 @@ namespace Ilargi
 
 				auto cmdBuffer = std::static_pointer_cast<VulkanCommandBuffer>(commandBuffer)->GetCurrentCommand(currentFrame);
 				std::vector<VkDescriptorSet> descriptorSets = { (VkDescriptorSet)material->GetDescriptorSet() };
-				vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, descriptorSets.size(), descriptorSets.data(), 0, nullptr);
+				vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
 			});
 	}
 }
