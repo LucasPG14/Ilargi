@@ -9,15 +9,15 @@ namespace Ilargi
 	{
 		actualDir = "assets";
 	}
-	
+
 	ResourcesPanel::~ResourcesPanel()
 	{
 	}
-	
+
 	void ResourcesPanel::Render()
 	{
 		ImGui::Begin("Resources Panel");
-		
+
 		for (const auto& iterator : std::filesystem::directory_iterator(actualDir))
 		{
 			if (iterator.is_directory())
@@ -28,6 +28,15 @@ namespace Ilargi
 			{
 				ImGui::ColorButton("File", { 0.0f, 0.0, 1.0f, 0.2f });
 			}
+		}
+
+		if (ImGui::BeginPopupContextWindow("##Hierarchypopup"))
+		{
+			if (ImGui::MenuItem("Create Material"))
+			{
+
+			}
+			ImGui::EndPopup();
 		}
 
 		ImGui::End();

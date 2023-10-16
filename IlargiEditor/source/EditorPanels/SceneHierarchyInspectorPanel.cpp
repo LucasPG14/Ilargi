@@ -2,6 +2,7 @@
 
 #include "SceneHierarchyInspectorPanel.h"
 #include "Utils/UI/IlargiUI.h"
+#include "Base/Input.h"
 
 #include "Resources/Mesh.h"
 
@@ -14,19 +15,24 @@ namespace Ilargi
 		: scene(actualScene), selected(entt::null)
 	{
 	}
-	
+
 	SceneHierarchyInspectorPanel::~SceneHierarchyInspectorPanel()
 	{
 	}
-	
+
 	void SceneHierarchyInspectorPanel::Render()
 	{
 		// --------------------------------------Hierarchy window----------------------------------------------
 		ImGui::Begin("Scene Hierarchy", (bool*)0, ImGuiWindowFlags_NoCollapse);
 
+		if (ImGui::Button("Add"))
+		{
+			scene->CreateEntity();
+		}
+
 		const auto& world = scene->GetWorld();
 		auto iterator = world.storage<InfoComponent>()->reach();
-		
+
 		auto begIterator = world.storage<InfoComponent>()->rbegin();
 		auto endIterator = world.storage<InfoComponent>()->rend();
 
@@ -34,7 +40,7 @@ namespace Ilargi
 		{
 			entt::entity entity = iterate._Myfirst._Val;
 			bool select = selected == entity;
-			
+
 			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
 			if (select)
 			{
@@ -43,7 +49,7 @@ namespace Ilargi
 			}
 			bool open = UI::BeginTreeNode((void*)entity, world.get<InfoComponent>(entity).name, flags);
 
-			if (ImGui::IsItemClicked(0))
+			if (ImGui::IsItemClicked(0) || ImGui::IsItemClicked(1))
 				selected = entity;
 
 			UI::EndTreeNode((void*)entity, open);
@@ -53,6 +59,20 @@ namespace Ilargi
 
 		if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0) && !ImGui::IsAnyItemHovered())
 			selected = entt::null;
+
+		if (ImGui::BeginPopupContextWindow("##HierarchypopUp"))
+		{
+			if (ImGui::MenuItem("Create Entity"))
+			{
+				scene->CreateEntity();
+			}
+			if (selected != entt::null && ImGui::MenuItem("Delete Entity"))
+			{
+				scene->DestroyEntity(selected);
+				selected = entt::null;
+			}
+			ImGui::EndPopup();
+		}
 
 		ImGui::End();
 		// ----------------------------------------------------------------------------------------------------
@@ -64,6 +84,12 @@ namespace Ilargi
 			DrawInspector();
 
 		ImGui::End();
+
+		if (selected != entt::null && Input::IsKeyPressed(KeyCode::DELETE))
+		{
+			scene->DestroyEntity(selected);
+			selected = entt::null;
+		}
 		// ----------------------------------------------------------------------------------------------------
 	}
 	
@@ -83,18 +109,18 @@ namespace Ilargi
 				ImGui::DragFloat3("Rotation", glm::value_ptr(transformComponent.rotation));
 				ImGui::DragFloat3("Scale", glm::value_ptr(transformComponent.scale));
 			}
+			ImGui::Separator();
 		}
-		ImGui::Separator();
 
-		if (world.try_get<TransformComponent>(selected))
+		if (world.try_get<StaticMeshComponent>(selected))
 		{
 			StaticMeshComponent& meshComponent = scene->GetWorld().get<StaticMeshComponent>(selected);
 			if (ImGui::CollapsingHeader("Static Mesh Component"))
 			{
 				ImGui::ColorPicker4("##Color", glm::value_ptr(meshComponent.staticMesh->GetColor()));
 			}
+			ImGui::Separator();
 		}
-		ImGui::Separator();
 		ImGui::PopStyleColor(3);
 	}
 }

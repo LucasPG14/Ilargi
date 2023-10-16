@@ -29,6 +29,8 @@ namespace Ilargi
 		windowProps.height = props.height;
 		window = std::make_unique<Window>(windowProps, ILG_BIND_FN(Application::OnEvent));
 		imguiPanel = ImGuiPanel::Create(window->GetWindow(), window->GetSwapchain());
+
+		Renderer::Init();
 	}
 	
 	Application::~Application()

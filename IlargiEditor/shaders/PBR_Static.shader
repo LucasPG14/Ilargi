@@ -42,6 +42,6 @@ layout(binding = 0) uniform sampler2D texSampler;
 void main() 
 {
     vec4 col = texture(texSampler, vTexCoord);
-    col.rgb = col.rgb * 2.2;
-    outColor = vec4(col.xyz, 1.0);
+    col.rgb = pow(col.rgb, vec3(1.0 / 2.2));
+    outColor = vec4(col.rgb, col.a);
 }

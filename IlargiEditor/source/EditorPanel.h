@@ -27,6 +27,9 @@ namespace Ilargi
 		void OnEvent(Event& event) override;
 
 	private:
+		void MainMenuBar();
+
+	private:
 		std::shared_ptr<Scene> scene;
 
 		std::shared_ptr<CommandBuffer> commandBuffer;

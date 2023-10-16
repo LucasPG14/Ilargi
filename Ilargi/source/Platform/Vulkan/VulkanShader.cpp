@@ -217,6 +217,7 @@ namespace Ilargi
 
 		// Reflecting push constants
 		auto constants = resources.push_constant_buffers;
+		auto imgs = compiler.get_combined_image_samplers();
 		for (auto& pushConstant : constants)
 		{
 			const auto& type = compiler.get_type(pushConstant.base_type_id);
@@ -224,6 +225,7 @@ namespace Ilargi
 			uint32_t binding = compiler.get_decoration(pushConstant.id, spv::DecorationBinding);
 			uint32_t membersCount = static_cast<uint32_t>(type.member_types.size());
 
+			// static_cast<uint32_t>(compiler.get_declared_struct_member_size(type, 0))
 			ILG_CORE_TRACE("Push Constant: {0}", compiler.get_name(pushConstant.base_type_id));
 			ILG_CORE_TRACE("	Size: {0}", size);
 			ILG_CORE_TRACE("	Binding: {0}", binding);

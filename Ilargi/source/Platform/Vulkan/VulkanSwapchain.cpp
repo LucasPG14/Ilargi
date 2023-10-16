@@ -204,7 +204,7 @@ namespace Ilargi
 		}
 		config.maxFrames = imageCount;
 		
-		Renderer::Init(config);
+		Renderer::SetConfig(config);
 
 		VkSwapchainCreateInfoKHR swapchainInfo = {};
 		swapchainInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;

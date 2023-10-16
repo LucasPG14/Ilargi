@@ -13,7 +13,7 @@ namespace Ilargi
 	{
 		std::shared_ptr<StaticMesh> mesh = ModelImporter::ImportModel("models/viking_room2.obj");
 
-		for (int i = 0; i < 1; ++i)
+		for (int i = 0; i < 2; ++i)
 		{
 			Entity entity = world.create();
 			world.emplace<TransformComponent>(entity, glm::mat4(1.0f));
@@ -37,5 +37,17 @@ namespace Ilargi
 			//world.destroy(entity);
 		}
 		world.clear();
+	}
+	
+	void Scene::CreateEntity()
+	{
+		Entity entity = world.create();
+		world.emplace<TransformComponent>(entity, glm::mat4(1.0f));
+		world.emplace<InfoComponent>(entity, "Entity");
+	}
+
+	void Scene::DestroyEntity(Entity entity)
+	{
+		world.destroy(entity);
 	}
 }

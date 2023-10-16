@@ -35,7 +35,7 @@ namespace Ilargi
 		{
 			PipelineProperties pipelineProperties;
 			pipelineProperties.name = "Geometry";
-			pipelineProperties.shader = Shader::Create("shaders/shaderfull.vert");
+			pipelineProperties.shader = Renderer::GetShaderLibrary()->Get("PBR_Static");
 			pipelineProperties.depth = true;
 			pipelineProperties.layout =
 			{
@@ -136,20 +136,7 @@ namespace Ilargi
 			ImGui::DockSpace(id, { 0.0f, 0.0f }, dockspaceFlags);
 		}
 
-		//ImGui::BeginMainMenuBar();
-		//if (ImGui::BeginMenu("File"))
-		//{
-		//	if (ImGui::MenuItem("New Scene", "Ctrl + N"))
-		//	{
-
-		//	}
-		//	if (ImGui::MenuItem("Open Scene", "Ctrl + O"))
-		//	{
-
-		//	}
-		//	ImGui::EndMenu();
-		//}
-		//ImGui::EndMainMenuBar();
+		MainMenuBar();
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
 		ImGui::Begin("Viewport");
@@ -174,5 +161,44 @@ namespace Ilargi
 	
 	void EditorPanel::OnEvent(Event& event)
 	{
+	}
+	
+	void EditorPanel::MainMenuBar()
+	{
+		ImGui::BeginMainMenuBar();
+		if (ImGui::BeginMenu("File"))
+		{
+			if (ImGui::MenuItem("New Scene", "Ctrl + N"))
+			{
+
+			}
+			if (ImGui::MenuItem("Open Scene", "Ctrl + O"))
+			{
+
+			}
+			ImGui::Separator();
+			if (ImGui::MenuItem("Save Scene", "Ctrl + S"))
+			{
+
+			}
+			if (ImGui::MenuItem("Save Scene As...", "Ctrl + Shift + S"))
+			{
+
+			}
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Edit"))
+		{
+			if (ImGui::MenuItem("Undo", "Ctrl + Z"))
+			{
+
+			}
+			if (ImGui::MenuItem("Redo", "Ctrl + Y"))
+			{
+
+			}
+			ImGui::EndMenu();
+		}
+		ImGui::EndMainMenuBar();
 	}
 }

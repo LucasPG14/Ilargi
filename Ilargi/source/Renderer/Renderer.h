@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Shader.h"
+
 namespace Ilargi
 {
 	enum class GraphicsAPI
@@ -11,7 +13,6 @@ namespace Ilargi
 	class CommandBuffer;
 	class VertexBuffer;
 	class IndexBuffer;
-	class Shader;
 	class StaticMesh;
 
 	struct RendererConfig
@@ -29,7 +30,9 @@ namespace Ilargi
 	class Renderer
 	{
 	public:
-		static void Init(const RendererConfig& conf) { config = conf; }
+		static void Init();
+
+		static void SetConfig(const RendererConfig& conf) { config = conf; }
 
 		static void SetNewFrame(uint32_t index) { currentFrame = index; }
 
@@ -39,6 +42,8 @@ namespace Ilargi
 		static const int GetCurrentFrame() { return currentFrame; }
 
 		static GraphicsAPI GetGraphicsAPI() { return graphicsAPI; }
+		
+		static std::shared_ptr<ShaderLibrary> GetShaderLibrary() { return shaderLibrary; }
 
 		static std::vector<std::shared_ptr<CommandBuffer>>& GetSubmittedCommands() { return submittedCommands; }
 
@@ -51,6 +56,8 @@ namespace Ilargi
 	private:
 		static GraphicsAPI graphicsAPI;
 		static std::unique_ptr<Render> render;
+		
+		static std::shared_ptr<ShaderLibrary> shaderLibrary;
 
 		static RendererConfig config;
 		static int currentFrame;
