@@ -82,6 +82,7 @@ namespace Ilargi
 
 		commandBuffer->BeginCommand();
 		renderPass->BeginRenderPass(commandBuffer);
+		
 		constants[0] = camera.GetProjectionMatrix() * camera.GetViewMatrix();
 
 		const auto& view = scene->GetWorld().view<TransformComponent, StaticMeshComponent>();
@@ -96,7 +97,7 @@ namespace Ilargi
 			renderPass->GetProperties().pipeline->Bind(commandBuffer);
 			renderPass->GetProperties().pipeline->BindDescriptorSet(commandBuffer, mesh.staticMesh->GetMaterial());
 			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 0, 64, glm::value_ptr(transform.transform));
-			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 64, 64, glm::value_ptr(constants[0]));
+			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 64, 64, constants[0]());
 			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 128, 16, glm::value_ptr(mesh.staticMesh->GetColor()));
 			Renderer::SubmitGeometry(commandBuffer, mesh.staticMesh);
 		}

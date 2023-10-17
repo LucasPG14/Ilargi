@@ -24,10 +24,10 @@ namespace Ilargi
 		return k == GLFW_PRESS;
 	}
 	
-	const glm::vec2 Input::GetMousePos()
+	const vec2 Input::GetMousePos()
 	{
 		double x, y;
 		glfwGetCursorPos(window, &x, &y);
-		return glm::vec2(x, y);
+		return vec2(x, y);
 	}
 }

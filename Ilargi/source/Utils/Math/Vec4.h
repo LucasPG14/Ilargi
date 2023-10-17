@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Ilargi::imath
+namespace Ilargi
 {
 	struct vec4
 	{

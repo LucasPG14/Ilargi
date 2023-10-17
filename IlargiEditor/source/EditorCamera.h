@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glm.hpp>
+#include "Utils/Math/Math.h"
 
 namespace Ilargi
 {
@@ -10,10 +10,10 @@ namespace Ilargi
 		EditorCamera();
 		~EditorCamera();
 
-		const glm::mat4& GetViewMatrix() const { return viewMatrix; }
-		const glm::mat4& GetProjectionMatrix() const { return projectionMatrix; }
+		const mat4& GetViewMatrix() const { return viewMatrix; }
+		const mat4& GetProjectionMatrix() const { return projectionMatrix; }
 
-		const glm::mat4& GetViewProjectionMatrix() const { return projectionMatrix * viewMatrix; }
+		const mat4& GetViewProjectionMatrix() const { return projectionMatrix * viewMatrix; }
 
 		void Update();
 
@@ -23,12 +23,12 @@ namespace Ilargi
 		void ComputeViewMatrix();
 
 	private:
-		glm::mat4 viewMatrix;
-		glm::mat4 projectionMatrix;
+		mat4 viewMatrix;
+		mat4 projectionMatrix;
 
-		glm::vec3 position;
-		glm::vec3 up;
-		glm::vec3 front;
+		vec3 position;
+		vec3 up;
+		vec3 front;
 
 		float hFov;
 		float nearPlane;
@@ -37,6 +37,6 @@ namespace Ilargi
 		float yaw;
 		float pitch;
 
-		glm::vec2 mousePosition;
+		vec2 mousePosition;
 	};
 }

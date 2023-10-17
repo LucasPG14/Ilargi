@@ -2,7 +2,7 @@
 
 #include "ilargipch.h"
 
-namespace Ilargi::imath
+namespace Ilargi
 {
 	struct vec3
 	{

@@ -3,7 +3,7 @@
 #include "Utils/Math/Vec4.h"
 #include "Utils/Math/Vec3.h"
 
-namespace Ilargi::imath
+namespace Ilargi
 {
 	struct mat4
 	{
@@ -46,10 +46,10 @@ namespace Ilargi::imath
 		const vec4 b2 = m2[2];
 		const vec4 b3 = m2[3];
 
-		return mat4(a0 * b0 + a1 * b0 + a2 * b0 + a3 * b0,
-					a0 * b1 + a1 * b1 + a2 * b1 + a3 * b1,
-					a0 * b2 + a1 * b2 + a2 * b2 + a3 * b2,
-					a0 * b3 + a1 * b3 + a2 * b3 + a3 * b3);
+		return mat4(a0 * b0[0] + a1 * b0[1] + a2 * b0[2] + a3 * b0[3],
+					a0 * b1[0] + a1 * b1[1] + a2 * b1[2] + a3 * b1[3],
+					a0 * b2[0] + a1 * b2[1] + a2 * b2[2] + a3 * b2[3],
+					a0 * b3[0] + a1 * b3[1] + a2 * b3[2] + a3 * b3[3]);
 	}
 
 	constexpr mat4 operator*(const mat4& m1, const vec4& v)

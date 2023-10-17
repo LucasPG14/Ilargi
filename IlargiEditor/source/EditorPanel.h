@@ -49,6 +49,6 @@ namespace Ilargi
 		glm::vec2 viewportSize;
 		bool needToUpdateFramebuffer;
 
-		glm::mat4 constants[2];
+		mat4 constants[2];
 	};
 }
