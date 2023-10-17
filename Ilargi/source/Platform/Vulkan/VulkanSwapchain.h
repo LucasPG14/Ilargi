@@ -4,7 +4,6 @@
 
 #include "VulkanAllocator.h"
 #include <vulkan/vulkan.h>
-#include <glm.hpp>
 
 namespace Ilargi
 {

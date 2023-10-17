@@ -21,7 +21,7 @@ namespace Ilargi
 
 		const std::vector<VkPushConstantRange>& GetPushConstants() const { return pushConstants; }
 
-		const VkDescriptorSetLayout* GetDescriptorSetLayout() const { return &descriptorSetLayout; }
+		const std::vector<VkDescriptorSetLayout>& GetDescriptorSetLayout() const { return descriptorSetLayouts; }
 
 	private:
 		const char* GetShaderCacheDirectory() const { return "cache/vulkan/"; }
@@ -37,7 +37,6 @@ namespace Ilargi
 		ShadersMap shaders;
 
 		std::vector<VkPushConstantRange> pushConstants;
-
-		VkDescriptorSetLayout descriptorSetLayout;
+		std::vector<VkDescriptorSetLayout> descriptorSetLayouts;
 	};
 }

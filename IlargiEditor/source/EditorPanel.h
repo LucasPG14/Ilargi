@@ -46,7 +46,7 @@ namespace Ilargi
 		SceneHierarchyInspectorPanel* hierarchyInspector;
 		ResourcesPanel* resourcesPanel;
 
-		glm::vec2 viewportSize;
+		vec2 viewportSize;
 		bool needToUpdateFramebuffer;
 
 		mat4 constants[2];

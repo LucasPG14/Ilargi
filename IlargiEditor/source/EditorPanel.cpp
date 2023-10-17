@@ -9,13 +9,26 @@
 #include "Utils/Importers/ModelImporter.h"
 
 #include <imgui/imgui.h>
-#include <glm/glm.hpp>
-#include <gtc/type_ptr.hpp>
 
 namespace Ilargi
 {
+	template<>
+	vec2& vec2::operator=(const ImVec2& v)
+	{
+		x = v.x;
+		y = v.y;
+		
+		return *this;
+	}
+
+	template<>
+	bool vec2::operator!=(const ImVec2& v)
+	{
+		return (x != v.x || y != v.y);
+	}
+
 	EditorPanel::EditorPanel() : Panel("Editor Panel"), hierarchyInspector(nullptr), resourcesPanel(nullptr), 
-		viewportSize({ 1080, 720 }), needToUpdateFramebuffer(false)
+		viewportSize({ 1080, 720 }), needToUpdateFramebuffer(false), constants()
 	{
 	}
 
@@ -55,7 +68,7 @@ namespace Ilargi
 			}
 		}
 		
-		uboCamera = UniformBuffer::Create(sizeof(glm::mat4), Renderer::GetConfig().maxFrames);
+		uboCamera = UniformBuffer::Create(sizeof(mat4), Renderer::GetConfig().maxFrames);
 
 	}
 
@@ -90,15 +103,13 @@ namespace Ilargi
 		{
 			auto [transform, mesh] = view.get<TransformComponent, StaticMeshComponent>(entity);
 
-			const glm::mat4& rotationMat = glm::toMat4(glm::quat(glm::radians(transform.rotation)));
-
 			transform.CalculateTransform();
 			
 			renderPass->GetProperties().pipeline->Bind(commandBuffer);
 			renderPass->GetProperties().pipeline->BindDescriptorSet(commandBuffer, mesh.staticMesh->GetMaterial());
-			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 0, 64, glm::value_ptr(transform.transform));
-			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 64, 64, constants[0]());
-			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 128, 16, glm::value_ptr(mesh.staticMesh->GetColor()));
+			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 0, 64, transform.transform);
+			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 64, 64, constants[0]);
+			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 128, 16, mesh.staticMesh->GetColor());
 			Renderer::SubmitGeometry(commandBuffer, mesh.staticMesh);
 		}
 
@@ -145,9 +156,9 @@ namespace Ilargi
 		
 		ImGui::Image(framebuffer->GetID(), frameViewportSize, { 0.0f, 1.0f }, { 1.0f, 0.0f });
 
-		if (frameViewportSize.x != viewportSize.x || frameViewportSize.y != viewportSize.y)
+		if (viewportSize != frameViewportSize)
 		{
-			viewportSize = { frameViewportSize.x, frameViewportSize.y };
+			viewportSize = frameViewportSize;
 			needToUpdateFramebuffer = true;
 		}
 

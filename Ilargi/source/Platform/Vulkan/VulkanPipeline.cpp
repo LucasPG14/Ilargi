@@ -11,9 +11,6 @@
 
 #include "Utils/FileSystem.h"
 
-#include <glm.hpp>
-#include <gtc/matrix_transform.hpp>
-
 namespace Ilargi
 {
 	namespace Utils
@@ -73,8 +70,8 @@ namespace Ilargi
 		{
 			VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 			pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-			pipelineLayoutInfo.setLayoutCount = 1;
-			pipelineLayoutInfo.pSetLayouts = shader->GetDescriptorSetLayout();
+			pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(shader->GetDescriptorSetLayout().size());
+			pipelineLayoutInfo.pSetLayouts = shader->GetDescriptorSetLayout().data();
 			pipelineLayoutInfo.pushConstantRangeCount = static_cast<uint32_t>(shader->GetPushConstants().size());
 			pipelineLayoutInfo.pPushConstantRanges = shader->GetPushConstants().data();
 

@@ -3,8 +3,6 @@
 #include "EditorCamera.h"
 #include "Base/Input.h"
 
-#define GLM_ENABLE_EXPERIMENTAL
-#include <gtx/quaternion.hpp>
 
 namespace Ilargi
 {
@@ -13,7 +11,7 @@ namespace Ilargi
 		mousePosition(0.0f)
 	{
 		float aspectRatio = 1080.0f / 720.0f;
-		projectionMatrix = perspective(2.0f * glm::atan(glm::tan(hFov * 0.5f) * aspectRatio), aspectRatio, nearPlane, farPlane);
+		projectionMatrix = perspective(2.0f * atan(tan(hFov * 0.5f) * aspectRatio), aspectRatio, nearPlane, farPlane);
 
 		ComputeViewMatrix();
 	}
@@ -69,7 +67,7 @@ namespace Ilargi
 	void EditorCamera::Resize(float width, float height)
 	{
 		float aspectRatio = width / height;
-		projectionMatrix = perspective(2.0f * glm::atan(glm::tan(hFov * 0.5f) * aspectRatio), aspectRatio, nearPlane, farPlane);
+		projectionMatrix = perspective(2.0f * atan(tan(hFov * 0.5f) * aspectRatio), aspectRatio, nearPlane, farPlane);
 	}
 	
 	void EditorCamera::ComputeViewMatrix()

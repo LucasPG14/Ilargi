@@ -12,9 +12,17 @@ namespace Ilargi
 		constexpr vec2(float value) : x(value), y(value) {}
 		constexpr vec2(float vX, float vY) : x(vX), y(vY) {}
 
+		constexpr operator float*() { return &x; }
+
 		constexpr float& operator[](int i) { return (&x)[i]; }
 
 		constexpr const float& operator[](int i) const { return (&x)[i]; }
+
+		template<typename T>
+		vec2& operator=(const T& v);
+
+		template<typename T>
+		bool operator!=(const T& v);
 
 		constexpr vec2& operator*=(const float scale)
 		{

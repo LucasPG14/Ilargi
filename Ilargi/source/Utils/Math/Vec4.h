@@ -6,9 +6,11 @@ namespace Ilargi
 	{
 		float x, y, z, w;
 
-		constexpr vec4() = default;
+		constexpr vec4() : x(0.0f), y(0.0f), z(0.0f), w(0.0f) {}
 		constexpr vec4(float value) : x(value), y(value), z(value), w(value) {}
 		constexpr vec4(float vX, float vY, float vZ, float vW) : x(vX), y(vY), z(vZ), w(vW) {}
+
+		constexpr operator float*() { return &x; }
 
 		constexpr float& operator[](int i) { return (&x)[i]; }
 		constexpr const float& operator[](int i) const { return (&x)[i]; }

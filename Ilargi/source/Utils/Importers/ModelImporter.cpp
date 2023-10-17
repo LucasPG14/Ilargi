@@ -10,6 +10,25 @@
 
 namespace Ilargi
 {
+	template<>
+	constexpr vec2& vec2::operator=(const aiVector3D& v)
+	{
+		x = v.x;
+		y = v.y;
+
+		return *this;
+	}
+
+	template<>
+	vec3& vec3::operator=(const aiVector3D& v)
+	{
+		x = v.x;
+		y = v.y;
+		z = v.z;
+
+		return *this;
+	}
+
 	std::shared_ptr<StaticMesh> ModelImporter::ImportModel(const std::string path)
 	{
 		Assimp::Importer importer;
@@ -43,29 +62,33 @@ namespace Ilargi
 
 			for (uint32_t j = 0; j < verticesCount; ++j)
 			{
-				aiVector3D aiVertex = assimpMesh->mVertices[j];
 				StaticVertex& vertex = submesh.vertices[j];
 
-				vertex.position = { aiVertex.x, aiVertex.y, aiVertex.z };
+				//aiVector3D aiVertex = assimpMesh->mVertices[j];
+				vertex.position = assimpMesh->mVertices[j];
 
 				if (hasNormals)
 				{
-					aiVector3D aiNormal = assimpMesh->mNormals[j];
-					vertex.normal = { aiNormal.x, aiNormal.y, aiNormal.z };
+					//aiVector3D aiNormal ;
+					//vertex.normal = { aiNormal.x, aiNormal.y, aiNormal.z };
+					vertex.normal = assimpMesh->mNormals[j];
 				}
 
 				if (hasTexCoords)
 				{
-					aiVector3D aiTexCoord = assimpMesh->mTextureCoords[0][j];
-					vertex.texCoord = { aiTexCoord.x, aiTexCoord.y };
+					//aiVector3D aiTexCoord = assimpMesh->mTextureCoords[0][j];
+					//vertex.texCoord = { aiTexCoord.x, aiTexCoord.y };
+					vertex.texCoord = assimpMesh->mTextureCoords[0][j];
 				}
 
 				if (hasTangentsAndBitangents)
 				{
-					aiVector3D aiTangent = assimpMesh->mTangents[j];
-					aiVector3D aiBitangent = assimpMesh->mBitangents[j];
-					vertex.tangent = { aiTangent.x, aiTangent.y, aiTangent.z };
-					vertex.bitangent = { aiBitangent.x, aiBitangent.y, aiBitangent.z };
+					//aiVector3D aiTangent = assimpMesh->mTangents[j];
+					//aiVector3D aiBitangent = assimpMesh->mBitangents[j];
+					//vertex.tangent = { aiTangent.x, aiTangent.y, aiTangent.z };
+					//vertex.bitangent = { aiBitangent.x, aiBitangent.y, aiBitangent.z };
+					vertex.tangent = assimpMesh->mTangents[j];
+					vertex.bitangent = assimpMesh->mBitangents[j];
 				}
 			}
 
@@ -78,8 +101,8 @@ namespace Ilargi
 			}
 
 			mesh->AddSubmesh(submesh);
-
-			return mesh;
 		}
+
+		return mesh;
 	}
 }

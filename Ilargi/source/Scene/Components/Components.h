@@ -1,8 +1,7 @@
 #pragma once
 
-#include <glm.hpp>
-#include <gtc/matrix_transform.hpp>
-#include <gtx/quaternion.hpp>
+#include <Utils/Math/Math.h>
+
 #include <string>
 
 namespace Ilargi
@@ -13,16 +12,18 @@ namespace Ilargi
 
 	struct TransformComponent
 	{
-		glm::mat4 transform = glm::mat4(1.0f);
-		glm::vec3 position = glm::vec3(0.0f);
-		glm::vec3 rotation = glm::vec3(0.0f);
-		glm::vec3 scale = glm::vec3(1.0f);
+		mat4 transform = mat4(1.0f);
+		vec3 position = vec3(0.0f);
+		vec3 rotation = vec3(0.0f);
+		vec3 scale = vec3(1.0f);
 
 		void CalculateTransform()
 		{
-			const glm::mat4& rotationMat = glm::toMat4(glm::quat(glm::radians(rotation)));
+			//const mat4& rotationMat = mat4(quat(radians(rotation)));
 
-			transform = glm::translate(glm::mat4(1.0f), position) * rotationMat * glm::scale(glm::mat4(1.0f), scale);
+			//glm::mat4 m = glm::toMat4(glm::quat(glm::radians(glm::vec3(rotation.x, rotation.y, rotation.z))));
+
+			transform = math::translate(position) * mat4(quat(radians(rotation))) * math::scale(scale);
 		}
 	};
 
@@ -38,12 +39,12 @@ namespace Ilargi
 
 	struct DirectionalLightComponent
 	{
-		glm::vec3 radiance = glm::vec3(1.0f);
+		vec3 radiance = vec3(1.0f);
 	};
 
 	struct PointLightComponent
 	{
-		glm::vec3 radiance = glm::vec3(1.0f);
+		vec3 radiance = vec3(1.0f);
 		float radius = 1.0f;
 	};
 }

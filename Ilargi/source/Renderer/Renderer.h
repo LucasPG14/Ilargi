@@ -24,7 +24,7 @@ namespace Ilargi
 
 	struct RendererData
 	{
-		//glm::mat4 viewProj;
+		//mat4 viewProj;
 	};
 
 	class Renderer

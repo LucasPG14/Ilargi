@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Utils/Math/Vec4.h"
 #include "Utils/Math/Vec3.h"
+#include "Utils/Math/Vec4.h"
+#include "Utils/Math/Quat.h"
 
 namespace Ilargi
 {
@@ -24,10 +25,49 @@ namespace Ilargi
 			matrix[3] = w;
 		}
 
-		constexpr float* operator()() { return &matrix[0].x; }
+		constexpr mat4(const quat& q)
+		{
+			float qxqx = q.x * q.x;
+			float qyqy = q.y * q.y;
+			float qzqz = q.z * q.z;
+			float qxqz = q.x * q.z;
+			float qxqy = q.x * q.y;
+			float qyqz = q.y * q.z;
+			float qwqx = q.w * q.x;
+			float qwqy = q.w * q.y;
+			float qwqz = q.w * q.z;
+
+			matrix[0][0] = 1.0f - 2.0f * (qyqy + qzqz);
+			matrix[0][1] = 2.0f * (qxqy + qwqz);
+			matrix[0][2] = 2.0f * (qxqz - qwqy);
+			matrix[0][3] = 0.0f;
+
+			matrix[1][0] = 2.0f * (qxqy - qwqz);
+			matrix[1][1] = 1.0f - 2.0f * (qxqx + qzqz);
+			matrix[1][2] = 2.0f * (qyqz + qwqx);
+			matrix[1][3] = 0.0f;
+							
+			matrix[2][0] = 2.0f * (qxqz + qwqy);
+			matrix[2][1] = 2.0f * (qyqz - qwqx);
+			matrix[2][2] = 1.0f - 2.0f * (qxqx + qyqy);
+			matrix[2][3] = 0.0f;
+
+			matrix[3] = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+		}
+
+		mat4& operator=(const mat4& m)
+		{
+			matrix[0] = m[0];
+			matrix[1] = m[1];
+			matrix[2] = m[2];
+			matrix[3] = m[3];
+
+			return *this;
+		}
+
+		constexpr operator float*() { return &matrix[0].x; }
 
 		constexpr vec4& operator[](int i) { return matrix[i]; }
-
 		constexpr const vec4& operator[](int i) const { return matrix[i]; }
 
 	private:
@@ -94,5 +134,28 @@ namespace Ilargi
 		matrix[3][2] = dot(f, eye);
 
 		return matrix;
+	}
+
+	namespace math
+	{
+		inline mat4 translate(const vec3& v)
+		{
+			mat4 matrix(1.0f);
+
+			matrix[3] = matrix[0] * v[0] + matrix[1] * v[1] + matrix[2] * v[2] + matrix[3];
+
+			return matrix;
+		}
+
+		constexpr inline mat4 scale(const vec3& v)
+		{
+			mat4 matrix(1.0f);
+
+			matrix[0] = matrix[0] * v[0];
+			matrix[1] = matrix[1] * v[1];
+			matrix[2] = matrix[2] * v[2];
+
+			return matrix;
+		}
 	}
 }

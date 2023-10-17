@@ -8,13 +8,17 @@ namespace Ilargi
 	{
 		float x, y, z;
 
-		constexpr vec3() = default;
+		constexpr vec3() : x(0.0f), y(0.0f), z(0.0f) {}
 		constexpr vec3(float value) : x(value), y(value), z(value) {}
 		constexpr vec3(float valueX, float valueY, float valueZ) : x(valueX), y(valueY), z(valueZ) {}
 
-		constexpr float& operator[](int i) { return (&x)[i]; }
+		constexpr operator float*() { return &x; }
 
+		constexpr float& operator[](int i) { return (&x)[i]; }
 		constexpr const float& operator[](int i) const { return (&x)[i]; }
+
+		template<typename T>
+		vec3& operator=(const T& v);
 
 		constexpr vec3& operator*=(const float scale)
 		{

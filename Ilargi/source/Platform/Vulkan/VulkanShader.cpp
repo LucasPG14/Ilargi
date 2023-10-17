@@ -112,8 +112,8 @@ namespace Ilargi
 		VkDescriptorSetAllocateInfo allocInfo = {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 		allocInfo.descriptorPool = VulkanContext::GetDescriptorPool();
-		allocInfo.descriptorSetCount = 1;
-		allocInfo.pSetLayouts = &descriptorSetLayout;
+		allocInfo.descriptorSetCount = static_cast<uint32_t>(descriptorSetLayouts.size());
+		allocInfo.pSetLayouts = descriptorSetLayouts.data();
 
 		VK_CHECK_RESULT(vkAllocateDescriptorSets(device, &allocInfo, &descriptorSet));
 
@@ -127,8 +127,6 @@ namespace Ilargi
 		const char* type = "#type";
 		size_t typeLength = strlen(type);
 		size_t pos = code.find(type, 0);
-
-		std::vector<VkPushConstantRange> constantsRange;
 
 		while (pos != std::string::npos)
 		{
@@ -177,19 +175,24 @@ namespace Ilargi
 		}
 
 		// TODO: Change this and automatize with reflect function
-		VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
-		samplerLayoutBinding.binding = 0;
-		samplerLayoutBinding.descriptorCount = 1;
-		samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		samplerLayoutBinding.pImmutableSamplers = nullptr;
-		samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+		{
+			VkDescriptorSetLayoutBinding samplerLayoutBinding;
+			samplerLayoutBinding.binding = 0;
+			samplerLayoutBinding.descriptorCount = 1;
+			samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			samplerLayoutBinding.pImmutableSamplers = nullptr;
+			samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-		VkDescriptorSetLayoutCreateInfo layoutInfo{};
-		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		layoutInfo.bindingCount = 1;
-		layoutInfo.pBindings = &samplerLayoutBinding;
+			VkDescriptorSetLayoutCreateInfo layoutInfo{};
+			layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+			layoutInfo.bindingCount = 1;
+			layoutInfo.pBindings = &samplerLayoutBinding;
 
-		VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout));
+			VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
+			VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout));
+
+			descriptorSetLayouts.push_back(descriptorSetLayout);
+		}
 	}
 	
 	const std::vector<uint32_t> VulkanShader::ConvertToSpirV(VkShaderStageFlagBits stage, std::string_view code) const
@@ -225,7 +228,6 @@ namespace Ilargi
 			uint32_t binding = compiler.get_decoration(pushConstant.id, spv::DecorationBinding);
 			uint32_t membersCount = static_cast<uint32_t>(type.member_types.size());
 
-			// static_cast<uint32_t>(compiler.get_declared_struct_member_size(type, 0))
 			ILG_CORE_TRACE("Push Constant: {0}", compiler.get_name(pushConstant.base_type_id));
 			ILG_CORE_TRACE("	Size: {0}", size);
 			ILG_CORE_TRACE("	Binding: {0}", binding);
@@ -262,9 +264,11 @@ namespace Ilargi
 		{
 			const auto& type = compiler.get_type(sampledImage.base_type_id);
 			uint32_t binding = compiler.get_decoration(sampledImage.id, spv::DecorationBinding);
+			uint32_t descriptorSet = compiler.get_decoration(sampledImage.id, spv::DecorationDescriptorSet);
 
 			ILG_CORE_TRACE("Sampler2D: {0}", sampledImage.name.c_str());
 			ILG_CORE_TRACE("	Binding: {0}", binding);
+			ILG_CORE_TRACE("	Descriptor Set: {0}", descriptorSet);
 		}
 
 		// Reflecting separate images
