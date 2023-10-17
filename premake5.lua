@@ -30,6 +30,7 @@ IncludeDir = {}
 IncludeDir["Assimp"] = "Ilargi/dependencies/Assimp/include"
 IncludeDir["GLFW"] = "Ilargi/dependencies/glfw/include"
 IncludeDir["ImGUI"] = "Ilargi/dependencies/imgui"
+IncludeDir["ImGuizmo"] = "Ilargi/dependencies/imguizmo"
 IncludeDir["entt"] = "Ilargi/dependencies/entt"
 IncludeDir["pcg"] = "Ilargi/dependencies/pcg/include"
 IncludeDir["stb"] = "Ilargi/dependencies/stb"
@@ -63,7 +64,9 @@ project "Ilargi"
 	files
 	{
 		"%{prj.name}/source/**.h",
-		"%{prj.name}/source/**.cpp"
+		"%{prj.name}/source/**.cpp",
+		"%{prj.name}/dependencies/imguizmo/**.h",
+		"%{prj.name}/dependencies/imguizmo/**.cpp"
 	}
 
 	includedirs
@@ -71,6 +74,7 @@ project "Ilargi"
 		"%{prj.name}/source",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.ImGUI}",
+		"%{IncludeDir.ImGuizmo}",
 		"%{IncludeDir.Assimp}",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.stb}",
@@ -90,6 +94,9 @@ project "Ilargi"
 		--"_CRT_SECURE_NO_WARNINGS"
 		"GLFW_INCLUDE_NONE"
 	}
+
+	filter "files:Ilargi/dependencies/imguizmo/**.cpp"
+	flags { "NoPCH" }
 
 	filter "system:windows"
 		systemversion "latest"
@@ -158,6 +165,7 @@ project "IlargiEditor"
 		"Ilargi/source",
 		"Ilargi/dependencies",
 		"Ilargi/dependencies/entt",
+		"Ilargi/dependencies/imguizmo",
 		"Ilargi/dependencies/optick/src",
 		"Ilargi/dependencies/stb"
 	}

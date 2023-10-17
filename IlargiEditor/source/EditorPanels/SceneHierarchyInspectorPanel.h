@@ -11,6 +11,8 @@ namespace Ilargi
 		~SceneHierarchyInspectorPanel();
 
 		void Render();
+		
+		Entity GetSelected() { return selected; }
 
 	private:
 		void DrawInspector();

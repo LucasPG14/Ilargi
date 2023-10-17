@@ -9,6 +9,7 @@
 #include "Utils/Importers/ModelImporter.h"
 
 #include <imgui/imgui.h>
+#include <ImGuizmo.h>
 
 namespace Ilargi
 {
@@ -28,7 +29,7 @@ namespace Ilargi
 	}
 
 	EditorPanel::EditorPanel() : Panel("Editor Panel"), hierarchyInspector(nullptr), resourcesPanel(nullptr), 
-		viewportSize({ 1080, 720 }), needToUpdateFramebuffer(false), constants()
+		viewportSize({ 1080, 720 }), needToUpdateFramebuffer(false), constants(), operation(ImGuizmo::TRANSLATE)
 	{
 	}
 
@@ -114,6 +115,7 @@ namespace Ilargi
 		}
 
 		renderPass->EndRenderPass(commandBuffer);
+
 		commandBuffer->EndCommand();
 		commandBuffer->Submit();
 	}
@@ -160,6 +162,30 @@ namespace Ilargi
 		{
 			viewportSize = frameViewportSize;
 			needToUpdateFramebuffer = true;
+		}
+
+		Entity entity = hierarchyInspector->GetSelected();
+		// Guizmo
+		if (entity != entt::null)
+		{
+			ImGuizmo::Enable(true);
+			ImGuizmo::SetOrthographic(false);
+			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
+			ImGuizmo::SetDrawlist();
+			ImGuizmo::SetGizmoSizeClipSpace(0.15f);
+
+			const mat4& viewMatrix = camera.GetViewMatrix();
+			const mat4& projMatrix = camera.GetProjectionMatrix();
+
+			TransformComponent& transformComp = scene->GetWorld().get<TransformComponent>(entity);
+			mat4& transform = transformComp.transform;
+
+			ImGuizmo::Manipulate(viewMatrix, projMatrix, (ImGuizmo::OPERATION)operation, ImGuizmo::WORLD, transform);
+
+			if (ImGuizmo::IsUsingAny())
+			{
+				ImGuizmo::DecomposeMatrixToComponents(transform, transformComp.position, transformComp.rotation, transformComp.scale);
+			}
 		}
 
 		ImGui::End();

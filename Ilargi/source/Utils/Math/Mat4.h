@@ -66,6 +66,7 @@ namespace Ilargi
 		}
 
 		constexpr operator float*() { return &matrix[0].x; }
+		constexpr operator const float*() const { return &matrix[0].x; }
 
 		constexpr vec4& operator[](int i) { return matrix[i]; }
 		constexpr const vec4& operator[](int i) const { return matrix[i]; }

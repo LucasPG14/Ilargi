@@ -122,6 +122,8 @@ namespace Ilargi
 	
 	void VulkanShader::ProcessShader(std::string code)
 	{
+		ILG_PROFILE_FUNC
+
 		auto device = VulkanContext::GetLogicalDevice();
 
 		const char* type = "#type";

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <chrono>
+#include "Log.h"
 
 namespace Ilargi
 {
@@ -12,9 +13,23 @@ namespace Ilargi
 			Reset();
 		}
 
+		~Timer()
+		{
+			Stop();
+		}
+
 		void Reset()
 		{
 			start = std::chrono::high_resolution_clock::now();
+		}
+
+		void Stop()
+		{
+			auto end = std::chrono::high_resolution_clock::now();
+
+			auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+
+			ILG_CORE_TRACE("The function took: {0}", duration);
 		}
 
 		float Elapsed()

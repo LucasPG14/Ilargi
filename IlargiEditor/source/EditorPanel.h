@@ -50,5 +50,6 @@ namespace Ilargi
 		bool needToUpdateFramebuffer;
 
 		mat4 constants[2];
+		int operation;
 	};
 }

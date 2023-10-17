@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Log.h"
+#include "Timer.h"
 
 #if ILG_DEBUG
 #define ILG_ASSERT(x, ...)		{ if (!(x)) { ILG_CORE_ERROR(__VA_ARGS__); __debugbreak(); }}
@@ -10,4 +10,4 @@
 
 #define ILG_BIND_FN(x) std::bind(&x, this, std::placeholders::_1)
 
-//#define ILG_PROFILE_FUNC Timer timer;
+#define ILG_PROFILE_FUNC Timer timer;
