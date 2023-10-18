@@ -37,6 +37,7 @@ namespace Ilargi
 		static void SetNewFrame(uint32_t index) { currentFrame = index; }
 
 		static void SubmitGeometry(std::shared_ptr<CommandBuffer> commandBuffer, std::shared_ptr<StaticMesh> mesh);
+		static void DrawDefault(std::shared_ptr<CommandBuffer> commandBuffer);
 
 		static const RendererConfig& GetConfig() { return config; }
 		static const int GetCurrentFrame() { return currentFrame; }

@@ -103,12 +103,20 @@ namespace Ilargi
 		mat4 matrix = mat4(0.0f);
 
 		const float tanHalfFovy = tan(fovY * 0.5f);
-
+		
+		// Right handed
 		matrix[0][0] = 1.0f / (aspectRatio * tanHalfFovy);
 		matrix[1][1] = 1.0f / (tanHalfFovy);
 		matrix[2][2] = -(fPlane + nPlane) / (fPlane - nPlane);
 		matrix[2][3] = -1.0f;
 		matrix[3][2] = -(2.0f * fPlane * nPlane) / (fPlane - nPlane);
+
+		// Left handed
+		//matrix[0][0] = 1.0f / (aspectRatio * tanHalfFovy);
+		//matrix[1][1] = 1.0f / (tanHalfFovy);
+		//matrix[2][2] = (fPlane + nPlane) / (fPlane - nPlane);
+		//matrix[2][3] = 1.0f;
+		//matrix[3][2] = -(2.0f * fPlane * nPlane) / (fPlane - nPlane);
 
 		return matrix;
 	}
@@ -119,8 +127,13 @@ namespace Ilargi
 		const vec3 s(normalize(cross(f, up)));
 		const vec3 u(cross(s, f));
 
+		//const vec3 f(normalize(target - eye));
+		//const vec3 s(normalize(cross(up, f)));
+		//const vec3 u(cross(f, s));
+
 		mat4 matrix(1.0f);
 
+		// Right handed
 		matrix[0][0] = s.x;
 		matrix[1][0] = s.y;
 		matrix[2][0] = s.z;
@@ -133,6 +146,20 @@ namespace Ilargi
 		matrix[3][0] = -dot(s, eye);
 		matrix[3][1] = -dot(u, eye);
 		matrix[3][2] = dot(f, eye);
+
+		// Left handed
+		//matrix[0][0] = s.x;
+		//matrix[1][0] = s.y;
+		//matrix[2][0] = s.z;
+		//matrix[0][1] = u.x;
+		//matrix[1][1] = u.y;
+		//matrix[2][1] = u.z;
+		//matrix[0][2] = f.x;
+		//matrix[1][2] = f.y;
+		//matrix[2][2] = f.z;
+		//matrix[3][0] = -dot(s, eye);
+		//matrix[3][1] = -dot(u, eye);
+		//matrix[3][2] = -dot(f, eye);
 
 		return matrix;
 	}
@@ -155,6 +182,32 @@ namespace Ilargi
 			matrix[0] = matrix[0] * v[0];
 			matrix[1] = matrix[1] * v[1];
 			matrix[2] = matrix[2] * v[2];
+
+			return matrix;
+		}
+
+		constexpr inline mat4 transpose(const mat4& m)
+		{
+			mat4 matrix;
+			matrix[0][0] = m[0][0];
+			matrix[0][1] = m[1][0];
+			matrix[0][2] = m[2][0];
+			matrix[0][3] = m[3][0];
+
+			matrix[1][0] = m[0][1];
+			matrix[1][1] = m[1][1];
+			matrix[1][2] = m[2][1];
+			matrix[1][3] = m[3][1];
+
+			matrix[2][0] = m[0][2];
+			matrix[2][1] = m[1][2];
+			matrix[2][2] = m[2][2];
+			matrix[2][3] = m[3][2];
+
+			matrix[3][0] = m[0][3];
+			matrix[3][1] = m[1][3];
+			matrix[3][2] = m[2][3];
+			matrix[3][3] = m[3][3];
 
 			return matrix;
 		}

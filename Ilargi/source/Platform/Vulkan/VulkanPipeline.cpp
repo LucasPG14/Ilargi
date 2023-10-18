@@ -271,7 +271,7 @@ namespace Ilargi
 		vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
 	}
 
-	void VulkanPipeline::PushConstants(std::shared_ptr<CommandBuffer> commandBuffer, uint32_t offset, uint32_t size, void* data) const
+	void VulkanPipeline::PushConstants(std::shared_ptr<CommandBuffer> commandBuffer, uint32_t offset, uint32_t size, const void* data) const
 	{
 		Renderer::Submit([this, commandBuffer, offset, size, data]()
 			{

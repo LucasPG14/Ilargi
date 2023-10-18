@@ -51,5 +51,9 @@ namespace Ilargi
 
 		mat4 constants[2];
 		int operation;
+
+		// Grid
+		std::shared_ptr<RenderPass> gridRenderPass;
+		std::shared_ptr<Pipeline> gridPipeline;
 	};
 }

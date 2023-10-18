@@ -79,9 +79,18 @@ namespace Ilargi
 		}
 	}
 
-	VulkanShader::VulkanShader(std::string_view path) : filePath(path)
+	VulkanShader::VulkanShader(std::string_view path) : filePath(path), name(std::filesystem::path(path).stem().string())
 	{	
 		auto device = VulkanContext::GetLogicalDevice();
+
+		//auto directory = Utils::GetCacheDirectory();
+		//directory += std::filesystem::path(name);
+		//directory += Utils::GetCacheExtension(VK_SHADER_STAGE_VERTEX_BIT);
+		//if (std::filesystem::directory_entry(directory).exists())
+		//{
+		//	bool ret = true;
+		//	ret = false;
+		//}
 
 		std::string shaderCode = Utils::ReadFile(path.data());
 		ProcessShader(shaderCode);

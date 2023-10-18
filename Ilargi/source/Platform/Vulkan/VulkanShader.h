@@ -33,6 +33,7 @@ namespace Ilargi
 		void ReflectShader(const std::vector<uint32_t>& code, VkShaderStageFlags stage);
 	private:
 		std::string filePath;
+		std::string name;
 
 		ShadersMap shaders;
 

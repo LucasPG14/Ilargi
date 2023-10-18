@@ -68,6 +68,14 @@ namespace Ilargi
 				view.get<StaticMeshComponent>(entity).staticMesh->CreateMaterial(pipelineProperties.shader);
 			}
 		}
+
+		PipelineProperties pipelineProperties;
+		pipelineProperties.name = "Grid";
+		pipelineProperties.shader = Renderer::GetShaderLibrary()->Get("Grid");
+		pipelineProperties.depth = true;
+		pipelineProperties.layout = {};
+
+		gridRenderPass = RenderPass::Create({ framebuffer, Pipeline::Create(pipelineProperties) });
 		
 		uboCamera = UniformBuffer::Create(sizeof(mat4), Renderer::GetConfig().maxFrames);
 
@@ -115,6 +123,16 @@ namespace Ilargi
 		}
 
 		renderPass->EndRenderPass(commandBuffer);
+
+		//gridRenderPass->BeginRenderPass(commandBuffer);
+		
+		//gridRenderPass->GetProperties().pipeline->Bind(commandBuffer);
+		//gridRenderPass->GetProperties().pipeline->PushConstants(commandBuffer, 0, 64, camera.GetViewMatrix());
+		//gridRenderPass->GetProperties().pipeline->PushConstants(commandBuffer, 64, 64, camera.GetProjectionMatrix());
+		
+		//Renderer::DrawDefault(commandBuffer);
+		
+		//gridRenderPass->EndRenderPass(commandBuffer);
 
 		commandBuffer->EndCommand();
 		commandBuffer->Submit();
