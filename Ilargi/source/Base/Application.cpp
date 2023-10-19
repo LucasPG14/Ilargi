@@ -19,8 +19,12 @@
 
 namespace Ilargi
 {
+	Application* Application::app = nullptr;
+
 	Application::Application(const ApplicationProperties& props) : close(false), minimized(false), properties(props)
 	{
+		app = this;
+
 		Log::SetClientName(props.appName);
 
 		WindowProperties windowProps;

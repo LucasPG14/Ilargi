@@ -28,11 +28,15 @@ namespace Ilargi
 
 		void OnEvent(Event& event);
 		void CloseApp();
+
+		static Application* Get() { return app; }
 	private:
 		bool OnCloseEvent(WindowCloseEvent& event);
 		bool OnResizeEvent(WindowResizeEvent& event);
 
 	private:
+		static Application* app;
+
 		bool close;
 		bool minimized;
 		ApplicationProperties properties;

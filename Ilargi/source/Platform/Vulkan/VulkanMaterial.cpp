@@ -11,7 +11,7 @@ namespace Ilargi
 	{
 		auto device = VulkanContext::GetLogicalDevice();
 
-		albedo = Texture2D::Create(std::filesystem::path("textures/viking_room.png"));
+		albedo = Texture2D::Create(std::filesystem::path("assets/textures/viking_room.png"));
 
 		auto vulkanShader = std::static_pointer_cast<VulkanShader>(shader);
 		descriptorSet = vulkanShader->AllocateDescriptorSet();

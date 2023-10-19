@@ -69,13 +69,13 @@ namespace Ilargi
 			}
 		}
 
-		PipelineProperties pipelineProperties;
-		pipelineProperties.name = "Grid";
-		pipelineProperties.shader = Renderer::GetShaderLibrary()->Get("Grid");
-		pipelineProperties.depth = true;
-		pipelineProperties.layout = {};
+		//PipelineProperties pipelineProperties;
+		//pipelineProperties.name = "Grid";
+		//pipelineProperties.shader = Renderer::GetShaderLibrary()->Get("Grid");
+		//pipelineProperties.depth = true;
+		//pipelineProperties.layout = {};
 
-		gridRenderPass = RenderPass::Create({ framebuffer, Pipeline::Create(pipelineProperties) });
+		//gridRenderPass = RenderPass::Create({ framebuffer, Pipeline::Create(pipelineProperties) });
 		
 		uboCamera = UniformBuffer::Create(sizeof(mat4), Renderer::GetConfig().maxFrames);
 
@@ -217,6 +217,9 @@ namespace Ilargi
 	
 	void EditorPanel::OnEvent(Event& event)
 	{
+		EventDispatcher dispatcher(event);
+
+		dispatcher.Dispatch<KeyPressedEvent>(ILG_BIND_FN(EditorPanel::OnKeyEvent));
 	}
 	
 	void EditorPanel::MainMenuBar()
@@ -226,20 +229,26 @@ namespace Ilargi
 		{
 			if (ImGui::MenuItem("New Scene", "Ctrl + N"))
 			{
-
+				// TODO: New scene
 			}
 			if (ImGui::MenuItem("Open Scene", "Ctrl + O"))
 			{
-
+				// TODO: Open scene
 			}
 			ImGui::Separator();
 			if (ImGui::MenuItem("Save Scene", "Ctrl + S"))
 			{
-
+				// TODO: Save scene
 			}
 			if (ImGui::MenuItem("Save Scene As...", "Ctrl + Shift + S"))
 			{
-
+				// TODO: Save scene as...
+			}
+			ImGui::Separator();
+			if (ImGui::MenuItem("Exit", "Ctrl + Alt + F4"))
+			{
+				// TODO: Exit application
+				Application::Get()->CloseApp();
 			}
 			ImGui::EndMenu();
 		}
@@ -247,14 +256,81 @@ namespace Ilargi
 		{
 			if (ImGui::MenuItem("Undo", "Ctrl + Z"))
 			{
-
+				// TODO: Undo
 			}
 			if (ImGui::MenuItem("Redo", "Ctrl + Y"))
 			{
+				// TODO: Redo
+			}
+			ImGui::Separator();
 
+			bool enabled = hierarchyInspector->GetSelected() != entt::null ? true : false;
+			if (ImGui::MenuItem("Copy", "Ctrl + C", (bool*)0, enabled))
+			{
+				// TODO: Copy
+			}
+			if (ImGui::MenuItem("Paste", "Ctrl + V", (bool*)0, enabled))
+			{
+				// TODO: Paste
+			}
+			if (ImGui::MenuItem("Delete", "Del", (bool*)0, enabled))
+			{
+				// TODO: Delete an entity
+			}
+			if (ImGui::MenuItem("Duplicate", "Ctrl + D", (bool*)0, enabled))
+			{
+				// TODO: Duplicate an entity
 			}
 			ImGui::EndMenu();
 		}
 		ImGui::EndMainMenuBar();
+	}
+	
+	bool EditorPanel::OnKeyEvent(KeyPressedEvent& event)
+	{
+		bool ctrl = Input::IsKeyPressed(KeyCode::LEFT_CONTROL) || Input::IsKeyPressed(KeyCode::RIGHT_CONTROL);
+		bool shift = Input::IsKeyPressed(KeyCode::LEFT_SHIFT) || Input::IsKeyPressed(KeyCode::RIGHT_SHIFT);
+		bool alt = Input::IsKeyPressed(KeyCode::LEFT_ALT) || Input::IsKeyPressed(KeyCode::RIGHT_ALT);
+
+		switch (event.GetKey())
+		{
+		case KeyCode::N:
+			if (ctrl)
+			{
+				// TODO: New scene
+			}
+			break;
+		case KeyCode::O:
+			if (ctrl)
+			{
+				// TODO: Open scene
+			}
+			break;
+		case KeyCode::S:
+			if (ctrl)
+			{
+				if (shift)
+				{
+					// TODO: Save scene as...
+					break;
+				}
+				// TODO: Save scene
+			}
+			break;
+		case KeyCode::W:
+			operation = ImGuizmo::TRANSLATE;
+			break;
+		case KeyCode::E:
+			operation = ImGuizmo::ROTATE;
+			break;
+		case KeyCode::R:
+			operation = ImGuizmo::SCALE;
+			break;
+		case KeyCode::F4:
+			Application::Get()->CloseApp();
+			break;
+		}
+
+		return true;
 	}
 }

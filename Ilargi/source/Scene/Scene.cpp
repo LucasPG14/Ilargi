@@ -11,7 +11,10 @@ namespace Ilargi
 {
 	Scene::Scene()
 	{
-		std::shared_ptr<StaticMesh> mesh = ModelImporter::ImportModel("models/viking_room2.obj");
+		std::shared_ptr<StaticMesh> mesh = ModelImporter::ImportModel("assets/models/viking_room2.obj");
+
+		Entity entity = world.create();
+		world.emplace<TransformComponent>(entity, mat4(1.0f));
 
 		for (int i = 0; i < 2; ++i)
 		{

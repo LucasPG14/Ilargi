@@ -18,7 +18,7 @@ namespace Ilargi
 	void Renderer::Init()
 	{
 		shaderLibrary->Add("shaders/PBR_Static.shader");
-		shaderLibrary->Add("shaders/Grid.shader");
+		//shaderLibrary->Add("shaders/Grid.shader");
 	}
 
 	void Renderer::SubmitGeometry(std::shared_ptr<CommandBuffer> commandBuffer, std::shared_ptr<StaticMesh> mesh)

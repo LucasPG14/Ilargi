@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ilargipch.h"
-#include "Debug.h"
+#include "Base/Debug.h"
 
 namespace Ilargi
 {

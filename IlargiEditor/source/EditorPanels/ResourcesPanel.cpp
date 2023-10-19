@@ -18,19 +18,39 @@ namespace Ilargi
 	{
 		ImGui::Begin("Resources Panel");
 
-		for (const auto& iterator : std::filesystem::directory_iterator(actualDir))
+		constexpr float cell = 96.0f;
+
+		int columns = int(ImGui::GetContentRegionMax().x / cell);
+
+		ImGui::Columns(columns, (const char*)0, false);
+
+		for (const auto& file : std::filesystem::directory_iterator(actualDir))
 		{
-			if (iterator.is_directory())
+			const auto& path = file.path();
+			const auto& relative = std::filesystem::relative(path, "assets");
+			const auto& filename = path.stem().string();
+			//const auto& file = path.;
+
+			if (file.is_directory())
 			{
-				ImGui::ColorButton("Folder", { 1.0f, 0.0, 0.0f, 0.2f });
+				ImGui::Button(filename.c_str(), { cell, cell });
 			}
 			else
 			{
-				ImGui::ColorButton("File", { 0.0f, 0.0, 1.0f, 0.2f });
+				ImGui::Button(filename.c_str(), { cell, cell });
 			}
+			if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+			{
+				if (file.is_directory()) actualDir /= relative;
+			}
+			ImGui::Text(filename.c_str());
+			ImGui::NextColumn();
 		}
 
-		if (ImGui::BeginPopupContextWindow("##Hierarchypopup"))
+		ImGui::Columns(1);
+
+		//bool focused = ImGui::IsWindowFocused();
+		if (!ImGui::IsAnyItemHovered() /*&& focused*/ && ImGui::BeginPopupContextWindow("##Hierarchypopup"))
 		{
 			if (ImGui::MenuItem("Create Material"))
 			{

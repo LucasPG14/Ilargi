@@ -95,7 +95,7 @@ namespace Ilargi
 		std::string name;
 		Layout layout;
 		std::shared_ptr<Shader> shader;
-		bool depth;
+		bool depth = true;
 	};
 
 	class Pipeline

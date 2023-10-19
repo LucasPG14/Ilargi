@@ -14,4 +14,5 @@ namespace Ilargi::UI
 	void EndCollapsingHeader(void* id);
 
 	void IlargiStyle();
+	void IlargiStyle2();
 }

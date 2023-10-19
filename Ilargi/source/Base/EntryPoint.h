@@ -4,7 +4,7 @@
 
 Ilargi::Application* Ilargi::CreateApp();
 
-int main()
+int main(int argc, char* argv[])
 {
 	Ilargi::Application* app = Ilargi::CreateApp();
 

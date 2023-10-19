@@ -185,25 +185,38 @@ namespace Ilargi
 			shaders.push_back({ stage, shaderModule });
 		}
 
-		// TODO: Change this and automatize with reflect function
+		descriptorSetLayouts.resize(descriptorSetBindings.size());
 		{
-			VkDescriptorSetLayoutBinding samplerLayoutBinding;
-			samplerLayoutBinding.binding = 0;
-			samplerLayoutBinding.descriptorCount = 1;
-			samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			samplerLayoutBinding.pImmutableSamplers = nullptr;
-			samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+			for (int i = 0; i < descriptorSetLayouts.size(); ++i)
+			{
+				VkDescriptorSetLayoutCreateInfo layoutInfo{};
+				layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+				layoutInfo.bindingCount = descriptorSetBindings[i].size();
+				layoutInfo.pBindings = descriptorSetBindings[i].data();
 
-			VkDescriptorSetLayoutCreateInfo layoutInfo{};
-			layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-			layoutInfo.bindingCount = 1;
-			layoutInfo.pBindings = &samplerLayoutBinding;
-
-			VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
-			VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout));
-
-			descriptorSetLayouts.push_back(descriptorSetLayout);
+				VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayouts[i]));
+			}
 		}
+
+		// TODO: Change this and automatize with reflect function
+		//{
+		//	VkDescriptorSetLayoutBinding samplerLayoutBinding;
+		//	samplerLayoutBinding.binding = 0;
+		//	samplerLayoutBinding.descriptorCount = 1;
+		//	samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		//	samplerLayoutBinding.pImmutableSamplers = nullptr;
+		//	samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+		//
+		//	VkDescriptorSetLayoutCreateInfo layoutInfo{};
+		//	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		//	layoutInfo.bindingCount = 1;
+		//	layoutInfo.pBindings = &samplerLayoutBinding;
+		//
+		//	VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
+		//	VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout));
+		//
+		//	descriptorSetLayouts.push_back(descriptorSetLayout);
+		//}
 	}
 	
 	const std::vector<uint32_t> VulkanShader::ConvertToSpirV(VkShaderStageFlagBits stage, std::string_view code) const
@@ -231,7 +244,6 @@ namespace Ilargi
 
 		// Reflecting push constants
 		auto constants = resources.push_constant_buffers;
-		auto imgs = compiler.get_combined_image_samplers();
 		for (auto& pushConstant : constants)
 		{
 			const auto& type = compiler.get_type(pushConstant.base_type_id);
@@ -259,6 +271,7 @@ namespace Ilargi
 			const auto& type = compiler.get_type(uniformBuffer.base_type_id);
 			uint32_t size = static_cast<uint32_t>(compiler.get_declared_struct_size(type));
 			uint32_t binding = compiler.get_decoration(uniformBuffer.id, spv::DecorationBinding);
+			uint32_t set = compiler.get_decoration(uniformBuffer.id, spv::DecorationDescriptorSet);
 			uint32_t membersCount = static_cast<uint32_t>(type.member_types.size());
 
 			ILG_CORE_TRACE("Uniform Buffer: {0}", uniformBuffer.name.c_str());
@@ -266,7 +279,14 @@ namespace Ilargi
 			ILG_CORE_TRACE("	Binding: {0}", binding);
 			ILG_CORE_TRACE("	Members: {0}", membersCount);
 
-			//uniformBuffers.push_back();
+			VkDescriptorSetLayoutBinding layoutBinding = {};
+			layoutBinding.binding = binding;
+			layoutBinding.descriptorCount = 1;
+			layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			layoutBinding.pImmutableSamplers = nullptr;
+			layoutBinding.stageFlags = stage;
+
+			descriptorSetBindings[set].push_back(layoutBinding);
 		}
 
 		// Reflecting sampled images
@@ -275,11 +295,20 @@ namespace Ilargi
 		{
 			const auto& type = compiler.get_type(sampledImage.base_type_id);
 			uint32_t binding = compiler.get_decoration(sampledImage.id, spv::DecorationBinding);
-			uint32_t descriptorSet = compiler.get_decoration(sampledImage.id, spv::DecorationDescriptorSet);
+			uint32_t set = compiler.get_decoration(sampledImage.id, spv::DecorationDescriptorSet);
 
 			ILG_CORE_TRACE("Sampler2D: {0}", sampledImage.name.c_str());
 			ILG_CORE_TRACE("	Binding: {0}", binding);
-			ILG_CORE_TRACE("	Descriptor Set: {0}", descriptorSet);
+			ILG_CORE_TRACE("	Descriptor Set: {0}", set);
+
+			VkDescriptorSetLayoutBinding layoutBinding = {};
+			layoutBinding.binding = binding;
+			layoutBinding.descriptorCount = 1;
+			layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			layoutBinding.pImmutableSamplers = nullptr;
+			layoutBinding.stageFlags = stage;
+
+			descriptorSetBindings[set].push_back(layoutBinding);
 		}
 
 		// Reflecting separate images

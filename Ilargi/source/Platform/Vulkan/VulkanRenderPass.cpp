@@ -32,7 +32,6 @@ namespace Ilargi
 		colorAttachmentRef.attachment = 0;
 		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-		// TODO: Depth attachment
 		VkAttachmentDescription depthAttachment{};
 		depthAttachment.format = VK_FORMAT_D32_SFLOAT;
 		depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;

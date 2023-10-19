@@ -94,9 +94,9 @@ namespace Ilargi
 	
 	void SceneHierarchyInspectorPanel::DrawInspector()
 	{
-		ImGui::PushStyleColor(ImGuiCol_Header, { 1.0f, 0.0f, 0.0f, 0.15f });
-		ImGui::PushStyleColor(ImGuiCol_HeaderHovered, { 1.0f, 0.0f, 0.0f, 0.30f });
-		ImGui::PushStyleColor(ImGuiCol_HeaderActive, { 1.0f, 0.0f, 0.0f, 0.30f });
+		ImGui::PushStyleColor(ImGuiCol_Header, { 16.0f / 255.0f, 20.0f / 255.0f, 45.0f / 255.0f, 1.0f });
+		ImGui::PushStyleColor(ImGuiCol_HeaderHovered, { 16.0f / 255.0f, 20.0f / 255.0f, 45.0f / 255.0f, 1.0f });
+		ImGui::PushStyleColor(ImGuiCol_HeaderActive, { 16.0f / 255.0f, 20.0f / 255.0f, 45.0f / 255.0f, 1.0f });
 		ImGui::Separator();
 		auto& world = scene->GetWorld();
 		if (world.try_get<TransformComponent>(selected))

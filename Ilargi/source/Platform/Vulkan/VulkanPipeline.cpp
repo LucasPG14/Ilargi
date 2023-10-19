@@ -102,8 +102,6 @@ namespace Ilargi
 		//fragShaderStageInfo.module = shader->GetFragmentShader();
 		//fragShaderStageInfo.pName = "main";
 
-		//VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
-
 		VkVertexInputBindingDescription bindingDescription = {};
 		bindingDescription.binding = 0;
 		bindingDescription.stride = properties.layout.GetStride();
