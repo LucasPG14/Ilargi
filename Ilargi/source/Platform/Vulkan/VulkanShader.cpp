@@ -185,11 +185,12 @@ namespace Ilargi
 			shaders.push_back({ stage, shaderModule });
 		}
 
+		// TODO: Change this and automatize with reflect function
 		descriptorSetLayouts.resize(descriptorSetBindings.size());
 		{
 			for (int i = 0; i < descriptorSetLayouts.size(); ++i)
 			{
-				VkDescriptorSetLayoutCreateInfo layoutInfo{};
+				VkDescriptorSetLayoutCreateInfo layoutInfo = {};
 				layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 				layoutInfo.bindingCount = descriptorSetBindings[i].size();
 				layoutInfo.pBindings = descriptorSetBindings[i].data();
@@ -197,26 +198,6 @@ namespace Ilargi
 				VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayouts[i]));
 			}
 		}
-
-		// TODO: Change this and automatize with reflect function
-		//{
-		//	VkDescriptorSetLayoutBinding samplerLayoutBinding;
-		//	samplerLayoutBinding.binding = 0;
-		//	samplerLayoutBinding.descriptorCount = 1;
-		//	samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		//	samplerLayoutBinding.pImmutableSamplers = nullptr;
-		//	samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-		//
-		//	VkDescriptorSetLayoutCreateInfo layoutInfo{};
-		//	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		//	layoutInfo.bindingCount = 1;
-		//	layoutInfo.pBindings = &samplerLayoutBinding;
-		//
-		//	VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
-		//	VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout));
-		//
-		//	descriptorSetLayouts.push_back(descriptorSetLayout);
-		//}
 	}
 	
 	const std::vector<uint32_t> VulkanShader::ConvertToSpirV(VkShaderStageFlagBits stage, std::string_view code) const

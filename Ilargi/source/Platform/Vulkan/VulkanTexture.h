@@ -20,8 +20,9 @@ namespace Ilargi
 		const VkSampler GetSampler() const { return sampler; }
 
 	private:
-		void TransitionLayout(VkImageLayout oldLayout, VkImageLayout newLayout);
+		void TransitionLayout(uint32_t mipLevels, VkImageLayout oldLayout, VkImageLayout newLayout);
 
+		void GenerateMipMaps(uint32_t mipLevels);
 	private:
 		uint32_t width;
 		uint32_t height;
