@@ -3,7 +3,6 @@
 // Main headers
 #include "VulkanFramebuffer.h"
 #include "VulkanContext.h"
-#include "VulkanPipeline.h"
 #include "VulkanRenderPass.h"
 #include "VulkanUtils.h"
 

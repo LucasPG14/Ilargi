@@ -3,15 +3,9 @@
 // Main headers
 #include "Application.h"
 #include "Window.h"
-#include "Input.h"
 #include "Panel.h"
 #include "Renderer/Renderer.h"
 #include "ImGUI/ImGuiPanel.h"
-
-// Debugging tools headers
-#include "Debug.h"
-#include "Log.h"
-//#include "optick.h"
 
 // Event headers
 #include "Events/Event.h"
@@ -48,8 +42,6 @@ namespace Ilargi
 	
 	void Application::Update() const
 	{
-		//OPTICK_FRAME("MainThread");
-
 		while (!close)
 		{
 			window->PollEvents();
@@ -70,8 +62,6 @@ namespace Ilargi
 			window->StartFrame();
 			Renderer::RenderQueue();
 			window->EndFrame();
-
-			Renderer::ClearSubmittedCommands();
 		}
 	}
 

@@ -103,10 +103,10 @@ namespace Ilargi
 	public:
 		virtual void Destroy() = 0;
 
-		virtual void PushConstants(std::shared_ptr<CommandBuffer> commandBuffer, uint32_t offset, uint32_t size, const void* data) const = 0;
+		virtual void PushConstants(const std::shared_ptr<CommandBuffer>& commandBuffer, uint32_t offset, uint32_t size, const void* data) const = 0;
 
-		virtual void Bind(std::shared_ptr<CommandBuffer> commandBuffer) const = 0;
-		virtual void BindDescriptorSet(std::shared_ptr<CommandBuffer> commandBuffer, std::shared_ptr<Material> material) const = 0;
+		virtual void Bind(const std::shared_ptr<CommandBuffer>& commandBuffer) const = 0;
+		virtual void BindDescriptorSet(const std::shared_ptr<CommandBuffer>& commandBuffer, std::shared_ptr<Material> material) const = 0;
 
 		virtual const PipelineProperties& GetProperties() const = 0;
 

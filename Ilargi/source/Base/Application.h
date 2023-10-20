@@ -47,5 +47,5 @@ namespace Ilargi
 		std::vector<Panel*> panels;
 	};
 
-	extern Application* CreateApp();
+	extern Application* CreateApp(int argc, char* argv[]);
 }

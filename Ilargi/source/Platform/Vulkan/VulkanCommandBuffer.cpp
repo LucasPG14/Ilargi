@@ -63,10 +63,10 @@ namespace Ilargi
 				uint32_t currentFrame = Renderer::GetCurrentFrame();
 				auto device = VulkanContext::GetLogicalDevice();
 				
+				VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+
 				VkSubmitInfo submitInfo{};
 				submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-
-				VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 				submitInfo.pWaitDstStageMask = waitStages;
 				submitInfo.waitSemaphoreCount = 0;
 				submitInfo.pWaitSemaphores = nullptr;
@@ -78,10 +78,7 @@ namespace Ilargi
 				VK_CHECK_RESULT(vkResetFences(device, 1, &fence));
 				VK_CHECK_RESULT(vkQueueSubmit(VulkanContext::GetGraphicsQueue(), 1, &submitInfo, fence));
 				
-				if (vkGetFenceStatus(device, fence) != VK_SUCCESS)
-				{
-					vkWaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX);
-				}
+				VK_CHECK_RESULT(vkWaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX));
 			});
 	}
 }

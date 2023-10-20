@@ -17,10 +17,8 @@ namespace Ilargi
 	public:
 		virtual void Destroy() = 0;
 
-		virtual void BeginRenderPass(std::shared_ptr<CommandBuffer> commandBuffer) const = 0;
-		virtual void EndRenderPass(std::shared_ptr<CommandBuffer> commandBuffer) const = 0;
-
-		virtual void PushConstants(std::shared_ptr<CommandBuffer> commandBuffer, void* data) const = 0;
+		virtual void BeginRenderPass(const std::shared_ptr<CommandBuffer>& commandBuffer) const = 0;
+		virtual void EndRenderPass(const std::shared_ptr<CommandBuffer>& commandBuffer) const = 0;
 
 		virtual const RenderPassProperties& GetProperties() const = 0;
 

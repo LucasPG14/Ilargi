@@ -87,7 +87,7 @@ namespace Ilargi
 		vkDestroyRenderPass(device, renderPass, nullptr);
 	}
 	
-	void VulkanRenderPass::BeginRenderPass(std::shared_ptr<CommandBuffer> commandBuffer) const
+	void VulkanRenderPass::BeginRenderPass(const std::shared_ptr<CommandBuffer>& commandBuffer) const
 	{
 		Renderer::Submit([this, commandBuffer]()
 			{
@@ -130,20 +130,12 @@ namespace Ilargi
 			});
 	}
 
-	void VulkanRenderPass::EndRenderPass(std::shared_ptr<CommandBuffer> commandBuffer) const
+	void VulkanRenderPass::EndRenderPass(const std::shared_ptr<CommandBuffer>& commandBuffer) const
 	{
 		Renderer::Submit([commandBuffer]()
 			{
 				auto cmdBuffer = std::static_pointer_cast<VulkanCommandBuffer>(commandBuffer)->GetCurrentCommand(Renderer::GetCurrentFrame());
 				vkCmdEndRenderPass(cmdBuffer);
 			});
-	}
-	
-	void VulkanRenderPass::PushConstants(std::shared_ptr<CommandBuffer> commandBuffer, void* data) const
-	{
-		Renderer::Submit([this, commandBuffer, data]()
-		{
-			//properties.pipeline->PushConstants(commandBuffer, data);
-		});
 	}
 }

@@ -23,7 +23,6 @@ namespace Ilargi
 
 	private:
 		std::shared_ptr<VulkanSwapchain> vkSwapchain;
-		std::shared_ptr<VulkanCommandBuffer> commandBuffer;
 
 		VkDescriptorPool descriptorPool;
 	};

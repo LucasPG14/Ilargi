@@ -102,15 +102,8 @@ namespace Ilargi
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = &renderFinished[currentFrame];
 
-		auto cmdBuffersSubmit = Renderer::GetSubmittedCommands();
-		std::vector<VkCommandBuffer> vkCommandBuffers;
-		for (int i = 0; i < cmdBuffersSubmit.size(); ++i)
-		{
-			vkCommandBuffers.push_back(std::static_pointer_cast<VulkanCommandBuffer>(cmdBuffersSubmit[i])->GetCurrentCommand(currentFrame));
-		}
-
-		submitInfo.commandBufferCount = static_cast<uint32_t>(vkCommandBuffers.size());
-		submitInfo.pCommandBuffers = vkCommandBuffers.data();
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &commandBuffers[currentFrame];
 
 		VK_CHECK_RESULT(vkResetFences(device, 1, &fences[currentFrame]));
 		VK_CHECK_RESULT(vkQueueSubmit(VulkanContext::GetGraphicsQueue(), 1, &submitInfo, fences[currentFrame]));

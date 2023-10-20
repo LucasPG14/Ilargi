@@ -46,12 +46,7 @@ namespace Ilargi
 		
 		static std::shared_ptr<ShaderLibrary> GetShaderLibrary() { return shaderLibrary; }
 
-		static std::vector<std::shared_ptr<CommandBuffer>>& GetSubmittedCommands() { return submittedCommands; }
-
 		static void Submit(std::function<void()> func) { queue.push_back(func); }
-
-		static void AddCommand(std::shared_ptr<CommandBuffer> cmdBuffer) { submittedCommands.push_back(cmdBuffer); }
-		static void ClearSubmittedCommands() { submittedCommands.clear(); }
 
 		static void RenderQueue();
 	private:
@@ -64,7 +59,5 @@ namespace Ilargi
 		static int currentFrame;
 
 		static std::vector<std::function<void()>> queue;
-		static std::vector<std::shared_ptr<CommandBuffer>> submittedCommands;
-		static std::vector<std::shared_ptr<CommandBuffer>> semaphoresToHandle;
 	};
 }

@@ -13,7 +13,6 @@ namespace Ilargi
 	RendererConfig Renderer::config = {};
 	int Renderer::currentFrame = 0;
 	std::vector<std::function<void()>> Renderer::queue = {};
-	std::vector<std::shared_ptr<CommandBuffer>> Renderer::submittedCommands = {};
 
 	void Renderer::Init()
 	{

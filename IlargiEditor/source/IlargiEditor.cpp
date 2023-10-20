@@ -19,7 +19,7 @@ namespace Ilargi
 		}
 	};
 
-	Application* CreateApp()
+	Application* CreateApp(int argc, char* argv[])
 	{
 		ApplicationProperties properties;
 		properties.width = 1080;

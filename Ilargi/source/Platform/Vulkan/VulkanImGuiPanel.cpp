@@ -4,15 +4,14 @@
 #include "Renderer/Renderer.h"
 #include "VulkanContext.h"
 #include "VulkanSwapchain.h"
-#include "VulkanCommandBuffer.h"
 
 #include "Utils/UI/IlargiUI.h"
 
 // 3rd Party headers
 #include <imgui.h>
-#include <ImGuizmo.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_vulkan.h>
+#include <ImGuizmo.h>
 
 namespace Ilargi
 {
@@ -64,8 +63,6 @@ namespace Ilargi
 			VulkanContext::EndSingleCommandBuffer(commandBuffer);
 			ImGui_ImplVulkan_DestroyFontUploadObjects();
 		}
-
-		commandBuffer = std::static_pointer_cast<VulkanCommandBuffer>(CommandBuffer::Create(maxFrames));
 	}
 	
 	VulkanImGuiPanel::~VulkanImGuiPanel()
@@ -96,9 +93,7 @@ namespace Ilargi
 		ImGui::EndFrame();
 		
 		// TODO: This must be done in another way
-		//commandBuffer->BeginCommand();
-		uint32_t index = Renderer::GetCurrentFrame();
-		VkCommandBuffer cmdBuffer = commandBuffer->GetCurrentCommand(index);
+		VkCommandBuffer cmdBuffer = vkSwapchain->GetCurrentCommand();
 		{
 			VkCommandBufferBeginInfo beginInfo{};
 			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -118,7 +113,7 @@ namespace Ilargi
 			renderPassInfo.renderArea.offset = { 0, 0 };
 			renderPassInfo.renderArea.extent = { width, height};
 
-			std::array<VkClearValue, 2> clearValues{};
+			std::array<VkClearValue, 2> clearValues = {};
 			clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
 			clearValues[1].depthStencil = { 1.0f, 0 };
 
@@ -152,9 +147,6 @@ namespace Ilargi
 		}
 
 		vkCmdEndRenderPass(cmdBuffer);
-		//commandBuffer->EndCommand();
 		vkEndCommandBuffer(cmdBuffer);
-
-		Renderer::AddCommand(commandBuffer);
 	}
 }
