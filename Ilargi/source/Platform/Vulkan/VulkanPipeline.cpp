@@ -43,7 +43,7 @@ namespace Ilargi
 	{
 	}
 
-	void VulkanPipeline::Init(VkRenderPass renderPass)
+	void VulkanPipeline::Init(VkRenderPass renderPass, const std::vector<ImageFormat>& formats)
 	{
 		auto device = VulkanContext::GetLogicalDevice();
 
@@ -90,19 +90,6 @@ namespace Ilargi
 
 			shaderStages.push_back(shaderStageInfo);
 		}
-		//VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
-		//vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		//vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-		//vertShaderStageInfo.module = shader->GetVertexShader();
-		//vertShaderStageInfo.pName = "main";
-
-		//VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
-		//fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		//fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-		//fragShaderStageInfo.module = shader->GetFragmentShader();
-		//fragShaderStageInfo.pName = "main";
-
-		//VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
 		VkVertexInputBindingDescription bindingDescription = {};
 		bindingDescription.binding = 0;
@@ -123,7 +110,7 @@ namespace Ilargi
 			i++;
 		}
 
-		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
+		VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
 		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 		vertexInputInfo.vertexBindingDescriptionCount = 1;
 		vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
@@ -168,7 +155,7 @@ namespace Ilargi
 		viewportState.scissorCount = 1;
 		viewportState.pScissors = &scissor;
 
-		VkPipelineRasterizationStateCreateInfo rasterizer{};
+		VkPipelineRasterizationStateCreateInfo rasterizer = {};
 		rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 		rasterizer.depthClampEnable = VK_FALSE;
 		rasterizer.rasterizerDiscardEnable = VK_FALSE;
@@ -191,22 +178,30 @@ namespace Ilargi
 		multisampling.alphaToCoverageEnable = VK_FALSE;
 		multisampling.alphaToOneEnable = VK_FALSE;
 
-		VkPipelineColorBlendAttachmentState colorBlendAttachment{};
-		colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-		colorBlendAttachment.blendEnable = VK_TRUE;
-		colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-		colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-		colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
-		colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-		colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-		colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+		std::vector<VkPipelineColorBlendAttachmentState> colorBlendAttachments;
+
+		for (int i = 0; i < formats.size(); ++i)
+		{
+			if (Utils::IsDepth(formats[i]))
+				continue;
+
+			VkPipelineColorBlendAttachmentState& colorBlendAttachment = colorBlendAttachments.emplace_back();
+			colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+			colorBlendAttachment.blendEnable = VK_TRUE;
+			colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+			colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+			colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+			colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+			colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+			colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+		}
 
 		VkPipelineColorBlendStateCreateInfo colorBlending = {};
 		colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
 		colorBlending.logicOpEnable = VK_FALSE;
 		colorBlending.logicOp = VK_LOGIC_OP_COPY;
-		colorBlending.attachmentCount = 1;
-		colorBlending.pAttachments = &colorBlendAttachment;
+		colorBlending.attachmentCount = colorBlendAttachments.size();
+		colorBlending.pAttachments = colorBlendAttachments.data();
 		colorBlending.blendConstants[0] = 0.0f;
 		colorBlending.blendConstants[1] = 0.0f;
 		colorBlending.blendConstants[2] = 0.0f;
@@ -259,8 +254,11 @@ namespace Ilargi
 
 			FileSystem::WriteBinaryFile(std::filesystem::path("cache/vulkan/pipelines/" + properties.name + ".pipe"), buffer);
 		}
+		
 		delete buffer.data;
 		shader->Destroy();
+
+		vkDestroyPipelineCache(device, pipelineCache, nullptr);
 	}
 
 	void VulkanPipeline::Destroy()

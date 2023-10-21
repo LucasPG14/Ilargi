@@ -11,6 +11,8 @@ namespace Ilargi
 		VulkanCommandBuffer(uint32_t framesInFlight);
 		virtual ~VulkanCommandBuffer();
 
+		void Destroy() const override;
+
 		void BeginCommand() const override;
 		void EndCommand() const override;
 

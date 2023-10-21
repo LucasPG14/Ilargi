@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Renderer/Pipeline.h"
+#include "Renderer/Framebuffer.h"
 #include <vulkan/vulkan.h>
 
 namespace Ilargi
@@ -11,7 +12,7 @@ namespace Ilargi
 		VulkanPipeline(const PipelineProperties& props);
 		virtual ~VulkanPipeline();
 
-		void Init(VkRenderPass renderPass);
+		void Init(VkRenderPass renderPass, const std::vector<ImageFormat>& formats);
 		void Destroy();
 
 		void PushConstants(const std::shared_ptr<CommandBuffer>& commandBuffer, uint32_t offset, uint32_t size, const void* data) const override;

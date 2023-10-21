@@ -125,15 +125,15 @@ namespace Ilargi::UI
     
     void IlargiStyle2()
     {
-        ImGuiStyle* style = &ImGui::GetStyle();
-        ImVec4* colors = style->Colors;
+        ImGuiStyle& style = ImGui::GetStyle();
+        ImVec4* colors = style.Colors;
 
-        ImVec4 bgColor = ImVec4(16.0f / 255.0f, 20.0f / 255.0f, 45.0f / 255.0f, 1.0f);
+        ImVec4 bgColor = ImVec4(12.0f / 255.0f, 12.0f / 255.0f, 25.0f / 255.0f, 1.0f);
         ImVec4 borderColor = ImVec4(146.0f / 255.0f, 171.0f / 255.0f, 1.0f, 1.0f);
         ImVec4 titleBg = ImVec4(51.0f / 255.0f, 51.0f / 255.0f, 51.0f / 255.0f, 0.20f);
         ImVec4 titleBgActive = ImVec4(77.0f / 255.0f, 77.0f / 255.0f, 77.0f / 255.0f, 0.30f);
 
-        style->DockingSeparatorSize = 3.0f;
+        style.DockingSeparatorSize = 3.0f;
 
         colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
         colors[ImGuiCol_TextDisabled] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
@@ -142,13 +142,13 @@ namespace Ilargi::UI
         colors[ImGuiCol_PopupBg] = ImVec4(0.08f, 0.08f, 0.08f, 0.94f);
         colors[ImGuiCol_Border] = { 1.0f, 0.0f, 0.0f, 0.03f };
         colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-        colors[ImGuiCol_FrameBg] = { 1.0f, 0.0f, 0.0f, 0.10f };
-        colors[ImGuiCol_FrameBgHovered] = { 1.0f, 0.0f, 0.0f, 0.30f };
-        colors[ImGuiCol_FrameBgActive] = { 1.0f, 0.0f, 0.0f, 0.55f };
-        colors[ImGuiCol_TitleBg] = { 6.0f / 255.0f, 10.0f / 255.0f, 35.0f / 255.0f, 1.0f };
-        colors[ImGuiCol_TitleBgActive] = { 6.0f / 255.0f, 10.0f / 255.0f, 35.0f / 255.0f, 1.0f };
+        colors[ImGuiCol_FrameBg] = { 146.0f / 255.0f, 171.0f / 255.0f, 1.0f, 0.2f };
+        colors[ImGuiCol_FrameBgHovered] = { 146.0f / 255.0f, 171.0f / 255.0f, 1.0f, 0.5f };
+        colors[ImGuiCol_FrameBgActive] = { 146.0f / 255.0f, 171.0f / 255.0f, 1.0f, 1.0f };
+        colors[ImGuiCol_TitleBg] = { 0.0f / 255.0f, 0.0f / 255.0f, 18.0f / 255.0f, 1.0f };
+        colors[ImGuiCol_TitleBgActive] = { 0.0f / 255.0f, 0.0f / 255.0f, 18.0f / 255.0f, 1.0f };
         colors[ImGuiCol_TitleBgCollapsed] = borderColor;
-        colors[ImGuiCol_MenuBarBg] = ImVec4(16.0f / 255.0f, 20.0f / 255.0f, 45.0f / 255.0f, 1.0f);
+        colors[ImGuiCol_MenuBarBg] = ImVec4(12.0f / 255.0f, 12.0f / 255.0f, 25.0f / 255.0f, 1.0f);
         colors[ImGuiCol_ScrollbarBg] = ImVec4(0.02f, 0.02f, 0.02f, 0.53f);
         colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.31f, 0.31f, 0.31f, 1.00f);
         colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
@@ -156,18 +156,18 @@ namespace Ilargi::UI
         colors[ImGuiCol_CheckMark] = ImVec4(0.1f, 0.1f, 0.1f, 1.00f);
         colors[ImGuiCol_SliderGrab] = ImVec4(0.24f, 0.52f, 0.88f, 1.00f);
         colors[ImGuiCol_SliderGrabActive] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-        colors[ImGuiCol_Button] = borderColor;
+        colors[ImGuiCol_Button] = { 146.0f / 255.0f, 171.0f / 255.0f, 1.0f, 0.2f };
         colors[ImGuiCol_ButtonHovered] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
         colors[ImGuiCol_ButtonActive] = ImVec4(0.06f, 0.53f, 0.98f, 1.00f);
-        colors[ImGuiCol_Header] = borderColor;
-        colors[ImGuiCol_HeaderHovered] = titleBg;
-        colors[ImGuiCol_HeaderActive] = titleBg;
+        colors[ImGuiCol_Header] = { 146.0f / 255.0f, 171.0f / 255.0f, 1.0f, 0.2f };
+        colors[ImGuiCol_HeaderHovered] = { 146.0f / 255.0f, 171.0f / 255.0f, 1.0f, 0.5f };
+        colors[ImGuiCol_HeaderActive] = { 146.0f / 255.0f, 171.0f / 255.0f, 1.0f, 1.0f };
         colors[ImGuiCol_Separator] = borderColor;
         colors[ImGuiCol_SeparatorHovered] = ImVec4(0.10f, 0.40f, 0.75f, 0.78f);
         colors[ImGuiCol_SeparatorActive] = { 1.0f, 0.0f, 0.0f, 1.0f };
-        colors[ImGuiCol_ResizeGrip] = { 1.0f, 0.0f, 0.0f, 1.0f };
-        colors[ImGuiCol_ResizeGripHovered] = { 1.0f, 0.0f, 0.0f, 0.2f };
-        colors[ImGuiCol_ResizeGripActive] = { 1.0f, 0.0f, 0.0f, 0.4f };
+        colors[ImGuiCol_ResizeGrip] = { 146.0f / 255.0f, 171.0f / 255.0f, 1.0f, 0.2f };
+        colors[ImGuiCol_ResizeGripHovered] = { 146.0f / 255.0f, 171.0f / 255.0f, 1.0f, 0.5f };
+        colors[ImGuiCol_ResizeGripActive] = { 146.0f / 255.0f, 171.0f / 255.0f, 1.0f, 1.0f };
         colors[ImGuiCol_Tab] = { 16.0f / 255.0f, 20.0f / 255.0f, 45.0f / 255.0f, 1.0f };
         colors[ImGuiCol_TabHovered] = { 16.0f / 255.0f, 20.0f / 255.0f, 45.0f / 255.0f, 1.0f };
         colors[ImGuiCol_TabActive] = { 16.0f / 255.0f, 20.0f / 255.0f, 45.0f / 255.0f, 1.0f };

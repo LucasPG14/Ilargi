@@ -15,41 +15,48 @@ namespace Ilargi
 	VulkanRenderPass::VulkanRenderPass(const RenderPassProperties& props) : properties(props)
 	{
 		auto device = VulkanContext::GetLogicalDevice();
+		const std::vector<ImageFormat>& formats = properties.framebuffer->GetProperties().formats;
+		
+		std::vector<VkAttachmentDescription> attachments;
+		std::vector<VkAttachmentReference> colorAttachmentRefs;
+		VkAttachmentReference depthAttachmentRef;
 
-		VkAttachmentDescription colorAttachment{};
-		colorAttachment.format = Utils::GetFormatFromImageFormat(properties.framebuffer->GetProperties().formats[0]);
-		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+		for (int i = 0; i < formats.size(); ++i)
+		{
+			bool isDepth = Utils::IsDepth(formats[i]);
 
-		colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+			VkAttachmentDescription& attachment = attachments.emplace_back();
+			attachment.format = Utils::GetFormatFromImageFormat(formats[i]);
+			attachment.samples = VK_SAMPLE_COUNT_1_BIT;
+			attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+			attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+			
+			attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+			attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+			
+			attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+			attachment.finalLayout = isDepth ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-		colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		colorAttachment.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			VkClearValue& clearValue = clearValues.emplace_back();
 
-		VkAttachmentReference colorAttachmentRef = {};
-		colorAttachmentRef.attachment = 0;
-		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			if (!isDepth)
+			{
+				VkAttachmentReference& attachmentRef = colorAttachmentRefs.emplace_back();
+				attachmentRef.attachment = i;
+				attachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+				clearValue.color = { 0.0f, 0.0f, 0.0f, 1.0f };
+				continue;
+			}
 
-		VkAttachmentDescription depthAttachment{};
-		depthAttachment.format = VK_FORMAT_D32_SFLOAT;
-		depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-		depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-		VkAttachmentReference depthAttachmentRef{};
-		depthAttachmentRef.attachment = 1;
-		depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+			depthAttachmentRef.attachment = i;
+			depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+			clearValue.depthStencil = { 1.0f, 0 };
+		}
 
 		VkSubpassDescription subpass = {};
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-		subpass.colorAttachmentCount = 1;
-		subpass.pColorAttachments = &colorAttachmentRef;
+		subpass.colorAttachmentCount = colorAttachmentRefs.size();
+		subpass.pColorAttachments = colorAttachmentRefs.data();
 		subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
 		VkSubpassDependency dependency = {};
@@ -60,7 +67,6 @@ namespace Ilargi
 		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
-		std::array<VkAttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
 		VkRenderPassCreateInfo renderPassInfo = {};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 		renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
@@ -73,7 +79,7 @@ namespace Ilargi
 		VK_CHECK_RESULT(vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass));
 
 		std::static_pointer_cast<VulkanFramebuffer>(props.framebuffer)->Init(renderPass);
-		std::static_pointer_cast<VulkanPipeline>(props.pipeline)->Init(renderPass);
+		std::static_pointer_cast<VulkanPipeline>(props.pipeline)->Init(renderPass, formats);
 	}
 	
 	VulkanRenderPass::~VulkanRenderPass()
@@ -84,6 +90,7 @@ namespace Ilargi
 	{
 		auto device = VulkanContext::GetLogicalDevice();
 
+		properties.pipeline->Destroy();
 		vkDestroyRenderPass(device, renderPass, nullptr);
 	}
 	
@@ -104,10 +111,6 @@ namespace Ilargi
 
 				renderPassInfo.renderArea.offset = { 0, 0 };
 				renderPassInfo.renderArea.extent = { width, height };
-
-				std::array<VkClearValue, 2> clearValues = {};
-				clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
-				clearValues[1].depthStencil = { 1.0f, 0 };
 
 				renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
 				renderPassInfo.pClearValues = clearValues.data();

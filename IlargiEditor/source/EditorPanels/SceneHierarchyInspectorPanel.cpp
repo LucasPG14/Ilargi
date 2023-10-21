@@ -43,7 +43,7 @@ namespace Ilargi
 			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
 			if (select)
 			{
-				ImGui::PushStyleColor(ImGuiCol_Header, { 1.0f, 0.0f, 0.0f, 0.30f });
+				//ImGui::PushStyleColor(ImGuiCol_Header, { 1.0f, 0.0f, 0.0f, 0.30f });
 				flags |= ImGuiTreeNodeFlags_Selected;
 			}
 			bool open = UI::BeginTreeNode((void*)entity, world.get<InfoComponent>(entity).name, flags);
@@ -52,8 +52,8 @@ namespace Ilargi
 				selected = entity;
 
 			UI::EndTreeNode((void*)entity, open);
-			if (select)
-				ImGui::PopStyleColor();
+			//if (select)
+			//	ImGui::PopStyleColor();
 		}
 
 		if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0) && !ImGui::IsAnyItemHovered())
@@ -94,9 +94,9 @@ namespace Ilargi
 	
 	void SceneHierarchyInspectorPanel::DrawInspector()
 	{
-		ImGui::PushStyleColor(ImGuiCol_Header, { 16.0f / 255.0f, 20.0f / 255.0f, 45.0f / 255.0f, 1.0f });
-		ImGui::PushStyleColor(ImGuiCol_HeaderHovered, { 16.0f / 255.0f, 20.0f / 255.0f, 45.0f / 255.0f, 1.0f });
-		ImGui::PushStyleColor(ImGuiCol_HeaderActive, { 16.0f / 255.0f, 20.0f / 255.0f, 45.0f / 255.0f, 1.0f });
+		ImGui::PushStyleColor(ImGuiCol_Header, { 12.0f / 255.0f, 12.0f / 255.0f, 25.0f / 255.0f, 1.0f });
+		ImGui::PushStyleColor(ImGuiCol_HeaderHovered, { 12.0f / 255.0f, 12.0f / 255.0f, 25.0f / 255.0f, 1.0f });
+		ImGui::PushStyleColor(ImGuiCol_HeaderActive, { 12.0f / 255.0f, 12.0f / 255.0f, 25.0f / 255.0f, 1.0f });
 		ImGui::Separator();
 		auto& world = scene->GetWorld();
 		if (world.try_get<TransformComponent>(selected))
@@ -113,13 +113,24 @@ namespace Ilargi
 
 		if (world.try_get<StaticMeshComponent>(selected))
 		{
-			StaticMeshComponent& meshComponent = scene->GetWorld().get<StaticMeshComponent>(selected);
+			StaticMeshComponent& staticMesh = scene->GetWorld().get<StaticMeshComponent>(selected);
 			if (ImGui::CollapsingHeader("Static Mesh Component"))
 			{
-				ImGui::ColorPicker4("##Color", meshComponent.staticMesh->GetColor());
+				ImGui::ColorPicker4("##Color", staticMesh.staticMesh->GetColor());
 			}
 			ImGui::Separator();
 		}
+
+		if (world.try_get<DirectionalLightComponent>(selected))
+		{
+			DirectionalLightComponent& dirLight = scene->GetWorld().get<DirectionalLightComponent>(selected);
+			if (ImGui::CollapsingHeader("Directional Light Component"))
+			{
+				ImGui::ColorPicker4("##Color", dirLight.radiance);
+			}
+			ImGui::Separator();
+		}
+
 		ImGui::PopStyleColor(3);
 	}
 }

@@ -109,6 +109,11 @@ namespace Ilargi
 			vkDestroyShaderModule(device, module, nullptr);
 		}
 
+		//for (int i = 0; i < descriptorSetLayouts.size(); ++i)
+		//{
+		//	vkDestroyDescriptorSetLayout(device, descriptorSetLayouts[i], nullptr);
+		//}
+
 		shaders.clear();
 	}
 

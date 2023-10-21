@@ -24,5 +24,6 @@ namespace Ilargi
 		RenderPassProperties properties;
 
 		VkRenderPass renderPass;
+		std::vector<VkClearValue> clearValues;
 	};
 }

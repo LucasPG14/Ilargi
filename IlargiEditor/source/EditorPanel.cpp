@@ -45,7 +45,7 @@ namespace Ilargi
 
 		commandBuffer = CommandBuffer::Create(Renderer::GetConfig().maxFrames);
 		
-		framebuffer = Framebuffer::Create({ 1080, 720, {ImageFormat::RGBA8}, false });	
+		framebuffer = Framebuffer::Create({ 1080, 720, { ImageFormat::RGBA8, ImageFormat::DEPTH32 }, false });
 		{
 			PipelineProperties pipelineProperties;
 			pipelineProperties.name = "Geometry";
@@ -89,6 +89,8 @@ namespace Ilargi
 
 		framebuffer->Destroy();
 		renderPass->Destroy();
+
+		commandBuffer->Destroy();
 	}
 
 	void EditorPanel::Update()

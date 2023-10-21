@@ -10,5 +10,7 @@ namespace Ilargi
 	namespace Utils
 	{
 		const VkFormat GetFormatFromImageFormat(ImageFormat format);
+
+		bool IsDepth(ImageFormat format);
 	}
 }

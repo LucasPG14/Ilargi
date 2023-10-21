@@ -13,14 +13,12 @@ namespace Ilargi
 	{
 		std::shared_ptr<StaticMesh> mesh = ModelImporter::ImportModel("assets/models/viking_room2.obj");
 
-		Entity entity = world.create();
-		world.emplace<TransformComponent>(entity, mat4(1.0f));
+		Entity entity = CreateEntity("Directional Light");
+		world.emplace<DirectionalLightComponent>(entity);
 
 		for (int i = 0; i < 2; ++i)
 		{
-			Entity entity = world.create();
-			world.emplace<TransformComponent>(entity, mat4(1.0f));
-			world.emplace<InfoComponent>(entity, "Model");
+			entity = CreateEntity("Model");
 			world.emplace<StaticMeshComponent>(entity, mesh);
 		}
 	}
@@ -42,11 +40,13 @@ namespace Ilargi
 		world.clear();
 	}
 	
-	void Scene::CreateEntity()
+	Entity Scene::CreateEntity(const std::string& name)
 	{
 		Entity entity = world.create();
 		world.emplace<TransformComponent>(entity, mat4(1.0f));
-		world.emplace<InfoComponent>(entity, "Entity");
+		world.emplace<InfoComponent>(entity, name.c_str());
+
+		return entity;
 	}
 
 	void Scene::DestroyEntity(Entity entity)

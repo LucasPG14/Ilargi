@@ -6,6 +6,8 @@ namespace Ilargi
 	{
 	public:
 
+		virtual void Destroy() const = 0;
+
 		virtual void BeginCommand() const = 0;
 		virtual void EndCommand() const = 0;
 

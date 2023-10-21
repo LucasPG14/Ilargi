@@ -7,6 +7,12 @@
 
 namespace Ilargi
 {
+	struct VulkanAttachment
+	{
+		Image image;
+		VkImageView imageView;
+	};
+
 	class VulkanFramebuffer : public Framebuffer
 	{
 	public:
@@ -16,10 +22,13 @@ namespace Ilargi
 		void Init(VkRenderPass renderPass);
 		void Destroy() override;
 
-		void Resize(std::shared_ptr<RenderPass> renderPass, uint32_t width, uint32_t height) override;
+		void Resize(const std::shared_ptr<RenderPass>& renderPass, uint32_t width, uint32_t height) override;
 
 		const FramebufferProperties& GetProperties() const override { return properties; }
 		const VkFramebuffer GetFramebuffer() const { return framebuffer; }
+
+		const std::vector<ImageFormat>& GetColorSpecifications() const override { return colorSpecifications; }
+		const ImageFormat GetDepthSpecification() const override { return depthSpecification; }
 
 		const uint32_t GetWidth() const override { return properties.width; }
 		const uint32_t GetHeight() const override { return properties.height; }
@@ -29,10 +38,14 @@ namespace Ilargi
 	private:
 		FramebufferProperties properties;
 
-		Image image;
-		Image depthImage;
-		VkImageView imageView;
-		VkImageView depthImageView;
+		// Color images
+		std::vector<ImageFormat> colorSpecifications;
+		std::vector<VulkanAttachment> colorAttachments;
+
+		// Depth image
+		ImageFormat depthSpecification;
+		VulkanAttachment depthAttachment;
+
 		VkFramebuffer framebuffer;
 
 		VkSampler sampler;

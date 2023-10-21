@@ -39,12 +39,12 @@ namespace Ilargi
 
 	struct DirectionalLightComponent
 	{
-		vec3 radiance = vec3(1.0f);
+		vec4 radiance = vec4(1.0f);
 	};
 
 	struct PointLightComponent
 	{
-		vec3 radiance = vec3(1.0f);
+		vec4 radiance = vec4(1.0f);
 		float radius = 1.0f;
 	};
 }

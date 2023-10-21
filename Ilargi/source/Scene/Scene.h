@@ -16,7 +16,7 @@ namespace Ilargi
 
 		void Destroy();
 
-		void CreateEntity();
+		Entity CreateEntity(const std::string& name = "Entity");
 		void DestroyEntity(Entity entity);
 
 		const entt::registry& GetWorld() const { return world; }

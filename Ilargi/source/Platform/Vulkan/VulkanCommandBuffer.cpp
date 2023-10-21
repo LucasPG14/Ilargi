@@ -31,6 +31,13 @@ namespace Ilargi
 	{
 	}
 
+	void VulkanCommandBuffer::Destroy() const
+	{
+		auto device = VulkanContext::GetLogicalDevice();
+
+		vkDestroyFence(device, fence, nullptr);
+	}
+
 	void VulkanCommandBuffer::BeginCommand() const
 	{
 		Renderer::Submit([this]()
@@ -39,8 +46,8 @@ namespace Ilargi
 
 				VkCommandBufferBeginInfo beginInfo{};
 				beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-				beginInfo.flags = 0; // Optional
-				beginInfo.pInheritanceInfo = nullptr; // Optional
+				beginInfo.flags = 0;
+				beginInfo.pInheritanceInfo = nullptr;
 
 				VK_CHECK_RESULT(vkBeginCommandBuffer(commandBuffers[currentFrame], &beginInfo));
 			});
