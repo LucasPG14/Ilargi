@@ -109,6 +109,10 @@ namespace Ilargi
 		
 		constants[0] = camera.GetProjectionMatrix() * camera.GetViewMatrix();
 
+		auto ent = *scene->GetWorld().view<TransformComponent, DirectionalLightComponent>().begin();
+
+		auto [trans, light] = scene->GetWorld().view<TransformComponent, DirectionalLightComponent>().get<>(ent);
+
 		const auto& view = scene->GetWorld().view<TransformComponent, StaticMeshComponent>();
 		for (auto entity : view)
 		{
@@ -121,6 +125,8 @@ namespace Ilargi
 			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 0, 64, transform.transform);
 			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 64, 64, constants[0]);
 			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 128, 16, mesh.staticMesh->GetColor());
+			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 144, 12, light.radiance);
+			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 156, 12, trans.rotation);
 			Renderer::SubmitGeometry(commandBuffer, mesh.staticMesh);
 		}
 

@@ -66,11 +66,11 @@ namespace Ilargi
 		inline uint32_t GetStride() const { return stride; }
 		inline const std::vector<Element>& GetElements() const { return elements; }
 
-		std::vector<Element>::iterator begin() { return elements.begin(); }
-		std::vector<Element>::iterator end() { return elements.end(); }
+		constexpr std::vector<Element>::iterator begin() { return elements.begin(); }
+		constexpr std::vector<Element>::iterator end() { return elements.end(); }
 
-		std::vector<Element>::const_iterator begin() const { return elements.cbegin(); }
-		std::vector<Element>::const_iterator end() const { return elements.cend(); }
+		constexpr std::vector<Element>::const_iterator begin() const { return elements.cbegin(); }
+		constexpr std::vector<Element>::const_iterator end() const { return elements.cend(); }
 	
 	private:
 		void CalculateOffset()

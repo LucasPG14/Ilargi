@@ -204,7 +204,9 @@ namespace Ilargi
 	{
 		shaderc::Compiler compiler;
 		shaderc::CompileOptions options;
+
 		options.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_0);
+		options.SetGenerateDebugInfo();
 		options.SetOptimizationLevel(shaderc_optimization_level_performance);
 
 		shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv(code.data(), Utils::GLShaderStageToShaderC(stage), filePath.c_str(), options);
@@ -224,8 +226,8 @@ namespace Ilargi
 		spirv_cross::ShaderResources resources = compiler.get_shader_resources();
 
 		// Reflecting push constants
-		auto constants = resources.push_constant_buffers;
-		for (auto& pushConstant : constants)
+		const auto& constants = resources.push_constant_buffers;
+		for (const auto& pushConstant : constants)
 		{
 			const auto& type = compiler.get_type(pushConstant.base_type_id);
 			uint32_t size = static_cast<uint32_t>(compiler.get_declared_struct_size(type));
@@ -237,17 +239,14 @@ namespace Ilargi
 			ILG_CORE_TRACE("	Binding: {0}", binding);
 			ILG_CORE_TRACE("	Members: {0}", membersCount);
 
-			VkPushConstantRange pushConstant;
-			pushConstant.offset = 0;
-			pushConstant.size = size;
-			pushConstant.stageFlags = stage;
+			VkPushConstantRange pushConstant = { stage, 0, size };
 			
 			pushConstants.push_back(pushConstant);
 		}
 
 		// Reflecting uniform buffers
-		auto resUniformBuffers = resources.uniform_buffers;
-		for (auto& uniformBuffer : resUniformBuffers)
+		const auto& resUniformBuffers = resources.uniform_buffers;
+		for (const auto& uniformBuffer : resUniformBuffers)
 		{
 			const auto& type = compiler.get_type(uniformBuffer.base_type_id);
 			uint32_t size = static_cast<uint32_t>(compiler.get_declared_struct_size(type));
@@ -271,8 +270,8 @@ namespace Ilargi
 		}
 
 		// Reflecting sampled images
-		auto sampledImages = resources.sampled_images;
-		for (auto& sampledImage : sampledImages)
+		const auto& sampledImages = resources.sampled_images;
+		for (const auto& sampledImage : sampledImages)
 		{
 			const auto& type = compiler.get_type(sampledImage.base_type_id);
 			uint32_t binding = compiler.get_decoration(sampledImage.id, spv::DecorationBinding);
@@ -293,8 +292,8 @@ namespace Ilargi
 		}
 
 		// Reflecting separate images
-		auto sepImages = resources.separate_images;
-		for (auto& separateImage : sepImages)
+		const auto& sepImages = resources.separate_images;
+		for (const auto& separateImage : sepImages)
 		{
 			const auto& type = compiler.get_type(separateImage.base_type_id);
 			uint32_t size = static_cast<uint32_t>(compiler.get_declared_struct_size(type));
@@ -308,8 +307,8 @@ namespace Ilargi
 		}
 
 		// Reflecting separate images
-		auto sepSamplers = resources.separate_samplers;
-		for (auto& separateSampler : sepSamplers)
+		const auto& sepSamplers = resources.separate_samplers;
+		for (const auto& separateSampler : sepSamplers)
 		{
 			const auto& type = compiler.get_type(separateSampler.base_type_id);
 			uint32_t size = static_cast<uint32_t>(compiler.get_declared_struct_size(type));

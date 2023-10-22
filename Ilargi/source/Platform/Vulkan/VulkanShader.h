@@ -40,6 +40,6 @@ namespace Ilargi
 		std::vector<VkPushConstantRange> pushConstants;
 		std::vector<VkDescriptorSetLayout> descriptorSetLayouts;
 
-		std::unordered_map<int, std::vector<VkDescriptorSetLayoutBinding>> descriptorSetBindings;
+		std::map<int, std::vector<VkDescriptorSetLayoutBinding>> descriptorSetBindings;
 	};
 }

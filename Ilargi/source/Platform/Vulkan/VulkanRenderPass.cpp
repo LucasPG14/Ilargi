@@ -19,7 +19,7 @@ namespace Ilargi
 		
 		std::vector<VkAttachmentDescription> attachments;
 		std::vector<VkAttachmentReference> colorAttachmentRefs;
-		VkAttachmentReference depthAttachmentRef;
+		VkAttachmentReference depthAttachmentRef = {};
 		depthAttachmentRef.layout = VK_IMAGE_LAYOUT_UNDEFINED;
 		
 		for (int i = 0; i < formats.size(); ++i)
