@@ -14,6 +14,7 @@ namespace Ilargi
 		std::string appName;
 		int width;
 		int height;
+		bool fullscreen;
 	};
 
 	class Application

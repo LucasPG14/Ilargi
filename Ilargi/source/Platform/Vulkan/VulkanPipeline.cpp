@@ -78,9 +78,9 @@ namespace Ilargi
 			VK_CHECK_RESULT(vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout));
 		}
 
-		auto shaders = shader->GetShaders();
+		const auto& shaders = shader->GetShaders();
 		std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
-		for (auto [type, shaderModule] : shaders)
+		for (auto&& [type, shaderModule] : shaders)
 		{
 			VkPipelineShaderStageCreateInfo shaderStageInfo = {};
 			shaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -200,7 +200,7 @@ namespace Ilargi
 		colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
 		colorBlending.logicOpEnable = VK_FALSE;
 		colorBlending.logicOp = VK_LOGIC_OP_COPY;
-		colorBlending.attachmentCount = colorBlendAttachments.size();
+		colorBlending.attachmentCount = static_cast<uint32_t>(colorBlendAttachments.size());
 		colorBlending.pAttachments = colorBlendAttachments.data();
 		colorBlending.blendConstants[0] = 0.0f;
 		colorBlending.blendConstants[1] = 0.0f;

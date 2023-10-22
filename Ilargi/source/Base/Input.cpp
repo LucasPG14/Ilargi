@@ -28,6 +28,6 @@ namespace Ilargi
 	{
 		double x, y;
 		glfwGetCursorPos(window, &x, &y);
-		return vec2(x, y);
+		return vec2((float)x, (float)y);
 	}
 }

@@ -32,9 +32,6 @@ namespace Ilargi
 		const auto& world = scene->GetWorld();
 		auto iterator = world.storage<InfoComponent>()->reach();
 
-		auto begIterator = world.storage<InfoComponent>()->rbegin();
-		auto endIterator = world.storage<InfoComponent>()->rend();
-
 		for (const auto& iterate : iterator)
 		{
 			entt::entity entity = iterate._Myfirst._Val;
@@ -42,18 +39,13 @@ namespace Ilargi
 
 			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
 			if (select)
-			{
-				//ImGui::PushStyleColor(ImGuiCol_Header, { 1.0f, 0.0f, 0.0f, 0.30f });
 				flags |= ImGuiTreeNodeFlags_Selected;
-			}
 			bool open = UI::BeginTreeNode((void*)entity, world.get<InfoComponent>(entity).name, flags);
 
 			if (ImGui::IsItemClicked(0) || ImGui::IsItemClicked(1))
 				selected = entity;
 
 			UI::EndTreeNode((void*)entity, open);
-			//if (select)
-			//	ImGui::PopStyleColor();
 		}
 
 		if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0) && !ImGui::IsAnyItemHovered())
@@ -104,9 +96,20 @@ namespace Ilargi
 			TransformComponent& transformComponent = scene->GetWorld().get<TransformComponent>(selected);
 			if (ImGui::CollapsingHeader("Transform Component"))
 			{
-				ImGui::DragFloat3("Position", transformComponent.position);
-				ImGui::DragFloat3("Rotation", transformComponent.rotation);
-				ImGui::DragFloat3("Scale", transformComponent.scale);
+				ImVec2 size = ImGui::CalcTextSize("Rotation");
+				float widthWindow = ImGui::GetContentRegionMax().x - size.x;
+
+				ImGui::Text("Position");
+				ImGui::SameLine();
+				ImGui::DragFloat3("##Position", transformComponent.position);
+
+				ImGui::Text("Rotation");
+				ImGui::SameLine();
+				ImGui::DragFloat3("##Rotation", transformComponent.rotation);
+
+				ImGui::Text("Scale");
+				ImGui::SameLine();
+				ImGui::DragFloat3("##Scale", transformComponent.scale);
 			}
 			ImGui::Separator();
 		}

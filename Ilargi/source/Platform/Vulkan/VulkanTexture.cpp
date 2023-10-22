@@ -222,8 +222,8 @@ namespace Ilargi
 			blit.srcSubresource.layerCount = 1;
 			blit.dstOffsets[0] = { 0, 0, 0 };
 
-			mipWidth = mipWidth > 1 ? mipWidth * 0.5f : 1;
-			mipHeight = mipHeight > 1 ? mipHeight * 0.5f : 1;
+			mipWidth = mipWidth > 1 ? (int32_t)(mipWidth * 0.5f) : 1;
+			mipHeight = mipHeight > 1 ? (int32_t)(mipHeight * 0.5f) : 1;
 			blit.dstOffsets[1] = { mipWidth, mipHeight, 1 };
 			blit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 			blit.dstSubresource.mipLevel = i;

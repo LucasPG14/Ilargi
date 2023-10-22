@@ -9,6 +9,7 @@ namespace Ilargi
 		std::string appName = "";
 		int width = 0;
 		int height = 0;
+		bool fullscreen = false;
 	};
 
 	class Event;

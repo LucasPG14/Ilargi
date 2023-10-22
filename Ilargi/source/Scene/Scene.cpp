@@ -35,7 +35,7 @@ namespace Ilargi
 			//auto mesh = meshStorage.get(entity);
 			//mesh._Myfirst._Val.staticMesh->Destroy();
 			//mesh._Myfirst._Val.vertexBuffer->Destroy();
-			//world.destroy(entity);
+			world.destroy(entity);
 		}
 		world.clear();
 	}

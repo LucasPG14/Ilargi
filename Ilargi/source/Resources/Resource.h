@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Base/UUID.h"
+
 namespace Ilargi
 {
 	enum class ResourceType
@@ -9,6 +11,12 @@ namespace Ilargi
 		TEXTURE,
 		MATERIAL
 		//SCENE,
+	};
+
+	struct ResourceMetaData
+	{
+		UUID resourceID;
+		std::filesystem::path filepath;
 	};
 
 	class Resource

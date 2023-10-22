@@ -28,18 +28,20 @@ namespace Ilargi
 		ILG_CORE_INFO("GLFW library initialized");
 
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+		glfwWindowHint(GLFW_MAXIMIZED, properties.fullscreen);
 
 		GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
 		const GLFWvidmode* videoMode = glfwGetVideoMode(primaryMonitor);
 
 		int monitorX, monitorY;
 		glfwGetMonitorPos(primaryMonitor, &monitorX, &monitorY);
-
+		
 		window = glfwCreateWindow(properties.width, properties.height, properties.appName.c_str(), nullptr, nullptr);
 
-		glfwSetWindowPos(window, monitorX + (videoMode->width - properties.width) / 2, monitorY + (videoMode->height - properties.height) / 2);
-
 		ILG_ASSERT(window, "Error while creating the GLFW window");
+		
+		if (!properties.fullscreen)
+			glfwSetWindowPos(window, (int)(monitorX + (videoMode->width - properties.width) * 0.5f), (int)(monitorY + (videoMode->height - properties.height) * 0.5f));
 
 		ILG_CORE_INFO("Window created with name: {0} and size: {1}, {2}", properties.appName, properties.width, properties.height);
 
@@ -157,6 +159,7 @@ namespace Ilargi
 			Window& window = *(Window*)glfwGetWindowUserPointer(win);
 
 			std::vector<std::filesystem::path> eventPaths;
+			eventPaths.reserve(pathCount);
 			for (int i = 0; i < pathCount; ++i)
 			{
 				eventPaths.push_back(paths[i]);

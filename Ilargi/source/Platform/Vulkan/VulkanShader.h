@@ -17,7 +17,7 @@ namespace Ilargi
 
 		VkDescriptorSet AllocateDescriptorSet();
 
-		const ShadersMap GetShaders() const { return shaders; }
+		const ShadersMap& GetShaders() const { return shaders; }
 
 		const std::vector<VkPushConstantRange>& GetPushConstants() const { return pushConstants; }
 
