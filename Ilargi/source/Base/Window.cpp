@@ -15,6 +15,7 @@
 
 // 3rd Party headers
 #include <GLFW/glfw3.h>
+#include <stb_image.h>
 
 namespace Ilargi
 {
@@ -44,6 +45,16 @@ namespace Ilargi
 			glfwSetWindowPos(window, (int)(monitorX + (videoMode->width - properties.width) * 0.5f), (int)(monitorY + (videoMode->height - properties.height) * 0.5f));
 
 		ILG_CORE_INFO("Window created with name: {0} and size: {1}, {2}", properties.appName, properties.width, properties.height);
+
+		GLFWimage icon;
+		int channels;
+		if (!properties.iconPath.empty())
+		{
+			std::string iconPathStr = properties.iconPath.string();
+			icon.pixels = stbi_load(iconPathStr.c_str(), &icon.width, &icon.height, &channels, 4);
+			glfwSetWindowIcon(window, 1, &icon);
+			stbi_image_free(icon.pixels);
+		}
 
 		Input::SetWindow(window);
 

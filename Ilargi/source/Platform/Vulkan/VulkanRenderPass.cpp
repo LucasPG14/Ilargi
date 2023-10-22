@@ -20,7 +20,8 @@ namespace Ilargi
 		std::vector<VkAttachmentDescription> attachments;
 		std::vector<VkAttachmentReference> colorAttachmentRefs;
 		VkAttachmentReference depthAttachmentRef;
-
+		depthAttachmentRef.layout = VK_IMAGE_LAYOUT_UNDEFINED;
+		
 		for (int i = 0; i < formats.size(); ++i)
 		{
 			bool isDepth = Utils::IsDepth(formats[i]);
@@ -55,9 +56,9 @@ namespace Ilargi
 
 		VkSubpassDescription subpass = {};
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-		subpass.colorAttachmentCount = colorAttachmentRefs.size();
+		subpass.colorAttachmentCount = static_cast<uint32_t>(colorAttachmentRefs.size());
 		subpass.pColorAttachments = colorAttachmentRefs.data();
-		subpass.pDepthStencilAttachment = &depthAttachmentRef;
+		subpass.pDepthStencilAttachment = depthAttachmentRef.layout == VK_IMAGE_LAYOUT_UNDEFINED ? nullptr : &depthAttachmentRef;
 
 		VkSubpassDependency dependency = {};
 		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;

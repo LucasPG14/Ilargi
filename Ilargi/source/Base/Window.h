@@ -10,6 +10,7 @@ namespace Ilargi
 		int width = 0;
 		int height = 0;
 		bool fullscreen = false;
+		std::filesystem::path iconPath = "";
 	};
 
 	class Event;

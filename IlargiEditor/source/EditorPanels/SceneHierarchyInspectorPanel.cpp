@@ -90,6 +90,7 @@ namespace Ilargi
 		ImGui::PushStyleColor(ImGuiCol_HeaderHovered, { 12.0f / 255.0f, 12.0f / 255.0f, 25.0f / 255.0f, 1.0f });
 		ImGui::PushStyleColor(ImGuiCol_HeaderActive, { 12.0f / 255.0f, 12.0f / 255.0f, 25.0f / 255.0f, 1.0f });
 		ImGui::Separator();
+
 		auto& world = scene->GetWorld();
 		if (world.try_get<TransformComponent>(selected))
 		{
