@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Renderer/Material.h"
+#include "Resources/Material.h"
 #include <vulkan/vulkan.h>
 
 namespace Ilargi

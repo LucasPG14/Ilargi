@@ -3,7 +3,7 @@
 #include "Mesh.h"
 #include "Renderer/VertexBuffer.h"
 #include "Renderer/IndexBuffer.h"
-#include "Renderer/Material.h"
+#include "Resources/Material.h"
 
 namespace Ilargi
 {

@@ -59,7 +59,7 @@ void main()
     float diff = max(dot(norm, lightDir), 0.0);
     vec3 diffuse = diff * lightColor.rgb;
 	 
-    col.rgb *= diffuse;
+    //col.rgb *= diffuse;
 
     col.rgb = pow(col.rgb, vec3(1.0 / 2.2));
     outColor = vec4(col.rgb, col.a);

@@ -2,7 +2,7 @@
 
 #include "VulkanPipeline.h"
 #include "Renderer/Renderer.h"
-#include "Renderer/Material.h"
+#include "Resources/Material.h"
 #include "VulkanContext.h"
 #include "VulkanRenderPass.h"
 #include "VulkanCommandBuffer.h"

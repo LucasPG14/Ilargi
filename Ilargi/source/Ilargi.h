@@ -21,9 +21,10 @@
 #include "Renderer/Renderer.h"
 #include "Renderer/RenderPass.h"
 #include "Renderer/Shader.h"
-#include "Renderer/Texture.h"
 #include "Renderer/UniformBuffer.h"
 #include "Renderer/VertexBuffer.h"
+
+#include "Resources/Texture.h"
 
 #include "Utils/UI/IlargiUI.h"
 #include "Utils/Math/Math.h"

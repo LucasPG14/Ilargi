@@ -4,8 +4,8 @@
 #include "VulkanContext.h"
 
 #include <shaderc/shaderc.hpp>
-#include <spirv_cross/spirv_cross.hpp>
-#include <spirv_cross/spirv_glsl.hpp>
+#include <include/spirv_glsl.hpp>
+#include <include/spirv_glsl.hpp>
 
 namespace Ilargi
 {
@@ -13,7 +13,7 @@ namespace Ilargi
 	{
 		const VkShaderStageFlagBits GetShaderStageFromString(const std::string& type)
 		{
-			if (type == "vertex") return VK_SHADER_STAGE_VERTEX_BIT;
+			if (type == "vertex")	return VK_SHADER_STAGE_VERTEX_BIT;
 			if (type == "fragment") return VK_SHADER_STAGE_FRAGMENT_BIT;
 
 			ILG_ASSERT(nullptr, "Shader stage type not supported");
@@ -192,7 +192,7 @@ namespace Ilargi
 			{
 				VkDescriptorSetLayoutCreateInfo layoutInfo = {};
 				layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-				layoutInfo.bindingCount = descriptorSetBindings[i].size();
+				layoutInfo.bindingCount = static_cast<uint32_t>(descriptorSetBindings[i].size());
 				layoutInfo.pBindings = descriptorSetBindings[i].data();
 
 				VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayouts[i]));

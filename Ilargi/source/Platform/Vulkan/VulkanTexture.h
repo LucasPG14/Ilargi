@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Renderer/Texture.h"
+#include "Resources/Texture.h"
 #include "Platform/Vulkan/VulkanAllocator.h"
 
 namespace Ilargi

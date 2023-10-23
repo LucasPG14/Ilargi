@@ -22,6 +22,7 @@ group "Dependencies"
 	include "Ilargi/dependencies/Assimp"
 	include "Ilargi/dependencies/glfw"
 	include "Ilargi/dependencies/imgui"
+	include "Ilargi/dependencies/spirvcross"
 group ""
 
 VULKAN_SDK = os.getenv("VULKAN_SDK")
@@ -32,8 +33,8 @@ IncludeDir["GLFW"] = "Ilargi/dependencies/glfw/include"
 IncludeDir["ImGUI"] = "Ilargi/dependencies/imgui"
 IncludeDir["ImGuizmo"] = "Ilargi/dependencies/imguizmo"
 IncludeDir["entt"] = "Ilargi/dependencies/entt"
-IncludeDir["pcg"] = "Ilargi/dependencies/pcg/include"
 IncludeDir["stb"] = "Ilargi/dependencies/stb"
+IncludeDir["SPIRVCross"] = "Ilargi/dependencies/spirvcross"
 IncludeDir["VulkanSDK"] = "%{VULKAN_SDK}/Include"
 
 LibraryDir = {}
@@ -41,12 +42,8 @@ LibraryDir["VulkanSDK"] = "%{VULKAN_SDK}/lib"
 
 Library = {}
 Library["ShaderC_Debug"] = "%{LibraryDir.VulkanSDK}/shaderc_sharedd.lib"
-Library["SPIRV_Cross_Debug"] = "%{LibraryDir.VulkanSDK}/spirv-cross-cored.lib"
-Library["SPIRV_Cross_GLSL_Debug"] = "%{LibraryDir.VulkanSDK}/spirv-cross-glsld.lib"
 
 Library["ShaderC_Release"] = "%{LibraryDir.VulkanSDK}/shaderc_shared.lib"
-Library["SPIRV_Cross_Release"] = "%{LibraryDir.VulkanSDK}/spirv-cross-core.lib"
-Library["SPIRV_Cross_GLSL_Release"] = "%{LibraryDir.VulkanSDK}/spirv-cross-glsl.lib"
 
 project "Ilargi"
 	location "Ilargi"
@@ -78,6 +75,7 @@ project "Ilargi"
 		"%{IncludeDir.Assimp}",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.stb}",
+		"%{IncludeDir.SPIRVCross}",
 		"%{IncludeDir.VulkanSDK}"
 	}
 
@@ -86,6 +84,8 @@ project "Ilargi"
 		"GLFW",
 		"ImGUI",
 		"Assimp",
+		"SpirvCrossCore",
+		"SpirvCrossGLSL",
 		"%{LibraryDir.VulkanSDK}/vulkan-1.lib"
 	}
 
@@ -114,8 +114,6 @@ project "Ilargi"
 		links
 		{
 			"%{Library.ShaderC_Debug}",
-			"%{Library.SPIRV_Cross_Debug}",
-			"%{Library.SPIRV_Cross_GLSL_Debug}"
 		}
 
 	filter "configurations:Release"
@@ -126,8 +124,6 @@ project "Ilargi"
 		links
 		{
 			"%{Library.ShaderC_Release}",
-			"%{Library.SPIRV_Cross_Release}",
-			"%{Library.SPIRV_Cross_GLSL_Release}"
 		}
 
 	filter "configurations:Dist"
@@ -138,8 +134,6 @@ project "Ilargi"
 		links
 		{
 			"%{Library.ShaderC_Release}",
-			"%{Library.SPIRV_Cross_Release}",
-			"%{Library.SPIRV_Cross_GLSL_Release}",
 		}
 
 -- Creating Ilargi Editor project
@@ -166,7 +160,6 @@ project "IlargiEditor"
 		"Ilargi/dependencies",
 		"Ilargi/dependencies/entt",
 		"Ilargi/dependencies/imguizmo",
-		"Ilargi/dependencies/optick/src",
 		"Ilargi/dependencies/stb"
 	}
 

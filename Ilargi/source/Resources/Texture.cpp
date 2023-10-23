@@ -1,7 +1,7 @@
 #include "ilargipch.h"
 
 #include "Texture.h"
-#include "Renderer.h"
+#include "Renderer/Renderer.h"
 
 // Platform headers
 #include "Platform/Vulkan/VulkanTexture.h"
