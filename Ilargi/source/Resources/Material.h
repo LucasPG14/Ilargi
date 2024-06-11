@@ -9,7 +9,8 @@ namespace Ilargi
 	class Material : public Resource
 	{
 	public:
-		const ResourceType GetType() const { return ResourceType::MATERIAL; }
+		static ResourceType GetStaticType() { return ResourceType::MATERIAL; }
+		const ResourceType GetType() const { return GetStaticType(); }
 
 		virtual const void* GetDescriptorSet() const = 0;
 

@@ -5,8 +5,10 @@
 #include "EditorPanels/ResourcesPanel.h"
 
 #include "Resources/Mesh.h"
+#include "Resources/ResourceManager.h"
 
 #include "Utils/Importers/ModelImporter.h"
+#include "Utils/Importers/TextureImporter.h"
 
 #include <imgui/imgui.h>
 #include <ImGuizmo.h>
@@ -45,7 +47,7 @@ namespace Ilargi
 
 		commandBuffer = CommandBuffer::Create(Renderer::GetConfig().maxFrames);
 		
-		framebuffer = Framebuffer::Create({ 1080, 720, { ImageFormat::RGBA8, ImageFormat::DEPTH32 }, false });
+		framebuffer = Framebuffer::Create({ 1080, 720, { ImageFormat::RGBA8, ImageFormat::DEPTH32 }, false, true });
 		{
 			PipelineProperties pipelineProperties;
 			pipelineProperties.name = "Geometry";
@@ -214,6 +216,20 @@ namespace Ilargi
 			}
 		}
 
+		if (ImGui::BeginDragDropTarget())
+		{
+			auto payload = ImGui::AcceptDragDropPayload("RESOURCE");
+
+			if (payload)
+			{
+				// TODO: Drag and drop from resource panel to viewport
+				//UUID* uuid = (UUID*)payload->Data;
+				//auto& metadata = ResourceManager::GetResourcesMap()[*uuid];
+			}
+
+			ImGui::EndDragDropTarget();
+		}
+
 		ImGui::End();
 		ImGui::PopStyleVar();
 
@@ -228,6 +244,9 @@ namespace Ilargi
 		EventDispatcher dispatcher(event);
 
 		dispatcher.Dispatch<KeyPressedEvent>(ILG_BIND_FN(EditorPanel::OnKeyEvent));
+		//dispatcher.Dispatch<WindowDropEvent>(ILG_BIND_FN(EditorPanel::OnDropEvent));
+
+		resourcesPanel->OnEvent(event);
 	}
 	
 	void EditorPanel::MainMenuBar()
@@ -283,7 +302,8 @@ namespace Ilargi
 			}
 			if (ImGui::MenuItem("Delete", "Del", (bool*)0, enabled))
 			{
-				// TODO: Delete an entity
+				scene->DestroyEntity(hierarchyInspector->GetSelected());
+				hierarchyInspector->ResetSelected();
 			}
 			if (ImGui::MenuItem("Duplicate", "Ctrl + D", (bool*)0, enabled))
 			{
@@ -338,6 +358,19 @@ namespace Ilargi
 			Application::Get()->CloseApp();
 			break;
 		}
+
+		return true;
+	}
+	
+	bool EditorPanel::OnDropEvent(WindowDropEvent& event)
+	{
+		//const std::vector<std::filesystem::path>& paths = event.GetPaths();
+
+		//for (int i = 0; i < paths.size(); ++i)
+		//{
+		//	std::string newPath = ("assets" / paths[i].stem()).string() + ".ires";
+		//	auto uuid = ResourceManager::ImportAsset(paths[i]);
+		//}
 
 		return true;
 	}

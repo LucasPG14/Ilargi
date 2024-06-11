@@ -25,6 +25,7 @@ namespace Ilargi
 		std::vector<ImageFormat> formats;
 
 		bool swapchainTarget;
+		bool multisampling;
 	};
 
 	class RenderPass;

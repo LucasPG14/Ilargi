@@ -8,15 +8,16 @@ namespace Ilargi
 	{
 		NONE = 0,
 		MESH,
-		TEXTURE,
+		TEXTURE2D,
 		MATERIAL
 		//SCENE,
 	};
 
 	struct ResourceMetaData
 	{
-		UUID resourceID;
+		ResourceType type = ResourceType::NONE;
 		std::filesystem::path filepath;
+		std::filesystem::path sourceFile;
 	};
 
 	class Resource

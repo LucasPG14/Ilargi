@@ -13,4 +13,9 @@ namespace Ilargi
 	UUID::UUID() : uuid(uniformDistribution(engine))
 	{
 	}
+
+	UUID::UUID(uint64_t id) : uuid(id)
+	{
+
+	}
 }

@@ -60,7 +60,7 @@ namespace Ilargi
 			return ss.str();
 		}
 
-		static EventType GetStaticType() { return EventType::WINDOW_CLOSE; }
+		static EventType GetStaticType() { return EventType::WINDOW_DROP; }
 		virtual EventType GetEventType() const override { return GetStaticType(); }
 		virtual const char* GetName() const override { return "Window Drop Event"; }
 

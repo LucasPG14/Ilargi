@@ -240,9 +240,6 @@ namespace Ilargi
 
 			vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, 
 				nullptr, 0, nullptr, 1, &barrier);
-
-			//if (mipWidth > 1) mipWidth = newMipWidth;
-			//if (mipHeight > 1) mipHeight /= 2;
 		}
 
 		barrier.subresourceRange.baseMipLevel = mipLevels - 1;

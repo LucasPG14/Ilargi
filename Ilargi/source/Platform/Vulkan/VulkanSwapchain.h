@@ -39,6 +39,7 @@ namespace Ilargi
 
 		void QuerySwapchainSupport(VkPhysicalDevice device);
 		VkPresentModeKHR ChooseSwapPresentMode(VkPhysicalDevice device, VkSurfaceKHR surface) const;
+	
 	private:
 		VkSwapchainKHR swapchain;
 

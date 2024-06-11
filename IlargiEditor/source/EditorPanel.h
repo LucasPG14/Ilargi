@@ -30,6 +30,7 @@ namespace Ilargi
 		void MainMenuBar();
 
 		bool OnKeyEvent(KeyPressedEvent& event);
+		bool OnDropEvent(WindowDropEvent& event);
 	private:
 		std::shared_ptr<Scene> scene;
 

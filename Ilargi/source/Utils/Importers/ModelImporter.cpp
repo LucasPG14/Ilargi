@@ -1,7 +1,9 @@
 #include "ilargipch.h"
 
 #include "ModelImporter.h"
+#include "Utils/FileSystem.h"
 
+#include "Resources/ResourceManager.h"
 #include "Resources/Mesh.h"
 
 #include <assimp/Importer.hpp>
@@ -104,5 +106,86 @@ namespace Ilargi
 		}
 
 		return mesh;
+	}
+	
+	void ModelImporter::ImportModel2(const std::filesystem::path& path, const std::filesystem::path& assetsPath)
+	{
+		Assimp::Importer importer;
+		
+		const aiScene* scene = importer.ReadFile(path.string().c_str(), aiProcess_CalcTangentSpace | aiProcess_Triangulate |
+			aiProcess_JoinIdenticalVertices | aiProcess_SortByPType);
+		
+		if (!scene)
+		{
+			ILG_CORE_ERROR("Couldn't import model: {0}", path.string());
+			return;
+		}
+		
+		uint32_t meshCount = scene->mNumMeshes;
+
+		ResourceMetaData metadata;
+
+		//std::shared_ptr<StaticMesh> mesh = std::make_shared<StaticMesh>(meshCount);
+		for (uint32_t i = 0; i < meshCount; ++i)
+		{
+			// Saving all the necessary variables
+			aiMesh* assimpMesh = scene->mMeshes[i];
+			uint32_t verticesCount = assimpMesh->mNumVertices;
+			uint32_t numFaces = assimpMesh->mNumFaces;
+			
+			bool hasNormals = assimpMesh->HasNormals();
+			bool hasTexCoords = assimpMesh->HasTextureCoords(0);
+			bool hasTangentsAndBitangents = assimpMesh->HasTangentsAndBitangents();
+
+			StaticSubmesh submesh;
+			submesh.vertices.resize(verticesCount);
+			submesh.indices.reserve(numFaces * 3); // * 3 because it's a triangle
+
+			for (uint32_t j = 0; j < verticesCount; ++j)
+			{
+				StaticVertex& vertex = submesh.vertices[j];
+
+				vertex.position = assimpMesh->mVertices[j];
+
+				if (hasNormals)
+					vertex.normal = assimpMesh->mNormals[j];
+
+				if (hasTexCoords)
+					vertex.texCoord = assimpMesh->mTextureCoords[0][j];
+
+				if (hasTangentsAndBitangents)
+				{
+					vertex.tangent = assimpMesh->mTangents[j];
+					vertex.bitangent = assimpMesh->mBitangents[j];
+				}
+			}
+
+			for (uint32_t j = 0; j < numFaces; ++j)
+			{
+				aiFace face = assimpMesh->mFaces[j];
+
+				for (uint32_t k = 0; k < face.mNumIndices; ++k)
+					submesh.indices.push_back(face.mIndices[k]);
+			}
+
+			Buffer buffer;
+			buffer.size = 8 + submesh.vertices.size() * sizeof(StaticVertex) + submesh.indices.size() * sizeof(uint32_t);
+			buffer.data = new char[8 + buffer.size];
+
+			char* pointer = (char*)buffer.data;
+			uint32_t header[2] = { submesh.vertices.size(), submesh.indices.size() };
+
+			memcpy(pointer, header, 2 * sizeof(uint32_t));
+			pointer += 2 * sizeof(uint32_t);
+
+			uint32_t verticesSize = header[0] * sizeof(StaticVertex);
+			memcpy(pointer, submesh.vertices.data(), verticesSize);
+			pointer += verticesSize;
+
+			uint32_t indicesSize = header[1] * sizeof(uint32_t);
+			memcpy(buffer.data, submesh.indices.data(), submesh.indices.size());
+
+			FileSystem::WriteBinaryFile(assetsPath, buffer);
+		}
 	}
 }

@@ -9,7 +9,7 @@
 namespace Ilargi
 {
 	VulkanFramebuffer::VulkanFramebuffer(const FramebufferProperties& props) 
-		: properties(props), depthSpecification(ImageFormat::NONE), framebuffer(VK_NULL_HANDLE), 
+		: properties(props), depthSpecification(ImageFormat::NONE), depthAttachment(), framebuffer(VK_NULL_HANDLE), 
 		sampler(VK_NULL_HANDLE), descriptorSetLayout(VK_NULL_HANDLE), descriptorSet(VK_NULL_HANDLE)
 	{
 		for (ImageFormat format : props.formats)
@@ -32,6 +32,8 @@ namespace Ilargi
 		auto device = VulkanContext::GetLogicalDevice();
 		
 		std::vector<VkImageView> attachments;
+
+		uint32_t maxSamples = Renderer::GetConfig().maxAASamples;
 
 		colorAttachments.resize(colorSpecifications.size());
 		int i = 0;

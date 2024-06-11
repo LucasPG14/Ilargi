@@ -14,7 +14,7 @@ namespace Ilargi
 		albedo = Texture2D::Create(std::filesystem::path("assets/textures/viking_room.png"));
 		
 		auto vulkanShader = std::static_pointer_cast<VulkanShader>(shader);
-		descriptorSet = vulkanShader->AllocateDescriptorSet();
+		descriptorSet = vulkanShader->AllocateDescriptorSet(0);
 
 		auto albedoTexture = std::static_pointer_cast<VulkanTexture2D>(albedo);
 

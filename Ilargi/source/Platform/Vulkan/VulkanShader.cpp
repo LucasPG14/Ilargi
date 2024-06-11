@@ -112,7 +112,7 @@ namespace Ilargi
 		shaders.clear();
 	}
 
-	VkDescriptorSet VulkanShader::AllocateDescriptorSet()
+	VkDescriptorSet VulkanShader::AllocateDescriptorSet(uint32_t index)
 	{
 		auto device = VulkanContext::GetLogicalDevice();
 
@@ -121,8 +121,8 @@ namespace Ilargi
 		VkDescriptorSetAllocateInfo allocInfo = {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 		allocInfo.descriptorPool = VulkanContext::GetDescriptorPool();
-		allocInfo.descriptorSetCount = static_cast<uint32_t>(descriptorSetLayouts.size());
-		allocInfo.pSetLayouts = descriptorSetLayouts.data();
+		allocInfo.descriptorSetCount = 1;
+		allocInfo.pSetLayouts = &descriptorSetLayouts[index];
 
 		VK_CHECK_RESULT(vkAllocateDescriptorSets(device, &allocInfo, &descriptorSet));
 
@@ -185,10 +185,11 @@ namespace Ilargi
 			shaders.push_back({ stage, shaderModule });
 		}
 
-		// TODO: Change this and automatize with reflect function
-		descriptorSetLayouts.resize(descriptorSetBindings.size());
+		uint32_t size = (--descriptorSetBindings.end())->first + 1;
+		descriptorSetLayouts.resize(size);
+		for (int i = 0; i < size; ++i)
 		{
-			for (int i = 0; i < descriptorSetLayouts.size(); ++i)
+			if (descriptorSetBindings.find(i) != descriptorSetBindings.end())
 			{
 				VkDescriptorSetLayoutCreateInfo layoutInfo = {};
 				layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
@@ -198,6 +199,20 @@ namespace Ilargi
 				VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayouts[i]));
 			}
 		}
+
+		// TODO: Change this and automatize with reflect function
+		//descriptorSetLayouts.resize(descriptorSetBindings.size());
+		//{
+		//	for (int i = 0; i < descriptorSetLayouts.size(); ++i)
+		//	{
+		//		VkDescriptorSetLayoutCreateInfo layoutInfo = {};
+		//		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		//		layoutInfo.bindingCount = static_cast<uint32_t>(descriptorSetBindings[i].size());
+		//		layoutInfo.pBindings = descriptorSetBindings[i].data();
+		//
+		//		VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayouts[i]));
+		//	}
+		//}
 	}
 	
 	const std::vector<uint32_t> VulkanShader::ConvertToSpirV(VkShaderStageFlagBits stage, std::string_view code) const

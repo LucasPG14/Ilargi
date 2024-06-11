@@ -13,6 +13,7 @@ namespace Ilargi
 		void Render();
 		
 		Entity GetSelected() { return selected; }
+		void ResetSelected() { selected = entt::null; }
 
 	private:
 		void DrawInspector();

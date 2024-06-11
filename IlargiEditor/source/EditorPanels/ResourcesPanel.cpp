@@ -1,6 +1,9 @@
 #include "ilargipch.h"
 #include "ResourcesPanel.h"
 
+#include "Base/UUID.h"
+#include "Resources/ResourceManager.h"
+
 #include <imgui/imgui.h>
 
 namespace Ilargi
@@ -31,14 +34,13 @@ namespace Ilargi
 			const auto& filename = path.stem().string();
 			//const auto& file = path.;
 
-			if (file.is_directory())
+			ImGui::Button(filename.c_str(), { cell, cell });
+			if (ImGui::BeginDragDropSource())
 			{
-				ImGui::Button(filename.c_str(), { cell, cell });
+				ImGui::SetDragDropPayload("RESOURCE", &assets[path], sizeof(assets[path]));
+				ImGui::EndDragDropSource();
 			}
-			else
-			{
-				ImGui::Button(filename.c_str(), { cell, cell });
-			}
+
 			if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
 			{
 				if (file.is_directory()) actualDir /= relative;
@@ -49,8 +51,7 @@ namespace Ilargi
 
 		ImGui::Columns(1);
 
-		//bool focused = ImGui::IsWindowFocused();
-		if (!ImGui::IsAnyItemHovered() /*&& focused*/ && ImGui::BeginPopupContextWindow("##Hierarchypopup"))
+		if (ImGui::BeginPopupContextWindow("##Hierarchypopup"))
 		{
 			if (ImGui::MenuItem("Create Material"))
 			{
@@ -60,5 +61,32 @@ namespace Ilargi
 		}
 
 		ImGui::End();
+	}
+	
+	void ResourcesPanel::OnEvent(Event& event)
+	{
+		EventDispatcher dispatcher(event);
+
+		dispatcher.Dispatch<WindowDropEvent>(ILG_BIND_FN(ResourcesPanel::OnDropEvent));
+	}
+	
+	bool ResourcesPanel::OnDropEvent(WindowDropEvent& event)
+	{
+		const std::vector<std::filesystem::path>& paths = event.GetPaths();
+
+		for (int i = 0; i < paths.size(); ++i)
+		{
+			ResourceManager::ImportResource(paths[i]);
+		}
+
+		assets.clear();
+		const auto& assetsMap = ResourceManager::GetResourcesMap();
+
+		for (auto& [uuid, metadata] : assetsMap)
+		{
+			assets[metadata.filepath] = uuid;
+		}
+
+		return true;
 	}
 }

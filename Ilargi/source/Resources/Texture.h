@@ -12,7 +12,8 @@ namespace Ilargi
 
 		virtual const void* GetID() const = 0;
 
-		const ResourceType GetType() const { return ResourceType::NONE; }
+		static ResourceType GetStaticType() { return ResourceType::TEXTURE2D; }
+		const ResourceType GetType() const { return GetStaticType(); }
 
 		static std::shared_ptr<Texture2D> Create(std::filesystem::path filepath);
 	};

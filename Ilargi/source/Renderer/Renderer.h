@@ -27,6 +27,8 @@ namespace Ilargi
 		//mat4 viewProj;
 	};
 
+	using RenderFn = std::function<void()>;
+
 	class Renderer
 	{
 	public:
@@ -46,7 +48,7 @@ namespace Ilargi
 		
 		static std::shared_ptr<ShaderLibrary> GetShaderLibrary() { return shaderLibrary; }
 
-		static void Submit(std::function<void()> func) { queue.push_back(func); }
+		static void Submit(RenderFn func) { queue.push_back(func); }
 
 		static void RenderQueue();
 	private:
@@ -58,6 +60,6 @@ namespace Ilargi
 		static RendererConfig config;
 		static int currentFrame;
 
-		static std::vector<std::function<void()>> queue;
+		static std::vector<RenderFn> queue;
 	};
 }
