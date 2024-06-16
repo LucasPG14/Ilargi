@@ -10,6 +10,11 @@ namespace Ilargi
 	class IndexBuffer;
 	class StaticMesh;
 
+	struct Comp
+	{
+
+	};
+
 	struct TransformComponent
 	{
 		mat4 transform = mat4(1.0f);

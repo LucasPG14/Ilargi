@@ -91,6 +91,7 @@ namespace Ilargi
 			shaderStages.push_back(shaderStageInfo);
 		}
 
+		// TODO: Gives an error when layout is empty
 		VkVertexInputBindingDescription bindingDescription = {};
 		bindingDescription.binding = 0;
 		bindingDescription.stride = properties.layout.GetStride();

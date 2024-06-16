@@ -4,12 +4,6 @@
 #include "EditorPanels/SceneHierarchyInspectorPanel.h"
 #include "EditorPanels/ResourcesPanel.h"
 
-#include "Resources/Mesh.h"
-#include "Resources/ResourceManager.h"
-
-#include "Utils/Importers/ModelImporter.h"
-#include "Utils/Importers/TextureImporter.h"
-
 #include <imgui/imgui.h>
 #include <ImGuizmo.h>
 
@@ -62,7 +56,7 @@ namespace Ilargi
 				{ ShaderDataType::FLOAT2, "texCoord" },
 			};
 
-			renderPass = RenderPass::Create({ framebuffer, Pipeline::Create(pipelineProperties) });
+			renderPass = RenderPass::Create({ framebuffer, Pipeline::Create(pipelineProperties), true });
 			
 			const auto& view = scene->GetWorld().view<TransformComponent, StaticMeshComponent>();
 			for (auto entity : view)
@@ -71,16 +65,15 @@ namespace Ilargi
 			}
 		}
 
-		//PipelineProperties pipelineProperties;
-		//pipelineProperties.name = "Grid";
-		//pipelineProperties.shader = Renderer::GetShaderLibrary()->Get("Grid");
-		//pipelineProperties.depth = true;
-		//pipelineProperties.layout = {};
+		PipelineProperties pipelineProperties;
+		pipelineProperties.name = "Grid";
+		pipelineProperties.shader = Renderer::GetShaderLibrary()->Get("Grid");
+		pipelineProperties.depth = true;
+		pipelineProperties.layout = {};
 
-		//gridRenderPass = RenderPass::Create({ framebuffer, Pipeline::Create(pipelineProperties) });
+		gridRenderPass = RenderPass::Create({ framebuffer, Pipeline::Create(pipelineProperties), false });
 		
 		uboCamera = UniformBuffer::Create(sizeof(mat4), Renderer::GetConfig().maxFrames);
-
 	}
 
 	void EditorPanel::OnDestroy()
@@ -90,6 +83,7 @@ namespace Ilargi
 		scene->Destroy();
 
 		framebuffer->Destroy();
+		gridRenderPass->Destroy();
 		renderPass->Destroy();
 
 		commandBuffer->Destroy();
@@ -134,15 +128,15 @@ namespace Ilargi
 
 		renderPass->EndRenderPass(commandBuffer);
 
-		//gridRenderPass->BeginRenderPass(commandBuffer);
+		gridRenderPass->BeginRenderPass(commandBuffer);
 		
-		//gridRenderPass->GetProperties().pipeline->Bind(commandBuffer);
-		//gridRenderPass->GetProperties().pipeline->PushConstants(commandBuffer, 0, 64, camera.GetViewMatrix());
-		//gridRenderPass->GetProperties().pipeline->PushConstants(commandBuffer, 64, 64, camera.GetProjectionMatrix());
+		gridRenderPass->GetProperties().pipeline->Bind(commandBuffer);
+		gridRenderPass->GetProperties().pipeline->PushConstants(commandBuffer, 0, 64, camera.GetViewMatrix());
+		gridRenderPass->GetProperties().pipeline->PushConstants(commandBuffer, 64, 64, camera.GetProjectionMatrix());
 		
-		//Renderer::DrawDefault(commandBuffer);
+		Renderer::DrawDefault(commandBuffer);
 		
-		//gridRenderPass->EndRenderPass(commandBuffer);
+		gridRenderPass->EndRenderPass(commandBuffer);
 
 		commandBuffer->EndCommand();
 		commandBuffer->Submit();
@@ -223,8 +217,17 @@ namespace Ilargi
 			if (payload)
 			{
 				// TODO: Drag and drop from resource panel to viewport
-				//UUID* uuid = (UUID*)payload->Data;
-				//auto& metadata = ResourceManager::GetResourcesMap()[*uuid];
+				UUID uuid = *(UUID*)payload->Data;
+				auto& metadata = ResourceManager::GetResourcesMetadata()[uuid];
+
+				//ResourceManager::HasLoadedAsset(uuid);
+
+				//switch (metadata.type)
+				//{
+				//case ResourceType::MODEL:
+				//	scene->DeserializeModel();
+				//	break;
+				//}
 			}
 
 			ImGui::EndDragDropTarget();
@@ -244,9 +247,9 @@ namespace Ilargi
 		EventDispatcher dispatcher(event);
 
 		dispatcher.Dispatch<KeyPressedEvent>(ILG_BIND_FN(EditorPanel::OnKeyEvent));
-		//dispatcher.Dispatch<WindowDropEvent>(ILG_BIND_FN(EditorPanel::OnDropEvent));
+		dispatcher.Dispatch<WindowDropEvent>(ILG_BIND_FN(EditorPanel::OnDropEvent));
 
-		resourcesPanel->OnEvent(event);
+		//resourcesPanel->OnEvent(event);
 	}
 	
 	void EditorPanel::MainMenuBar()
@@ -346,13 +349,16 @@ namespace Ilargi
 			}
 			break;
 		case KeyCode::W:
-			operation = ImGuizmo::TRANSLATE;
+			if (Input::IsMouseButtonPressed(MouseCode::RIGHT))
+				operation = ImGuizmo::TRANSLATE;
 			break;
 		case KeyCode::E:
-			operation = ImGuizmo::ROTATE;
+			if (Input::IsMouseButtonPressed(MouseCode::RIGHT))
+				operation = ImGuizmo::ROTATE;
 			break;
 		case KeyCode::R:
-			operation = ImGuizmo::SCALE;
+			if (Input::IsMouseButtonPressed(MouseCode::RIGHT))
+				operation = ImGuizmo::SCALE;
 			break;
 		case KeyCode::F4:
 			Application::Get()->CloseApp();
@@ -364,13 +370,12 @@ namespace Ilargi
 	
 	bool EditorPanel::OnDropEvent(WindowDropEvent& event)
 	{
-		//const std::vector<std::filesystem::path>& paths = event.GetPaths();
+		const std::vector<std::filesystem::path>& paths = event.GetPaths();
 
-		//for (int i = 0; i < paths.size(); ++i)
-		//{
-		//	std::string newPath = ("assets" / paths[i].stem()).string() + ".ires";
-		//	auto uuid = ResourceManager::ImportAsset(paths[i]);
-		//}
+		for (int i = 0; i < paths.size(); ++i)
+		{
+			ModelImporter::ImportFBX(paths[i], scene);
+		}
 
 		return true;
 	}

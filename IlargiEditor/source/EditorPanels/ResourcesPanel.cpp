@@ -80,7 +80,7 @@ namespace Ilargi
 		}
 
 		assets.clear();
-		const auto& assetsMap = ResourceManager::GetResourcesMap();
+		const auto& assetsMap = ResourceManager::GetResourcesMetadata();
 
 		for (auto& [uuid, metadata] : assetsMap)
 		{

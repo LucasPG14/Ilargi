@@ -10,8 +10,8 @@ namespace Ilargi
 		{ ".png",		ResourceType::TEXTURE2D },
 		{ ".jpg",		ResourceType::TEXTURE2D },
 		{ ".jpeg",		ResourceType::TEXTURE2D },
-		{ ".fbx",		ResourceType::MESH },
-		{ ".obj",		ResourceType::MESH },
+		{ ".fbx",		ResourceType::MODEL },
+		{ ".obj",		ResourceType::MODEL },
 		//{ ".ilargi",	ResourceType::SCENE },
 	};
 
@@ -52,6 +52,11 @@ namespace Ilargi
 		//auto& metadata = resourcesMetadata[uuid];
 
 
+	}
+
+	bool ResourceManager::HasLoadedAsset(UUID uuid)
+	{
+		return loadedResources.at(uuid) != nullptr;
 	}
 	
 	const ResourceType ResourceManager::GetResourceType(const std::string& str)

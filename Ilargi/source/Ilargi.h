@@ -12,6 +12,7 @@
 
 // Scene
 #include "Scene/Scene.h"
+#include "Scene/Components/Components.h"
 
 // Renderer
 #include "Renderer/CommandBuffer.h"
@@ -24,7 +25,15 @@
 #include "Renderer/UniformBuffer.h"
 #include "Renderer/VertexBuffer.h"
 
+// Resources
+#include "Resources/ResourceManager.h"
+#include "Resources/Resource.h"
 #include "Resources/Texture.h"
+#include "Resources/Mesh.h"
+#include "Resources/Material.h"
 
+// Utils
+#include "Utils/Importers/ModelImporter.h"
+#include "Utils/Importers/TextureImporter.h"
 #include "Utils/UI/IlargiUI.h"
 #include "Utils/Math/Math.h"

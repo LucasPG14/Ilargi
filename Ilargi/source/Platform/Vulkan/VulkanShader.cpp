@@ -185,18 +185,21 @@ namespace Ilargi
 			shaders.push_back({ stage, shaderModule });
 		}
 
-		uint32_t size = (--descriptorSetBindings.end())->first + 1;
-		descriptorSetLayouts.resize(size);
-		for (int i = 0; i < size; ++i)
+		if (!descriptorSetBindings.empty())
 		{
-			if (descriptorSetBindings.find(i) != descriptorSetBindings.end())
+			uint32_t size = (--descriptorSetBindings.end())->first + 1;
+			descriptorSetLayouts.resize(size);
+			for (int i = 0; i < size; ++i)
 			{
-				VkDescriptorSetLayoutCreateInfo layoutInfo = {};
-				layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-				layoutInfo.bindingCount = static_cast<uint32_t>(descriptorSetBindings[i].size());
-				layoutInfo.pBindings = descriptorSetBindings[i].data();
+				if (descriptorSetBindings.find(i) != descriptorSetBindings.end())
+				{
+					VkDescriptorSetLayoutCreateInfo layoutInfo = {};
+					layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+					layoutInfo.bindingCount = static_cast<uint32_t>(descriptorSetBindings[i].size());
+					layoutInfo.pBindings = descriptorSetBindings[i].data();
 
-				VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayouts[i]));
+					VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayouts[i]));
+				}
 			}
 		}
 

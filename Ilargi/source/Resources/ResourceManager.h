@@ -10,7 +10,10 @@ namespace Ilargi
 		static UUID ImportResource(const std::filesystem::path& path);
 		static void LoadAsset(UUID uuid);
 
-		static std::unordered_map<UUID, ResourceMetaData> GetResourcesMap() { return resourcesMetadata; }
+		static bool HasLoadedAsset(UUID uuid);
+
+		static std::unordered_map<UUID, ResourceMetaData> GetResourcesMetadata() { return resourcesMetadata; }
+		static std::unordered_map<UUID, std::shared_ptr<Resource>> GetLoadedResources() { return loadedResources; }
 
 	private:
 		static const ResourceType GetResourceType(const std::string& str);

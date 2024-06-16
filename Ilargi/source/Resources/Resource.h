@@ -7,6 +7,7 @@ namespace Ilargi
 	enum class ResourceType
 	{
 		NONE = 0,
+		MODEL,
 		MESH,
 		TEXTURE2D,
 		MATERIAL
