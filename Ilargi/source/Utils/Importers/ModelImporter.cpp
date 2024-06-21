@@ -8,6 +8,7 @@
 #include "Renderer/Renderer.h"
 #include "Resources/ResourceManager.h"
 #include "Resources/Mesh.h"
+#include "Resources/Material.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -275,7 +276,17 @@ namespace Ilargi
 			}
 
 			mesh->AddSubmesh(submesh);
-			mesh->CreateMaterial(Renderer::GetShaderLibrary()->Get("PBR_Static"));
+
+			ResourceMetadata materialMetadata;
+			materialMetadata.type = ResourceType::MATERIAL;
+			materialMetadata.sourceFile = path;
+			materialMetadata.filepath = "NewMaterial.ires";
+
+			std::shared_ptr<Material> material = Material::Create(Renderer::GetShaderLibrary()->Get("PBR_Static"));
+
+			ResourceManager::RegisterResource(materialMetadata);
+
+			mesh->CreateMaterial(material);
 
 			scene->CreateComponent<StaticMeshComponent>(entity, mesh);
 		}

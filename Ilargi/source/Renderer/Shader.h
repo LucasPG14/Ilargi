@@ -5,6 +5,7 @@ namespace Ilargi
 	class Shader
 	{
 	public:
+		virtual void Destroy() = 0;
 
 		static std::shared_ptr<Shader> Create(std::string_view vert);
 	};

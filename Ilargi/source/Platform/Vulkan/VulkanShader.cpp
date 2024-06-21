@@ -81,19 +81,16 @@ namespace Ilargi
 
 	VulkanShader::VulkanShader(std::string_view path) : filePath(path), name(std::filesystem::path(path).stem().string())
 	{	
-		auto device = VulkanContext::GetLogicalDevice();
+		auto directory = Utils::GetCacheDirectory();
+		directory += std::filesystem::path(name);
+		directory += "_cache_vert.spv";
+		
+		if (std::filesystem::directory_entry(directory).exists())
+		{
+			// TODO: Create shader from cache file
+		}
 
-		//auto directory = Utils::GetCacheDirectory();
-		//directory += std::filesystem::path(name);
-		//directory += Utils::GetCacheExtension(VK_SHADER_STAGE_VERTEX_BIT);
-		//if (std::filesystem::directory_entry(directory).exists())
-		//{
-		//	bool ret = true;
-		//	ret = false;
-		//}
-
-		std::string shaderCode = Utils::ReadFile(path.data());
-		ProcessShader(shaderCode);
+		ProcessShader();
 	}
 	
 	VulkanShader::~VulkanShader()
@@ -107,6 +104,11 @@ namespace Ilargi
 		for (auto& [stage, module] : shaders)
 		{
 			vkDestroyShaderModule(device, module, nullptr);
+		}
+
+		for (auto& descriptorSetLayout : descriptorSetLayouts)
+		{
+			vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
 		}
 
 		shaders.clear();
@@ -129,11 +131,13 @@ namespace Ilargi
 		return descriptorSet;
 	}
 	
-	void VulkanShader::ProcessShader(std::string code)
+	void VulkanShader::ProcessShader()
 	{
 		ILG_PROFILE_FUNC
 
 		auto device = VulkanContext::GetLogicalDevice();
+
+		std::string code = Utils::ReadFile(filePath.data());
 
 		const char* type = "#type";
 		size_t typeLength = strlen(type);
@@ -161,6 +165,7 @@ namespace Ilargi
 			cacheFile += filename.stem();
 			cacheFile += Utils::GetCacheExtension(stage);
 
+			// Saving to cache file
 			std::ofstream file(cacheFile, std::ios::out | std::ios::binary);
 
 			if (file.is_open())

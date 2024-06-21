@@ -46,7 +46,7 @@ namespace Ilargi
 		vec4& GetColor() { return color; }
 		const std::shared_ptr<Material> GetMaterial() const { return material; }
 
-		void CreateMaterial(std::shared_ptr<Shader> shader);
+		void CreateMaterial(const std::shared_ptr<Material>& shader);
 
 	private:
 		std::vector<StaticSubmesh> submeshes;

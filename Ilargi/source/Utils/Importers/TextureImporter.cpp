@@ -3,6 +3,8 @@
 #include "TextureImporter.h"
 #include "Utils/FileSystem.h"
 
+#include "Resources/ResourceManager.h"
+
 #include <stb_image.h>
 #define STB_DXT_IMPLEMENTATION
 #include <stb_dxt.h>
@@ -16,6 +18,7 @@ namespace Ilargi
 		Buffer buffer;
 		int width, height, channels;
 
+		// TODO: Need to save the width, height and channels of the image in the binary file
 		buffer.data = stbi_load(filepath.string().c_str(), &width, &height, &channels, 0);
 
 		if (!buffer.data)
@@ -36,5 +39,12 @@ namespace Ilargi
 		s += ".ires";
 
 		FileSystem::WriteBinaryFile(s, buffer);
+
+		ResourceMetadata metadata;
+		metadata.type = ResourceType::TEXTURE2D;
+		metadata.sourceFile = filepath;
+		metadata.filepath = s;
+
+		ResourceManager::RegisterResource(metadata);
 	}
 }

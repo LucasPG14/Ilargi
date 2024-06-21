@@ -113,8 +113,8 @@ namespace Ilargi
 
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
 		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-		vertexInputInfo.vertexBindingDescriptionCount = 1;
-		vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+		vertexInputInfo.vertexBindingDescriptionCount = attributeDescriptions.size() == 0 ? 0 : 1;
+		vertexInputInfo.pVertexBindingDescriptions = attributeDescriptions.size() == 0 ? VK_NULL_HANDLE : &bindingDescription;
 		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
 		vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
@@ -257,7 +257,6 @@ namespace Ilargi
 		}
 		
 		delete buffer.data;
-		shader->Destroy();
 
 		vkDestroyPipelineCache(device, pipelineCache, nullptr);
 	}
@@ -266,8 +265,10 @@ namespace Ilargi
 	{
 		auto device = VulkanContext::GetLogicalDevice();
 
+		properties.shader->Destroy();
 		vkDestroyPipeline(device, pipeline, nullptr);
 		vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
+		vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
 	}
 
 	void VulkanPipeline::PushConstants(const std::shared_ptr<CommandBuffer>& commandBuffer, uint32_t offset, uint32_t size, const void* data) const

@@ -28,6 +28,7 @@ group ""
 VULKAN_SDK = os.getenv("VULKAN_SDK")
 
 IncludeDir = {}
+IncludeDir["ArduinoJson"] = "Ilargi/dependencies/arduinojson"
 IncludeDir["Assimp"] = "Ilargi/dependencies/Assimp/include"
 IncludeDir["GLFW"] = "Ilargi/dependencies/glfw/include"
 IncludeDir["ImGUI"] = "Ilargi/dependencies/imgui"
@@ -76,7 +77,8 @@ project "Ilargi"
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.stb}",
 		"%{IncludeDir.SPIRVCross}",
-		"%{IncludeDir.VulkanSDK}"
+		"%{IncludeDir.VulkanSDK}",
+		"%{IncludeDir.ArduinoJson}"
 	}
 
 	links 

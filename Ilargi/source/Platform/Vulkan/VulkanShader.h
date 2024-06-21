@@ -26,7 +26,7 @@ namespace Ilargi
 	private:
 		const char* GetShaderCacheDirectory() const { return "cache/vulkan/"; }
 
-		void ProcessShader(std::string code);
+		void ProcessShader();
 
 		const std::vector<uint32_t> ConvertToSpirV(VkShaderStageFlagBits stage, std::string_view code) const;
 

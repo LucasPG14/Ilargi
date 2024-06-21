@@ -6,6 +6,7 @@
 
 #include <imgui/imgui.h>
 #include <ImGuizmo.h>
+#include <arduinojson/ArduinoJson-v7.0.4.h>
 
 namespace Ilargi
 {
@@ -57,21 +58,15 @@ namespace Ilargi
 			};
 
 			renderPass = RenderPass::Create({ framebuffer, Pipeline::Create(pipelineProperties), true });
-			
-			const auto& view = scene->GetWorld().view<TransformComponent, StaticMeshComponent>();
-			for (auto entity : view)
-			{
-				view.get<StaticMeshComponent>(entity).staticMesh->CreateMaterial(pipelineProperties.shader);
-			}
 		}
 
 		PipelineProperties pipelineProperties;
 		pipelineProperties.name = "Grid";
-		pipelineProperties.shader = Renderer::GetShaderLibrary()->Get("Grid");
+		//pipelineProperties.shader = Renderer::GetShaderLibrary()->Get("Grid");
 		pipelineProperties.depth = true;
 		pipelineProperties.layout = {};
 
-		gridRenderPass = RenderPass::Create({ framebuffer, Pipeline::Create(pipelineProperties), false });
+		//gridRenderPass = RenderPass::Create({ framebuffer, Pipeline::Create(pipelineProperties), false });
 		
 		uboCamera = UniformBuffer::Create(sizeof(mat4), Renderer::GetConfig().maxFrames);
 	}
@@ -83,7 +78,7 @@ namespace Ilargi
 		scene->Destroy();
 
 		framebuffer->Destroy();
-		gridRenderPass->Destroy();
+		//gridRenderPass->Destroy();
 		renderPass->Destroy();
 
 		commandBuffer->Destroy();
@@ -128,15 +123,15 @@ namespace Ilargi
 
 		renderPass->EndRenderPass(commandBuffer);
 
-		gridRenderPass->BeginRenderPass(commandBuffer);
-		
-		gridRenderPass->GetProperties().pipeline->Bind(commandBuffer);
-		gridRenderPass->GetProperties().pipeline->PushConstants(commandBuffer, 0, 64, camera.GetViewMatrix());
-		gridRenderPass->GetProperties().pipeline->PushConstants(commandBuffer, 64, 64, camera.GetProjectionMatrix());
-		
-		Renderer::DrawDefault(commandBuffer);
-		
-		gridRenderPass->EndRenderPass(commandBuffer);
+		//gridRenderPass->BeginRenderPass(commandBuffer);
+		//
+		//gridRenderPass->GetProperties().pipeline->Bind(commandBuffer);
+		//gridRenderPass->GetProperties().pipeline->PushConstants(commandBuffer, 0, 64, camera.GetViewMatrix());
+		//gridRenderPass->GetProperties().pipeline->PushConstants(commandBuffer, 64, 64, camera.GetProjectionMatrix());
+		//
+		//Renderer::DrawDefault(commandBuffer);
+		//
+		//gridRenderPass->EndRenderPass(commandBuffer);
 
 		commandBuffer->EndCommand();
 		commandBuffer->Submit();
@@ -349,15 +344,15 @@ namespace Ilargi
 			}
 			break;
 		case KeyCode::W:
-			if (Input::IsMouseButtonPressed(MouseCode::RIGHT))
+			if (!Input::IsMouseButtonPressed(MouseCode::RIGHT))
 				operation = ImGuizmo::TRANSLATE;
 			break;
 		case KeyCode::E:
-			if (Input::IsMouseButtonPressed(MouseCode::RIGHT))
+			if (!Input::IsMouseButtonPressed(MouseCode::RIGHT))
 				operation = ImGuizmo::ROTATE;
 			break;
 		case KeyCode::R:
-			if (Input::IsMouseButtonPressed(MouseCode::RIGHT))
+			if (!Input::IsMouseButtonPressed(MouseCode::RIGHT))
 				operation = ImGuizmo::SCALE;
 			break;
 		case KeyCode::F4:
@@ -374,8 +369,13 @@ namespace Ilargi
 
 		for (int i = 0; i < paths.size(); ++i)
 		{
-			ModelImporter::ImportFBX(paths[i], scene);
+			if (paths[i].extension() == ".obj")
+				ModelImporter::ImportFBX(paths[i], scene);
+			else 
+				TextureImporter::ImportTexture("assets/", paths[i]);
 		}
+
+		ResourceManager::SaveResourceRegistry();
 
 		return true;
 	}

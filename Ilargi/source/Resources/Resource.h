@@ -14,7 +14,7 @@ namespace Ilargi
 		//SCENE,
 	};
 
-	struct ResourceMetaData
+	struct ResourceMetadata
 	{
 		ResourceType type = ResourceType::NONE;
 		std::filesystem::path filepath;

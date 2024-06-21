@@ -4,6 +4,8 @@
 #include "Base/UUID.h"
 #include "Resources/ResourceManager.h"
 
+#include "Utils/FileSystem.h"
+
 #include <imgui/imgui.h>
 
 namespace Ilargi
@@ -11,6 +13,8 @@ namespace Ilargi
 	ResourcesPanel::ResourcesPanel()
 	{
 		actualDir = "assets";
+
+		ResourceManager::LoadResourceRegistry();
 	}
 
 	ResourcesPanel::~ResourcesPanel()
@@ -51,11 +55,21 @@ namespace Ilargi
 
 		ImGui::Columns(1);
 
-		if (ImGui::BeginPopupContextWindow("##Hierarchypopup"))
+		if (ImGui::BeginPopupContextWindow("##HierarchyPopup"))
 		{
 			if (ImGui::MenuItem("Create Material"))
 			{
+				ResourceMetadata metadata;
+				metadata.type = ResourceType::MATERIAL;
+				metadata.filepath = actualDir / "NewMaterial.ires";
+				metadata.sourceFile = "";
 
+				ResourceManager::RegisterResource(metadata);
+
+				Buffer buffer;
+				buffer.size = 0;
+				buffer.data = nullptr;
+				FileSystem::WriteBinaryFile(metadata.filepath, buffer);
 			}
 			ImGui::EndPopup();
 		}

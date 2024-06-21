@@ -23,8 +23,8 @@ namespace Ilargi
 		submeshes.push_back(submesh);
 	}
 	
-	void StaticMesh::CreateMaterial(std::shared_ptr<Shader> shader)
+	void StaticMesh::CreateMaterial(const std::shared_ptr<Material>& mat)
 	{
-		material = Material::Create(shader);
+		material = mat;
 	}
 }

@@ -3,6 +3,8 @@
 #include "ResourceManager.h"
 #include "Utils/Importers/ModelImporter.h"
 
+#include <ArduinoJson-v7.0.4.h>
+
 namespace Ilargi
 {
 	const std::map<std::string, ResourceType> extensionsMap = 
@@ -21,22 +23,31 @@ namespace Ilargi
 		{ ResourceType::MESH, ModelImporter::ImportModel2 }
 	};
 
-	using LoadFn = std::function<void(const ResourceMetaData&)>;
+	using LoadFn = std::function<void(const ResourceMetadata&)>;
 	//static std::map<ResourceType, LoadFn> loaders =
 	//{
 	//	{ ResourceType::MESH, ModelImporter::LoadModel }
 	//};
 
-	std::unordered_map<UUID, ResourceMetaData> ResourceManager::resourcesMetadata;
+	std::unordered_map<UUID, ResourceMetadata> ResourceManager::resourcesMetadata;
 	std::unordered_map<UUID, std::shared_ptr<Resource>> ResourceManager::loadedResources;
 	
+	UUID ResourceManager::RegisterResource(const ResourceMetadata& metadata)
+	{
+		UUID resourceUUID;
+		
+		resourcesMetadata[resourceUUID] = metadata;
+
+		return resourceUUID;
+	}
+
 	UUID ResourceManager::ImportResource(const std::filesystem::path& path)
 	{
 		UUID resourceUUID;
 
 		std::string newPath = ("assets" / path.stem()).string() + ".ires";
 		
-		ResourceMetaData metadata;
+		ResourceMetadata metadata;
 		metadata.type = GetResourceType(path.extension().string());
 		metadata.sourceFile = path;
 		metadata.filepath = newPath;
@@ -47,14 +58,12 @@ namespace Ilargi
 		return resourceUUID;
 	}
 
-	void ResourceManager::LoadAsset(UUID uuid)
+	void ResourceManager::LoadResource(UUID uuid)
 	{
 		//auto& metadata = resourcesMetadata[uuid];
-
-
 	}
 
-	bool ResourceManager::HasLoadedAsset(UUID uuid)
+	bool ResourceManager::HasLoadedResource(UUID uuid)
 	{
 		return loadedResources.at(uuid) != nullptr;
 	}
@@ -65,5 +74,49 @@ namespace Ilargi
 			return extensionsMap.at(str);
 
 		return ResourceType::NONE;
+	}
+
+	void ResourceManager::SaveResourceRegistry()
+	{
+		JsonDocument document;
+
+		std::ofstream file("ResourceRegistry.json", std::ios::out | std::ios::binary);
+
+		for (auto it = resourcesMetadata.begin(); it != resourcesMetadata.end(); ++it)
+		{
+			const ResourceMetadata& metadata = it->second;
+			int index = document.size();
+
+			document[index]["UUID"] = static_cast<uint64_t>(it->first);
+			document[index]["Type"] = static_cast<int>(metadata.type);
+			document[index]["SourceFile"] = metadata.sourceFile.string();
+			document[index]["Filepath"] = metadata.filepath.string();
+		}
+
+		serializeJsonPretty(document, file);
+
+		file.close();
+	}
+	
+	void ResourceManager::LoadResourceRegistry()
+	{
+		JsonDocument document;
+
+		std::ifstream file("ResourceRegistry.json", std::ios::in | std::ios::binary);
+		
+		deserializeJson(document, file);
+		file.close();
+		
+		for (int i = 0; i < document.size(); ++i)
+		{
+			UUID uuid = static_cast<uint64_t>(document[i]["UUID"]);
+			ResourceMetadata metadata;
+
+			metadata.type = static_cast<ResourceType>((int)document[i]["Type"]);
+			metadata.sourceFile = static_cast<const char*>(document[i]["SourceFile"]);
+			metadata.filepath = static_cast<const char*>(document[i]["Filepath"]);
+
+			resourcesMetadata[uuid] = metadata;
+		}
 	}
 }
