@@ -46,8 +46,6 @@ namespace Ilargi
 
 		CreateComponent<TransformComponent>(entity, mat4(1.0f));
 		CreateComponent<InfoComponent>(entity, name.c_str());
-		//world.emplace<TransformComponent>(entity, mat4(1.0f));
-		//world.emplace<InfoComponent>(entity, name.c_str());
 
 		return entity;
 	}

@@ -20,9 +20,9 @@ namespace Ilargi
 		void DestroyEntity(Entity entity);
 
 		template<typename T, typename... Args>
-		void CreateComponent(Entity entity, Args&& ...args)
+		T& CreateComponent(Entity entity, Args&& ...args)
 		{
-			world.emplace<T>(entity, std::forward<Args>(args)...);
+			return world.emplace<T>(entity, std::forward<Args>(args)...);
 		}
 
 		const entt::registry& GetWorld() const { return world; }

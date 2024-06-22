@@ -2,7 +2,6 @@
 
 // Main headers
 #include "Application.h"
-#include "Window.h"
 #include "Panel.h"
 #include "Renderer/Renderer.h"
 #include "ImGUI/ImGuiPanel.h"

@@ -10,7 +10,7 @@
 
 namespace Ilargi
 {
-	SceneHierarchyInspectorPanel::SceneHierarchyInspectorPanel(std::shared_ptr<Scene> actualScene)
+	SceneHierarchyInspectorPanel::SceneHierarchyInspectorPanel(const std::shared_ptr<Scene>& actualScene)
 		: scene(actualScene), selected(entt::null)
 	{
 	}
@@ -35,6 +35,7 @@ namespace Ilargi
 		for (const auto& iterate : iterator)
 		{
 			entt::entity entity = iterate._Myfirst._Val;
+			
 			bool select = selected == entity;
 
 			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;

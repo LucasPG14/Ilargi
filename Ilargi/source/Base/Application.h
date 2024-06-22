@@ -1,8 +1,9 @@
 #pragma once
 
+#include "Window.h"
+
 namespace Ilargi
 {
-	class Window;
 	class Event;
 	class WindowCloseEvent;
 	class WindowResizeEvent;
@@ -31,6 +32,7 @@ namespace Ilargi
 		void CloseApp();
 
 		static Application* Get() { return app; }
+		Window& GetWindow() { return *window; }
 	private:
 		bool OnCloseEvent(WindowCloseEvent& event);
 		bool OnResizeEvent(WindowResizeEvent& event);

@@ -4,6 +4,9 @@
 #include "EditorPanels/SceneHierarchyInspectorPanel.h"
 #include "EditorPanels/ResourcesPanel.h"
 
+#include "Utils/FileSystem.h"
+#include "Scene/SceneLoaderSaver.h"
+
 #include <imgui/imgui.h>
 #include <ImGuizmo.h>
 #include <arduinojson/ArduinoJson-v7.0.4.h>
@@ -254,25 +257,25 @@ namespace Ilargi
 		{
 			if (ImGui::MenuItem("New Scene", "Ctrl + N"))
 			{
-				// TODO: New scene
+				NewScene();
 			}
 			if (ImGui::MenuItem("Open Scene", "Ctrl + O"))
 			{
-				// TODO: Open scene
+				OpenScene();
 			}
 			ImGui::Separator();
 			if (ImGui::MenuItem("Save Scene", "Ctrl + S"))
 			{
-				// TODO: Save scene
+				// TODO: Change this to save the scene with the current path of the scene
+				SaveScene();
 			}
 			if (ImGui::MenuItem("Save Scene As...", "Ctrl + Shift + S"))
 			{
-				// TODO: Save scene as...
+				SaveScene();
 			}
 			ImGui::Separator();
 			if (ImGui::MenuItem("Exit", "Ctrl + Alt + F4"))
 			{
-				// TODO: Exit application
 				Application::Get()->CloseApp();
 			}
 			ImGui::EndMenu();
@@ -311,6 +314,43 @@ namespace Ilargi
 		}
 		ImGui::EndMainMenuBar();
 	}
+
+	void EditorPanel::NewScene()
+	{
+		scene = std::make_shared<Scene>();
+		hierarchyInspector->SetScene(scene);
+	}
+
+	void EditorPanel::OpenScene()
+	{
+		std::string filepath = FileSystem::OpenFile("Ilargi Scene (.ilargi)\0*.ilargi\0");
+		if (!filepath.empty())
+			OpenScene(filepath);
+	}
+
+	void EditorPanel::OpenScene(std::string filepath)
+	{
+		std::shared_ptr<Scene> newScene = std::make_shared<Scene>();
+
+		SceneLoaderSaver sceneSaver(newScene);
+		sceneSaver.LoadScene(filepath);
+
+		scene = newScene;
+		hierarchyInspector->SetScene(scene);
+	}
+
+	void EditorPanel::SaveScene()
+	{
+		std::string filepath = FileSystem::SaveFile("Ilargi Scene (.ilargi)\0*.ilargi\0");
+		if (!filepath.empty())
+			SaveScene(filepath);
+	}
+
+	void EditorPanel::SaveScene(std::string filepath)
+	{
+		SceneLoaderSaver sceneSaver(scene);
+		sceneSaver.SaveScene(filepath);
+	}
 	
 	bool EditorPanel::OnKeyEvent(KeyPressedEvent& event)
 	{
@@ -323,13 +363,13 @@ namespace Ilargi
 		case KeyCode::N:
 			if (ctrl)
 			{
-				// TODO: New scene
+				NewScene();
 			}
 			break;
 		case KeyCode::O:
 			if (ctrl)
 			{
-				// TODO: Open scene
+				OpenScene();
 			}
 			break;
 		case KeyCode::S:
@@ -337,10 +377,11 @@ namespace Ilargi
 			{
 				if (shift)
 				{
-					// TODO: Save scene as...
+					SaveScene();
 					break;
 				}
-				// TODO: Save scene
+				// TODO: Change this to save the scene with the current path of the scene
+				SaveScene();
 			}
 			break;
 		case KeyCode::W:

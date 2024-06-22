@@ -29,6 +29,12 @@ namespace Ilargi
 	private:
 		void MainMenuBar();
 
+		void NewScene();
+		void OpenScene();
+		void OpenScene(std::string filepath);
+		void SaveScene();
+		void SaveScene(std::string filepath);
+
 		bool OnKeyEvent(KeyPressedEvent& event);
 		bool OnDropEvent(WindowDropEvent& event);
 	private:
