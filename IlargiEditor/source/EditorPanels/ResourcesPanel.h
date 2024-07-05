@@ -20,6 +20,8 @@ namespace Ilargi
 	private:
 		bool OnDropEvent(WindowDropEvent& event);
 
+		void NormalDirectory();
+		void RecursiveDirectory();
 	private:
 		std::filesystem::path actualDir;
 

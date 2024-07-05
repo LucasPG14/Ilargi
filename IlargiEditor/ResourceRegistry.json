@@ -10,5 +10,23 @@
     "Type": 4,
     "SourceFile": "C:\\Users\\lucas\\Desktop\\Modelos\\viking_room.obj",
     "Filepath": "NewMaterial.ires"
+  },
+  {
+    "UUID": 8004954378403959771,
+    "Type": 4,
+    "SourceFile": "C:\\Users\\lucas\\Desktop\\Modelos\\viking_room.obj",
+    "Filepath": "NewMaterial.ires"
+  },
+  {
+    "UUID": 17810306132016563836,
+    "Type": 4,
+    "SourceFile": "C:\\Users\\lucas\\Desktop\\Modelos\\viking_room.obj",
+    "Filepath": "NewMaterial.ires"
+  },
+  {
+    "UUID": 17835220133633180819,
+    "Type": 3,
+    "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\Resources\\textures\\viking_room2.png",
+    "Filepath": "Resources/viking_room2.ires"
   }
 ]

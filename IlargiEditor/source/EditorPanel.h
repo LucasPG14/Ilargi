@@ -27,7 +27,7 @@ namespace Ilargi
 		void OnEvent(Event& event) override;
 
 	private:
-		void InitLanguage();
+		void LoadLanguage(std::filesystem::path path);
 
 		void MainMenuBar();
 

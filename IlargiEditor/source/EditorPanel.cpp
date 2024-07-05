@@ -4,6 +4,8 @@
 #include "EditorPanels/SceneHierarchyInspectorPanel.h"
 #include "EditorPanels/ResourcesPanel.h"
 
+#include "Localization.h"
+
 #include "Utils/FileSystem.h"
 #include "Scene/SceneLoaderSaver.h"
 
@@ -28,7 +30,7 @@ namespace Ilargi
 		return (x != v.x || y != v.y);
 	}
 
-	static std::unordered_map<std::string, std::string> menuNames = {};
+	static std::unordered_map<Texts, std::string> menuNames = {};
 
 	EditorPanel::EditorPanel() : Panel("Editor Panel"), hierarchyInspector(nullptr), resourcesPanel(nullptr), 
 		viewportSize({ 1080, 720 }), needToUpdateFramebuffer(false), constants(), operation(ImGuizmo::TRANSLATE)
@@ -75,7 +77,7 @@ namespace Ilargi
 		
 		uboCamera = UniformBuffer::Create(sizeof(mat4), Renderer::GetConfig().maxFrames);
 
-		InitLanguage();
+		LoadLanguage("Engine/Localization/english.json");
 	}
 
 	void EditorPanel::OnDestroy()
@@ -259,78 +261,102 @@ namespace Ilargi
 		//resourcesPanel->OnEvent(event);
 	}
 	
-	void EditorPanel::InitLanguage()
+	void EditorPanel::LoadLanguage(std::filesystem::path path)
 	{
-		std::ifstream file("Languages/english.json", std::ios::in);
+		std::ifstream file(path, std::ios::in);
 
 		JsonDocument document;
 		deserializeJson(document, file);
 
-		menuNames["File"] = document[0]["File"].as<std::string>();
-		menuNames["Edit"] = document[0]["Edit"].as<std::string>();
-		menuNames["New Scene"] = document[0]["New Scene"].as<std::string>();
-		menuNames["Open Scene"] = document[0]["Open Scene"].as<std::string>();
+		menuNames[Texts::FILE] = document["File"].as<std::string>();
+		menuNames[Texts::NEW_SCENE] = document["New Scene"].as<std::string>();
+		menuNames[Texts::OPEN_SCENE] = document["Open Scene"].as<std::string>();
+		menuNames[Texts::SAVE_SCENE] = document["Save Scene"].as<std::string>();
+		menuNames[Texts::SAVE_SCENE_AS] = document["Save Scene As"].as<std::string>();
+		menuNames[Texts::EXIT] = document["Exit"].as<std::string>();
+		
+		menuNames[Texts::EDIT] = document["Edit"].as<std::string>();
+		menuNames[Texts::UNDO] = document["Undo"].as<std::string>();
+		menuNames[Texts::REDO] = document["Redo"].as<std::string>();
+		menuNames[Texts::COPY] = document["Copy"].as<std::string>();
+		menuNames[Texts::PASTE] = document["Paste"].as<std::string>();
+		menuNames[Texts::DELETE] = document["Delete"].as<std::string>();
+		menuNames[Texts::DUPLICATE] = document["Duplicate"].as<std::string>();
+		
+		menuNames[Texts::LOCALIZATION] = document["Localization"].as<std::string>();
 	}
 
 	void EditorPanel::MainMenuBar()
 	{
 		ImGui::BeginMainMenuBar();
-		if (ImGui::BeginMenu(menuNames["File"].c_str()))
+		if (ImGui::BeginMenu(menuNames[Texts::FILE].c_str()))
 		{
-			if (ImGui::MenuItem(menuNames["New Scene"].c_str(), "Ctrl + N"))
+			if (ImGui::MenuItem(menuNames[Texts::NEW_SCENE].c_str(), "Ctrl + N"))
 			{
 				NewScene();
 			}
-			if (ImGui::MenuItem(menuNames["Open Scene"].c_str(), "Ctrl + O"))
+			if (ImGui::MenuItem(menuNames[Texts::OPEN_SCENE].c_str(), "Ctrl + O"))
 			{
 				OpenScene();
 			}
 			ImGui::Separator();
-			if (ImGui::MenuItem("Save Scene", "Ctrl + S"))
+			if (ImGui::MenuItem(menuNames[Texts::SAVE_SCENE].c_str(), "Ctrl + S"))
 			{
 				// TODO: Change this to save the scene with the current path of the scene
 				SaveScene();
 			}
-			if (ImGui::MenuItem("Save Scene As...", "Ctrl + Shift + S"))
+			if (ImGui::MenuItem(menuNames[Texts::SAVE_SCENE_AS].c_str(), "Ctrl + Shift + S"))
 			{
 				SaveScene();
 			}
 			ImGui::Separator();
-			if (ImGui::MenuItem("Exit", "Ctrl + Alt + F4"))
+			if (ImGui::MenuItem(menuNames[Texts::EXIT].c_str(), "Ctrl + Alt + F4"))
 			{
 				Application::Get()->CloseApp();
 			}
 			ImGui::EndMenu();
 		}
-		if (ImGui::BeginMenu(menuNames["Edit"].c_str()))
+		if (ImGui::BeginMenu(menuNames[Texts::EDIT].c_str()))
 		{
-			if (ImGui::MenuItem("Undo", "Ctrl + Z"))
+			if (ImGui::MenuItem(menuNames[Texts::UNDO].c_str(), "Ctrl + Z"))
 			{
 				// TODO: Undo
 			}
-			if (ImGui::MenuItem("Redo", "Ctrl + Y"))
+			if (ImGui::MenuItem(menuNames[Texts::REDO].c_str(), "Ctrl + Y"))
 			{
 				// TODO: Redo
 			}
 			ImGui::Separator();
 
 			bool enabled = hierarchyInspector->GetSelected() != entt::null ? true : false;
-			if (ImGui::MenuItem("Copy", "Ctrl + C", (bool*)0, enabled))
+			if (ImGui::MenuItem(menuNames[Texts::COPY].c_str(), "Ctrl + C", (bool*)0, enabled))
 			{
 				// TODO: Copy
 			}
-			if (ImGui::MenuItem("Paste", "Ctrl + V", (bool*)0, enabled))
+			if (ImGui::MenuItem(menuNames[Texts::PASTE].c_str(), "Ctrl + V", (bool*)0, enabled))
 			{
 				// TODO: Paste
 			}
-			if (ImGui::MenuItem("Delete", "Del", (bool*)0, enabled))
+			if (ImGui::MenuItem(menuNames[Texts::DELETE].c_str(), "Del", (bool*)0, enabled))
 			{
 				scene->DestroyEntity(hierarchyInspector->GetSelected());
 				hierarchyInspector->ResetSelected();
 			}
-			if (ImGui::MenuItem("Duplicate", "Ctrl + D", (bool*)0, enabled))
+			if (ImGui::MenuItem(menuNames[Texts::DUPLICATE].c_str(), "Ctrl + D", (bool*)0, enabled))
 			{
 				// TODO: Duplicate an entity
+			}
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu(menuNames[Texts::LOCALIZATION].c_str()))
+		{
+			if (ImGui::MenuItem("English"))
+			{
+				LoadLanguage("Engine/Localization/english.json");
+			}
+			if (ImGui::MenuItem("Castellano"))
+			{
+				LoadLanguage("Engine/Localization/spanish.json");
 			}
 			ImGui::EndMenu();
 		}
@@ -435,7 +461,7 @@ namespace Ilargi
 			if (paths[i].extension() == ".obj")
 				ModelImporter::ImportFBX(paths[i], scene);
 			else 
-				TextureImporter::ImportTexture("Assets/", paths[i]);
+				TextureImporter::ImportTexture("Resources/", paths[i]);
 		}
 
 		ResourceManager::SaveResourceRegistry();

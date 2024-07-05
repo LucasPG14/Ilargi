@@ -13,9 +13,9 @@ namespace Ilargi
 {
 	ResourcesPanel::ResourcesPanel()
 	{
-		actualDir = "Assets";
+		actualDir = "Resources";
 
-		folderIcon = Texture2D::Create("EngineResources/Icon.png");
+		folderIcon = Texture2D::Create("Engine/Textures/Icon.png");
 
 		ResourceManager::LoadResourceRegistry();
 
@@ -56,46 +56,20 @@ namespace Ilargi
 
 		for (auto dir : actualDir)
 		{
+			auto s = actualDir.parent_path();
 			ImGui::SameLine();
-			if (ImGui::Button(dir.string().c_str(), { 0, 0 }))
+			if (ImGui::Button(dir.string().c_str(), {0, 0}))
 			{
 			}
 
 			ImGui::SameLine();
 			ImGui::Text("/");
 		}
-
-		constexpr float cell = 128.0f;
-
-		int columns = int(ImGui::GetContentRegionMax().x / cell);
-
-		ImGui::Columns(columns, (const char*)0, false);
-
-		for (const auto& file : std::filesystem::directory_iterator(actualDir))
-		{
-			const auto& path = file.path();
-			const auto& relative = std::filesystem::relative(path, actualDir);
-			const auto& filename = path.stem().string();
-
-			if (file.is_directory())
-				ImGui::ImageButton((ImTextureID)folderIcon->GetID(), { cell, cell });
-			else
-				ImGui::Button(filename.c_str(), { cell, cell });
-			
-			if (ImGui::BeginDragDropSource())
-			{
-				ImGui::SetDragDropPayload("RESOURCE", &assets[path], sizeof(assets[path]));
-				ImGui::EndDragDropSource();
-			}
-
-			if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
-			{
-				if (file.is_directory()) 
-					actualDir /= relative;
-			}
-			ImGui::Text(filename.c_str());
-			ImGui::NextColumn();
-		}
+		
+		if (!search.empty())
+			RecursiveDirectory();
+		else 
+			NormalDirectory();
 
 		ImGui::Columns(1);
 
@@ -150,5 +124,79 @@ namespace Ilargi
 		}
 
 		return true;
+	}
+	
+	void ResourcesPanel::NormalDirectory()
+	{
+		constexpr float cell = 128.0f;
+
+		int columns = int(ImGui::GetContentRegionMax().x / cell);
+
+		ImGui::Columns(columns, (const char*)0, false);
+
+		for (const auto& file : std::filesystem::directory_iterator(actualDir))
+		{
+			const auto& path = file.path();
+			const auto& relative = std::filesystem::relative(path, actualDir);
+			const auto& filename = path.stem().string();
+
+			if (file.is_directory())
+				ImGui::ImageButton((ImTextureID)folderIcon->GetID(), { cell, cell });
+			else
+				ImGui::Button(filename.c_str(), { cell, cell });
+
+			if (ImGui::BeginDragDropSource())
+			{
+				ImGui::SetDragDropPayload("RESOURCE", &assets[path], sizeof(assets[path]));
+				ImGui::EndDragDropSource();
+			}
+
+			if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+			{
+				if (file.is_directory())
+					actualDir /= relative;
+			}
+			ImGui::Text(filename.c_str());
+			ImGui::NextColumn();
+		}
+	}
+	
+	void ResourcesPanel::RecursiveDirectory()
+	{
+		constexpr float cell = 128.0f;
+
+		int columns = int(ImGui::GetContentRegionMax().x / cell);
+
+		ImGui::Columns(columns, (const char*)0, false);
+
+		for (const auto& file : std::filesystem::recursive_directory_iterator(actualDir))
+		{
+			const auto& path = file.path();
+			const auto& relative = std::filesystem::relative(path, actualDir);
+			const auto& filename = path.stem().string();
+
+			std::regex pattern(search, std::regex_constants::icase);
+			if (!std::regex_search(filename, pattern))
+				continue;
+
+			if (file.is_directory())
+				ImGui::ImageButton((ImTextureID)folderIcon->GetID(), { cell, cell });
+			else
+				ImGui::Button(filename.c_str(), { cell, cell });
+
+			if (ImGui::BeginDragDropSource())
+			{
+				ImGui::SetDragDropPayload("RESOURCE", &assets[path], sizeof(assets[path]));
+				ImGui::EndDragDropSource();
+			}
+
+			if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+			{
+				if (file.is_directory())
+					actualDir /= relative;
+			}
+			ImGui::Text(filename.c_str());
+			ImGui::NextColumn();
+		}
 	}
 }

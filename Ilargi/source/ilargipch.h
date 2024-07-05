@@ -11,6 +11,7 @@
 #include <fstream>
 
 #include <chrono>
+#include <regex>
 
 // Data structures
 #include <vector>

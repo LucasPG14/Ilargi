@@ -86,10 +86,10 @@ namespace Ilargi
 		directory += "_cache_vert.spv";
 		
 		// TODO: Create shader from cache file
-		//if (std::filesystem::directory_entry(directory).exists())
-		//{
-		//	
-		//}
+		if (std::filesystem::directory_entry(directory).exists())
+		{
+			
+		}
 
 		ProcessShader();
 	}
