@@ -3,6 +3,7 @@
 
 #include "Base/UUID.h"
 #include "Resources/ResourceManager.h"
+#include "Resources/Texture.h"
 
 #include "Utils/FileSystem.h"
 
@@ -12,20 +13,59 @@ namespace Ilargi
 {
 	ResourcesPanel::ResourcesPanel()
 	{
-		actualDir = "assets";
+		actualDir = "Assets";
+
+		folderIcon = Texture2D::Create("EngineResources/Icon.png");
 
 		ResourceManager::LoadResourceRegistry();
+
+		// TODO: Change this
+		const auto& assetsMap = ResourceManager::GetResourcesMetadata();
+
+		for (auto& [uuid, metadata] : assetsMap)
+		{
+			assets[metadata.filepath] = uuid;
+		}
 	}
 
 	ResourcesPanel::~ResourcesPanel()
 	{
+		folderIcon->Destroy();
 	}
 
 	void ResourcesPanel::Render()
 	{
 		ImGui::Begin("Resources Panel");
 
-		constexpr float cell = 96.0f;
+		if (ImGui::ArrowButton("Arrow", ImGuiDir_Left))
+		{
+			actualDir = actualDir.has_parent_path() ? actualDir.parent_path() : actualDir;
+		}
+
+		ImGui::SameLine();
+
+		if (ImGui::ArrowButton("Arrow", ImGuiDir_Right))
+		{
+		}
+		ImGui::SameLine();
+
+		ImGui::SetNextItemWidth(200.0f);
+		char* buf = search.data();
+		ImGui::InputText("##Search...", buf, sizeof(buf));
+		search = buf;
+
+		for (auto dir : actualDir)
+		{
+			ImGui::SameLine();
+			if (ImGui::Button(dir.string().c_str(), { 0, 0 }))
+			{
+			}
+
+			ImGui::SameLine();
+			ImGui::Text("/");
+		}
+
+		constexpr float cell = 128.0f;
 
 		int columns = int(ImGui::GetContentRegionMax().x / cell);
 
@@ -34,11 +74,14 @@ namespace Ilargi
 		for (const auto& file : std::filesystem::directory_iterator(actualDir))
 		{
 			const auto& path = file.path();
-			const auto& relative = std::filesystem::relative(path, "assets");
+			const auto& relative = std::filesystem::relative(path, actualDir);
 			const auto& filename = path.stem().string();
-			//const auto& file = path.;
 
-			ImGui::Button(filename.c_str(), { cell, cell });
+			if (file.is_directory())
+				ImGui::ImageButton((ImTextureID)folderIcon->GetID(), { cell, cell });
+			else
+				ImGui::Button(filename.c_str(), { cell, cell });
+			
 			if (ImGui::BeginDragDropSource())
 			{
 				ImGui::SetDragDropPayload("RESOURCE", &assets[path], sizeof(assets[path]));
@@ -47,7 +90,8 @@ namespace Ilargi
 
 			if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
 			{
-				if (file.is_directory()) actualDir /= relative;
+				if (file.is_directory()) 
+					actualDir /= relative;
 			}
 			ImGui::Text(filename.c_str());
 			ImGui::NextColumn();
@@ -70,6 +114,10 @@ namespace Ilargi
 				buffer.size = 0;
 				buffer.data = nullptr;
 				FileSystem::WriteBinaryFile(metadata.filepath, buffer);
+			}
+			if (ImGui::MenuItem("Create Folder"))
+			{
+				std::filesystem::create_directory(actualDir / "New Folder");
 			}
 			ImGui::EndPopup();
 		}

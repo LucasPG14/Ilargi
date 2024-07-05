@@ -6,6 +6,7 @@
 namespace Ilargi
 {
 	class UUID;
+	class Texture2D;
 
 	class ResourcesPanel
 	{
@@ -22,6 +23,10 @@ namespace Ilargi
 	private:
 		std::filesystem::path actualDir;
 
+		std::string search;
+
 		std::unordered_map<std::filesystem::path, UUID> assets;
+
+		std::shared_ptr<Texture2D> folderIcon;
 	};
 }

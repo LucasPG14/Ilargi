@@ -15,6 +15,7 @@ namespace Ilargi
 		static ResourceType GetStaticType() { return ResourceType::TEXTURE2D; }
 		const ResourceType GetType() const { return GetStaticType(); }
 
+		virtual const void Destroy() = 0;
 		static std::shared_ptr<Texture2D> Create(std::filesystem::path filepath);
 	};
 }

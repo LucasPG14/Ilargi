@@ -10,9 +10,12 @@ namespace Ilargi
 	class IndexBuffer;
 	class StaticMesh;
 
-	struct Comp
-	{
+	using Entity = entt::entity;
 
+	struct FamilyComponent
+	{
+		Entity parent = entt::null;
+		std::vector<Entity> children;
 	};
 
 	struct TransformComponent

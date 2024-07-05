@@ -14,10 +14,16 @@ namespace Ilargi
 		virtual ~VulkanMaterial();
 
 		const void* GetDescriptorSet() const override { return descriptorSet; }
+		std::shared_ptr<Texture2D> GetDiffuse() override { return diffuse; }
+
+		void SetDiffuse(std::shared_ptr<Texture2D> texture) override;
+
+	private:
+		void UpdateDescriptor();
 
 	private:
 		VkDescriptorSet descriptorSet;
 
-		std::shared_ptr<Texture2D> albedo;
+		std::shared_ptr<Texture2D> diffuse;
 	};
 }

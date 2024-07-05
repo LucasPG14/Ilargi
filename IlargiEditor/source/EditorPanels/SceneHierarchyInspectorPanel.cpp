@@ -4,7 +4,10 @@
 #include "Utils/UI/IlargiUI.h"
 #include "Base/Input.h"
 
+#include "Resources/ResourceManager.h"
 #include "Resources/Mesh.h"
+#include "Resources/Material.h"
+#include "Resources/Texture.h"
 
 #include <imgui/imgui.h>
 
@@ -29,24 +32,68 @@ namespace Ilargi
 			scene->CreateEntity();
 		}
 
-		const auto& world = scene->GetWorld();
-		auto iterator = world.storage<InfoComponent>()->reach();
-
-		for (const auto& iterate : iterator)
+		if (ImGui::Button("CreateChild"))
 		{
-			entt::entity entity = iterate._Myfirst._Val;
+			scene->CreateChildrenEntity(selected);
+		}
+
+		const auto& world = scene->GetWorld();
+		const auto& view = world.view<InfoComponent, FamilyComponent>();
+
+		std::stack<Entity> stack;
+		for (const auto& entity : view)
+		{
+			if (world.get<FamilyComponent>(entity).parent != entt::null)
+				continue;
+
+			stack.push(entity);
+
+			while (!stack.empty())
+			{
+				Entity childEntity = stack.top();
+				auto [info, family] = world.get<InfoComponent, FamilyComponent>(childEntity);
+				bool select = selected == childEntity;
+
+				ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
+				if (select)
+					flags |= ImGuiTreeNodeFlags_Selected;
+				
+				bool open = UI::BeginTreeNode((void*)childEntity, info.name, flags);
+				stack.pop();
+				if (open && !family.children.empty())
+				{
+					for (int i = family.children.size() - 1; i >= 0; --i)
+					{
+						stack.push(family.children[i]);
+					}
+					continue;
+				}
+				else if (family.parent != entt::null)
+					UI::EndTreeNode((void*)childEntity, open);
+
+				if (ImGui::IsItemClicked(0) || ImGui::IsItemClicked(1))
+					selected = childEntity;
+
+				UI::EndTreeNode((void*)childEntity, open);
+			}
 			
-			bool select = selected == entity;
-
-			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
-			if (select)
-				flags |= ImGuiTreeNodeFlags_Selected;
-			bool open = UI::BeginTreeNode((void*)entity, world.get<InfoComponent>(entity).name, flags);
-
-			if (ImGui::IsItemClicked(0) || ImGui::IsItemClicked(1))
-				selected = entity;
-
-			UI::EndTreeNode((void*)entity, open);
+			//bool select = selected == entity;
+			//
+			//ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
+			//if (select)
+			//	flags |= ImGuiTreeNodeFlags_Selected;
+			//bool open = UI::BeginTreeNode((void*)entity, world.get<InfoComponent>(entity).name, flags);
+			//
+			//if (open && !family.children.empty())
+			//{
+			//	bool childOpen = UI::BeginTreeNode((void*)entity, world.get<InfoComponent>(family.children[0]).name, flags);
+			//	UI::EndTreeNode((void*)entity, childOpen);
+			//}
+			//
+			//if (ImGui::IsItemClicked(0) || ImGui::IsItemClicked(1))
+			//	selected = entity;
+			//
+			//UI::EndTreeNode((void*)entity, open);
 		}
 
 		if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0) && !ImGui::IsAnyItemHovered())
@@ -122,6 +169,28 @@ namespace Ilargi
 			if (ImGui::CollapsingHeader("Static Mesh Component"))
 			{
 				ImGui::ColorPicker4("##Color", staticMesh.staticMesh->GetColor());
+				auto& material = staticMesh.staticMesh->GetMaterial();
+
+				if (material->GetDiffuse())
+				{
+					ImGui::Image((void*)material->GetDiffuse()->GetID(), { 64, 64 });
+				}
+				else
+				{
+					ImGui::Text("Diffuse");
+				}
+				if (ImGui::BeginDragDropTarget())
+				{
+					auto payload = ImGui::AcceptDragDropPayload("RESOURCE");
+
+					if (payload)
+					{
+						UUID uuid = *(UUID*)payload->Data;
+						auto metadata = ResourceManager::GetResourcesMetadata()[uuid];
+
+						material->SetDiffuse(std::static_pointer_cast<Texture2D>(ResourceManager::GetResource(uuid)));
+					}
+				}
 			}
 			ImGui::Separator();
 		}

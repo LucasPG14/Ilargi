@@ -75,7 +75,7 @@ namespace Ilargi
 
 		const std::filesystem::path GetCacheDirectory()
 		{
-			return "cache/vulkan/shaders/";
+			return "Cache/vulkan/shaders/";
 		}
 	}
 
@@ -85,10 +85,11 @@ namespace Ilargi
 		directory += std::filesystem::path(name);
 		directory += "_cache_vert.spv";
 		
-		if (std::filesystem::directory_entry(directory).exists())
-		{
-			// TODO: Create shader from cache file
-		}
+		// TODO: Create shader from cache file
+		//if (std::filesystem::directory_entry(directory).exists())
+		//{
+		//	
+		//}
 
 		ProcessShader();
 	}
@@ -114,11 +115,9 @@ namespace Ilargi
 		shaders.clear();
 	}
 
-	VkDescriptorSet VulkanShader::AllocateDescriptorSet(uint32_t index)
+	void VulkanShader::AllocateDescriptorSet(uint32_t index, VkDescriptorSet& dsctSet)
 	{
 		auto device = VulkanContext::GetLogicalDevice();
-
-		VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
 
 		VkDescriptorSetAllocateInfo allocInfo = {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -126,9 +125,7 @@ namespace Ilargi
 		allocInfo.descriptorSetCount = 1;
 		allocInfo.pSetLayouts = &descriptorSetLayouts[index];
 
-		VK_CHECK_RESULT(vkAllocateDescriptorSets(device, &allocInfo, &descriptorSet));
-
-		return descriptorSet;
+		VK_CHECK_RESULT(vkAllocateDescriptorSets(device, &allocInfo, &dsctSet));
 	}
 	
 	void VulkanShader::ProcessShader()
@@ -249,6 +246,7 @@ namespace Ilargi
 		spirv_cross::ShaderResources resources = compiler.get_shader_resources();
 
 		// Reflecting push constants
+		
 		const auto& constants = resources.push_constant_buffers;
 		for (const auto& pushConstant : constants)
 		{

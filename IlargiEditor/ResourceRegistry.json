@@ -1,26 +1,14 @@
 [
   {
-    "UUID": 5104092926713021700,
+    "UUID": 2589598476607033478,
     "Type": 3,
-    "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\assets\\textures\\viking_room.png",
-    "Filepath": "assets/viking_room.ires"
+    "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\Assets\\textures\\viking_room.png",
+    "Filepath": "Assets/viking_room.ires"
   },
   {
-    "UUID": 2935320871997188012,
-    "Type": 3,
-    "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\assets\\textures\\viking_room.png",
-    "Filepath": "assets/viking_room.ires"
-  },
-  {
-    "UUID": 11481665479972912587,
-    "Type": 3,
-    "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\assets\\textures\\viking_room2.png",
-    "Filepath": "assets/viking_room2.ires"
-  },
-  {
-    "UUID": 10039899940830648558,
+    "UUID": 2044200096727399665,
     "Type": 4,
-    "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\assets\\models\\viking_room.obj",
+    "SourceFile": "C:\\Users\\lucas\\Desktop\\Modelos\\viking_room.obj",
     "Filepath": "NewMaterial.ires"
   }
 ]

@@ -11,6 +11,8 @@ namespace Ilargi
 		VulkanTexture2D(std::filesystem::path filepath);
 		virtual ~VulkanTexture2D();
 
+		const void Destroy() override;
+
 		const uint32_t GetWidth() const override { return width; }
 		const uint32_t GetHeight() const override { return height; }
 

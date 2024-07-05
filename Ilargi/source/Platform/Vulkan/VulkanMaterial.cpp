@@ -7,16 +7,31 @@
 
 namespace Ilargi
 {
-	VulkanMaterial::VulkanMaterial(std::shared_ptr<Shader> shader)
+	VulkanMaterial::VulkanMaterial(std::shared_ptr<Shader> shader) : descriptorSet(VK_NULL_HANDLE)
+	{
+		auto vulkanShader = std::static_pointer_cast<VulkanShader>(shader);
+		vulkanShader->AllocateDescriptorSet(0, descriptorSet);
+	}
+	
+	VulkanMaterial::~VulkanMaterial()
+	{
+
+	}
+	
+	void VulkanMaterial::SetDiffuse(std::shared_ptr<Texture2D> texture)
+	{
+		diffuse = texture;
+
+		UpdateDescriptor();
+	}
+	
+	void VulkanMaterial::UpdateDescriptor()
 	{
 		auto device = VulkanContext::GetLogicalDevice();
 
-		albedo = Texture2D::Create(std::filesystem::path("assets/textures/viking_room.png"));
-		
-		auto vulkanShader = std::static_pointer_cast<VulkanShader>(shader);
-		descriptorSet = vulkanShader->AllocateDescriptorSet(0);
+		//albedo = Texture2D::Create(std::filesystem::path("Assets/textures/viking_room.png"));
 
-		auto albedoTexture = std::static_pointer_cast<VulkanTexture2D>(albedo);
+		auto albedoTexture = std::static_pointer_cast<VulkanTexture2D>(diffuse);
 
 		VkDescriptorImageInfo imageInfo = {};
 		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -33,10 +48,5 @@ namespace Ilargi
 		descriptorWrites[0].pImageInfo = &imageInfo;
 
 		vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
-	}
-	
-	VulkanMaterial::~VulkanMaterial()
-	{
-
 	}
 }

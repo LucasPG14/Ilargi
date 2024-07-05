@@ -15,7 +15,7 @@ namespace Ilargi
 
 		void Destroy();
 
-		VkDescriptorSet AllocateDescriptorSet(uint32_t index);
+		void AllocateDescriptorSet(uint32_t index, VkDescriptorSet& dsctSet);
 
 		const ShadersMap& GetShaders() const { return shaders; }
 

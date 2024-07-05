@@ -28,6 +28,8 @@ namespace Ilargi
 		return (x != v.x || y != v.y);
 	}
 
+	static std::unordered_map<std::string, std::string> menuNames = {};
+
 	EditorPanel::EditorPanel() : Panel("Editor Panel"), hierarchyInspector(nullptr), resourcesPanel(nullptr), 
 		viewportSize({ 1080, 720 }), needToUpdateFramebuffer(false), constants(), operation(ImGuizmo::TRANSLATE)
 	{
@@ -72,10 +74,15 @@ namespace Ilargi
 		//gridRenderPass = RenderPass::Create({ framebuffer, Pipeline::Create(pipelineProperties), false });
 		
 		uboCamera = UniformBuffer::Create(sizeof(mat4), Renderer::GetConfig().maxFrames);
+
+		InitLanguage();
 	}
 
 	void EditorPanel::OnDestroy()
 	{
+		delete hierarchyInspector;
+		delete resourcesPanel;
+
 		uboCamera->Destroy();
 		
 		scene->Destroy();
@@ -216,8 +223,10 @@ namespace Ilargi
 			{
 				// TODO: Drag and drop from resource panel to viewport
 				UUID uuid = *(UUID*)payload->Data;
-				auto& metadata = ResourceManager::GetResourcesMetadata()[uuid];
+				auto metadata = ResourceManager::GetResourcesMetadata()[uuid];
 
+				bool ret = true;
+				ret = false;
 				//ResourceManager::HasLoadedAsset(uuid);
 
 				//switch (metadata.type)
@@ -250,16 +259,29 @@ namespace Ilargi
 		//resourcesPanel->OnEvent(event);
 	}
 	
+	void EditorPanel::InitLanguage()
+	{
+		std::ifstream file("Languages/english.json", std::ios::in);
+
+		JsonDocument document;
+		deserializeJson(document, file);
+
+		menuNames["File"] = document[0]["File"].as<std::string>();
+		menuNames["Edit"] = document[0]["Edit"].as<std::string>();
+		menuNames["New Scene"] = document[0]["New Scene"].as<std::string>();
+		menuNames["Open Scene"] = document[0]["Open Scene"].as<std::string>();
+	}
+
 	void EditorPanel::MainMenuBar()
 	{
 		ImGui::BeginMainMenuBar();
-		if (ImGui::BeginMenu("File"))
+		if (ImGui::BeginMenu(menuNames["File"].c_str()))
 		{
-			if (ImGui::MenuItem("New Scene", "Ctrl + N"))
+			if (ImGui::MenuItem(menuNames["New Scene"].c_str(), "Ctrl + N"))
 			{
 				NewScene();
 			}
-			if (ImGui::MenuItem("Open Scene", "Ctrl + O"))
+			if (ImGui::MenuItem(menuNames["Open Scene"].c_str(), "Ctrl + O"))
 			{
 				OpenScene();
 			}
@@ -280,7 +302,7 @@ namespace Ilargi
 			}
 			ImGui::EndMenu();
 		}
-		if (ImGui::BeginMenu("Edit"))
+		if (ImGui::BeginMenu(menuNames["Edit"].c_str()))
 		{
 			if (ImGui::MenuItem("Undo", "Ctrl + Z"))
 			{
@@ -413,7 +435,7 @@ namespace Ilargi
 			if (paths[i].extension() == ".obj")
 				ModelImporter::ImportFBX(paths[i], scene);
 			else 
-				TextureImporter::ImportTexture("assets/", paths[i]);
+				TextureImporter::ImportTexture("Assets/", paths[i]);
 		}
 
 		ResourceManager::SaveResourceRegistry();

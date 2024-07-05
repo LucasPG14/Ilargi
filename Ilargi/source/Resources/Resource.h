@@ -10,8 +10,8 @@ namespace Ilargi
 		MODEL,
 		MESH,
 		TEXTURE2D,
-		MATERIAL
-		//SCENE,
+		MATERIAL,
+		SCENE,
 	};
 
 	struct ResourceMetadata

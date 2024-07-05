@@ -4,6 +4,8 @@
 #include "Renderer/Renderer.h"
 #include "VulkanContext.h"
 
+#include <imgui.h>
+#include <backends/imgui_impl_vulkan.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
@@ -16,7 +18,7 @@ namespace Ilargi
 
 		int w, h, channels;
 
-		stbi_set_flip_vertically_on_load(true);
+		stbi_set_flip_vertically_on_load(false);
 
 		void* data = stbi_load(filepath.string().c_str(), &w, &h, &channels, 4);
 
@@ -135,10 +137,21 @@ namespace Ilargi
 
 			VK_CHECK_RESULT(vkCreateSampler(device, &samplerInfo, nullptr, &sampler));
 		}
+
+		descriptorSet = ImGui_ImplVulkan_AddTexture(sampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 	}
 	
 	VulkanTexture2D::~VulkanTexture2D()
 	{
+	}
+
+	const void VulkanTexture2D::Destroy()
+	{
+		auto device = VulkanContext::GetLogicalDevice();
+
+		VulkanAllocator::DestroyImage(image);
+		vkDestroyImageView(device, imageView, nullptr);
+		vkDestroySampler(device, sampler, nullptr);
 	}
 	
 	void VulkanTexture2D::TransitionLayout(uint32_t mipLevels, VkImageLayout oldLayout, VkImageLayout newLayout)

@@ -14,7 +14,7 @@ namespace Ilargi
 		{ ".jpeg",		ResourceType::TEXTURE2D },
 		{ ".fbx",		ResourceType::MODEL },
 		{ ".obj",		ResourceType::MODEL },
-		//{ ".ilargi",	ResourceType::SCENE },
+		{ ".ilargi",	ResourceType::SCENE },
 	};
 
 	using ImportFn = std::function<void(const std::filesystem::path&, const std::filesystem::path&)>;
@@ -45,7 +45,7 @@ namespace Ilargi
 	{
 		UUID resourceUUID;
 
-		std::string newPath = ("assets" / path.stem()).string() + ".ires";
+		std::string newPath = ("Assets" / path.stem()).string() + ".ires";
 		
 		ResourceMetadata metadata;
 		metadata.type = GetResourceType(path.extension().string());
@@ -58,14 +58,33 @@ namespace Ilargi
 		return resourceUUID;
 	}
 
-	void ResourceManager::LoadResource(UUID uuid)
+	bool ResourceManager::ExistsResource(UUID uuid)
 	{
-		//auto& metadata = resourcesMetadata[uuid];
+		return resourcesMetadata.find(uuid) != resourcesMetadata.end();
 	}
 
-	bool ResourceManager::HasLoadedResource(UUID uuid)
+	std::shared_ptr<Resource> ResourceManager::GetResource(UUID uuid)
 	{
-		return loadedResources.at(uuid) != nullptr;
+		if (!ExistsResource(uuid))
+			return nullptr;
+
+		std::shared_ptr<Resource> resource;
+		if (IsResourceLoaded(uuid))
+		{
+			resource = loadedResources.at(uuid);
+			return resource;
+		}
+
+		const auto& metadata = resourcesMetadata.at(uuid);
+		//resource = Importer::Load(uuid, metadata);
+		//loadedResources[uuid] = resource;
+
+		return resource;
+	}
+
+	bool ResourceManager::IsResourceLoaded(UUID uuid)
+	{
+		return loadedResources.find(uuid) != loadedResources.end();
 	}
 	
 	const ResourceType ResourceManager::GetResourceType(const std::string& str)

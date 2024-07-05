@@ -16,6 +16,7 @@
 #include <vector>
 #include <queue>
 #include <array>
+#include <stack>
 #include <map>
 #include <unordered_map>
 #include <set>

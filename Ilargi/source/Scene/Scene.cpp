@@ -11,7 +11,7 @@ namespace Ilargi
 {
 	Scene::Scene()
 	{
-		//std::shared_ptr<StaticMesh> mesh = ModelImporter::ImportModel("assets/models/viking_room2.obj");
+		//std::shared_ptr<StaticMesh> mesh = ModelImporter::ImportModel("Assets/models/viking_room2.obj");
 
 		Entity entity = CreateEntity("Directional Light");
 		world.emplace<DirectionalLightComponent>(entity);
@@ -46,8 +46,22 @@ namespace Ilargi
 
 		CreateComponent<TransformComponent>(entity, mat4(1.0f));
 		CreateComponent<InfoComponent>(entity, name.c_str());
+		CreateComponent<FamilyComponent>(entity);
 
 		return entity;
+	}
+
+	Entity Scene::CreateChildrenEntity(Entity entity, const std::string& name)
+	{
+		Entity childEntity = CreateEntity();
+
+		auto& family = world.get<FamilyComponent>(entity);
+		family.children.push_back(childEntity);
+
+		auto& familyChildren = world.get<FamilyComponent>(childEntity);
+		familyChildren.parent = entity;
+
+		return childEntity;
 	}
 
 	void Scene::DestroyEntity(Entity entity)

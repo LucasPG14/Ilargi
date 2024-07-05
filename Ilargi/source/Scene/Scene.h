@@ -6,8 +6,6 @@
 
 namespace Ilargi
 {
-	using Entity = entt::entity;
-
 	class Scene
 	{
 	public:
@@ -17,6 +15,7 @@ namespace Ilargi
 		void Destroy();
 
 		Entity CreateEntity(const std::string& name = "Entity");
+		Entity CreateChildrenEntity(Entity entity, const std::string& name = "Entity");
 		void DestroyEntity(Entity entity);
 
 		template<typename T, typename... Args>
