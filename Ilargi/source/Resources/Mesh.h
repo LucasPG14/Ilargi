@@ -34,24 +34,22 @@ namespace Ilargi
 	class StaticMesh : public Resource
 	{
 	public:
-		StaticMesh(uint32_t submeshCount);
+		StaticMesh(const std::vector<StaticVertex>& vert, const std::vector<uint32_t>& ind);
 		virtual ~StaticMesh();
 
-		void AddSubmesh(StaticSubmesh& submesh);
-
-		const std::vector<StaticSubmesh>& GetSubmeshes() const { return submeshes; }
 		const ResourceType GetType() const { return ResourceType::MESH; }
 
-		// TODO: This must not be here, change when the resource architecture is done
-		vec4& GetColor() { return color; }
 		const std::shared_ptr<Material> GetMaterial() const { return material; }
-
-		void CreateMaterial(const std::shared_ptr<Material>& shader);
+		const std::shared_ptr<VertexBuffer>& GetVertexBuffer() const { return vertexBuffer; }
+		const std::shared_ptr<IndexBuffer>& GetIndexBuffer() const { return indexBuffer; }
 
 	private:
-		std::vector<StaticSubmesh> submeshes;
+		std::vector<StaticVertex> vertices;
+		std::vector<uint32_t> indices;
+
+		std::shared_ptr<VertexBuffer> vertexBuffer;
+		std::shared_ptr<IndexBuffer> indexBuffer;
 
 		std::shared_ptr<Material> material;
-		vec4 color = vec4(1.0);
 	};
 }

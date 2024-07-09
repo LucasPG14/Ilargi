@@ -168,7 +168,7 @@ namespace Ilargi
 			StaticMeshComponent& staticMesh = scene->GetWorld().get<StaticMeshComponent>(selected);
 			if (ImGui::CollapsingHeader("Static Mesh Component"))
 			{
-				ImGui::ColorPicker4("##Color", staticMesh.staticMesh->GetColor());
+				//ImGui::ColorPicker4("##Color", staticMesh.staticMesh->GetColor());
 				auto& material = staticMesh.staticMesh->GetMaterial();
 
 				if (material->GetDiffuse())

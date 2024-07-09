@@ -24,11 +24,14 @@ namespace Ilargi
 		void RecursiveDirectory();
 	private:
 		std::filesystem::path actualDir;
+		
+		std::filesystem::path selectedFile;
 
 		std::string search;
 
 		std::unordered_map<std::filesystem::path, UUID> assets;
 
 		std::shared_ptr<Texture2D> folderIcon;
+		std::shared_ptr<Texture2D> fileIcon;
 	};
 }

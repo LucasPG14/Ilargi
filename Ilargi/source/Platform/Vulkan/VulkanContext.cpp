@@ -292,8 +292,6 @@ namespace Ilargi
 		vkGetPhysicalDeviceProperties(device, &deviceProperties);
 		vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
 
-		//bool extensionsSupported = CheckDeviceExtensionSupport(physicalDevice);
-
 		bool swapChainAdequate = CanCreateSwapchain(device);
 
 		return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU &&

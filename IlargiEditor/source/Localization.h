@@ -2,7 +2,7 @@
 
 enum class Texts
 {
-	// Menu Bar
+	// FILE MENU
 	FILE = 0,
 	NEW_SCENE = 1,
 	OPEN_SCENE = 2,
@@ -10,6 +10,7 @@ enum class Texts
 	SAVE_SCENE_AS = 4,
 	EXIT = 5,
 
+	// EDIT MENU
 	EDIT = 6,
 	UNDO = 7,
 	REDO = 8,
@@ -18,5 +19,8 @@ enum class Texts
 	DELETE = 11,
 	DUPLICATE = 12,
 
-	LOCALIZATION
+	// LANGUAGES
+	LOCALIZATION = 13,
+	ENGLISH = 14,
+	SPANISH = 15
 };

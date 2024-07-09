@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Base/UUID.h"
+#include "Resources/Resource.h"
+
 namespace Ilargi
 {
 	struct ComponentNode
@@ -24,15 +27,20 @@ namespace Ilargi
 		std::vector<EntityNode> children;
 	};
 
+	struct MeshesInfo
+	{
+		uint32_t vertices;
+		uint32_t indices;
+	};
+
 	class StaticMesh;
 	class Scene;
 
 	class ModelImporter
 	{
 	public:
-		static std::shared_ptr<StaticMesh> ImportModel(const std::string path);
-
-		static void ImportModel2(const std::filesystem::path& path, const std::filesystem::path& assetsPath);
+		static void ImportModel(UUID uuid, const ResourceMetadata& metadata);
+		static std::shared_ptr<Resource> LoadModel(const ResourceMetadata& metadata);
 		
 		static void ImportFBX(const std::filesystem::path& path, const std::shared_ptr<Scene>& scene);
 	};

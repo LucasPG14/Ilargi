@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Resources/Resource.h"
+#include "Resources/Texture.h"
+
 namespace Ilargi
 {
 	struct TextureImporterOptions
@@ -7,12 +10,14 @@ namespace Ilargi
 		bool normalMap = false;
 	};
 
+	class UUID;
 
 	class TextureImporter
 	{
 	public:
-		static void ImportTexture(const std::filesystem::path& dirToSave, const std::filesystem::path& filepath);
+		static void ImportTexture(UUID uuid, const ResourceMetadata& metadata);
 
+		static std::shared_ptr<Texture2D> LoadTexture(const ResourceMetadata& metadata);
 	private:
 		static TextureImporterOptions options;
 	};

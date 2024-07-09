@@ -32,7 +32,8 @@ namespace Ilargi
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 		
-		UI::IlargiStyle2();
+		ImGui::StyleColorsDark();
+		//UI::IlargiStyle2();
 
 		ImGui_ImplGlfw_InitForVulkan(win, true);
 		

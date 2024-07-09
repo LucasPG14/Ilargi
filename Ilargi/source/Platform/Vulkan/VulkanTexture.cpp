@@ -11,6 +11,23 @@
 
 namespace Ilargi
 {
+	namespace Utils
+	{
+		VkFormat GetFormatFromChannels(int channels)
+		{
+			switch (channels)
+			{
+			case 1: return VK_FORMAT_R8_SRGB;
+			case 2: return VK_FORMAT_R8G8_SRGB;
+			case 3: return VK_FORMAT_R8G8B8_SRGB;
+			case 4: return VK_FORMAT_R8G8B8A8_SRGB;
+			}
+
+			ILG_ASSERT(nullptr, "VkFormat not found for desired channels");
+			return VkFormat();
+		}
+	}
+
 	VulkanTexture2D::VulkanTexture2D(std::filesystem::path filepath) : width(0), height(0), image(), 
 		imageView(VK_NULL_HANDLE), sampler(VK_NULL_HANDLE), descriptorSet(VK_NULL_HANDLE)
 	{
@@ -95,7 +112,6 @@ namespace Ilargi
 			VulkanContext::EndSingleCommandBuffer(commandBuffer);
 		}
 
-
 		//TransitionLayout(mipLevels, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 		VulkanAllocator::DestroyBuffer(buffer);
 		
@@ -140,18 +156,132 @@ namespace Ilargi
 
 		descriptorSet = ImGui_ImplVulkan_AddTexture(sampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 	}
+
+	VulkanTexture2D::VulkanTexture2D(void* data, int w, int h, int channels) : width(w), height(h), image(),
+		imageView(VK_NULL_HANDLE), sampler(VK_NULL_HANDLE), descriptorSet(VK_NULL_HANDLE)
+	{
+		auto device = VulkanContext::GetLogicalDevice();
+
+		VulkanBuffer buffer;
+
+		// TODO: Change this to allow more formats (metallic, roughness.... textures)
+		VkFormat format = VK_FORMAT_R8G8B8A8_SRGB;
+
+		// TODO: Change this to support channels
+		VkDeviceSize imageSize = width * height * 4;
+
+		VkBufferCreateInfo bufferInfo = {};
+		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+		bufferInfo.size = imageSize;
+		bufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+		VulkanAllocator::AllocateBuffer(buffer, bufferInfo, VMA_MEMORY_USAGE_CPU_TO_GPU);
+		void* vkData = VulkanAllocator::MapMemory(buffer);
+
+		memcpy(vkData, data, imageSize);
+
+		VulkanAllocator::UnmapMemory(buffer);
+
+		stbi_image_free(data);
+
+		uint32_t mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
+
+		VkImageCreateInfo imageInfo = {};
+		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+		imageInfo.imageType = VK_IMAGE_TYPE_2D;
+		imageInfo.extent.width = width;
+		imageInfo.extent.height = height;
+		imageInfo.extent.depth = 1;
+		imageInfo.mipLevels = mipLevels;
+		imageInfo.arrayLayers = 1;
+
+		imageInfo.format = format;
+		imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+		imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+		imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+		imageInfo.flags = 0;
+
+		VulkanAllocator::AllocateImage(image, imageInfo, VMA_MEMORY_USAGE_GPU_ONLY);
+
+		TransitionLayout(mipLevels, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+		{
+			VkCommandBuffer commandBuffer = VulkanContext::BeginSingleCommandBuffer();
+
+			VkBufferImageCopy region{};
+			region.bufferOffset = 0;
+			region.bufferRowLength = 0;
+			region.bufferImageHeight = 0;
+
+			region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			region.imageSubresource.mipLevel = 0;
+			region.imageSubresource.baseArrayLayer = 0;
+			region.imageSubresource.layerCount = 1;
+
+			region.imageOffset = { 0, 0, 0 };
+			region.imageExtent = { width, height, 1 };
+
+			vkCmdCopyBufferToImage(commandBuffer, buffer.buffer, image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+
+			VulkanContext::EndSingleCommandBuffer(commandBuffer);
+		}
+
+		//TransitionLayout(mipLevels, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		VulkanAllocator::DestroyBuffer(buffer);
+
+		// TODO: Check if the texture format is allowed to have MIPMAP_MODE_LINEAR
+		GenerateMipMaps(mipLevels);
+
+		VkImageViewCreateInfo viewInfo = {};
+		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		viewInfo.image = image.image;
+		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		viewInfo.format = format;
+		viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		viewInfo.subresourceRange.baseMipLevel = 0;
+		viewInfo.subresourceRange.levelCount = mipLevels;
+		viewInfo.subresourceRange.baseArrayLayer = 0;
+		viewInfo.subresourceRange.layerCount = 1;
+
+		VK_CHECK_RESULT(vkCreateImageView(device, &viewInfo, nullptr, &imageView));
+
+		{
+			VkSamplerCreateInfo samplerInfo = {};
+			samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+			samplerInfo.magFilter = VK_FILTER_LINEAR;
+			samplerInfo.minFilter = VK_FILTER_LINEAR;
+			samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+			samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+			samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+			samplerInfo.anisotropyEnable = VK_FALSE;
+			samplerInfo.maxAnisotropy = 1.0f;
+			samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+			samplerInfo.unnormalizedCoordinates = VK_FALSE;
+			samplerInfo.compareEnable = VK_FALSE;
+			samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+
+			samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+			samplerInfo.minLod = 0.0f;
+			samplerInfo.maxLod = static_cast<float>(mipLevels);
+			samplerInfo.mipLodBias = 0.0f;
+
+			VK_CHECK_RESULT(vkCreateSampler(device, &samplerInfo, nullptr, &sampler));
+		}
+
+		descriptorSet = ImGui_ImplVulkan_AddTexture(sampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	}
 	
 	VulkanTexture2D::~VulkanTexture2D()
-	{
-	}
-
-	const void VulkanTexture2D::Destroy()
 	{
 		auto device = VulkanContext::GetLogicalDevice();
 
 		VulkanAllocator::DestroyImage(image);
-		vkDestroyImageView(device, imageView, nullptr);
 		vkDestroySampler(device, sampler, nullptr);
+		vkDestroyImageView(device, imageView, nullptr);
 	}
 	
 	void VulkanTexture2D::TransitionLayout(uint32_t mipLevels, VkImageLayout oldLayout, VkImageLayout newLayout)

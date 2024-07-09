@@ -7,11 +7,15 @@ namespace Ilargi
 	class ResourceManager
 	{
 	public:
+		static void Clear();
+
 		static UUID RegisterResource(const ResourceMetadata& metadata);
-		static UUID ImportResource(const std::filesystem::path& path);
+		static UUID ImportResource(const std::filesystem::path& actualDir, const std::filesystem::path& path);
+		static std::shared_ptr<Resource> LoadResource(const ResourceMetadata& metadata);
 
 		static bool ExistsResource(UUID uuid);
 
+		static const ResourceMetadata& GetMetadata(UUID uuid);
 		static std::shared_ptr<Resource> GetResource(UUID uuid);
 
 		static bool IsResourceLoaded(UUID uuid);

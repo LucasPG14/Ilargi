@@ -22,10 +22,7 @@ namespace Ilargi
 
 	void Renderer::SubmitGeometry(std::shared_ptr<CommandBuffer> commandBuffer, std::shared_ptr<StaticMesh> mesh)
 	{
-		for (auto& submesh : mesh->GetSubmeshes())
-		{
-			render->SubmitGeometry(commandBuffer, submesh.vertexBuffer, submesh.indexBuffer);
-		}
+		render->SubmitGeometry(commandBuffer, mesh->GetVertexBuffer(), mesh->GetIndexBuffer());
 	}
 
 	void Renderer::DrawDefault(std::shared_ptr<CommandBuffer> commandBuffer)

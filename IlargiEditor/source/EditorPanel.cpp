@@ -85,6 +85,8 @@ namespace Ilargi
 		delete hierarchyInspector;
 		delete resourcesPanel;
 
+		ResourceManager::Clear();
+
 		uboCamera->Destroy();
 		
 		scene->Destroy();
@@ -127,7 +129,7 @@ namespace Ilargi
 			renderPass->GetProperties().pipeline->BindDescriptorSet(commandBuffer, mesh.staticMesh->GetMaterial());
 			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 0, 64, transform.transform);
 			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 64, 64, constants[0]);
-			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 128, 16, mesh.staticMesh->GetColor());
+			//renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 128, 16, mesh.staticMesh->GetColor());
 			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 144, 12, light.radiance);
 			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 156, 12, trans.rotation);
 			Renderer::SubmitGeometry(commandBuffer, mesh.staticMesh);
@@ -182,7 +184,7 @@ namespace Ilargi
 		MainMenuBar();
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
-		ImGui::Begin("Viewport");
+		ImGui::Begin("Viewport", 0, ImGuiWindowFlags_NoDecoration);
 		ImVec2 frameViewportSize = ImGui::GetContentRegionAvail();
 		
 		ImGui::Image(framebuffer->GetID(), frameViewportSize, { 0.0f, 1.0f }, { 1.0f, 0.0f });
@@ -227,16 +229,14 @@ namespace Ilargi
 				UUID uuid = *(UUID*)payload->Data;
 				auto metadata = ResourceManager::GetResourcesMetadata()[uuid];
 
-				bool ret = true;
-				ret = false;
-				//ResourceManager::HasLoadedAsset(uuid);
+				if (metadata.type == ResourceType::MODEL)
+				{
+					std::shared_ptr<Resource> resource = ResourceManager::GetResource(uuid);
 
-				//switch (metadata.type)
-				//{
-				//case ResourceType::MODEL:
-				//	scene->DeserializeModel();
-				//	break;
-				//}
+					Entity entity = scene->CreateEntity();
+
+					scene->CreateComponent<StaticMeshComponent>(entity, std::static_pointer_cast<StaticMesh>(resource));
+				}
 			}
 
 			ImGui::EndDragDropTarget();
@@ -256,9 +256,9 @@ namespace Ilargi
 		EventDispatcher dispatcher(event);
 
 		dispatcher.Dispatch<KeyPressedEvent>(ILG_BIND_FN(EditorPanel::OnKeyEvent));
-		dispatcher.Dispatch<WindowDropEvent>(ILG_BIND_FN(EditorPanel::OnDropEvent));
+		//dispatcher.Dispatch<WindowDropEvent>(ILG_BIND_FN(EditorPanel::OnDropEvent));
 
-		//resourcesPanel->OnEvent(event);
+		resourcesPanel->OnEvent(event);
 	}
 	
 	void EditorPanel::LoadLanguage(std::filesystem::path path)
@@ -284,6 +284,8 @@ namespace Ilargi
 		menuNames[Texts::DUPLICATE] = document["Duplicate"].as<std::string>();
 		
 		menuNames[Texts::LOCALIZATION] = document["Localization"].as<std::string>();
+		menuNames[Texts::ENGLISH] = document["English"].as<std::string>();
+		menuNames[Texts::SPANISH] = document["Spanish"].as<std::string>();
 	}
 
 	void EditorPanel::MainMenuBar()
@@ -350,11 +352,11 @@ namespace Ilargi
 		}
 		if (ImGui::BeginMenu(menuNames[Texts::LOCALIZATION].c_str()))
 		{
-			if (ImGui::MenuItem("English"))
+			if (ImGui::MenuItem(menuNames[Texts::ENGLISH].c_str()))
 			{
 				LoadLanguage("Engine/Localization/english.json");
 			}
-			if (ImGui::MenuItem("Castellano"))
+			if (ImGui::MenuItem(menuNames[Texts::SPANISH].c_str()))
 			{
 				LoadLanguage("Engine/Localization/spanish.json");
 			}
@@ -460,8 +462,6 @@ namespace Ilargi
 		{
 			if (paths[i].extension() == ".obj")
 				ModelImporter::ImportFBX(paths[i], scene);
-			else 
-				TextureImporter::ImportTexture("Resources/", paths[i]);
 		}
 
 		ResourceManager::SaveResourceRegistry();

@@ -23,6 +23,7 @@ namespace Ilargi
 	
 	VulkanIndexBuffer::~VulkanIndexBuffer()
 	{
+		VulkanAllocator::DestroyBuffer(buffer);
 	}
 
 	void VulkanIndexBuffer::Bind(std::shared_ptr<CommandBuffer> commandBuffer) const

@@ -35,260 +35,180 @@ namespace Ilargi
 		return *this;
 	}
 
-	std::shared_ptr<StaticMesh> ModelImporter::ImportModel(const std::string path)
+	void ModelImporter::ImportModel(UUID uuid, const ResourceMetadata& metadata)
 	{
 		Assimp::Importer importer;
 
-		const aiScene* scene = importer.ReadFile(path, aiProcess_CalcTangentSpace | aiProcess_Triangulate | 
-			aiProcess_JoinIdenticalVertices | aiProcess_SortByPType);
-
-		if (!scene)
-		{
-			ILG_CORE_ERROR("Couldn't import model: {0}", path);
-			return nullptr;
-		}
-
-		uint32_t meshCount = scene->mNumMeshes;
-
-		std::shared_ptr<StaticMesh> mesh = std::make_shared<StaticMesh>(meshCount);
-		for (uint32_t i = 0; i < meshCount; ++i)
-		{
-			// Saving all the necessary variables
-			aiMesh* assimpMesh = scene->mMeshes[i];
-			uint32_t verticesCount = assimpMesh->mNumVertices;
-			uint32_t numFaces = assimpMesh->mNumFaces;
-
-			bool hasNormals = assimpMesh->HasNormals();
-			bool hasTexCoords = assimpMesh->HasTextureCoords(0);
-			bool hasTangentsAndBitangents = assimpMesh->HasTangentsAndBitangents();
-
-			StaticSubmesh submesh;
-			submesh.vertices.resize(verticesCount);
-			submesh.indices.reserve(numFaces * 3); // * 3 because it's a triangle
-
-			for (uint32_t j = 0; j < verticesCount; ++j)
-			{
-				StaticVertex& vertex = submesh.vertices[j];
-
-				//aiVector3D aiVertex = assimpMesh->mVertices[j];
-				vertex.position = assimpMesh->mVertices[j];
-
-				if (hasNormals)
-				{
-					//aiVector3D aiNormal ;
-					//vertex.normal = { aiNormal.x, aiNormal.y, aiNormal.z };
-					vertex.normal = assimpMesh->mNormals[j];
-				}
-
-				if (hasTexCoords)
-				{
-					//aiVector3D aiTexCoord = assimpMesh->mTextureCoords[0][j];
-					//vertex.texCoord = { aiTexCoord.x, aiTexCoord.y };
-					vertex.texCoord = assimpMesh->mTextureCoords[0][j];
-				}
-
-				if (hasTangentsAndBitangents)
-				{
-					//aiVector3D aiTangent = assimpMesh->mTangents[j];
-					//aiVector3D aiBitangent = assimpMesh->mBitangents[j];
-					//vertex.tangent = { aiTangent.x, aiTangent.y, aiTangent.z };
-					//vertex.bitangent = { aiBitangent.x, aiBitangent.y, aiBitangent.z };
-					vertex.tangent = assimpMesh->mTangents[j];
-					vertex.bitangent = assimpMesh->mBitangents[j];
-				}
-			}
-
-			for (uint32_t j = 0; j < numFaces; ++j)
-			{
-				aiFace face = assimpMesh->mFaces[j];
-
-				for (uint32_t k = 0; k < face.mNumIndices; ++k)
-					submesh.indices.push_back(face.mIndices[k]);
-			}
-
-			mesh->AddSubmesh(submesh);
-		}
-
-		return mesh;
-	}
-	
-	void ModelImporter::ImportModel2(const std::filesystem::path& path, const std::filesystem::path& assetsPath)
-	{
-		Assimp::Importer importer;
-		
-		const aiScene* scene = importer.ReadFile(path.string().c_str(), aiProcess_CalcTangentSpace | aiProcess_Triangulate |
-			aiProcess_JoinIdenticalVertices | aiProcess_SortByPType);
-		
-		if (!scene)
-		{
-			ILG_CORE_ERROR("Couldn't import model: {0}", path.string());
-			return;
-		}
-		
-		uint32_t meshCount = scene->mNumMeshes;
-		std::vector<uint64_t> meshesArray(meshCount);
-
-		//std::shared_ptr<StaticMesh> mesh = std::make_shared<StaticMesh>(meshCount);
-		for (uint32_t i = 0; i < meshCount; ++i)
-		{
-			// Saving all the necessary variables
-			aiMesh* assimpMesh = scene->mMeshes[i];
-			uint32_t verticesCount = assimpMesh->mNumVertices;
-			uint32_t numFaces = assimpMesh->mNumFaces;
-			
-			bool hasNormals = assimpMesh->HasNormals();
-			bool hasTexCoords = assimpMesh->HasTextureCoords(0);
-			bool hasTangentsAndBitangents = assimpMesh->HasTangentsAndBitangents();
-
-			StaticSubmesh submesh;
-			submesh.vertices.resize(verticesCount);
-			submesh.indices.reserve(numFaces * 3); // * 3 because it's a triangle
-
-			for (uint32_t j = 0; j < verticesCount; ++j)
-			{
-				StaticVertex& vertex = submesh.vertices[j];
-
-				vertex.position = assimpMesh->mVertices[j];
-
-				if (hasNormals)
-					vertex.normal = assimpMesh->mNormals[j];
-
-				if (hasTexCoords)
-					vertex.texCoord = assimpMesh->mTextureCoords[0][j];
-
-				if (hasTangentsAndBitangents)
-				{
-					vertex.tangent = assimpMesh->mTangents[j];
-					vertex.bitangent = assimpMesh->mBitangents[j];
-				}
-			}
-
-			for (uint32_t j = 0; j < numFaces; ++j)
-			{
-				aiFace face = assimpMesh->mFaces[j];
-
-				for (uint32_t k = 0; k < face.mNumIndices; ++k)
-					submesh.indices.push_back(face.mIndices[k]);
-			}
-
-			Buffer buffer;
-			buffer.size = 8 + submesh.vertices.size() * sizeof(StaticVertex) + submesh.indices.size() * sizeof(uint32_t);
-			buffer.data = new char[8 + buffer.size];
-
-			char* pointer = (char*)buffer.data;
-			uint32_t header[2] = { submesh.vertices.size(), submesh.indices.size() };
-
-			memcpy(pointer, header, 2 * sizeof(uint32_t));
-			pointer += 2 * sizeof(uint32_t);
-
-			uint32_t verticesSize = header[0] * sizeof(StaticVertex);
-			memcpy(pointer, submesh.vertices.data(), verticesSize);
-			pointer += verticesSize;
-
-			uint32_t indicesSize = header[1] * sizeof(uint32_t);
-			memcpy(buffer.data, submesh.indices.data(), submesh.indices.size());
-
-			FileSystem::WriteBinaryFile(assetsPath, buffer);
-		}
-
-		Buffer modelData;
-
-		//aiNode* rootNode = scene->mRootNode->mChildren[0];
-		//EntityNode node;
-		
-		//TransformNode transNode;
-		//transNode.position = { 0.0f, 0.0f, 0.0f };
-		//transNode.rotation = { 0.0f, 0.0f, 0.0f };
-		//transNode.scale = { 1.0f, 1.0f, 1.0f };
-		//node.components.push_back(transNode);
-
-		//MeshNode meshNode;
-		//meshNode.uuid = UUID();
-		//node.components.push_back(meshNode);
-
-		//modelData.size = sizeof(node);
-		//modelData.data = new char[modelData.size];
-
-		//memcpy(modelData.data, &node, modelData.size);
-
-		//FileSystem::WriteBinaryFile(assetsPath, modelData);
-	}
-
-	void ModelImporter::ImportFBX(const std::filesystem::path& path, const std::shared_ptr<Scene>& scene)
-	{
-		Assimp::Importer importer;
-
-		const aiScene* importScene = importer.ReadFile(path.string().c_str(), aiProcess_CalcTangentSpace | aiProcess_Triangulate |
+		const aiScene* importScene = importer.ReadFile(metadata.sourceFile.string().c_str(), aiProcess_CalcTangentSpace | aiProcess_Triangulate |
 			aiProcess_JoinIdenticalVertices | aiProcess_SortByPType);
 
 		if (!importScene)
 		{
-			ILG_CORE_ERROR("Couldn't import model: {0}", path.string());
+			ILG_CORE_ERROR("Couldn't import model: {0}", metadata.sourceFile.string());
 			return;
 		}
 
-		uint32_t meshCount = importScene->mNumMeshes;
-		std::vector<uint64_t> meshesArray(meshCount);
+		std::vector<StaticVertex> vertices;
+		std::vector<uint32_t> indices;
 
-		std::shared_ptr<StaticMesh> mesh = std::make_shared<StaticMesh>(meshCount);
-		for (uint32_t i = 0; i < meshCount; ++i)
+		const aiMesh* aiMesh = importScene->mMeshes[0];
+
+		bool hasNormals = aiMesh->HasNormals();
+		bool hasTexCoords = aiMesh->HasTextureCoords(0);
+		bool hasTangentsAndBitangents = aiMesh->HasTangentsAndBitangents();
+
+		uint32_t verticesCount = aiMesh->mNumVertices;
+		uint32_t numFaces = aiMesh->mNumFaces;
+
+		vertices.reserve(verticesCount);
+		indices.reserve(numFaces * 3);
+
+		for (int i = 0; i < verticesCount; ++i)
 		{
-			const Entity entity = scene->CreateEntity();
+			StaticVertex& vertex = vertices.emplace_back();
+			vertex.position = aiMesh->mVertices[i];
 
-			// Saving all the necessary variables
-			aiMesh* assimpMesh = importScene->mMeshes[i];
-			uint32_t verticesCount = assimpMesh->mNumVertices;
-			uint32_t numFaces = assimpMesh->mNumFaces;
+			if (hasNormals)
+				vertex.normal = aiMesh->mNormals[i];
 
-			bool hasNormals = assimpMesh->HasNormals();
-			bool hasTexCoords = assimpMesh->HasTextureCoords(0);
-			bool hasTangentsAndBitangents = assimpMesh->HasTangentsAndBitangents();
+			if (hasTexCoords)
+				vertex.texCoord = aiMesh->mTextureCoords[0][i];
 
-			StaticSubmesh submesh;
-			submesh.vertices.resize(verticesCount);
-			submesh.indices.reserve(numFaces * 3); // * 3 because it's a triangle
-
-			for (uint32_t j = 0; j < verticesCount; ++j)
+			if (hasTangentsAndBitangents)
 			{
-				StaticVertex& vertex = submesh.vertices[j];
-
-				vertex.position = assimpMesh->mVertices[j];
-
-				if (hasNormals)
-					vertex.normal = assimpMesh->mNormals[j];
-
-				if (hasTexCoords)
-					vertex.texCoord = assimpMesh->mTextureCoords[0][j];
-
-				if (hasTangentsAndBitangents)
-				{
-					vertex.tangent = assimpMesh->mTangents[j];
-					vertex.bitangent = assimpMesh->mBitangents[j];
-				}
+				vertex.tangent = aiMesh->mTangents[i];
+				vertex.bitangent = aiMesh->mBitangents[i];
 			}
-
-			for (uint32_t j = 0; j < numFaces; ++j)
-			{
-				aiFace face = assimpMesh->mFaces[j];
-
-				for (uint32_t k = 0; k < face.mNumIndices; ++k)
-					submesh.indices.push_back(face.mIndices[k]);
-			}
-
-			mesh->AddSubmesh(submesh);
-
-			ResourceMetadata materialMetadata;
-			materialMetadata.type = ResourceType::MATERIAL;
-			materialMetadata.sourceFile = path;
-			materialMetadata.filepath = "NewMaterial.ires";
-
-			std::shared_ptr<Material> material = Material::Create(Renderer::GetShaderLibrary()->Get("PBR_Static"));
-
-			ResourceManager::RegisterResource(materialMetadata);
-
-			mesh->CreateMaterial(material);
-
-			scene->CreateComponent<StaticMeshComponent>(entity, mesh);
 		}
+
+		for (uint32_t j = 0; j < numFaces; ++j)
+		{
+			aiFace face = aiMesh->mFaces[j];
+
+			for (uint32_t k = 0; k < face.mNumIndices; ++k)
+				indices.push_back(face.mIndices[k]);
+		}
+
+		int header[2] = { verticesCount, indices.size() };
+
+		Buffer buffer;
+
+		buffer.size = sizeof(header) + (vertices.size() * sizeof(StaticVertex)) + (indices.size() * sizeof(uint32_t));
+		buffer.data = new char[buffer.size];
+
+		char* buf = buffer.data;
+		memcpy(buf, header, sizeof(header));
+		buf += sizeof(header);
+
+		memcpy(buf, vertices.data(), vertices.size() * sizeof(StaticVertex));
+		buf += vertices.size() * sizeof(StaticVertex);
+
+		memcpy(buf, indices.data(), indices.size() * sizeof(uint32_t));
+
+		FileSystem::WriteBinaryFile(metadata.filepath, buffer);
+	}
+
+	std::shared_ptr<Resource> ModelImporter::LoadModel(const ResourceMetadata& metadata)
+	{
+		const Buffer& buffer = FileSystem::ReadBinaryFile(metadata.filepath);
+
+		char* data = buffer.data;
+
+		int verticesCount, indicesCount;
+		memcpy(&verticesCount, data, sizeof(int));
+		data += sizeof(int);
+		memcpy(&indicesCount, data, sizeof(int));
+		data += sizeof(int);
+
+		std::vector<StaticVertex> vertices;
+		std::vector<uint32_t> indices;
+		vertices.resize(verticesCount);
+		indices.resize(indicesCount);
+
+		memcpy(vertices.data(), data, verticesCount * sizeof(StaticVertex));
+		data += verticesCount * sizeof(StaticVertex);
+		memcpy(indices.data(), data, indicesCount * sizeof(uint32_t));
+
+		std::shared_ptr<StaticMesh> mesh = std::make_shared<StaticMesh>(vertices, indices);
+
+		return mesh;
+	}
+
+	void ModelImporter::ImportFBX(const std::filesystem::path& path, const std::shared_ptr<Scene>& scene)
+	{
+		//Assimp::Importer importer;
+		//
+		//const aiScene* importScene = importer.ReadFile(path.string().c_str(), aiProcess_CalcTangentSpace | aiProcess_Triangulate |
+		//	aiProcess_JoinIdenticalVertices | aiProcess_SortByPType);
+		//
+		//if (!importScene)
+		//{
+		//	ILG_CORE_ERROR("Couldn't import model: {0}", path.string());
+		//	return;
+		//}
+		//
+		//uint32_t meshCount = importScene->mNumMeshes;
+		//std::vector<uint64_t> meshesArray(meshCount);
+		//
+		//std::shared_ptr<StaticMesh> mesh = std::make_shared<StaticMesh>(meshCount);
+		//for (uint32_t i = 0; i < meshCount; ++i)
+		//{
+		//	const Entity entity = scene->CreateEntity();
+		//
+		//	// Saving all the necessary variables
+		//	aiMesh* assimpMesh = importScene->mMeshes[i];
+		//	uint32_t verticesCount = assimpMesh->mNumVertices;
+		//	uint32_t numFaces = assimpMesh->mNumFaces;
+		//
+		//	bool hasNormals = assimpMesh->HasNormals();
+		//	bool hasTexCoords = assimpMesh->HasTextureCoords(0);
+		//	bool hasTangentsAndBitangents = assimpMesh->HasTangentsAndBitangents();
+		//
+		//	StaticSubmesh submesh;
+		//	submesh.vertices.resize(verticesCount);
+		//	submesh.indices.reserve(numFaces * 3); // * 3 because it's a triangle
+		//
+		//	for (uint32_t j = 0; j < verticesCount; ++j)
+		//	{
+		//		StaticVertex& vertex = submesh.vertices[j];
+		//
+		//		vertex.position = assimpMesh->mVertices[j];
+		//
+		//		if (hasNormals)
+		//			vertex.normal = assimpMesh->mNormals[j];
+		//
+		//		if (hasTexCoords)
+		//			vertex.texCoord = assimpMesh->mTextureCoords[0][j];
+		//
+		//		if (hasTangentsAndBitangents)
+		//		{
+		//			vertex.tangent = assimpMesh->mTangents[j];
+		//			vertex.bitangent = assimpMesh->mBitangents[j];
+		//		}
+		//	}
+		//
+		//	for (uint32_t j = 0; j < numFaces; ++j)
+		//	{
+		//		aiFace face = assimpMesh->mFaces[j];
+		//
+		//		for (uint32_t k = 0; k < face.mNumIndices; ++k)
+		//			submesh.indices.push_back(face.mIndices[k]);
+		//	}
+		//
+		//	mesh->AddSubmesh(submesh);
+		//
+		//	ResourceMetadata materialMetadata;
+		//	materialMetadata.type = ResourceType::MATERIAL;
+		//	materialMetadata.sourceFile = path;
+		//	materialMetadata.filepath = "NewMaterial.ires";
+		//
+		//	std::shared_ptr<Material> material = Material::Create(Renderer::GetShaderLibrary()->Get("PBR_Static"));
+		//
+		//	ResourceManager::RegisterResource(materialMetadata);
+		//
+		//	mesh->CreateMaterial(material);
+		//
+		//	scene->CreateComponent<StaticMeshComponent>(entity, mesh);
+		//}
 	}
 }

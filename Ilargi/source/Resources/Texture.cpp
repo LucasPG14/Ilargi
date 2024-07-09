@@ -18,4 +18,15 @@ namespace Ilargi
 		ILG_ASSERT(nullptr, "The platform specified is not supported");
 		return nullptr;
 	}
+	
+	std::shared_ptr<Texture2D> Texture2D::Create(void* data, int width, int height, int channels)
+	{
+		switch (Renderer::GetGraphicsAPI())
+		{
+		case GraphicsAPI::VULKAN:	return std::make_shared<VulkanTexture2D>(data, width, height, channels);
+		}
+
+		ILG_ASSERT(nullptr, "The platform specified is not supported");
+		return nullptr;
+	}
 }

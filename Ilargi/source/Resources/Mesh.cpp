@@ -1,30 +1,23 @@
 #include "ilargipch.h"
 
 #include "Mesh.h"
+#include "Renderer/Renderer.h"
 #include "Renderer/VertexBuffer.h"
 #include "Renderer/IndexBuffer.h"
 #include "Resources/Material.h"
 
 namespace Ilargi
 {
-	StaticMesh::StaticMesh(uint32_t submeshCount)
+	StaticMesh::StaticMesh(const std::vector<StaticVertex>& vert, const std::vector<uint32_t>& ind) 
+		: vertices(vert), indices(ind)
 	{
-		submeshes.reserve(submeshCount);
+		vertexBuffer = VertexBuffer::Create((void*)vertices.data(), static_cast<uint32_t>(vertices.size() * sizeof(StaticVertex)));
+		indexBuffer = IndexBuffer::Create((void*)indices.data(), static_cast<uint32_t>(indices.size()));
+
+		material = Material::Create(Renderer::GetShaderLibrary()->Get("PBR_Static"));
 	}
 	
 	StaticMesh::~StaticMesh()
 	{
-	}
-	
-	void StaticMesh::AddSubmesh(StaticSubmesh& submesh)
-	{
-		submesh.vertexBuffer = VertexBuffer::Create((void*)submesh.vertices.data(), static_cast<uint32_t>(submesh.vertices.size() * sizeof(StaticVertex)));
-		submesh.indexBuffer = IndexBuffer::Create((void*)submesh.indices.data(), static_cast<uint32_t>(submesh.indices.size()));
-		submeshes.push_back(submesh);
-	}
-	
-	void StaticMesh::CreateMaterial(const std::shared_ptr<Material>& mat)
-	{
-		material = mat;
 	}
 }

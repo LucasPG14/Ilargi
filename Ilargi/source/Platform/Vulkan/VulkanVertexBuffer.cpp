@@ -24,6 +24,9 @@ namespace Ilargi
 	
 	VulkanVertexBuffer::~VulkanVertexBuffer()
 	{
+		vkDeviceWaitIdle(VulkanContext::GetLogicalDevice());
+
+		VulkanAllocator::DestroyBuffer(buffer);
 	}
 
 	void VulkanVertexBuffer::Bind(std::shared_ptr<CommandBuffer> commandBuffer) const

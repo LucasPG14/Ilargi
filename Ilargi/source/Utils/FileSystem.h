@@ -4,7 +4,7 @@ namespace Ilargi
 {
 	struct Buffer
 	{
-		void* data = nullptr;
+		char* data = nullptr;
 		size_t size = 0;
 	};
 
