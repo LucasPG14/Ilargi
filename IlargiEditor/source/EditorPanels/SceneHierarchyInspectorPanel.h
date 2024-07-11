@@ -7,7 +7,7 @@ namespace Ilargi
 	class SceneHierarchyInspectorPanel
 	{
 	public:
-		SceneHierarchyInspectorPanel(const std::shared_ptr<Scene>& actualScene);
+		SceneHierarchyInspectorPanel();
 		~SceneHierarchyInspectorPanel();
 
 		void Render();

@@ -28,7 +28,9 @@ namespace Ilargi
 
 		void ProcessShader();
 
-		const std::vector<uint32_t> ConvertToSpirV(VkShaderStageFlagBits stage, std::string_view code) const;
+		void CreateShaderModule(VkShaderStageFlagBits stage, const std::vector<uint32_t>& code);
+
+		const std::vector<uint32_t> ConvertToSpirV(VkShaderStageFlagBits stage, const std::string_view& code) const;
 
 		void ReflectShader(const std::vector<uint32_t>& code, VkShaderStageFlags stage);
 	private:

@@ -29,16 +29,16 @@ namespace Ilargi
 	private:
 		void LoadLanguage(std::filesystem::path path);
 
-		void MainMenuBar();
+		void RenderMainMenuBar();
+		void RenderViewport();
 
 		void NewScene();
 		void OpenScene();
 		void OpenScene(std::string filepath);
-		void SaveScene();
+		void SaveSceneAs();
 		void SaveScene(std::string filepath);
 
 		bool OnKeyEvent(KeyPressedEvent& event);
-		bool OnDropEvent(WindowDropEvent& event);
 	private:
 		std::shared_ptr<Scene> scene;
 

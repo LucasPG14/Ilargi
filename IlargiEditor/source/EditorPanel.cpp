@@ -7,7 +7,7 @@
 #include "Localization.h"
 
 #include "Utils/FileSystem.h"
-#include "Scene/SceneLoaderSaver.h"
+#include "Utils/Importers/SceneImporter.h"
 
 #include <imgui/imgui.h>
 #include <ImGuizmo.h>
@@ -43,9 +43,10 @@ namespace Ilargi
 
 	void EditorPanel::OnInit()
 	{
-		scene = std::make_shared<Scene>();
-		hierarchyInspector = new SceneHierarchyInspectorPanel(scene);
+		hierarchyInspector = new SceneHierarchyInspectorPanel();
 		resourcesPanel = new ResourcesPanel();
+		
+		NewScene();
 
 		commandBuffer = CommandBuffer::Create(Renderer::GetConfig().maxFrames);
 		
@@ -181,69 +182,9 @@ namespace Ilargi
 			ImGui::DockSpace(id, { 0.0f, 0.0f }, dockspaceFlags);
 		}
 
-		MainMenuBar();
+		RenderMainMenuBar();
 
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
-		ImGui::Begin("Viewport", 0, ImGuiWindowFlags_NoDecoration);
-		ImVec2 frameViewportSize = ImGui::GetContentRegionAvail();
-		
-		ImGui::Image(framebuffer->GetID(), frameViewportSize, { 0.0f, 1.0f }, { 1.0f, 0.0f });
-
-		if (viewportSize != frameViewportSize)
-		{
-			viewportSize = frameViewportSize;
-			needToUpdateFramebuffer = true;
-		}
-
-		Entity entity = hierarchyInspector->GetSelected();
-		// Guizmo
-		if (entity != entt::null)
-		{
-			ImGuizmo::Enable(true);
-			ImGuizmo::SetOrthographic(false);
-			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
-			ImGuizmo::SetDrawlist();
-			ImGuizmo::SetGizmoSizeClipSpace(0.15f);
-
-			const mat4& viewMatrix = camera.GetViewMatrix();
-			const mat4& projMatrix = camera.GetProjectionMatrix();
-
-			TransformComponent& transformComp = scene->GetWorld().get<TransformComponent>(entity);
-			mat4& transform = transformComp.transform;
-
-			ImGuizmo::Manipulate(viewMatrix, projMatrix, (ImGuizmo::OPERATION)operation, ImGuizmo::WORLD, transform);
-
-			if (ImGuizmo::IsUsingAny())
-			{
-				ImGuizmo::DecomposeMatrixToComponents(transform, transformComp.position, transformComp.rotation, transformComp.scale);
-			}
-		}
-
-		if (ImGui::BeginDragDropTarget())
-		{
-			auto payload = ImGui::AcceptDragDropPayload("RESOURCE");
-
-			if (payload)
-			{
-				// TODO: Drag and drop from resource panel to viewport
-				UUID uuid = *(UUID*)payload->Data;
-				auto metadata = ResourceManager::GetResourcesMetadata()[uuid];
-
-				if (metadata.type == ResourceType::MODEL)
-				{
-					std::shared_ptr<Resource> resource = ResourceManager::GetResource(uuid);
-
-					Entity entity = scene->CreateEntity();
-
-					scene->CreateComponent<StaticMeshComponent>(entity, std::static_pointer_cast<StaticMesh>(resource));
-				}
-			}
-
-			ImGui::EndDragDropTarget();
-		}
-
-		ImGui::End();
-		ImGui::PopStyleVar();
+		RenderViewport();
 
 		hierarchyInspector->Render();
 		resourcesPanel->Render();
@@ -256,7 +197,6 @@ namespace Ilargi
 		EventDispatcher dispatcher(event);
 
 		dispatcher.Dispatch<KeyPressedEvent>(ILG_BIND_FN(EditorPanel::OnKeyEvent));
-		//dispatcher.Dispatch<WindowDropEvent>(ILG_BIND_FN(EditorPanel::OnDropEvent));
 
 		resourcesPanel->OnEvent(event);
 	}
@@ -288,7 +228,7 @@ namespace Ilargi
 		menuNames[Texts::SPANISH] = document["Spanish"].as<std::string>();
 	}
 
-	void EditorPanel::MainMenuBar()
+	void EditorPanel::RenderMainMenuBar()
 	{
 		ImGui::BeginMainMenuBar();
 		if (ImGui::BeginMenu(menuNames[Texts::FILE].c_str()))
@@ -305,11 +245,11 @@ namespace Ilargi
 			if (ImGui::MenuItem(menuNames[Texts::SAVE_SCENE].c_str(), "Ctrl + S"))
 			{
 				// TODO: Change this to save the scene with the current path of the scene
-				SaveScene();
+				SaveSceneAs();
 			}
 			if (ImGui::MenuItem(menuNames[Texts::SAVE_SCENE_AS].c_str(), "Ctrl + Shift + S"))
 			{
-				SaveScene();
+				SaveSceneAs();
 			}
 			ImGui::Separator();
 			if (ImGui::MenuItem(menuNames[Texts::EXIT].c_str(), "Ctrl + Alt + F4"))
@@ -365,41 +305,118 @@ namespace Ilargi
 		ImGui::EndMainMenuBar();
 	}
 
+	void EditorPanel::RenderViewport()
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
+		ImGui::Begin("Viewport", 0, ImGuiWindowFlags_NoDecoration);
+		ImVec2 frameViewportSize = ImGui::GetContentRegionAvail();
+
+		ImGui::Image(framebuffer->GetID(), frameViewportSize, { 0.0f, 1.0f }, { 1.0f, 0.0f });
+
+		if (viewportSize != frameViewportSize)
+		{
+			viewportSize = frameViewportSize;
+			needToUpdateFramebuffer = true;
+		}
+
+		Entity entity = hierarchyInspector->GetSelected();
+		// Guizmo
+		if (entity != entt::null)
+		{
+			ImGuizmo::Enable(true);
+			ImGuizmo::SetOrthographic(false);
+			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
+			ImGuizmo::SetDrawlist();
+			ImGuizmo::SetGizmoSizeClipSpace(0.15f);
+
+			const mat4& viewMatrix = camera.GetViewMatrix();
+			const mat4& projMatrix = camera.GetProjectionMatrix();
+
+			TransformComponent& transformComp = scene->GetWorld().get<TransformComponent>(entity);
+			mat4& transform = transformComp.transform;
+
+			ImGuizmo::Manipulate(viewMatrix, projMatrix, (ImGuizmo::OPERATION)operation, ImGuizmo::WORLD, transform);
+
+			if (ImGuizmo::IsUsingAny())
+			{
+				ImGuizmo::DecomposeMatrixToComponents(transform, transformComp.position, transformComp.rotation, transformComp.scale);
+			}
+		}
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			auto payload = ImGui::AcceptDragDropPayload("RESOURCE");
+
+			if (payload)
+			{
+				// TODO: Drag and drop from resource panel to viewport
+				UUID uuid = *(UUID*)payload->Data;
+				auto metadata = ResourceManager::GetResourcesMetadata()[uuid];
+
+				switch (metadata.type)
+				{
+				case ResourceType::MODEL:
+				{
+					std::shared_ptr<Resource> resource = ResourceManager::GetResource(uuid);
+
+					Entity entity = scene->CreateEntity();
+					scene->CreateComponent<StaticMeshComponent>(entity, std::static_pointer_cast<StaticMesh>(resource));
+					break;
+				}
+				case ResourceType::SCENE:
+				{
+					std::shared_ptr<Resource> resource = ResourceManager::GetResource(uuid);
+
+					scene = std::static_pointer_cast<Scene>(resource);
+					hierarchyInspector->SetScene(scene);
+					break;
+				}
+				}
+			}
+
+			ImGui::EndDragDropTarget();
+		}
+
+		ImGui::End();
+		ImGui::PopStyleVar();
+	}
+
 	void EditorPanel::NewScene()
 	{
 		scene = std::make_shared<Scene>();
 		hierarchyInspector->SetScene(scene);
+
+		Entity entity = scene->CreateEntity("Directional Light");
+		scene->CreateComponent<DirectionalLightComponent>(entity);
 	}
 
 	void EditorPanel::OpenScene()
 	{
-		std::string filepath = FileSystem::OpenFile("Ilargi Scene (.ilargi)\0*.ilargi\0");
-		if (!filepath.empty())
-			OpenScene(filepath);
+		//std::string filepath = FileSystem::OpenFile("Ilargi Scene (.ilargi)\0*.ilargi\0");
+		//if (!filepath.empty())
+		//	OpenScene(filepath);
 	}
 
 	void EditorPanel::OpenScene(std::string filepath)
 	{
 		std::shared_ptr<Scene> newScene = std::make_shared<Scene>();
-
-		SceneLoaderSaver sceneSaver(newScene);
-		sceneSaver.LoadScene(filepath);
-
-		scene = newScene;
-		hierarchyInspector->SetScene(scene);
 	}
 
-	void EditorPanel::SaveScene()
+	void EditorPanel::SaveSceneAs()
 	{
 		std::string filepath = FileSystem::SaveFile("Ilargi Scene (.ilargi)\0*.ilargi\0");
 		if (!filepath.empty())
+		{
 			SaveScene(filepath);
+		}
 	}
 
 	void EditorPanel::SaveScene(std::string filepath)
 	{
-		SceneLoaderSaver sceneSaver(scene);
-		sceneSaver.SaveScene(filepath);
+		SceneImporter::SaveScene(scene, filepath);
+		ResourceManager::ImportResource(std::filesystem::path(filepath).remove_filename(), filepath);
+
+		ResourceManager::SaveResourceRegistry();
 	}
 	
 	bool EditorPanel::OnKeyEvent(KeyPressedEvent& event)
@@ -427,11 +444,11 @@ namespace Ilargi
 			{
 				if (shift)
 				{
-					SaveScene();
+					SaveSceneAs();
 					break;
 				}
 				// TODO: Change this to save the scene with the current path of the scene
-				SaveScene();
+				SaveSceneAs();
 			}
 			break;
 		case KeyCode::W:
@@ -450,21 +467,6 @@ namespace Ilargi
 			Application::Get()->CloseApp();
 			break;
 		}
-
-		return true;
-	}
-	
-	bool EditorPanel::OnDropEvent(WindowDropEvent& event)
-	{
-		const std::vector<std::filesystem::path>& paths = event.GetPaths();
-
-		for (int i = 0; i < paths.size(); ++i)
-		{
-			if (paths[i].extension() == ".obj")
-				ModelImporter::ImportFBX(paths[i], scene);
-		}
-
-		ResourceManager::SaveResourceRegistry();
 
 		return true;
 	}

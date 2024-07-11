@@ -49,6 +49,23 @@ namespace Ilargi
 			return result;
 		}
 
+		const std::vector<uint32_t> ReadCacheFile(const std::string& path)
+		{
+			std::vector<uint32_t> result;
+			std::ifstream in(path, std::ios::in | std::ios::binary);
+			if (in)
+			{
+				in.seekg(0, std::ios::end);
+				result.resize(in.tellg() / sizeof(uint32_t));
+				in.seekg(0, std::ios::beg);
+				in.read((char*)&result[0], result.size() * sizeof(uint32_t));
+				in.close();
+			}
+			else ILG_CORE_ERROR("Couldn't open file '{0}'", path);
+
+			return result;
+		}
+
 		const shaderc_shader_kind GLShaderStageToShaderC(VkShaderStageFlagBits stage)
 		{
 			switch (stage)
@@ -81,17 +98,50 @@ namespace Ilargi
 
 	VulkanShader::VulkanShader(std::string_view path) : filePath(path), name(std::filesystem::path(path).stem().string())
 	{	
-		auto directory = Utils::GetCacheDirectory();
-		directory += std::filesystem::path(name);
-		directory += "_cache_vert.spv";
+		ILG_PROFILE_FUNC
+
+		auto device = VulkanContext::GetLogicalDevice();
+
+		auto directory = Utils::GetCacheDirectory() / std::filesystem::path(name);
 		
-		// TODO: Create shader from cache file
-		if (std::filesystem::directory_entry(directory).exists())
+		auto shaderCacheFile = directory;
+		shaderCacheFile += "_cache_vert.spv";
+
+		// TODO: Find a way to do this cleaner
+		if (std::filesystem::directory_entry(shaderCacheFile).exists())
 		{
-			
+			auto result = Utils::ReadCacheFile(shaderCacheFile.string());
+
+			CreateShaderModule(VK_SHADER_STAGE_VERTEX_BIT, result);
+		}
+		shaderCacheFile = directory;
+		shaderCacheFile += "_cache_frag.spv";
+		if (std::filesystem::directory_entry(shaderCacheFile).exists())
+		{
+			auto result = Utils::ReadCacheFile(shaderCacheFile.string());
+			CreateShaderModule(VK_SHADER_STAGE_FRAGMENT_BIT, result);
 		}
 
-		ProcessShader();
+		if (shaders.empty())
+			ProcessShader();
+
+		if (!descriptorSetBindings.empty())
+		{
+			uint32_t size = (--descriptorSetBindings.end())->first + 1;
+			descriptorSetLayouts.resize(size);
+			for (int i = 0; i < size; ++i)
+			{
+				if (descriptorSetBindings.find(i) != descriptorSetBindings.end())
+				{
+					VkDescriptorSetLayoutCreateInfo layoutInfo = {};
+					layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+					layoutInfo.bindingCount = static_cast<uint32_t>(descriptorSetBindings[i].size());
+					layoutInfo.pBindings = descriptorSetBindings[i].data();
+
+					VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayouts[i]));
+				}
+			}
+		}
 	}
 	
 	VulkanShader::~VulkanShader()
@@ -130,8 +180,6 @@ namespace Ilargi
 	
 	void VulkanShader::ProcessShader()
 	{
-		ILG_PROFILE_FUNC
-
 		auto device = VulkanContext::GetLogicalDevice();
 
 		std::string code = Utils::ReadFile(filePath.data());
@@ -172,37 +220,7 @@ namespace Ilargi
 				file.close();
 			}
 
-			VkShaderModuleCreateInfo createInfo = {};
-			createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-			createInfo.codeSize = 4 * result.size();
-			createInfo.pCode = result.data();
-
-			VkShaderModule shaderModule = nullptr;
-			VK_CHECK_RESULT(vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule));
-
-			ILG_CORE_TRACE("VulkanShader::Reflect - {0} {1}", Utils::ShaderStageToString(stage), filePath);
-
-			ReflectShader(result, stage);
-
-			shaders.push_back({ stage, shaderModule });
-		}
-
-		if (!descriptorSetBindings.empty())
-		{
-			uint32_t size = (--descriptorSetBindings.end())->first + 1;
-			descriptorSetLayouts.resize(size);
-			for (int i = 0; i < size; ++i)
-			{
-				if (descriptorSetBindings.find(i) != descriptorSetBindings.end())
-				{
-					VkDescriptorSetLayoutCreateInfo layoutInfo = {};
-					layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-					layoutInfo.bindingCount = static_cast<uint32_t>(descriptorSetBindings[i].size());
-					layoutInfo.pBindings = descriptorSetBindings[i].data();
-
-					VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayouts[i]));
-				}
-			}
+			CreateShaderModule(stage, result);
 		}
 
 		// TODO: Change this and automatize with reflect function
@@ -219,8 +237,27 @@ namespace Ilargi
 		//	}
 		//}
 	}
+
+	void VulkanShader::CreateShaderModule(VkShaderStageFlagBits stage, const std::vector<uint32_t>& code)
+	{
+		auto device = VulkanContext::GetLogicalDevice();
+
+		VkShaderModuleCreateInfo createInfo = {};
+		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+		createInfo.codeSize = 4 * code.size();
+		createInfo.pCode = code.data();
+
+		VkShaderModule shaderModule = nullptr;
+		VK_CHECK_RESULT(vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule));
+
+		ILG_CORE_TRACE("VulkanShader::Reflect - {0} {1}", Utils::ShaderStageToString(stage), filePath);
+
+		ReflectShader(code, stage);
+
+		shaders.push_back({ stage, shaderModule });
+	}
 	
-	const std::vector<uint32_t> VulkanShader::ConvertToSpirV(VkShaderStageFlagBits stage, std::string_view code) const
+	const std::vector<uint32_t> VulkanShader::ConvertToSpirV(VkShaderStageFlagBits stage, const std::string_view& code) const
 	{
 		shaderc::Compiler compiler;
 		shaderc::CompileOptions options;

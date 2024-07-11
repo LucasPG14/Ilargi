@@ -17,14 +17,26 @@ namespace Ilargi
 		{
 			switch (type)
 			{
-			case Ilargi::ResourceType::NONE: return "UNKNOWN";
-			case Ilargi::ResourceType::MODEL: return "MODEL";
-			case Ilargi::ResourceType::TEXTURE2D: return "TEXTURE2D";
-			case Ilargi::ResourceType::MATERIAL: return "MATERIAL";
-			case Ilargi::ResourceType::SCENE: return "SCENE";
+			case Ilargi::ResourceType::NONE:		return "UNKNOWN";
+			case Ilargi::ResourceType::MODEL:		return "MODEL";
+			case Ilargi::ResourceType::TEXTURE2D:	return "TEXTURE2D";
+			case Ilargi::ResourceType::MATERIAL:	return "MATERIAL";
+			case Ilargi::ResourceType::SCENE:		return "SCENE";
 			}
 
 			return "Unknown";
+		}
+
+		bool IsResourceValid(std::string extension)
+		{
+			if (extension == std::string(".imodel"))
+				return true;
+			if (extension == std::string(".itex"))
+				return true;
+			if (extension == std::string(".ilargi"))
+				return true;
+
+			return false;
 		}
 	}
 
@@ -78,8 +90,9 @@ namespace Ilargi
 			ImGui::Text(dir.string().c_str());
 			if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
 			{
-				bool ret = true;
-				ret = false;
+				uint32_t end = actualDir.string().find(dir.string()) + dir.string().length();
+				actualDir = actualDir.string().substr(0, end);
+				break;
 			}
 
 			ImGui::SameLine();
@@ -93,22 +106,11 @@ namespace Ilargi
 
 		ImGui::Columns(1);
 
+		if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+			selectedFile.clear();
+
 		if (ImGui::BeginPopupContextWindow("##HierarchyPopup"))
 		{
-			if (ImGui::MenuItem("Create Material"))
-			{
-				ResourceMetadata metadata;
-				metadata.type = ResourceType::MATERIAL;
-				metadata.filepath = actualDir / "NewMaterial.ires";
-				metadata.sourceFile = "";
-
-				ResourceManager::RegisterResource(metadata);
-
-				Buffer buffer;
-				buffer.size = 0;
-				buffer.data = nullptr;
-				FileSystem::WriteBinaryFile(metadata.filepath, buffer);
-			}
 			if (ImGui::MenuItem("Create Folder"))
 			{
 				std::filesystem::create_directory(actualDir / "New Folder");
@@ -176,8 +178,8 @@ namespace Ilargi
 			}
 			else
 			{
-				//if (path.extension().string() != "itex" || path.extension().string() != "imodel")
-				//	continue;
+				if (!Utils::IsResourceValid(path.extension().string()))
+					continue;
 
 				ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
 				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
@@ -190,8 +192,17 @@ namespace Ilargi
 				ImGui::PushStyleColor(ImGuiCol_Border, colorBg);
 				if (ImGui::BeginChild(path.string().c_str(), {cellX, cellY}, true, ImGuiWindowFlags_NoDecoration))
 				{
-					if (ImGui::IsWindowHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left))
-						selectedFile = path;
+					if (ImGui::IsWindowHovered())
+					{
+						if (ImGui::IsMouseDown(ImGuiMouseButton_Left))
+							selectedFile = path;
+
+						else if (ImGui::IsMouseDown(ImGuiMouseButton_Right))
+						{
+							selectedFile = path;
+							// TODO: Pop up with options for this file
+						}
+					}
 
 					ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 8.0f, 8.0f });
 					if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
@@ -247,9 +258,8 @@ namespace Ilargi
 			const auto& relative = std::filesystem::relative(path, actualDir);
 			const auto& filename = path.stem().string();
 
-			if (file.is_directory())
+			if (file.is_directory() || !Utils::IsResourceValid(path.extension().string()))
 				continue;
-
 
 			//if (path.extension().string() != "itex" || path.extension().string() != "imodel")
 			//	continue;
@@ -263,7 +273,7 @@ namespace Ilargi
 				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 				{
 					ImGui::SetDragDropPayload("RESOURCE", &assets[path], sizeof(assets[path]));
-					ImGui::Text(path.filename().string().c_str());
+					ImGui::Text(filename.c_str());
 					ImGui::EndDragDropSource();
 				}
 				ImGui::PopStyleVar();

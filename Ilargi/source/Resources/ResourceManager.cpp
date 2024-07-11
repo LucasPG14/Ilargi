@@ -3,6 +3,7 @@
 #include "ResourceManager.h"
 #include "Utils/Importers/ModelImporter.h"
 #include "Utils/Importers/TextureImporter.h"
+#include "Utils/Importers/SceneImporter.h"
 
 #include <ArduinoJson-v7.0.4.h>
 
@@ -16,6 +17,7 @@ namespace Ilargi
 			{
 			case ResourceType::TEXTURE2D: return ".itex";
 			case ResourceType::MODEL: return ".imodel";
+			case ResourceType::SCENE: return ".ilargi";
 			}
 		}
 	}
@@ -34,14 +36,16 @@ namespace Ilargi
 	static std::map<ResourceType, ImportFn> importers =
 	{
 		{ ResourceType::MODEL, ModelImporter::ImportModel },
-		{ ResourceType::TEXTURE2D, TextureImporter::ImportTexture }
+		{ ResourceType::TEXTURE2D, TextureImporter::ImportTexture },
+		{ ResourceType::SCENE, SceneImporter::ImportScene },
 	};
 
 	using LoadFn = std::function<std::shared_ptr<Resource>(const ResourceMetadata&)>;
 	static std::map<ResourceType, LoadFn> loaders =
 	{
 		{ ResourceType::TEXTURE2D, TextureImporter::LoadTexture },
-		{ ResourceType::MODEL, ModelImporter::LoadModel }
+		{ ResourceType::MODEL, ModelImporter::LoadModel },
+		{ ResourceType::SCENE, SceneImporter::LoadScene },
 	};
 
 	std::unordered_map<UUID, ResourceMetadata> ResourceManager::resourcesMetadata;
@@ -107,6 +111,7 @@ namespace Ilargi
 
 		const auto& metadata = resourcesMetadata.at(uuid);
 		resource = loaders[metadata.type](metadata);
+		resource->resourceUUID = uuid;
 		loadedResources[uuid] = resource;
 
 		return resource;
@@ -130,6 +135,7 @@ namespace Ilargi
 		JsonDocument document;
 
 		std::ofstream file("ResourceRegistry.json", std::ios::out | std::ios::binary);
+		file.clear();
 
 		for (auto it = resourcesMetadata.begin(); it != resourcesMetadata.end(); ++it)
 		{

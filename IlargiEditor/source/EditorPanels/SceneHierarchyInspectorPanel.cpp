@@ -13,8 +13,8 @@
 
 namespace Ilargi
 {
-	SceneHierarchyInspectorPanel::SceneHierarchyInspectorPanel(const std::shared_ptr<Scene>& actualScene)
-		: scene(actualScene), selected(entt::null)
+	SceneHierarchyInspectorPanel::SceneHierarchyInspectorPanel()
+		: scene(nullptr), selected(entt::null)
 	{
 	}
 

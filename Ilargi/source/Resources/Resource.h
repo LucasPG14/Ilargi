@@ -25,5 +25,8 @@ namespace Ilargi
 	{
 	public:
 		virtual const ResourceType GetType() const = 0;
+
+	public:
+		UUID resourceUUID;
 	};
 }

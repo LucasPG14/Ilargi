@@ -2,15 +2,18 @@
 
 #include <entt.hpp>
 
+#include "Resources/Resource.h"
 #include "Components/Components.h"
 
 namespace Ilargi
 {
-	class Scene
+	class Scene : public Resource
 	{
 	public:
 		Scene();
 		~Scene();
+
+		const ResourceType GetType() const override { return ResourceType::SCENE; }
 
 		void Destroy();
 
