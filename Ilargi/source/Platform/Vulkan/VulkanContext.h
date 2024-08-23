@@ -24,24 +24,24 @@ namespace Ilargi
 	class VulkanContext : public GraphicsContext
 	{
 	public:
-		VulkanContext(GLFWwindow* win, std::string_view appName);
+		VulkanContext(GLFWwindow* aWindow, std::string_view aAppName);
 		virtual ~VulkanContext();
 
 		void Destroy() const override;
 
-		static VkInstance GetInstance() { return instance; }
+		static VkInstance GetInstance() { return sInstance; }
 
-		static VkSurfaceKHR GetSurface() { return surface; }
-		static VkPhysicalDevice GetPhysicalDevice() { return physicalDevice; }
-		static VkDevice GetLogicalDevice() { return logicalDevice; }
+		static VkSurfaceKHR GetSurface() { return sSurface; }
+		static VkPhysicalDevice GetPhysicalDevice() { return sPhysicalDevice; }
+		static VkDevice GetLogicalDevice() { return sLogicalDevice; }
 
-		static QueueFamilyIndices GetQueueIndices() { return indices; }
-		static SwapchainSupportDetails GetSwapchainSupport() { return swapchainSupport; }
+		static QueueFamilyIndices GetQueueIndices() { return sIndices; }
+		static SwapchainSupportDetails GetSwapchainSupport() { return sSwapchainSupport; }
 		
-		static VkCommandPool GetCommandPool() { return commandPool; }
-		static VkDescriptorPool GetDescriptorPool() { return descriptorPool; }
+		static VkCommandPool GetCommandPool() { return sCommandPool; }
+		static VkDescriptorPool GetDescriptorPool() { return sDescriptorPool; }
 		
-		static VkQueue GetGraphicsQueue() { return graphicsQueue; }
+		static VkQueue GetGraphicsQueue() { return sGraphicsQueue; }
 
 		static const VkCommandBuffer BeginSingleCommandBuffer();
 		static void EndSingleCommandBuffer(const VkCommandBuffer commandBuffer);
@@ -49,27 +49,27 @@ namespace Ilargi
 	private:
 		const std::vector<const char*> GetRequiredExtensions() const;
 
-		bool IsDeviceSuitable(VkPhysicalDevice device) const;
+		bool IsDeviceSuitable(VkPhysicalDevice aDevice) const;
 		
-		bool CanCreateSwapchain(VkPhysicalDevice device) const;
+		bool CanCreateSwapchain(VkPhysicalDevice aDevice) const;
 		const QueueFamilyIndices FindQueueFamilies() const;
 
 	private:
-		static VkInstance instance;
+		static VkInstance sInstance;
 #ifdef ILG_DEBUG
-		VkDebugUtilsMessengerEXT debugMessenger;
+		VkDebugUtilsMessengerEXT mDebugMessenger;
 #endif
-		static VkSurfaceKHR surface;
-		static VkPhysicalDevice physicalDevice;
-		static VkDevice logicalDevice;
+		static VkSurfaceKHR sSurface;
+		static VkPhysicalDevice sPhysicalDevice;
+		static VkDevice sLogicalDevice;
 
-		static QueueFamilyIndices indices;
-		static SwapchainSupportDetails swapchainSupport;
+		static QueueFamilyIndices sIndices;
+		static SwapchainSupportDetails sSwapchainSupport;
 
-		static VkCommandPool commandPool;
+		static VkCommandPool sCommandPool;
 
-		static VkQueue graphicsQueue;
+		static VkQueue sGraphicsQueue;
 
-		static VkDescriptorPool descriptorPool;
+		static VkDescriptorPool sDescriptorPool;
 	};
 }

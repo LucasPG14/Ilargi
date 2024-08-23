@@ -34,8 +34,8 @@ namespace Ilargi
 		}
 	}
 
-	VulkanPipeline::VulkanPipeline(const PipelineProperties& props) 
-		: properties(props), pipeline(VK_NULL_HANDLE), pipelineLayout(VK_NULL_HANDLE), descriptorSetLayout(VK_NULL_HANDLE)
+	VulkanPipeline::VulkanPipeline(const PipelineProperties& aProperties) 
+		: mProperties(aProperties), mPipeline(VK_NULL_HANDLE), mPipelineLayout(VK_NULL_HANDLE), mDescriptorSetLayout(VK_NULL_HANDLE)
 	{
 	}
 	
@@ -43,7 +43,7 @@ namespace Ilargi
 	{
 	}
 
-	void VulkanPipeline::Init(VkRenderPass renderPass, const std::vector<ImageFormat>& formats)
+	void VulkanPipeline::Init(VkRenderPass aRenderPass, const std::vector<ImageFormat>& aFormats)
 	{
 		auto device = VulkanContext::GetLogicalDevice();
 
@@ -53,7 +53,7 @@ namespace Ilargi
 		VkPipelineCacheCreateInfo pipelineCacheInfo = {};
 		pipelineCacheInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
 
-		Buffer buffer = FileSystem::ReadBinaryFile(std::filesystem::path("cache/vulkan/pipelines/" + properties.name + ".pipe"));
+		Buffer buffer = FileSystem::ReadBinaryFile(std::filesystem::path("cache/vulkan/pipelines/" + mProperties.name + ".pipe"));
 
 		if (buffer.size > 0)
 		{
@@ -64,7 +64,7 @@ namespace Ilargi
 
 		VkGraphicsPipelineCreateInfo pipelineInfo = {};
 
-		auto shader = std::static_pointer_cast<VulkanShader>(properties.shader);
+		auto shader = std::static_pointer_cast<VulkanShader>(mProperties.shader);
 
 		// Creating the pipeline layout
 		{
@@ -75,7 +75,7 @@ namespace Ilargi
 			pipelineLayoutInfo.pushConstantRangeCount = static_cast<uint32_t>(shader->GetPushConstants().size());
 			pipelineLayoutInfo.pPushConstantRanges = shader->GetPushConstants().data();
 
-			VK_CHECK_RESULT(vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout));
+			VK_CHECK_RESULT(vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &mPipelineLayout));
 		}
 
 		const auto& shaders = shader->GetShaders();
@@ -94,10 +94,10 @@ namespace Ilargi
 		// TODO: Gives an error when layout is empty
 		VkVertexInputBindingDescription bindingDescription = {};
 		bindingDescription.binding = 0;
-		bindingDescription.stride = properties.layout.GetStride();
+		bindingDescription.stride = mProperties.layout.GetStride();
 		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
-		const auto& elements = properties.layout.GetElements();
+		const auto& elements = mProperties.layout.GetElements();
 		std::vector<VkVertexInputAttributeDescription> attributeDescriptions(elements.size());
 
 		int i = 0;
@@ -181,9 +181,9 @@ namespace Ilargi
 
 		std::vector<VkPipelineColorBlendAttachmentState> colorBlendAttachments;
 
-		for (int i = 0; i < formats.size(); ++i)
+		for (int i = 0; i < aFormats.size(); ++i)
 		{
-			if (Utils::IsDepth(formats[i]))
+			if (Utils::IsDepth(aFormats[i]))
 				continue;
 
 			VkPipelineColorBlendAttachmentState& colorBlendAttachment = colorBlendAttachments.emplace_back();
@@ -208,7 +208,7 @@ namespace Ilargi
 		colorBlending.blendConstants[2] = 0.0f;
 		colorBlending.blendConstants[3] = 0.0f;
 
-		if (properties.depth)
+		if (mProperties.depth)
 		{
 			VkPipelineDepthStencilStateCreateInfo depthStencil = {};
 			depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
@@ -236,15 +236,15 @@ namespace Ilargi
 		pipelineInfo.pColorBlendState = &colorBlending;
 		pipelineInfo.pDynamicState = &dynamicState;
 
-		pipelineInfo.layout = pipelineLayout;
+		pipelineInfo.layout = mPipelineLayout;
 
-		pipelineInfo.renderPass = renderPass;
+		pipelineInfo.renderPass = aRenderPass;
 		pipelineInfo.subpass = 0;
 
 		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 		pipelineInfo.basePipelineIndex = -1;
 
-		VK_CHECK_RESULT(vkCreateGraphicsPipelines(device, pipelineCache, 1, &pipelineInfo, nullptr, &pipeline));
+		VK_CHECK_RESULT(vkCreateGraphicsPipelines(device, pipelineCache, 1, &pipelineInfo, nullptr, &mPipeline));
 
 		if (buffer.size == 0)
 		{
@@ -253,7 +253,7 @@ namespace Ilargi
 			buffer.data = new char[buffer.size];
 			VK_CHECK_RESULT(vkGetPipelineCacheData(device, pipelineCache, &buffer.size, buffer.data));
 
-			FileSystem::WriteBinaryFile(std::filesystem::path("cache/vulkan/pipelines/" + properties.name + ".pipe"), buffer);
+			FileSystem::WriteBinaryFile(std::filesystem::path("cache/vulkan/pipelines/" + mProperties.name + ".pipe"), buffer);
 		}
 		
 		delete buffer.data;
@@ -265,43 +265,43 @@ namespace Ilargi
 	{
 		auto device = VulkanContext::GetLogicalDevice();
 
-		properties.shader->Destroy();
-		vkDestroyPipeline(device, pipeline, nullptr);
-		vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
-		vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
+		mProperties.shader->Destroy();
+		vkDestroyPipeline(device, mPipeline, nullptr);
+		vkDestroyPipelineLayout(device, mPipelineLayout, nullptr);
+		vkDestroyDescriptorSetLayout(device, mDescriptorSetLayout, nullptr);
 	}
 
-	void VulkanPipeline::PushConstants(const std::shared_ptr<CommandBuffer>& commandBuffer, uint32_t offset, uint32_t size, const void* data) const
+	void VulkanPipeline::PushConstants(const std::shared_ptr<CommandBuffer>& aCommandBuffer, uint32_t aOffset, uint32_t aSize, const void* aData) const
 	{
-		Renderer::Submit([this, commandBuffer, offset, size, data]()
+		Renderer::Submit([this, aCommandBuffer, aOffset, aSize, aData]()
 			{
 				uint32_t currentFrame = Renderer::GetCurrentFrame();
 
-				auto cmdBuffer = std::static_pointer_cast<VulkanCommandBuffer>(commandBuffer)->GetCurrentCommand(currentFrame);
-				vkCmdPushConstants(cmdBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, offset, size, data);
+				auto cmdBuffer = std::static_pointer_cast<VulkanCommandBuffer>(aCommandBuffer)->GetCurrentCommand(currentFrame);
+				vkCmdPushConstants(cmdBuffer, mPipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, aOffset, aSize, aData);
 			});
 	}
 
-	void VulkanPipeline::Bind(const std::shared_ptr<CommandBuffer>& commandBuffer) const
+	void VulkanPipeline::Bind(const std::shared_ptr<CommandBuffer>& aCommandBuffer) const
 	{
-		Renderer::Submit([this, commandBuffer]()
+		Renderer::Submit([this, aCommandBuffer]()
 			{
 				uint32_t currentFrame = Renderer::GetCurrentFrame();
 
-				auto cmdBuffer = std::static_pointer_cast<VulkanCommandBuffer>(commandBuffer)->GetCurrentCommand(currentFrame);
-				vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+				auto cmdBuffer = std::static_pointer_cast<VulkanCommandBuffer>(aCommandBuffer)->GetCurrentCommand(currentFrame);
+				vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mPipeline);
 			});
 	}
 	
-	void VulkanPipeline::BindDescriptorSet(const std::shared_ptr<CommandBuffer>& commandBuffer, std::shared_ptr<Material> material) const
+	void VulkanPipeline::BindDescriptorSet(const std::shared_ptr<CommandBuffer>& aCommandBuffer, std::shared_ptr<Material> aMaterial) const
 	{
-		Renderer::Submit([this, commandBuffer, material]()
+		Renderer::Submit([this, aCommandBuffer, aMaterial]()
 			{
 				uint32_t currentFrame = Renderer::GetCurrentFrame();
 
-				auto cmdBuffer = std::static_pointer_cast<VulkanCommandBuffer>(commandBuffer)->GetCurrentCommand(currentFrame);
-				std::vector<VkDescriptorSet> descriptorSets = { (VkDescriptorSet)material->GetDescriptorSet() };
-				vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
+				auto cmdBuffer = std::static_pointer_cast<VulkanCommandBuffer>(aCommandBuffer)->GetCurrentCommand(currentFrame);
+				std::vector<VkDescriptorSet> descriptorSets = { (VkDescriptorSet)aMaterial->GetDescriptorSet() };
+				vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mPipelineLayout, 0, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
 			});
 	}
 }

@@ -10,33 +10,33 @@ namespace Ilargi
 		EditorCamera();
 		~EditorCamera();
 
-		const mat4& GetViewMatrix() const { return viewMatrix; }
-		const mat4& GetProjectionMatrix() const { return projectionMatrix; }
+		const mat4& GetViewMatrix() const { return mViewMatrix; }
+		const mat4& GetProjectionMatrix() const { return mProjectionMatrix; }
 
-		const mat4& GetViewProjectionMatrix() const { return projectionMatrix * viewMatrix; }
+		const mat4& GetViewProjectionMatrix() const { return mProjectionMatrix * mViewMatrix; }
 
 		void Update();
 
-		void Resize(float width, float height);
+		void Resize(float aWidth, float aHeight);
 
 	private:
 		void ComputeViewMatrix();
 
 	private:
-		mat4 viewMatrix;
-		mat4 projectionMatrix;
+		mat4 mViewMatrix;
+		mat4 mProjectionMatrix;
 
-		vec3 position;
-		vec3 up;
-		vec3 front;
+		vec3 mPosition;
+		vec3 mUp;
+		vec3 mFront;
 
-		float hFov;
-		float nearPlane;
-		float farPlane;
+		float mHorizontalFov;
+		float mNearPlane;
+		float mFarPlane;
 
-		float yaw;
-		float pitch;
+		float mYaw;
+		float mPitch;
 
-		vec2 mousePosition;
+		vec2 mMousePosition;
 	};
 }

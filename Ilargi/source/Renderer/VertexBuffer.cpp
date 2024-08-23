@@ -7,11 +7,11 @@
 
 namespace Ilargi
 {
-	std::shared_ptr<VertexBuffer> VertexBuffer::Create(void* data, uint32_t size)
+	std::shared_ptr<VertexBuffer> VertexBuffer::Create(void* aData, uint32_t aSize)
 	{
 		switch (Renderer::GetGraphicsAPI())
 		{
-		case GraphicsAPI::VULKAN:	return std::make_shared<VulkanVertexBuffer>(data, size);
+		case GraphicsAPI::VULKAN:	return std::make_shared<VulkanVertexBuffer>(aData, aSize);
 		}
 
 		ILG_ASSERT(nullptr, "The platform specified is not supported");

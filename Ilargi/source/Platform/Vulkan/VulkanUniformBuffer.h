@@ -16,9 +16,9 @@ namespace Ilargi
 		void SetData(void* data) override;
 
 	private:
-		uint32_t size;
+		uint32_t mSize;
 
-		std::vector<VulkanBuffer> ubos;
-		std::vector<void*> uniformBuffersMapped;
+		std::vector<VulkanBuffer> mUbos;
+		std::vector<void*> mUniformBuffersMapped;
 	};
 }

@@ -9,21 +9,21 @@ namespace Ilargi
 	class VulkanRenderPass : public RenderPass
 	{
 	public:
-		VulkanRenderPass(const RenderPassProperties& props);
+		VulkanRenderPass(const RenderPassProperties& aProperties);
 		virtual ~VulkanRenderPass();
 
 		void Destroy() override;
 
-		void BeginRenderPass(const std::shared_ptr<CommandBuffer>& commandBuffer) const override;
-		void EndRenderPass(const std::shared_ptr<CommandBuffer>& commandBuffer) const override;
+		void BeginRenderPass(const std::shared_ptr<CommandBuffer>& aCommandBuffer) const override;
+		void EndRenderPass(const std::shared_ptr<CommandBuffer>& aCommandBuffer) const override;
 
-		const RenderPassProperties& GetProperties() const override { return properties; }
+		const RenderPassProperties& GetProperties() const override { return mProperties; }
 
-		const VkRenderPass GetRenderPass() const { return renderPass; }
+		const VkRenderPass GetRenderPass() const { return mRenderPass; }
 	private:
-		RenderPassProperties properties;
+		RenderPassProperties mProperties;
 
-		VkRenderPass renderPass;
-		std::vector<VkClearValue> clearValues;
+		VkRenderPass mRenderPass;
+		std::vector<VkClearValue> mClearValues;
 	};
 }

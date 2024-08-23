@@ -44,23 +44,23 @@ namespace Ilargi
 		return VK_FALSE;
 	}
 	
-	VkInstance VulkanContext::instance = VK_NULL_HANDLE;
-	VkSurfaceKHR VulkanContext::surface = VK_NULL_HANDLE;
-	VkPhysicalDevice VulkanContext::physicalDevice = VK_NULL_HANDLE;
-	VkDevice VulkanContext::logicalDevice = VK_NULL_HANDLE;
-	QueueFamilyIndices VulkanContext::indices = {};
-	SwapchainSupportDetails VulkanContext::swapchainSupport = {};
-	VkCommandPool VulkanContext::commandPool = VK_NULL_HANDLE;
-	VkQueue VulkanContext::graphicsQueue = VK_NULL_HANDLE;
-	VkDescriptorPool VulkanContext::descriptorPool = VK_NULL_HANDLE;
+	VkInstance VulkanContext::sInstance = VK_NULL_HANDLE;
+	VkSurfaceKHR VulkanContext::sSurface = VK_NULL_HANDLE;
+	VkPhysicalDevice VulkanContext::sPhysicalDevice = VK_NULL_HANDLE;
+	VkDevice VulkanContext::sLogicalDevice = VK_NULL_HANDLE;
+	QueueFamilyIndices VulkanContext::sIndices = {};
+	SwapchainSupportDetails VulkanContext::sSwapchainSupport = {};
+	VkCommandPool VulkanContext::sCommandPool = VK_NULL_HANDLE;
+	VkQueue VulkanContext::sGraphicsQueue = VK_NULL_HANDLE;
+	VkDescriptorPool VulkanContext::sDescriptorPool = VK_NULL_HANDLE;
 
-	VulkanContext::VulkanContext(GLFWwindow* win, std::string_view appName)
+	VulkanContext::VulkanContext(GLFWwindow* aWindow, std::string_view aAppName)
 	{
 		// Filling aplication info struct to create the instance
 		{
 			VkApplicationInfo applicationInfo = {};
 			applicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-			applicationInfo.pApplicationName = appName.data();
+			applicationInfo.pApplicationName = aAppName.data();
 			applicationInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
 			applicationInfo.pEngineName = "Ilargi";
 			applicationInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
@@ -81,13 +81,13 @@ namespace Ilargi
 				instanceInfo.enabledLayerCount = 0;
 			#endif
 
-			VK_CHECK_RESULT(vkCreateInstance(&instanceInfo, nullptr, &instance));
+			VK_CHECK_RESULT(vkCreateInstance(&instanceInfo, nullptr, &sInstance));
 		}
 
 		#ifdef ILG_DEBUG
 		// Creating the validation layer debugger
 		{
-			debugMessenger = VK_NULL_HANDLE;
+			mDebugMessenger = VK_NULL_HANDLE;
 
 			VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo = {};
 			debugCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
@@ -96,46 +96,46 @@ namespace Ilargi
 			debugCreateInfo.pfnUserCallback = VulkanDebugCallback;
 			debugCreateInfo.pUserData = nullptr;
 
-			auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+			auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(sInstance, "vkCreateDebugUtilsMessengerEXT");
 			ILG_ASSERT(func != nullptr, "Vulkan function to enable validation layers not found!");
 			
-			func(instance, &debugCreateInfo, nullptr, &debugMessenger);
+			func(sInstance, &debugCreateInfo, nullptr, &mDebugMessenger);
 		}
 		#endif
 
 		// TODO: Maybe this should done in another way if we need to change GLFW to support other platforms
-		VK_CHECK_RESULT(glfwCreateWindowSurface(instance, win, nullptr, &surface));
+		VK_CHECK_RESULT(glfwCreateWindowSurface(sInstance, aWindow, nullptr, &sSurface));
 
 		// Creating the physical device
 		{
 			uint32_t deviceCount = 0;
-			vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+			vkEnumeratePhysicalDevices(sInstance, &deviceCount, nullptr);
 
 			ILG_ASSERT(deviceCount, "Unable to find a GPU with Vulkan support");
 
 			std::vector<VkPhysicalDevice> devices(deviceCount);
-			vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
+			vkEnumeratePhysicalDevices(sInstance, &deviceCount, devices.data());
 
 			for (const auto& device : devices)
 			{
 				if (IsDeviceSuitable(device))
 				{
-					physicalDevice = device;
+					sPhysicalDevice = device;
 					break;
 				}
 			}
 
-			ILG_ASSERT(physicalDevice, "Unable to find a suitable GPU!");
+			ILG_ASSERT(sPhysicalDevice, "Unable to find a suitable GPU!");
 		}
 
 		// Creating the logical device
 		{
-			indices = FindQueueFamilies();
+			sIndices = FindQueueFamilies();
 
 			VkPhysicalDeviceFeatures deviceFeatures = {};
 
 			std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-			std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily, indices.presentFamily };
+			std::set<uint32_t> uniqueQueueFamilies = { sIndices.graphicsFamily, sIndices.presentFamily };
 
 			float queuePriority = 1.0f;
 			for (uint32_t queueFamily : uniqueQueueFamilies)
@@ -166,19 +166,19 @@ namespace Ilargi
 				deviceInfo.enabledLayerCount = 0;
 			#endif
 			
-			VK_CHECK_RESULT(vkCreateDevice(physicalDevice, &deviceInfo, nullptr, &logicalDevice));
+			VK_CHECK_RESULT(vkCreateDevice(sPhysicalDevice, &deviceInfo, nullptr, &sLogicalDevice));
 		}
 
-		vkGetDeviceQueue(logicalDevice, indices.graphicsFamily, 0, &graphicsQueue);
+		vkGetDeviceQueue(sLogicalDevice, sIndices.graphicsFamily, 0, &sGraphicsQueue);
 
 		// Creating command pool
 		{
 			VkCommandPoolCreateInfo poolInfo = {};
 			poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 			poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-			poolInfo.queueFamilyIndex = indices.graphicsFamily;
+			poolInfo.queueFamilyIndex = sIndices.graphicsFamily;
 
-			VK_CHECK_RESULT(vkCreateCommandPool(logicalDevice, &poolInfo, nullptr, &commandPool));
+			VK_CHECK_RESULT(vkCreateCommandPool(sLogicalDevice, &poolInfo, nullptr, &sCommandPool));
 		}
 
 		VulkanAllocator::Init();
@@ -206,7 +206,7 @@ namespace Ilargi
 			poolInfo.poolSizeCount = static_cast<uint32_t>(std::size(poolSizes));
 			poolInfo.pPoolSizes = poolSizes;
 
-			VK_CHECK_RESULT(vkCreateDescriptorPool(logicalDevice, &poolInfo, nullptr, &descriptorPool));
+			VK_CHECK_RESULT(vkCreateDescriptorPool(sLogicalDevice, &poolInfo, nullptr, &sDescriptorPool));
 		}
 	}
 	
@@ -218,21 +218,21 @@ namespace Ilargi
 	{
 		VulkanAllocator::Destroy();
 
-		vkDestroyDescriptorPool(logicalDevice, descriptorPool, nullptr);
+		vkDestroyDescriptorPool(sLogicalDevice, sDescriptorPool, nullptr);
 
-		vkDestroyCommandPool(logicalDevice, commandPool, nullptr);
+		vkDestroyCommandPool(sLogicalDevice, sCommandPool, nullptr);
 
-		vkDestroyDevice(logicalDevice, nullptr);
+		vkDestroyDevice(sLogicalDevice, nullptr);
 
-		vkDestroySurfaceKHR(instance, surface, nullptr);
+		vkDestroySurfaceKHR(sInstance, sSurface, nullptr);
 
 		#ifdef ILG_DEBUG
-			auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+			auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(sInstance, "vkDestroyDebugUtilsMessengerEXT");
 			ILG_ASSERT(func, "");
-			func(instance, debugMessenger, nullptr);
+			func(sInstance, mDebugMessenger, nullptr);
 		#endif
 
-		vkDestroyInstance(instance, nullptr);
+		vkDestroyInstance(sInstance, nullptr);
 	}
 	
 	const VkCommandBuffer VulkanContext::BeginSingleCommandBuffer()
@@ -240,11 +240,11 @@ namespace Ilargi
 		VkCommandBufferAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandPool = commandPool;
+		allocInfo.commandPool = sCommandPool;
 		allocInfo.commandBufferCount = 1;
 
 		VkCommandBuffer commandBuffer;
-		vkAllocateCommandBuffers(logicalDevice, &allocInfo, &commandBuffer);
+		vkAllocateCommandBuffers(sLogicalDevice, &allocInfo, &commandBuffer);
 
 		VkCommandBufferBeginInfo beginInfo = {};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -255,19 +255,19 @@ namespace Ilargi
 		return commandBuffer;
 	}
 
-	void VulkanContext::EndSingleCommandBuffer(const VkCommandBuffer commandBuffer)
+	void VulkanContext::EndSingleCommandBuffer(const VkCommandBuffer aCommandBuffer)
 	{
-		vkEndCommandBuffer(commandBuffer);
+		vkEndCommandBuffer(aCommandBuffer);
 
 		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &commandBuffer;
+		submitInfo.pCommandBuffers = &aCommandBuffer;
 
-		vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-		vkQueueWaitIdle(graphicsQueue);
+		vkQueueSubmit(sGraphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+		vkQueueWaitIdle(sGraphicsQueue);
 
-		vkFreeCommandBuffers(logicalDevice, commandPool, 1, &commandBuffer);
+		vkFreeCommandBuffers(sLogicalDevice, sCommandPool, 1, &aCommandBuffer);
 	}
 
 	const std::vector<const char*> VulkanContext::GetRequiredExtensions() const
@@ -285,26 +285,26 @@ namespace Ilargi
 		return extensions;
 	}
 
-	bool VulkanContext::IsDeviceSuitable(VkPhysicalDevice device) const
+	bool VulkanContext::IsDeviceSuitable(VkPhysicalDevice aDevice) const
 	{
 		VkPhysicalDeviceProperties deviceProperties;
 		VkPhysicalDeviceFeatures deviceFeatures;
-		vkGetPhysicalDeviceProperties(device, &deviceProperties);
-		vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+		vkGetPhysicalDeviceProperties(aDevice, &deviceProperties);
+		vkGetPhysicalDeviceFeatures(aDevice, &deviceFeatures);
 
-		bool swapChainAdequate = CanCreateSwapchain(device);
+		bool swapChainAdequate = CanCreateSwapchain(aDevice);
 
 		return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU &&
 			deviceFeatures.geometryShader && swapChainAdequate;
 	}
 	
-	bool VulkanContext::CanCreateSwapchain(VkPhysicalDevice device) const
+	bool VulkanContext::CanCreateSwapchain(VkPhysicalDevice aDevice) const
 	{
 		uint32_t formatCount;
-		vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
+		vkGetPhysicalDeviceSurfaceFormatsKHR(aDevice, sSurface, &formatCount, nullptr);
 
 		uint32_t presentModeCount;
-		vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
+		vkGetPhysicalDeviceSurfacePresentModesKHR(aDevice, sSurface, &presentModeCount, nullptr);
 
 		return formatCount > 0 && presentModeCount > 0;
 	}
@@ -315,10 +315,10 @@ namespace Ilargi
 		// Logic to find queue family indices to populate struct with
 
 		uint32_t queueFamilyCount = 0;
-		vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
+		vkGetPhysicalDeviceQueueFamilyProperties(sPhysicalDevice, &queueFamilyCount, nullptr);
 
 		std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-		vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
+		vkGetPhysicalDeviceQueueFamilyProperties(sPhysicalDevice, &queueFamilyCount, queueFamilies.data());
 
 		int i = 0;
 		for (const auto& queueFamily : queueFamilies)
@@ -329,7 +329,7 @@ namespace Ilargi
 			}
 
 			VkBool32 presentSupport = false;
-			vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, surface, &presentSupport);
+			vkGetPhysicalDeviceSurfaceSupportKHR(sPhysicalDevice, i, sSurface, &presentSupport);
 
 			if (presentSupport)
 			{

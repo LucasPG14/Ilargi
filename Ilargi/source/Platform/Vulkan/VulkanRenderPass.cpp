@@ -12,10 +12,10 @@
 
 namespace Ilargi
 {
-	VulkanRenderPass::VulkanRenderPass(const RenderPassProperties& props) : properties(props)
+	VulkanRenderPass::VulkanRenderPass(const RenderPassProperties& props) : mProperties(props)
 	{
 		auto device = VulkanContext::GetLogicalDevice();
-		const std::vector<ImageFormat>& formats = properties.framebuffer->GetProperties().formats;
+		const std::vector<ImageFormat>& formats = mProperties.framebuffer->GetProperties().formats;
 		
 		std::vector<VkAttachmentDescription> attachments;
 		std::vector<VkAttachmentReference> colorAttachmentRefs;
@@ -38,7 +38,7 @@ namespace Ilargi
 			attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 			attachment.finalLayout = isDepth ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-			VkClearValue& clearValue = clearValues.emplace_back();
+			VkClearValue& clearValue = mClearValues.emplace_back();
 
 			if (!isDepth)
 			{
@@ -77,10 +77,10 @@ namespace Ilargi
 		renderPassInfo.dependencyCount = 1;
 		renderPassInfo.pDependencies = &dependency;
 
-		VK_CHECK_RESULT(vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass));
+		VK_CHECK_RESULT(vkCreateRenderPass(device, &renderPassInfo, nullptr, &mRenderPass));
 
-		std::static_pointer_cast<VulkanFramebuffer>(props.framebuffer)->Init(renderPass);
-		std::static_pointer_cast<VulkanPipeline>(props.pipeline)->Init(renderPass, formats);
+		std::static_pointer_cast<VulkanFramebuffer>(props.framebuffer)->Init(mRenderPass);
+		std::static_pointer_cast<VulkanPipeline>(props.pipeline)->Init(mRenderPass, formats);
 	}
 	
 	VulkanRenderPass::~VulkanRenderPass()
@@ -91,20 +91,20 @@ namespace Ilargi
 	{
 		auto device = VulkanContext::GetLogicalDevice();
 
-		properties.pipeline->Destroy();
-		vkDestroyRenderPass(device, renderPass, nullptr);
+		mProperties.pipeline->Destroy();
+		vkDestroyRenderPass(device, mRenderPass, nullptr);
 	}
 	
 	void VulkanRenderPass::BeginRenderPass(const std::shared_ptr<CommandBuffer>& commandBuffer) const
 	{
 		Renderer::Submit([this, commandBuffer]()
 			{
-				auto framebuffer = std::static_pointer_cast<VulkanFramebuffer>(properties.framebuffer);
+				auto framebuffer = std::static_pointer_cast<VulkanFramebuffer>(mProperties.framebuffer);
 				auto cmdBuffer = std::static_pointer_cast<VulkanCommandBuffer>(commandBuffer)->GetCurrentCommand(Renderer::GetCurrentFrame());
 
 				VkRenderPassBeginInfo renderPassInfo = {};
 				renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-				renderPassInfo.renderPass = renderPass;
+				renderPassInfo.renderPass = mRenderPass;
 				renderPassInfo.framebuffer = framebuffer->GetFramebuffer();
 
 				uint32_t width = framebuffer->GetWidth();
@@ -113,8 +113,8 @@ namespace Ilargi
 				renderPassInfo.renderArea.offset = { 0, 0 };
 				renderPassInfo.renderArea.extent = { width, height };
 
-				renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-				renderPassInfo.pClearValues = clearValues.data();
+				renderPassInfo.clearValueCount = static_cast<uint32_t>(mClearValues.size());
+				renderPassInfo.pClearValues = mClearValues.data();
 
 				VkViewport viewport{};
 				viewport.x = 0.0f;

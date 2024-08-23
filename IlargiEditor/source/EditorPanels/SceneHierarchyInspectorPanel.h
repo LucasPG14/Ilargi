@@ -12,17 +12,17 @@ namespace Ilargi
 
 		void Render();
 		
-		Entity GetSelected() { return selected; }
-		void ResetSelected() { selected = entt::null; }
+		Entity GetSelected() { return mSelected; }
+		void ResetSelected() { mSelected = entt::null; }
 
-		void SetScene(std::shared_ptr<Scene> scn) { scene = scn; }
+		void SetScene(std::shared_ptr<Scene> aScene) { mScene = aScene; }
 
 	private:
 		void DrawInspector();
 
 	private:
-		std::shared_ptr<Scene> scene;
+		std::shared_ptr<Scene> mScene;
 
-		Entity selected;
+		Entity mSelected;
 	};
 }

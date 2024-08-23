@@ -28,8 +28,8 @@ namespace Ilargi
 		}
 	}
 
-	VulkanTexture2D::VulkanTexture2D(std::filesystem::path filepath) : width(0), height(0), image(), 
-		imageView(VK_NULL_HANDLE), sampler(VK_NULL_HANDLE), descriptorSet(VK_NULL_HANDLE)
+	VulkanTexture2D::VulkanTexture2D(std::filesystem::path aFilepath) : mWidth(0), mHeight(0), image(), 
+		mImageView(VK_NULL_HANDLE), mSampler(VK_NULL_HANDLE), mDescriptorSet(VK_NULL_HANDLE)
 	{
 		auto device = VulkanContext::GetLogicalDevice();
 
@@ -37,20 +37,20 @@ namespace Ilargi
 
 		stbi_set_flip_vertically_on_load(false);
 
-		void* data = stbi_load(filepath.string().c_str(), &w, &h, &channels, 4);
+		void* data = stbi_load(aFilepath.string().c_str(), &w, &h, &channels, 4);
 
 		if (!data)
 		{
-			ILG_CORE_ERROR("Unable to load the texture: {0}", filepath.string());
+			ILG_CORE_ERROR("Unable to load the texture: {0}", aFilepath.string());
 			return;
 		}
 
-		width = w;
-		height = h;
+		mWidth = w;
+		mHeight = h;
 
 		VulkanBuffer buffer;
 
-		VkDeviceSize imageSize = width * height * 4;
+		VkDeviceSize imageSize = mWidth * mHeight * 4;
 
 		VkBufferCreateInfo bufferInfo = {};
 		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -67,13 +67,13 @@ namespace Ilargi
 
 		stbi_image_free(data);
 
-		uint32_t mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
+		uint32_t mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(mWidth, mHeight)))) + 1;
 
 		VkImageCreateInfo imageInfo = {};
 		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 		imageInfo.imageType = VK_IMAGE_TYPE_2D;
-		imageInfo.extent.width = width;
-		imageInfo.extent.height = height;
+		imageInfo.extent.width = mWidth;
+		imageInfo.extent.height = mHeight;
 		imageInfo.extent.depth = 1;
 		imageInfo.mipLevels = mipLevels;
 		imageInfo.arrayLayers = 1;
@@ -105,7 +105,7 @@ namespace Ilargi
 			region.imageSubresource.layerCount = 1;
 
 			region.imageOffset = { 0, 0, 0 };
-			region.imageExtent = { width, height, 1 };
+			region.imageExtent = { mWidth, mHeight, 1 };
 
 			vkCmdCopyBufferToImage(commandBuffer, buffer.buffer, image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
@@ -129,7 +129,7 @@ namespace Ilargi
 		viewInfo.subresourceRange.baseArrayLayer = 0;
 		viewInfo.subresourceRange.layerCount = 1;
 
-		VK_CHECK_RESULT(vkCreateImageView(device, &viewInfo, nullptr, &imageView));
+		VK_CHECK_RESULT(vkCreateImageView(device, &viewInfo, nullptr, &mImageView));
 
 		{
 			VkSamplerCreateInfo samplerInfo = {};
@@ -151,14 +151,14 @@ namespace Ilargi
 			samplerInfo.maxLod = static_cast<float>(mipLevels);
 			samplerInfo.mipLodBias = 0.0f;
 
-			VK_CHECK_RESULT(vkCreateSampler(device, &samplerInfo, nullptr, &sampler));
+			VK_CHECK_RESULT(vkCreateSampler(device, &samplerInfo, nullptr, &mSampler));
 		}
 
-		descriptorSet = ImGui_ImplVulkan_AddTexture(sampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		mDescriptorSet = ImGui_ImplVulkan_AddTexture(mSampler, mImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 	}
 
-	VulkanTexture2D::VulkanTexture2D(void* data, int w, int h, int channels) : width(w), height(h), image(),
-		imageView(VK_NULL_HANDLE), sampler(VK_NULL_HANDLE), descriptorSet(VK_NULL_HANDLE)
+	VulkanTexture2D::VulkanTexture2D(void* aData, int aWidth, int aHeight, int aChannels) : mWidth(aWidth), mHeight(aHeight), image(),
+		mImageView(VK_NULL_HANDLE), mSampler(VK_NULL_HANDLE), mDescriptorSet(VK_NULL_HANDLE)
 	{
 		auto device = VulkanContext::GetLogicalDevice();
 
@@ -168,7 +168,7 @@ namespace Ilargi
 		VkFormat format = VK_FORMAT_R8G8B8A8_SRGB;
 
 		// TODO: Change this to support channels
-		VkDeviceSize imageSize = width * height * 4;
+		VkDeviceSize imageSize = mWidth * mHeight * 4;
 
 		VkBufferCreateInfo bufferInfo = {};
 		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -179,19 +179,19 @@ namespace Ilargi
 		VulkanAllocator::AllocateBuffer(buffer, bufferInfo, VMA_MEMORY_USAGE_CPU_TO_GPU);
 		void* vkData = VulkanAllocator::MapMemory(buffer);
 
-		memcpy(vkData, data, imageSize);
+		memcpy(vkData, aData, imageSize);
 
 		VulkanAllocator::UnmapMemory(buffer);
 
-		stbi_image_free(data);
+		stbi_image_free(aData);
 
-		uint32_t mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
+		uint32_t mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(mWidth, mHeight)))) + 1;
 
 		VkImageCreateInfo imageInfo = {};
 		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 		imageInfo.imageType = VK_IMAGE_TYPE_2D;
-		imageInfo.extent.width = width;
-		imageInfo.extent.height = height;
+		imageInfo.extent.width = mWidth;
+		imageInfo.extent.height = mHeight;
 		imageInfo.extent.depth = 1;
 		imageInfo.mipLevels = mipLevels;
 		imageInfo.arrayLayers = 1;
@@ -223,7 +223,7 @@ namespace Ilargi
 			region.imageSubresource.layerCount = 1;
 
 			region.imageOffset = { 0, 0, 0 };
-			region.imageExtent = { width, height, 1 };
+			region.imageExtent = { mWidth, mHeight, 1 };
 
 			vkCmdCopyBufferToImage(commandBuffer, buffer.buffer, image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
@@ -247,7 +247,7 @@ namespace Ilargi
 		viewInfo.subresourceRange.baseArrayLayer = 0;
 		viewInfo.subresourceRange.layerCount = 1;
 
-		VK_CHECK_RESULT(vkCreateImageView(device, &viewInfo, nullptr, &imageView));
+		VK_CHECK_RESULT(vkCreateImageView(device, &viewInfo, nullptr, &mImageView));
 
 		{
 			VkSamplerCreateInfo samplerInfo = {};
@@ -269,10 +269,10 @@ namespace Ilargi
 			samplerInfo.maxLod = static_cast<float>(mipLevels);
 			samplerInfo.mipLodBias = 0.0f;
 
-			VK_CHECK_RESULT(vkCreateSampler(device, &samplerInfo, nullptr, &sampler));
+			VK_CHECK_RESULT(vkCreateSampler(device, &samplerInfo, nullptr, &mSampler));
 		}
 
-		descriptorSet = ImGui_ImplVulkan_AddTexture(sampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		mDescriptorSet = ImGui_ImplVulkan_AddTexture(mSampler, mImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 	}
 	
 	VulkanTexture2D::~VulkanTexture2D()
@@ -280,33 +280,33 @@ namespace Ilargi
 		auto device = VulkanContext::GetLogicalDevice();
 
 		VulkanAllocator::DestroyImage(image);
-		vkDestroySampler(device, sampler, nullptr);
-		vkDestroyImageView(device, imageView, nullptr);
+		vkDestroySampler(device, mSampler, nullptr);
+		vkDestroyImageView(device, mImageView, nullptr);
 	}
 	
-	void VulkanTexture2D::TransitionLayout(uint32_t mipLevels, VkImageLayout oldLayout, VkImageLayout newLayout)
+	void VulkanTexture2D::TransitionLayout(uint32_t aMipLevels, VkImageLayout aOldLayout, VkImageLayout aNewLayout)
 	{
 		// Transitioning image
 		VkCommandBuffer commandBuffer = VulkanContext::BeginSingleCommandBuffer();
 
 		VkImageMemoryBarrier barrier = {};
 		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-		barrier.oldLayout = oldLayout;
-		barrier.newLayout = newLayout;
+		barrier.oldLayout = aOldLayout;
+		barrier.newLayout = aNewLayout;
 		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 
 		barrier.image = image.image;
 		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 		barrier.subresourceRange.baseMipLevel = 0;
-		barrier.subresourceRange.levelCount = mipLevels;
+		barrier.subresourceRange.levelCount = aMipLevels;
 		barrier.subresourceRange.baseArrayLayer = 0;
 		barrier.subresourceRange.layerCount = 1;
 
 		VkPipelineStageFlags sourceStage = 0;
 		VkPipelineStageFlags destinationStage = 0;
 
-		if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) 
+		if (aOldLayout == VK_IMAGE_LAYOUT_UNDEFINED && aNewLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) 
 		{
 			barrier.srcAccessMask = 0;
 			barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
@@ -314,7 +314,7 @@ namespace Ilargi
 			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 			destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
 		}
-		else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) 
+		else if (aOldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && aNewLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) 
 		{
 			barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 			barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
@@ -328,7 +328,7 @@ namespace Ilargi
 		VulkanContext::EndSingleCommandBuffer(commandBuffer);
 	}
 	
-	void VulkanTexture2D::GenerateMipMaps(uint32_t mipLevels)
+	void VulkanTexture2D::GenerateMipMaps(uint32_t aMipLevels)
 	{
 		VkCommandBuffer commandBuffer = VulkanContext::BeginSingleCommandBuffer();
 
@@ -342,10 +342,10 @@ namespace Ilargi
 		barrier.subresourceRange.layerCount = 1;
 		barrier.subresourceRange.levelCount = 1;
 
-		int32_t mipWidth = width;
-		int32_t mipHeight = height;
+		int32_t mipWidth = mWidth;
+		int32_t mipHeight = mHeight;
 
-		for (uint32_t i = 1; i < mipLevels; ++i) 
+		for (uint32_t i = 1; i < aMipLevels; ++i) 
 		{
 			barrier.subresourceRange.baseMipLevel = i - 1;
 			barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
@@ -385,7 +385,7 @@ namespace Ilargi
 				nullptr, 0, nullptr, 1, &barrier);
 		}
 
-		barrier.subresourceRange.baseMipLevel = mipLevels - 1;
+		barrier.subresourceRange.baseMipLevel = aMipLevels - 1;
 		barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
 		barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 		barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;

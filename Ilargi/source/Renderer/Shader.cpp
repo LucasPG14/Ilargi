@@ -9,11 +9,11 @@
 
 namespace Ilargi
 {
-	std::shared_ptr<Shader> Shader::Create(std::string_view vert)
+	std::shared_ptr<Shader> Shader::Create(std::string_view aVert)
 	{
 		switch (Renderer::GetGraphicsAPI())
 		{
-		case GraphicsAPI::VULKAN:	return std::make_shared<VulkanShader>(vert);
+		case GraphicsAPI::VULKAN:	return std::make_shared<VulkanShader>(aVert);
 		}
 
 		ILG_ASSERT(nullptr, "The platform specified is not supported");
@@ -28,23 +28,23 @@ namespace Ilargi
 	{
 	}
 	
-	void ShaderLibrary::Add(std::string name, std::shared_ptr<Shader> shader)
+	void ShaderLibrary::Add(std::string aName, std::shared_ptr<Shader> aShader)
 	{
-		ILG_ASSERT(shaders.find(name) == shaders.end(), "This shader already exists!")
-		shaders[name] = shader;
+		ILG_ASSERT(mShaders.find(aName) == mShaders.end(), "This shader already exists!")
+		mShaders[aName] = aShader;
 	}
 
-	void ShaderLibrary::Add(std::string filepath)
+	void ShaderLibrary::Add(std::string aFilepath)
 	{
-		std::shared_ptr<Shader> shader = Shader::Create(filepath);
-		std::string name = std::filesystem::path(filepath).stem().string();
+		std::shared_ptr<Shader> shader = Shader::Create(aFilepath);
+		std::string name = std::filesystem::path(aFilepath).stem().string();
 
 		Add(name, shader);
 	}
 	
-	std::shared_ptr<Shader> ShaderLibrary::Get(std::string name)
+	std::shared_ptr<Shader> ShaderLibrary::Get(std::string aName)
 	{
-		ILG_ASSERT(shaders.find(name) != shaders.end(), "This shader doesn't exists!");
-		return shaders[name];
+		ILG_ASSERT(mShaders.find(aName) != mShaders.end(), "This shader doesn't exists!");
+		return mShaders[aName];
 	}
 }

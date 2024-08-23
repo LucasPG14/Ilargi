@@ -24,7 +24,7 @@ namespace Ilargi
 		}
 	}
 
-	VulkanSwapchain::VulkanSwapchain() : swapchain(VK_NULL_HANDLE), currentFrame(0), currentImageIndex(0)
+	VulkanSwapchain::VulkanSwapchain() : mSwapchain(VK_NULL_HANDLE), mCurrentFrame(0), mCurrentImageIndex(0)
 	{
 		auto device = VulkanContext::GetLogicalDevice();
 
@@ -40,22 +40,22 @@ namespace Ilargi
 
 		// Creating command buffers
 		{
-			commandBuffers.resize(imageCount);
+			mCommandBuffers.resize(imageCount);
 
 			VkCommandBufferAllocateInfo allocInfo = {};
 			allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 			allocInfo.commandPool = VulkanContext::GetCommandPool();
 			allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-			allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());
+			allocInfo.commandBufferCount = static_cast<uint32_t>(mCommandBuffers.size());
 
-			VK_CHECK_RESULT(vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()));
+			VK_CHECK_RESULT(vkAllocateCommandBuffers(device, &allocInfo, mCommandBuffers.data()));
 		}
 
 		// Creating semaphores and fences
 		{
-			imageAvailable.resize(imageCount);
-			renderFinished.resize(imageCount);
-			fences.resize(imageCount);
+			mImageAvailable.resize(imageCount);
+			mRenderFinished.resize(imageCount);
+			mFences.resize(imageCount);
 
 			VkSemaphoreCreateInfo semaphoreInfo = {};
 			semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -66,14 +66,14 @@ namespace Ilargi
 			
 			for (uint32_t i = 0; i < imageCount; ++i)
 			{
-				VK_CHECK_RESULT(vkCreateSemaphore(device, &semaphoreInfo, nullptr, &imageAvailable[i]));
+				VK_CHECK_RESULT(vkCreateSemaphore(device, &semaphoreInfo, nullptr, &mImageAvailable[i]));
 
-				VK_CHECK_RESULT(vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinished[i]));
+				VK_CHECK_RESULT(vkCreateSemaphore(device, &semaphoreInfo, nullptr, &mRenderFinished[i]));
 
-				VK_CHECK_RESULT(vkCreateFence(device, &fenceInfo, nullptr, &fences[i]));
+				VK_CHECK_RESULT(vkCreateFence(device, &fenceInfo, nullptr, &mFences[i]));
 			}
 
-			vkGetDeviceQueue(device, VulkanContext::GetQueueIndices().presentFamily, 0, &presentQueue);
+			vkGetDeviceQueue(device, VulkanContext::GetQueueIndices().presentFamily, 0, &mPresentQueue);
 		}
 	}
 	
@@ -85,7 +85,7 @@ namespace Ilargi
 	{
 		auto device = VulkanContext::GetLogicalDevice();
 
-		vkAcquireNextImageKHR(device, swapchain, UINT64_MAX, imageAvailable[currentFrame], VK_NULL_HANDLE, &currentImageIndex);
+		vkAcquireNextImageKHR(device, mSwapchain, UINT64_MAX, mImageAvailable[mCurrentFrame], VK_NULL_HANDLE, &mCurrentImageIndex);
 	}
 
 	void VulkanSwapchain::EndFrame()
@@ -98,32 +98,32 @@ namespace Ilargi
 		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 		submitInfo.pWaitDstStageMask = waitStages;
 		submitInfo.waitSemaphoreCount = 1;
-		submitInfo.pWaitSemaphores = &imageAvailable[currentFrame];
+		submitInfo.pWaitSemaphores = &mImageAvailable[mCurrentFrame];
 		submitInfo.signalSemaphoreCount = 1;
-		submitInfo.pSignalSemaphores = &renderFinished[currentFrame];
+		submitInfo.pSignalSemaphores = &mRenderFinished[mCurrentFrame];
 
 		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &commandBuffers[currentFrame];
+		submitInfo.pCommandBuffers = &mCommandBuffers[mCurrentFrame];
 
-		VK_CHECK_RESULT(vkResetFences(device, 1, &fences[currentFrame]));
-		VK_CHECK_RESULT(vkQueueSubmit(VulkanContext::GetGraphicsQueue(), 1, &submitInfo, fences[currentFrame]));
+		VK_CHECK_RESULT(vkResetFences(device, 1, &mFences[mCurrentFrame]));
+		VK_CHECK_RESULT(vkQueueSubmit(VulkanContext::GetGraphicsQueue(), 1, &submitInfo, mFences[mCurrentFrame]));
 
-		Present(device, renderFinished[currentFrame]);
+		Present(device, mRenderFinished[mCurrentFrame]);
 	}
 
-	void VulkanSwapchain::Present(VkDevice device, VkSemaphore renderFinish)
+	void VulkanSwapchain::Present(VkDevice aDevice, VkSemaphore aRenderFinish)
 	{
 		VkPresentInfoKHR presentInfo = {};
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 		presentInfo.waitSemaphoreCount = 1;
-		presentInfo.pWaitSemaphores = &renderFinish;
+		presentInfo.pWaitSemaphores = &aRenderFinish;
 		presentInfo.swapchainCount = 1;
-		presentInfo.pSwapchains = &swapchain;
-		presentInfo.pImageIndices = &currentImageIndex;
+		presentInfo.pSwapchains = &mSwapchain;
+		presentInfo.pImageIndices = &mCurrentImageIndex;
 
 		presentInfo.pResults = nullptr;
 
-		VkResult result = vkQueuePresentKHR(presentQueue, &presentInfo);
+		VkResult result = vkQueuePresentKHR(mPresentQueue, &presentInfo);
 		if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
 		{
 			if (result == VK_ERROR_OUT_OF_DATE_KHR)
@@ -133,10 +133,10 @@ namespace Ilargi
 			}
 		}
 
-		VK_CHECK_RESULT(vkWaitForFences(device, 1, &fences[currentFrame], VK_TRUE, UINT64_MAX));
+		VK_CHECK_RESULT(vkWaitForFences(aDevice, 1, &mFences[mCurrentFrame], VK_TRUE, UINT64_MAX));
 
-		currentFrame = (currentFrame + 1) % Renderer::GetConfig().maxFrames;
-		Renderer::SetNewFrame(currentFrame);
+		mCurrentFrame = (mCurrentFrame + 1) % Renderer::GetConfig().maxFrames;
+		Renderer::SetNewFrame(mCurrentFrame);
 	}
 
 	void VulkanSwapchain::Destroy()
@@ -145,14 +145,14 @@ namespace Ilargi
 
 		vkDeviceWaitIdle(device);
 
-		for (size_t i = 0; i < imageAvailable.size(); ++i)
+		for (size_t i = 0; i < mImageAvailable.size(); ++i)
 		{
-			vkDestroySemaphore(device, imageAvailable[i], nullptr);
-			vkDestroySemaphore(device, renderFinished[i], nullptr);
-			vkDestroyFence(device, fences[i], nullptr);
+			vkDestroySemaphore(device, mImageAvailable[i], nullptr);
+			vkDestroySemaphore(device, mRenderFinished[i], nullptr);
+			vkDestroyFence(device, mFences[i], nullptr);
 		}
 
-		vkDestroyRenderPass(device, renderPass, nullptr);
+		vkDestroyRenderPass(device, mRenderPass, nullptr);
 		
 		CleanUpSwapchain();
 	}
@@ -187,7 +187,7 @@ namespace Ilargi
 		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &capabilities);
 
 		QuerySwapchainSupport(VulkanContext::GetPhysicalDevice());
-		extent = capabilities.currentExtent;
+		mExtent = capabilities.currentExtent;
 		
 		uint32_t imageCount = capabilities.minImageCount + 1;
 
@@ -204,9 +204,9 @@ namespace Ilargi
 		swapchainInfo.surface = VulkanContext::GetSurface();
 
 		swapchainInfo.minImageCount = imageCount;
-		swapchainInfo.imageFormat = surfaceFormat.format;
-		swapchainInfo.imageColorSpace = surfaceFormat.colorSpace;
-		swapchainInfo.imageExtent = extent;
+		swapchainInfo.imageFormat = mSurfaceFormat.format;
+		swapchainInfo.imageColorSpace = mSurfaceFormat.colorSpace;
+		swapchainInfo.imageExtent = mExtent;
 		swapchainInfo.imageArrayLayers = 1;
 		swapchainInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
@@ -234,23 +234,23 @@ namespace Ilargi
 
 		swapchainInfo.oldSwapchain = nullptr;
 
-		VK_CHECK_RESULT(vkCreateSwapchainKHR(device, &swapchainInfo, nullptr, &swapchain));
+		VK_CHECK_RESULT(vkCreateSwapchainKHR(device, &swapchainInfo, nullptr, &mSwapchain));
 
-		swapchainImages.resize(imageCount);
-		VK_CHECK_RESULT(vkGetSwapchainImagesKHR(device, swapchain, &imageCount, swapchainImages.data()))
+		mSwapchainImages.resize(imageCount);
+		VK_CHECK_RESULT(vkGetSwapchainImagesKHR(device, mSwapchain, &imageCount, mSwapchainImages.data()))
 
 		// Create image views
 		{
-			imageViews.resize(swapchainImages.size());
+			mImageViews.resize(mSwapchainImages.size());
 
-			for (size_t i = 0; i < swapchainImages.size(); ++i)
+			for (size_t i = 0; i < mSwapchainImages.size(); ++i)
 			{
 				VkImageViewCreateInfo createInfo{};
 				createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-				createInfo.image = swapchainImages[i];
+				createInfo.image = mSwapchainImages[i];
 
 				createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-				createInfo.format = surfaceFormat.format;
+				createInfo.format = mSurfaceFormat.format;
 
 				createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
 				createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
@@ -263,7 +263,7 @@ namespace Ilargi
 				createInfo.subresourceRange.baseArrayLayer = 0;
 				createInfo.subresourceRange.layerCount = 1;
 
-				VK_CHECK_RESULT(vkCreateImageView(device, &createInfo, nullptr, &imageViews[i]));
+				VK_CHECK_RESULT(vkCreateImageView(device, &createInfo, nullptr, &mImageViews[i]));
 			}
 		}
 
@@ -272,8 +272,8 @@ namespace Ilargi
 			VkImageCreateInfo imageInfo = {};
 			imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 			imageInfo.imageType = VK_IMAGE_TYPE_2D;
-			imageInfo.extent.width = extent.width;
-			imageInfo.extent.height = extent.height;
+			imageInfo.extent.width = mExtent.width;
+			imageInfo.extent.height = mExtent.height;
 			imageInfo.extent.depth = 1;
 			imageInfo.mipLevels = 1;
 			imageInfo.arrayLayers = 1;
@@ -285,11 +285,11 @@ namespace Ilargi
 			imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 			imageInfo.flags = 0;
 
-			VulkanAllocator::AllocateImage(depthImage, imageInfo, VMA_MEMORY_USAGE_GPU_ONLY);
+			VulkanAllocator::AllocateImage(mDepthImage, imageInfo, VMA_MEMORY_USAGE_GPU_ONLY);
 
 			VkImageViewCreateInfo createInfo{};
 			createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-			createInfo.image = depthImage.image;
+			createInfo.image = mDepthImage.image;
 
 			createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
 			createInfo.format = VK_FORMAT_D32_SFLOAT;
@@ -305,7 +305,7 @@ namespace Ilargi
 			createInfo.subresourceRange.baseArrayLayer = 0;
 			createInfo.subresourceRange.layerCount = 1;
 
-			VK_CHECK_RESULT(vkCreateImageView(device, &createInfo, nullptr, &depthImageView));
+			VK_CHECK_RESULT(vkCreateImageView(device, &createInfo, nullptr, &mDepthImageView));
 		}
 	}
 
@@ -314,22 +314,22 @@ namespace Ilargi
 		auto device = VulkanContext::GetLogicalDevice();
 		// Creating the framebuffers
 		{
-			framebuffers.resize(imageViews.size());
+			mFramebuffers.resize(mImageViews.size());
 
-			for (size_t i = 0; i < imageViews.size(); i++)
+			for (size_t i = 0; i < mImageViews.size(); i++)
 			{
-				std::array<VkImageView, 2> attachments = { imageViews[i], depthImageView };
+				std::array<VkImageView, 2> attachments = { mImageViews[i], mDepthImageView };
 
 				VkFramebufferCreateInfo framebufferInfo = {};
 				framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-				framebufferInfo.renderPass = renderPass;
+				framebufferInfo.renderPass = mRenderPass;
 				framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
 				framebufferInfo.pAttachments = attachments.data();
-				framebufferInfo.width = extent.width;
-				framebufferInfo.height = extent.height;
+				framebufferInfo.width = mExtent.width;
+				framebufferInfo.height = mExtent.height;
 				framebufferInfo.layers = 1;
 
-				VK_CHECK_RESULT(vkCreateFramebuffer(device, &framebufferInfo, nullptr, &framebuffers[i]));
+				VK_CHECK_RESULT(vkCreateFramebuffer(device, &framebufferInfo, nullptr, &mFramebuffers[i]));
 			}
 		}
 	}
@@ -338,21 +338,21 @@ namespace Ilargi
 	{
 		auto device = VulkanContext::GetLogicalDevice();
 
-		VulkanAllocator::DestroyImage(depthImage);
-		for (size_t i = 0; i < framebuffers.size(); ++i)
+		VulkanAllocator::DestroyImage(mDepthImage);
+		for (size_t i = 0; i < mFramebuffers.size(); ++i)
 		{
-			vkDestroyFramebuffer(device, framebuffers[i], nullptr);
-			vkDestroyImageView(device, imageViews[i], nullptr);
+			vkDestroyFramebuffer(device, mFramebuffers[i], nullptr);
+			vkDestroyImageView(device, mImageViews[i], nullptr);
 		}
-		vkDestroyImageView(device, depthImageView, nullptr);
+		vkDestroyImageView(device, mDepthImageView, nullptr);
 
-		vkDestroySwapchainKHR(device, swapchain, nullptr);
+		vkDestroySwapchainKHR(device, mSwapchain, nullptr);
 	}
 
-	void VulkanSwapchain::CreateRenderPass(VkDevice device)
+	void VulkanSwapchain::CreateRenderPass(VkDevice aDevice)
 	{
 		VkAttachmentDescription colorAttachment{};
-		colorAttachment.format = surfaceFormat.format;
+		colorAttachment.format = mSurfaceFormat.format;
 		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -405,42 +405,42 @@ namespace Ilargi
 		renderPassInfo.dependencyCount = 1;
 		renderPassInfo.pDependencies = &dependency;
 
-		VK_CHECK_RESULT(vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass));
+		VK_CHECK_RESULT(vkCreateRenderPass(aDevice, &renderPassInfo, nullptr, &mRenderPass));
 	}
 
-	void VulkanSwapchain::QuerySwapchainSupport(VkPhysicalDevice device)
+	void VulkanSwapchain::QuerySwapchainSupport(VkPhysicalDevice aDevice)
 	{
 		auto surface = VulkanContext::GetSurface();
 
 		uint32_t formatCount;
-		vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
+		vkGetPhysicalDeviceSurfaceFormatsKHR(aDevice, surface, &formatCount, nullptr);
 
 		if (formatCount != 0)
 		{
 			std::vector<VkSurfaceFormatKHR> availableFormats(formatCount);
-			vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, availableFormats.data());
+			vkGetPhysicalDeviceSurfaceFormatsKHR(aDevice, surface, &formatCount, availableFormats.data());
 
-			surfaceFormat = availableFormats[0];
+			mSurfaceFormat = availableFormats[0];
 			for (VkSurfaceFormatKHR availableFormat : availableFormats)
 			{
 				if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
 				{
-					surfaceFormat = availableFormat;
+					mSurfaceFormat = availableFormat;
 					break;
 				}
 			}
 		}
 	}
 	
-	VkPresentModeKHR VulkanSwapchain::ChooseSwapPresentMode(VkPhysicalDevice device, VkSurfaceKHR surface) const
+	VkPresentModeKHR VulkanSwapchain::ChooseSwapPresentMode(VkPhysicalDevice aDevice, VkSurfaceKHR aSurface) const
 	{
 		uint32_t presentModeCount;
-		vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
+		vkGetPhysicalDeviceSurfacePresentModesKHR(aDevice, aSurface, &presentModeCount, nullptr);
 
 		if (presentModeCount != 0)
 		{
 			std::vector<VkPresentModeKHR> availablePresentModes(presentModeCount);
-			vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
+			vkGetPhysicalDeviceSurfacePresentModesKHR(aDevice, aSurface, &presentModeCount, nullptr);
 			for (const auto& availablePresentMode : availablePresentModes)
 			{
 				if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)

@@ -39,9 +39,9 @@ namespace Ilargi
 	class ModelImporter
 	{
 	public:
-		static void ImportModel(UUID uuid, const ResourceMetadata& metadata);
-		static std::shared_ptr<Resource> LoadModel(const ResourceMetadata& metadata);
+		static void ImportModel(UUID aUUID, const ResourceMetadata& aMetadata);
+		static std::shared_ptr<Resource> LoadModel(const ResourceMetadata& aMetadata);
 		
-		static void ImportFBX(const std::filesystem::path& path, const std::shared_ptr<Scene>& scene);
+		static void ImportFBX(const std::filesystem::path& aFilepath, const std::shared_ptr<Scene>& aScene);
 	};
 }

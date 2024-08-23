@@ -6,25 +6,25 @@
 
 namespace Ilargi
 {
-	VulkanCommandBuffer::VulkanCommandBuffer(uint32_t framesInFlight) : queryPoolCount(framesInFlight * 2)
+	VulkanCommandBuffer::VulkanCommandBuffer(uint32_t aFramesInFlight) : mQueryPoolCount(aFramesInFlight * 2)
 	{
 		auto device = VulkanContext::GetLogicalDevice();
 
-		commandBuffers.resize(framesInFlight);
+		mCommandBuffers.resize(aFramesInFlight);
 
 		VkCommandBufferAllocateInfo allocInfo = {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		allocInfo.commandPool = VulkanContext::GetCommandPool();
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());
+		allocInfo.commandBufferCount = static_cast<uint32_t>(mCommandBuffers.size());
 
-		VK_CHECK_RESULT(vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()));
+		VK_CHECK_RESULT(vkAllocateCommandBuffers(device, &allocInfo, mCommandBuffers.data()));
 
 		VkFenceCreateInfo fenceInfo = {};
 		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-		VK_CHECK_RESULT(vkCreateFence(device, &fenceInfo, nullptr, &fence));
+		VK_CHECK_RESULT(vkCreateFence(device, &fenceInfo, nullptr, &mFence));
 	}
 	
 	VulkanCommandBuffer::~VulkanCommandBuffer()
@@ -35,7 +35,7 @@ namespace Ilargi
 	{
 		auto device = VulkanContext::GetLogicalDevice();
 
-		vkDestroyFence(device, fence, nullptr);
+		vkDestroyFence(device, mFence, nullptr);
 	}
 
 	void VulkanCommandBuffer::BeginCommand() const
@@ -49,7 +49,7 @@ namespace Ilargi
 				beginInfo.flags = 0;
 				beginInfo.pInheritanceInfo = nullptr;
 
-				VK_CHECK_RESULT(vkBeginCommandBuffer(commandBuffers[currentFrame], &beginInfo));
+				VK_CHECK_RESULT(vkBeginCommandBuffer(mCommandBuffers[currentFrame], &beginInfo));
 			});
 	}
 	
@@ -59,7 +59,7 @@ namespace Ilargi
 			{
 				uint32_t currentFrame = Renderer::GetCurrentFrame();
 
-				VK_CHECK_RESULT(vkEndCommandBuffer(commandBuffers[currentFrame]));
+				VK_CHECK_RESULT(vkEndCommandBuffer(mCommandBuffers[currentFrame]));
 			});
 	}
 	
@@ -80,12 +80,12 @@ namespace Ilargi
 				submitInfo.signalSemaphoreCount = 0;
 				submitInfo.pSignalSemaphores = nullptr;
 				submitInfo.commandBufferCount = 1;
-				submitInfo.pCommandBuffers = &commandBuffers[currentFrame];
+				submitInfo.pCommandBuffers = &mCommandBuffers[currentFrame];
 
-				VK_CHECK_RESULT(vkResetFences(device, 1, &fence));
-				VK_CHECK_RESULT(vkQueueSubmit(VulkanContext::GetGraphicsQueue(), 1, &submitInfo, fence));
+				VK_CHECK_RESULT(vkResetFences(device, 1, &mFence));
+				VK_CHECK_RESULT(vkQueueSubmit(VulkanContext::GetGraphicsQueue(), 1, &submitInfo, mFence));
 				
-				VK_CHECK_RESULT(vkWaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX));
+				VK_CHECK_RESULT(vkWaitForFences(device, 1, &mFence, VK_TRUE, UINT64_MAX));
 			});
 	}
 }

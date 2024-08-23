@@ -21,33 +21,33 @@ namespace Ilargi
 	class Application
 	{
 	public:
-		Application(const ApplicationProperties& props);
+		Application(const ApplicationProperties& aProps);
 		~Application();
 
 		void Update() const;
 
-		void AddPanel(Panel* panel);
+		void AddPanel(Panel* aPanel);
 
-		void OnEvent(Event& event);
+		void OnEvent(Event& aEvent);
 		void CloseApp();
 
-		static Application* Get() { return app; }
-		Window& GetWindow() { return *window; }
+		static Application* Get() { return sApp; }
+		Window& GetWindow() { return *mWindow; }
 	private:
 		bool OnCloseEvent(WindowCloseEvent& event);
 		bool OnResizeEvent(WindowResizeEvent& event);
 
 	private:
-		static Application* app;
+		static Application* sApp;
 
-		bool close;
-		bool minimized;
-		ApplicationProperties properties;
+		bool mClose;
+		bool mMinimized;
+		ApplicationProperties mProperties;
 
-		std::unique_ptr<Window> window;
-		std::shared_ptr<ImGuiPanel> imguiPanel;
+		std::unique_ptr<Window> mWindow;
+		std::shared_ptr<ImGuiPanel> mImguiPanel;
 
-		std::vector<Panel*> panels;
+		std::vector<Panel*> mPanels;
 	};
 
 	extern Application* CreateApp(int argc, char* argv[]);

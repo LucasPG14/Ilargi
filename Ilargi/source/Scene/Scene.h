@@ -17,20 +17,20 @@ namespace Ilargi
 
 		void Destroy();
 
-		Entity CreateEntity(const std::string& name = "Entity");
-		Entity CreateChildrenEntity(Entity entity, const std::string& name = "Entity");
-		void DestroyEntity(Entity entity);
+		Entity CreateEntity(const std::string& aName = "Entity");
+		Entity CreateChildrenEntity(Entity aEntity, const std::string& aName = "Entity");
+		void DestroyEntity(Entity aEntity);
 
 		template<typename T, typename... Args>
-		T& CreateComponent(Entity entity, Args&& ...args)
+		T& CreateComponent(Entity aEntity, Args&& ...aArgs)
 		{
-			return world.emplace<T>(entity, std::forward<Args>(args)...);
+			return mWorld.emplace<T>(aEntity, std::forward<Args>(aArgs)...);
 		}
 
-		const entt::registry& GetWorld() const { return world; }
-		entt::registry& GetWorld() { return world; }
+		const entt::registry& GetWorld() const { return mWorld; }
+		entt::registry& GetWorld() { return mWorld; }
 
 	private:
-		entt::registry world;
+		entt::registry mWorld;
 	};
 }

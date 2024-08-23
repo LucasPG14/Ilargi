@@ -56,38 +56,38 @@ namespace Ilargi
 	class Layout
 	{
 	public:
-		Layout() : stride(0) {}
+		Layout() : mStride(0) {}
 
-		Layout(const std::initializer_list<Element>& elem) : elements(elem)
+		Layout(const std::initializer_list<Element>& aElements) : mElements(aElements)
 		{
 			CalculateOffset();
 		}
 
-		inline uint32_t GetStride() const { return stride; }
-		inline const std::vector<Element>& GetElements() const { return elements; }
+		inline uint32_t GetStride() const { return mStride; }
+		inline const std::vector<Element>& GetElements() const { return mElements; }
 
-		constexpr std::vector<Element>::iterator begin() { return elements.begin(); }
-		constexpr std::vector<Element>::iterator end() { return elements.end(); }
+		constexpr std::vector<Element>::iterator begin() { return mElements.begin(); }
+		constexpr std::vector<Element>::iterator end() { return mElements.end(); }
 
-		constexpr std::vector<Element>::const_iterator begin() const { return elements.cbegin(); }
-		constexpr std::vector<Element>::const_iterator end() const { return elements.cend(); }
+		constexpr std::vector<Element>::const_iterator begin() const { return mElements.cbegin(); }
+		constexpr std::vector<Element>::const_iterator end() const { return mElements.cend(); }
 	
 	private:
 		void CalculateOffset()
 		{
 			uint32_t offset = 0;
-			stride = 0;
-			for (auto& element : elements)
+			mStride = 0;
+			for (auto& element : mElements)
 			{
 				element.offset = offset;
 				offset += element.size;
-				stride += element.size;
+				mStride += element.size;
 			}
 		}
 
 	private:
-		std::vector<Element> elements;
-		uint32_t stride;
+		std::vector<Element> mElements;
+		uint32_t mStride;
 	};
 
 	struct PipelineProperties
@@ -103,13 +103,13 @@ namespace Ilargi
 	public:
 		virtual void Destroy() = 0;
 
-		virtual void PushConstants(const std::shared_ptr<CommandBuffer>& commandBuffer, uint32_t offset, uint32_t size, const void* data) const = 0;
+		virtual void PushConstants(const std::shared_ptr<CommandBuffer>& aCommandBuffer, uint32_t aOffset, uint32_t aSize, const void* aData) const = 0;
 
-		virtual void Bind(const std::shared_ptr<CommandBuffer>& commandBuffer) const = 0;
-		virtual void BindDescriptorSet(const std::shared_ptr<CommandBuffer>& commandBuffer, std::shared_ptr<Material> material) const = 0;
+		virtual void Bind(const std::shared_ptr<CommandBuffer>& aCommandBuffer) const = 0;
+		virtual void BindDescriptorSet(const std::shared_ptr<CommandBuffer>& aCommandBuffer, std::shared_ptr<Material> aMaterial) const = 0;
 
 		virtual const PipelineProperties& GetProperties() const = 0;
 
-		static std::shared_ptr<Pipeline> Create(const PipelineProperties& props);
+		static std::shared_ptr<Pipeline> Create(const PipelineProperties& aProperties);
 	};
 }

@@ -16,41 +16,41 @@ namespace Ilargi
 	class VulkanFramebuffer : public Framebuffer
 	{
 	public:
-		VulkanFramebuffer(const FramebufferProperties& props);
+		VulkanFramebuffer(const FramebufferProperties& aProperties);
 		virtual ~VulkanFramebuffer();
 
-		void Init(VkRenderPass renderPass);
+		void Init(VkRenderPass aRenderPass);
 		void Destroy() override;
 
-		void Resize(const std::shared_ptr<RenderPass>& renderPass, uint32_t width, uint32_t height) override;
+		void Resize(const std::shared_ptr<RenderPass>& aRenderPass, uint32_t aWidth, uint32_t aHeight) override;
 
-		const FramebufferProperties& GetProperties() const override { return properties; }
-		const VkFramebuffer GetFramebuffer() const { return framebuffer; }
+		const FramebufferProperties& GetProperties() const override { return mProperties; }
+		const VkFramebuffer GetFramebuffer() const { return mFramebuffer; }
 
-		const std::vector<ImageFormat>& GetColorSpecifications() const override { return colorSpecifications; }
-		const ImageFormat GetDepthSpecification() const override { return depthSpecification; }
+		const std::vector<ImageFormat>& GetColorSpecifications() const override { return mColorSpecifications; }
+		const ImageFormat GetDepthSpecification() const override { return mDepthSpecification; }
 
-		const uint32_t GetWidth() const override { return properties.width; }
-		const uint32_t GetHeight() const override { return properties.height; }
+		const uint32_t GetWidth() const override { return mProperties.width; }
+		const uint32_t GetHeight() const override { return mProperties.height; }
 
 		void* GetID() const override;
 
 	private:
-		FramebufferProperties properties;
+		FramebufferProperties mProperties;
 
 		// Color images
-		std::vector<ImageFormat> colorSpecifications;
-		std::vector<VulkanAttachment> colorAttachments;
+		std::vector<ImageFormat> mColorSpecifications;
+		std::vector<VulkanAttachment> mColorAttachments;
 
 		// Depth image
-		ImageFormat depthSpecification;
-		VulkanAttachment depthAttachment;
+		ImageFormat mDepthSpecification;
+		VulkanAttachment mDepthAttachment;
 
-		VkFramebuffer framebuffer;
+		VkFramebuffer mFramebuffer;
 
-		VkSampler sampler;
+		VkSampler mSampler;
 
-		VkDescriptorSetLayout descriptorSetLayout;
-		VkDescriptorSet descriptorSet;
+		VkDescriptorSetLayout mDescriptorSetLayout;
+		VkDescriptorSet mDescriptorSet;
 	};
 }

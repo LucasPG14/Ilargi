@@ -11,7 +11,7 @@
 
 namespace Ilargi
 {
-	TextureImporterOptions TextureImporter::options = {};
+	TextureImporterOptions TextureImporter::sOptions = {};
 
 	void TextureImporter::ImportTexture(UUID uuid, const ResourceMetadata& metadata)
 	{
@@ -38,7 +38,7 @@ namespace Ilargi
 		buf += sizeof(header);
 		memcpy(buf, data, width * height * 4);
 
-		if (!options.normalMap)
+		if (!sOptions.normalMap)
 		{
 			// TODO: Compress image
 		}

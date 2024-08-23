@@ -23,7 +23,7 @@ namespace Ilargi
 		virtual std::string ToString() const { return GetName(); }
 
 	public:
-		bool handled = false;
+		bool mHandled = false;
 	};
 
 	class EventDispatcher
@@ -31,20 +31,20 @@ namespace Ilargi
 		template<typename T>
 		using EventFn = std::function<bool(T&)>;
 	public:
-		EventDispatcher(Event& event) : e(event) {}
+		EventDispatcher(Event& aEvent) : mEvent(aEvent) {}
 
 		template<typename T>
 		bool Dispatch(EventFn<T> func)
 		{
-			if (e.GetEventType() == T::GetStaticType())
+			if (mEvent.GetEventType() == T::GetStaticType())
 			{
-				e.handled = func(*(T*)&e);
+				mEvent.mHandled = func(*(T*)&mEvent);
 				return true;
 			}
 			return false;
 		}
 	private:
-		Event& e;
+		Event& mEvent;
 	};
 
 	inline std::ostream& operator<<(std::ostream& os, const Event& e)

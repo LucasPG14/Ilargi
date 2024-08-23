@@ -6,23 +6,23 @@
 
 namespace Ilargi
 {
-	VulkanUniformBuffer::VulkanUniformBuffer(uint32_t s, uint32_t framesInFlight) : size(s)
+	VulkanUniformBuffer::VulkanUniformBuffer(uint32_t s, uint32_t framesInFlight) : mSize(s)
 	{
 		auto device = VulkanContext::GetLogicalDevice();
 
-		ubos.resize(framesInFlight);
-		uniformBuffersMapped.resize(framesInFlight);
+		mUbos.resize(framesInFlight);
+		mUniformBuffersMapped.resize(framesInFlight);
 
 		VkBufferCreateInfo bufferInfo = {};
 		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-		bufferInfo.size = size;
+		bufferInfo.size = mSize;
 		bufferInfo.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
 		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
 		for (size_t i = 0; i < framesInFlight; i++)
 		{
-			VulkanAllocator::AllocateBuffer(ubos[i], bufferInfo, VMA_MEMORY_USAGE_CPU_TO_GPU);
-			uniformBuffersMapped[i] = VulkanAllocator::MapMemory(ubos[i]);
+			VulkanAllocator::AllocateBuffer(mUbos[i], bufferInfo, VMA_MEMORY_USAGE_CPU_TO_GPU);
+			mUniformBuffersMapped[i] = VulkanAllocator::MapMemory(mUbos[i]);
 		}
 	}
 	
@@ -35,10 +35,10 @@ namespace Ilargi
 	{
 		vkDeviceWaitIdle(VulkanContext::GetLogicalDevice());
 
-		for (int i = 0; i < ubos.size(); ++i)
+		for (int i = 0; i < mUbos.size(); ++i)
 		{
-			VulkanAllocator::UnmapMemory(ubos[i]);
-			VulkanAllocator::DestroyBuffer(ubos[i]);
+			VulkanAllocator::UnmapMemory(mUbos[i]);
+			VulkanAllocator::DestroyBuffer(mUbos[i]);
 		}
 	}
 	
@@ -46,6 +46,6 @@ namespace Ilargi
 	{
 		uint32_t currentFrame = Renderer::GetCurrentFrame();
 
-		memcpy(uniformBuffersMapped[currentFrame], data, size);
+		memcpy(mUniformBuffersMapped[currentFrame], data, mSize);
 	}
 }

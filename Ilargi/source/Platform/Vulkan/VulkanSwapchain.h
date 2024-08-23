@@ -18,54 +18,54 @@ namespace Ilargi
 		void StartFrame() override;
 		void EndFrame() override;
 
-		const VkRenderPass GetRenderPass() const { return renderPass; }
+		const VkRenderPass GetRenderPass() const { return mRenderPass; }
 
-		const VkCommandBuffer GetCurrentCommand() const { return commandBuffers[currentFrame]; }
+		const VkCommandBuffer GetCurrentCommand() const { return mCommandBuffers[mCurrentFrame]; }
 
-		const VkFramebuffer GetFramebuffer() const { return framebuffers[currentImageIndex]; }
+		const VkFramebuffer GetFramebuffer() const { return mFramebuffers[mCurrentImageIndex]; }
 
-		const uint32_t GetWidth() const { return extent.width; }
-		const uint32_t GetHeight() const { return extent.height; }
+		const uint32_t GetWidth() const { return mExtent.width; }
+		const uint32_t GetHeight() const { return mExtent.height; }
 
 	private:
-		void Present(VkDevice device, VkSemaphore renderFinish);
+		void Present(VkDevice aDevice, VkSemaphore aRenderFinish);
 
 		void RecreateSwapchain();
 		void CreateSwapchain();
 		void CreateFramebuffers();
 		void CleanUpSwapchain();
 
-		void CreateRenderPass(VkDevice device);
+		void CreateRenderPass(VkDevice aDevice);
 
-		void QuerySwapchainSupport(VkPhysicalDevice device);
-		VkPresentModeKHR ChooseSwapPresentMode(VkPhysicalDevice device, VkSurfaceKHR surface) const;
+		void QuerySwapchainSupport(VkPhysicalDevice aDevice);
+		VkPresentModeKHR ChooseSwapPresentMode(VkPhysicalDevice aDevice, VkSurfaceKHR aSurface) const;
 	
 	private:
-		VkSwapchainKHR swapchain;
+		VkSwapchainKHR mSwapchain;
 
-		VkExtent2D extent;
-		VkSurfaceFormatKHR surfaceFormat;
+		VkExtent2D mExtent;
+		VkSurfaceFormatKHR mSurfaceFormat;
 
-		VkRenderPass renderPass;
+		VkRenderPass mRenderPass;
 
 		// Color attachments
-		std::vector<VkImage> swapchainImages;
-		std::vector<VkImageView> imageViews;
-		std::vector<VkFramebuffer> framebuffers;
+		std::vector<VkImage> mSwapchainImages;
+		std::vector<VkImageView> mImageViews;
+		std::vector<VkFramebuffer> mFramebuffers;
 
 		// Depth attachments
-		Image depthImage;
-		VkImageView depthImageView;
+		Image mDepthImage;
+		VkImageView mDepthImageView;
 
-		std::vector<VkCommandBuffer> commandBuffers;
+		std::vector<VkCommandBuffer> mCommandBuffers;
 
 		// Synchronization objects
-		std::vector<VkSemaphore> imageAvailable;
-		std::vector<VkSemaphore> renderFinished;
-		std::vector<VkFence> fences;
+		std::vector<VkSemaphore> mImageAvailable;
+		std::vector<VkSemaphore> mRenderFinished;
+		std::vector<VkFence> mFences;
 
-		uint32_t currentFrame;
-		uint32_t currentImageIndex;
-		VkQueue presentQueue;
+		uint32_t mCurrentFrame;
+		uint32_t mCurrentImageIndex;
+		VkQueue mPresentQueue;
 	};
 }

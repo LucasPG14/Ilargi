@@ -25,16 +25,16 @@ namespace Ilargi
 	class WindowResizeEvent : public Event
 	{
 	public:
-		WindowResizeEvent(unsigned int w, unsigned int h)
-			: width(w), height(h) {}
+		WindowResizeEvent(unsigned int aWidth, unsigned int aHeight)
+			: mWidth(aWidth), mHeight(aHeight) {}
 
-		inline const unsigned int GetWidth() const { return width; }
-		inline const unsigned int GetHeight() const { return height; }
+		inline const unsigned int GetWidth() const { return mWidth; }
+		inline const unsigned int GetHeight() const { return mHeight; }
 
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "WindowResizeEvent: " << width << ", " << height;
+			ss << "WindowResizeEvent: " << mWidth << ", " << mHeight;
 			return ss.str();
 		}
 
@@ -43,20 +43,20 @@ namespace Ilargi
 		virtual const char* GetName() const override { return "Window Resize Event"; }
 
 	private:
-		unsigned int width, height;
+		unsigned int mWidth, mHeight;
 	};
 
 	class WindowDropEvent : public Event
 	{
 	public:
-		WindowDropEvent(const std::vector<std::filesystem::path>& p) : paths(p) {}
+		WindowDropEvent(const std::vector<std::filesystem::path>& aPaths) : mPaths(aPaths) {}
 
-		const std::vector<std::filesystem::path>& GetPaths() const { return paths; }
+		const std::vector<std::filesystem::path>& GetPaths() const { return mPaths; }
 
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "WindowDropEvent: " << paths.size() << " files";
+			ss << "WindowDropEvent: " << mPaths.size() << " files";
 			return ss.str();
 		}
 
@@ -65,6 +65,6 @@ namespace Ilargi
 		virtual const char* GetName() const override { return "Window Drop Event"; }
 
 	private:
-		std::vector<std::filesystem::path> paths;
+		std::vector<std::filesystem::path> mPaths;
 	};
 }

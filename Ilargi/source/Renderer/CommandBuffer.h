@@ -13,6 +13,6 @@ namespace Ilargi
 
 		virtual void Submit() const = 0;
 		
-		static std::shared_ptr<CommandBuffer> Create(uint32_t framesInFlight);
+		static std::shared_ptr<CommandBuffer> Create(uint32_t aFramesInFlight);
 	};
 }

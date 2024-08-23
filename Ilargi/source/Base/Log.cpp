@@ -11,7 +11,7 @@
 
 namespace Ilargi
 {
-	std::string Log::clientName = "";
+	std::string Log::sClientName = "";
 
 	void Log::CoreTrace(std::string_view str)
 	{
@@ -60,7 +60,7 @@ namespace Ilargi
 		tm tt;
 		localtime_s(&tt, &time);
 
-		std::cout << std::format("[{0}:{1}:{2}] {3}: {4}", tt.tm_hour, tt.tm_min, tt.tm_sec, clientName, str) << std::endl;
+		std::cout << std::format("[{0}:{1}:{2}] {3}: {4}", tt.tm_hour, tt.tm_min, tt.tm_sec, sClientName, str) << std::endl;
 	}
 	
 	void Log::Info(std::string_view str)
@@ -70,7 +70,7 @@ namespace Ilargi
 		tm tt;
 		localtime_s(&tt, &time);
 
-		std::cout << INFO << std::format("[{0}:{1}:{2}] {3}: {4}", tt.tm_hour, tt.tm_min, tt.tm_sec, clientName, str) << DEFAULT << std::endl;
+		std::cout << INFO << std::format("[{0}:{1}:{2}] {3}: {4}", tt.tm_hour, tt.tm_min, tt.tm_sec, sClientName, str) << DEFAULT << std::endl;
 	}
 	
 	void Log::Warn(std::string_view str)
@@ -80,7 +80,7 @@ namespace Ilargi
 		tm tt;
 		localtime_s(&tt, &time);
 
-		std::cout << WARN << std::format("[{0}:{1}:{2}] {3}: {4}", tt.tm_hour, tt.tm_min, tt.tm_sec, clientName, str) << DEFAULT << std::endl;
+		std::cout << WARN << std::format("[{0}:{1}:{2}] {3}: {4}", tt.tm_hour, tt.tm_min, tt.tm_sec, sClientName, str) << DEFAULT << std::endl;
 	}
 	
 	void Log::Error(std::string_view str)
@@ -90,6 +90,6 @@ namespace Ilargi
 		tm tt;
 		localtime_s(&tt, &time);
 
-		std::cout << ERROR << std::format("[{0}:{1}:{2}] {3}: {4}", tt.tm_hour, tt.tm_min, tt.tm_sec, clientName, str) << DEFAULT << std::endl;
+		std::cout << ERROR << std::format("[{0}:{1}:{2}] {3}: {4}", tt.tm_hour, tt.tm_min, tt.tm_sec, sClientName, str) << DEFAULT << std::endl;
 	}
 }

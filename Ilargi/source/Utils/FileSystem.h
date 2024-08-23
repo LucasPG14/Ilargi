@@ -11,10 +11,10 @@ namespace Ilargi
 	class FileSystem
 	{
 	public:
-		static Buffer ReadBinaryFile(const std::filesystem::path& file);
-		static void WriteBinaryFile(const std::filesystem::path& file, const Buffer& buffer);
+		static Buffer ReadBinaryFile(const std::filesystem::path& aFilepath);
+		static void WriteBinaryFile(const std::filesystem::path& aFilepath, const Buffer& aBuffer);
 
-		static std::string OpenFile(const char* filter);
-		static std::string SaveFile(const char* filter);
+		static std::string OpenFile(const char* aFilter);
+		static std::string SaveFile(const char* aFilter);
 	};
 }

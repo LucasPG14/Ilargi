@@ -24,46 +24,44 @@ namespace Ilargi
 		void Update() override;
 		void RenderImGui() override;
 
-		void OnEvent(Event& event) override;
+		void OnEvent(Event& aEvent) override;
 
 	private:
-		void LoadLanguage(std::filesystem::path path);
+		void LoadLanguage(std::filesystem::path aFilepath);
 
 		void RenderMainMenuBar();
 		void RenderViewport();
 
 		void NewScene();
 		void OpenScene();
-		void OpenScene(std::string filepath);
+		void OpenScene(std::string aFilepath);
 		void SaveSceneAs();
-		void SaveScene(std::string filepath);
+		void SaveScene(std::string aFilepath);
 
-		bool OnKeyEvent(KeyPressedEvent& event);
+		bool OnKeyEvent(KeyPressedEvent& aEvent);
 	private:
-		std::shared_ptr<Scene> scene;
+		std::shared_ptr<Scene> mScene;
 
-		std::shared_ptr<CommandBuffer> commandBuffer;
+		std::shared_ptr<CommandBuffer> mCommandBuffer;
 
-		std::shared_ptr<Framebuffer> framebuffer;
-		std::shared_ptr<RenderPass> renderPass;
-		std::shared_ptr<Pipeline> pipeline;
+		std::shared_ptr<Framebuffer> mFramebuffer;
+		std::shared_ptr<RenderPass> mRenderPass;
+		std::shared_ptr<Pipeline> mPipeline;
 
-		std::shared_ptr<UniformBuffer> uboCamera;
-		
-		std::shared_ptr<Texture2D> texture;
+		std::shared_ptr<UniformBuffer> mUBOCamera;
 
-		EditorCamera camera;
-		SceneHierarchyInspectorPanel* hierarchyInspector;
-		ResourcesPanel* resourcesPanel;
+		EditorCamera mCamera;
+		SceneHierarchyInspectorPanel* mHierarchyInspector;
+		ResourcesPanel* mResourcesPanel;
 
-		vec2 viewportSize;
-		bool needToUpdateFramebuffer;
+		vec2 mViewportSize;
+		bool mNeedToUpdateFramebuffer;
 
-		mat4 constants[2];
-		int operation;
+		mat4 mConstants[2];
+		int mOperation;
 
 		// Grid
-		std::shared_ptr<RenderPass> gridRenderPass;
-		std::shared_ptr<Pipeline> gridPipeline;
+		std::shared_ptr<RenderPass> mGridRenderPass;
+		std::shared_ptr<Pipeline> mGridPipeline;
 	};
 }

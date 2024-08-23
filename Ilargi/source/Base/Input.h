@@ -11,14 +11,14 @@ namespace Ilargi
 	class Input
 	{
 	public:
-		static void SetWindow(GLFWwindow* win) { window = win; }
+		static void SetWindow(GLFWwindow* aWindow) { sWindow = aWindow; }
 
-		static bool IsKeyPressed(KeyCode::KeyCode key);
-		static bool IsMouseButtonPressed(MouseCode::MouseCode key);
+		static bool IsKeyPressed(KeyCode::KeyCode aKey);
+		static bool IsMouseButtonPressed(MouseCode::MouseCode aKey);
 
 		static const vec2 GetMousePos();
 
 	private:
-		static GLFWwindow* window;
+		static GLFWwindow* sWindow;
 	};
 }

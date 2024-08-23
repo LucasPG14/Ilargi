@@ -19,43 +19,40 @@ namespace Ilargi
 	
 	void Scene::Destroy()
 	{
-		auto meshStorage = world.view<StaticMeshComponent>();
+		auto meshStorage = mWorld.view<StaticMeshComponent>();
 		for (auto entity : meshStorage)
 		{
-			//auto mesh = meshStorage.get(entity);
-			//mesh._Myfirst._Val.staticMesh->Destroy();
-			//mesh._Myfirst._Val.vertexBuffer->Destroy();
-			world.destroy(entity);
+			mWorld.destroy(entity);
 		}
-		world.clear();
+		mWorld.clear();
 	}
 	
-	Entity Scene::CreateEntity(const std::string& name)
+	Entity Scene::CreateEntity(const std::string& aName)
 	{
-		Entity entity = world.create();
+		Entity entity = mWorld.create();
 
 		CreateComponent<TransformComponent>(entity, mat4(1.0f));
-		CreateComponent<InfoComponent>(entity, name.c_str());
+		CreateComponent<InfoComponent>(entity, aName.c_str());
 		CreateComponent<FamilyComponent>(entity);
 
 		return entity;
 	}
 
-	Entity Scene::CreateChildrenEntity(Entity entity, const std::string& name)
+	Entity Scene::CreateChildrenEntity(Entity aEntity, const std::string& aName)
 	{
-		Entity childEntity = CreateEntity();
+		Entity childEntity = CreateEntity(aName);
 
-		auto& family = world.get<FamilyComponent>(entity);
+		auto& family = mWorld.get<FamilyComponent>(aEntity);
 		family.children.push_back(childEntity);
 
-		auto& familyChildren = world.get<FamilyComponent>(childEntity);
-		familyChildren.parent = entity;
+		auto& familyChildren = mWorld.get<FamilyComponent>(childEntity);
+		familyChildren.parent = aEntity;
 
 		return childEntity;
 	}
 
-	void Scene::DestroyEntity(Entity entity)
+	void Scene::DestroyEntity(Entity aEntity)
 	{
-		world.destroy(entity);
+		mWorld.destroy(aEntity);
 	}
 }

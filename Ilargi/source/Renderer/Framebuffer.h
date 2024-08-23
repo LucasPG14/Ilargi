@@ -37,7 +37,7 @@ namespace Ilargi
 
 		virtual void Destroy() = 0;
 
-		virtual void Resize(const std::shared_ptr<RenderPass>& renderPass, uint32_t width, uint32_t height) = 0;
+		virtual void Resize(const std::shared_ptr<RenderPass>& aRenderPass, uint32_t aWidth, uint32_t aHeight) = 0;
 
 		virtual void* GetID() const = 0;
 
@@ -47,6 +47,6 @@ namespace Ilargi
 		virtual const std::vector<ImageFormat>& GetColorSpecifications() const = 0;
 		virtual const ImageFormat GetDepthSpecification() const = 0;
 
-		static std::shared_ptr<Framebuffer> Create(const FramebufferProperties& props);
+		static std::shared_ptr<Framebuffer> Create(const FramebufferProperties& aProperties);
 	};
 }

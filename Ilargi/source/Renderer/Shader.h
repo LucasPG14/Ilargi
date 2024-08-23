@@ -7,7 +7,7 @@ namespace Ilargi
 	public:
 		virtual void Destroy() = 0;
 
-		static std::shared_ptr<Shader> Create(std::string_view vert);
+		static std::shared_ptr<Shader> Create(std::string_view aVert);
 	};
 
 	class ShaderLibrary
@@ -16,12 +16,12 @@ namespace Ilargi
 		ShaderLibrary();
 		~ShaderLibrary();
 
-		void Add(std::string name, std::shared_ptr<Shader> shader);
-		void Add(std::string filepath);
+		void Add(std::string aName, std::shared_ptr<Shader> aShader);
+		void Add(std::string aFilepath);
 
-		std::shared_ptr<Shader> Get(std::string name);
+		std::shared_ptr<Shader> Get(std::string aName);
 
 	private:
-		std::unordered_map<std::string, std::shared_ptr<Shader>> shaders;
+		std::unordered_map<std::string, std::shared_ptr<Shader>> mShaders;
 	};
 }

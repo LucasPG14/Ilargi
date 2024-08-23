@@ -43,10 +43,10 @@ namespace Ilargi
 
 	ResourcesPanel::ResourcesPanel()
 	{
-		actualDir = "Resources";
+		mActualDir = "Resources";
 
-		folderIcon = Texture2D::Create("Engine/Textures/Folder.png");
-		fileIcon = Texture2D::Create("Engine/Textures/File2.png");
+		mFolderIcon = Texture2D::Create("Engine/Textures/Folder.png");
+		mFileIcon = Texture2D::Create("Engine/Textures/File2.png");
 
 		ResourceManager::LoadResourceRegistry();
 
@@ -63,7 +63,7 @@ namespace Ilargi
 
 		if (ImGui::ArrowButton("Arrow", ImGuiDir_Left))
 		{
-			actualDir = actualDir.has_parent_path() ? actualDir.parent_path() : actualDir;
+			mActualDir = mActualDir.has_parent_path() ? mActualDir.parent_path() : mActualDir;
 		}
 
 		ImGui::SameLine();
@@ -74,19 +74,19 @@ namespace Ilargi
 		ImGui::SameLine();
 
 		ImGui::SetNextItemWidth(200.0f);
-		char* buf = search.data();
+		char* buf = mSearch.data();
 		ImGui::InputText("##Search...", buf, sizeof(buf));
-		search = buf;
+		mSearch = buf;
 
-		for (auto dir : actualDir)
+		for (auto dir : mActualDir)
 		{
-			auto s = actualDir.parent_path();
+			auto s = mActualDir.parent_path();
 			ImGui::SameLine();
 			ImGui::Text(dir.string().c_str());
 			if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
 			{
-				uint32_t end = actualDir.string().find(dir.string()) + dir.string().length();
-				actualDir = actualDir.string().substr(0, end);
+				uint32_t end = mActualDir.string().find(dir.string()) + dir.string().length();
+				mActualDir = mActualDir.string().substr(0, end);
 				break;
 			}
 
@@ -94,7 +94,7 @@ namespace Ilargi
 			ImGui::Text("/");
 		}
 		
-		if (!search.empty())
+		if (!mSearch.empty())
 			RecursiveDirectory();
 		else 
 			NormalDirectory();
@@ -102,13 +102,13 @@ namespace Ilargi
 		ImGui::Columns(1);
 
 		if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-			selectedFile.clear();
+			mSelectedFile.clear();
 
 		if (ImGui::BeginPopupContextWindow("##HierarchyPopup"))
 		{
 			if (ImGui::MenuItem("Create Folder"))
 			{
-				std::filesystem::create_directory(actualDir / "New Folder");
+				std::filesystem::create_directory(mActualDir / "New Folder");
 			}
 			ImGui::EndPopup();
 		}
@@ -116,9 +116,9 @@ namespace Ilargi
 		ImGui::End();
 	}
 	
-	void ResourcesPanel::OnEvent(Event& event)
+	void ResourcesPanel::OnEvent(Event& aEvent)
 	{
-		EventDispatcher dispatcher(event);
+		EventDispatcher dispatcher(aEvent);
 
 		dispatcher.Dispatch<WindowDropEvent>(ILG_BIND_FN(ResourcesPanel::OnDropEvent));
 		dispatcher.Dispatch<KeyPressedEvent>(ILG_BIND_FN(ResourcesPanel::OnKeyPressedEvent));
@@ -126,22 +126,22 @@ namespace Ilargi
 
 	void ResourcesPanel::RefreshAssets()
 	{
-		assets.clear();
+		mResources.clear();
 		const auto& assetsMap = ResourceManager::GetResourcesMetadata();
 
 		for (auto& [uuid, metadata] : assetsMap)
 		{
-			assets[metadata.filepath] = uuid;
+			mResources[metadata.filepath] = uuid;
 		}
 	}
 	
-	bool ResourcesPanel::OnDropEvent(WindowDropEvent& event)
+	bool ResourcesPanel::OnDropEvent(WindowDropEvent& aEvent)
 	{
-		const std::vector<std::filesystem::path>& paths = event.GetPaths();
+		const std::vector<std::filesystem::path>& paths = aEvent.GetPaths();
 
 		for (int i = 0; i < paths.size(); ++i)
 		{
-			ResourceManager::ImportResource(actualDir, paths[i]);
+			ResourceManager::ImportResource(mActualDir, paths[i]);
 		}
 
 		RefreshAssets();
@@ -149,14 +149,14 @@ namespace Ilargi
 		return true;
 	}
 
-	bool ResourcesPanel::OnKeyPressedEvent(KeyPressedEvent& event)
+	bool ResourcesPanel::OnKeyPressedEvent(KeyPressedEvent& aEvent)
 	{
-		switch (event.GetKey())
+		switch (aEvent.GetKey())
 		{
 		case KeyCode::DELETE:
 		{
-			std::filesystem::remove(selectedFile);
-			UUID resourceUUID = assets[selectedFile];
+			std::filesystem::remove(mSelectedFile);
+			UUID resourceUUID = mResources[mSelectedFile];
 			ResourceManager::RemoveResource(resourceUUID);
 			break;
 		}
@@ -174,18 +174,18 @@ namespace Ilargi
 
 		ImGui::Columns(columns, (const char*)0, false);
 
-		for (const auto& file : std::filesystem::directory_iterator(actualDir))
+		for (const auto& file : std::filesystem::directory_iterator(mActualDir))
 		{
 			const auto& path = file.path();
-			const auto& relative = std::filesystem::relative(path, actualDir);
+			const auto& relative = std::filesystem::relative(path, mActualDir);
 			const auto& filename = path.stem().string();
 
 			if (file.is_directory())
 			{
-				ImGui::Image((ImTextureID)folderIcon->GetID(), { cellX, cellX });
+				ImGui::Image((ImTextureID)mFolderIcon->GetID(), { cellX, cellX });
 
 				if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
-					actualDir /= relative;
+					mActualDir /= relative;
 
 				ImVec2 textSize = ImGui::CalcTextSize(filename.c_str());
 				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (cellX - textSize.x) * 0.5f);
@@ -200,7 +200,7 @@ namespace Ilargi
 				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
 
 				ImVec4 colorBg = { 0.43f, 0.43f, 0.50f, 0.50f };
-				if (selectedFile == path)
+				if (mSelectedFile == path)
 					colorBg = { 0.26f, 0.59f, 0.98f, 0.40f };
 
 				ImGui::PushStyleColor(ImGuiCol_ChildBg, colorBg);
@@ -210,11 +210,11 @@ namespace Ilargi
 					if (ImGui::IsWindowHovered())
 					{
 						if (ImGui::IsMouseDown(ImGuiMouseButton_Left))
-							selectedFile = path;
+							mSelectedFile = path;
 
 						else if (ImGui::IsMouseDown(ImGuiMouseButton_Right))
 						{
-							selectedFile = path;
+							mSelectedFile = path;
 							// TODO: Pop up with options for this file
 						}
 					}
@@ -222,7 +222,7 @@ namespace Ilargi
 					ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 8.0f, 8.0f });
 					if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 					{	
-						ImGui::SetDragDropPayload("RESOURCE", &assets[path], sizeof(assets[path]));
+						ImGui::SetDragDropPayload("RESOURCE", &mResources[path], sizeof(mResources[path]));
 						ImGui::Text(path.filename().string().c_str());
 						ImGui::EndDragDropSource();
 					}
@@ -230,14 +230,14 @@ namespace Ilargi
 					
 					ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 6.0f);
 					//ImGui::Button(filename.c_str(), {cellX, cellX});
-					ImGui::Image((ImTextureID)fileIcon->GetID(), { cellX, cellX });
+					ImGui::Image((ImTextureID)mFileIcon->GetID(), { cellX, cellX });
 					ImGui::PopStyleVar();
 
 					ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 5.0f);
 					ImGui::Text(filename.c_str());
-					if (assets.find(path) != assets.end())
+					if (mResources.find(path) != mResources.end())
 					{
-						UUID uuid = assets[path];
+						UUID uuid = mResources[path];
 						const ResourceMetadata& metadata = ResourceManager::GetMetadata(uuid);
 					
 						std::string resType = Utils::GetStringFromResourceType(metadata.type);
@@ -267,14 +267,14 @@ namespace Ilargi
 
 		ImGui::Columns(columns, (const char*)0, false);
 
-		for (const auto& file : std::filesystem::recursive_directory_iterator(actualDir))
+		for (const auto& file : std::filesystem::recursive_directory_iterator(mActualDir))
 		{
 			const auto& path = file.path();
-			const auto& relative = std::filesystem::relative(path, actualDir);
+			const auto& relative = std::filesystem::relative(path, mActualDir);
 			const auto& filename = path.stem().string();
 			const auto& extension = path.extension().string();
 
-			std::regex pattern(search, std::regex_constants::icase);
+			std::regex pattern(mSearch, std::regex_constants::icase);
 			if (file.is_directory() || !Utils::IsResourceValid(extension) || !std::regex_search(filename, pattern))
 				continue;
 
@@ -286,7 +286,7 @@ namespace Ilargi
 				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 8.0f, 8.0f });
 				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 				{
-					ImGui::SetDragDropPayload("RESOURCE", &assets[path], sizeof(assets[path]));
+					ImGui::SetDragDropPayload("RESOURCE", &mResources[path], sizeof(mResources[path]));
 					ImGui::Text(filename.c_str());
 					ImGui::EndDragDropSource();
 				}
@@ -294,14 +294,14 @@ namespace Ilargi
 
 				ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 6.0f);
 				//ImGui::Button(filename.c_str(), { cellX, cellX });
-				ImGui::Image((ImTextureID)fileIcon->GetID(), { cellX, cellX });
+				ImGui::Image((ImTextureID)mFileIcon->GetID(), { cellX, cellX });
 				ImGui::PopStyleVar();
 
 				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 5.0f);
 				ImGui::Text(filename.c_str());
-				if (assets.find(path) != assets.end())
+				if (mResources.find(path) != mResources.end())
 				{
-					UUID uuid = assets[path];
+					UUID uuid = mResources[path];
 					const ResourceMetadata& metadata = ResourceManager::GetMetadata(uuid);
 
 					std::string resType = Utils::GetStringFromResourceType(metadata.type);

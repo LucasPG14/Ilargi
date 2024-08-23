@@ -8,13 +8,13 @@ namespace Ilargi
 	class VulkanVertexBuffer : public VertexBuffer
 	{
 	public:
-		VulkanVertexBuffer(void* data, uint32_t size);
+		VulkanVertexBuffer(void* aData, uint32_t aSize);
 		virtual ~VulkanVertexBuffer();
 
-		void Bind(std::shared_ptr<CommandBuffer> commandBuffer) const override;
+		void Bind(std::shared_ptr<CommandBuffer> aCommandBuffer) const override;
 
 		void Destroy() override;
 	private:
-		VulkanBuffer buffer;
+		VulkanBuffer mBuffer;
 	};
 }

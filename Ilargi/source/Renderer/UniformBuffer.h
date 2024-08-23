@@ -7,8 +7,8 @@ namespace Ilargi
 	public:
 		virtual void Destroy() = 0;
 
-		virtual void SetData(void* data) = 0;
+		virtual void SetData(void* aData) = 0;
 
-		static std::shared_ptr<UniformBuffer> Create(uint32_t size, uint32_t framesInFlight);
+		static std::shared_ptr<UniformBuffer> Create(uint32_t aSize, uint32_t aFramesInFlight);
 	};
 }

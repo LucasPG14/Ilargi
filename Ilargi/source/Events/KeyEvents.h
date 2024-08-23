@@ -7,14 +7,14 @@ namespace Ilargi
 	class KeyPressedEvent : public Event
 	{
 	public:
-		KeyPressedEvent(int k, int c) : key(k), count(c) {}
+		KeyPressedEvent(int aKey, int aCount) : mKey(aKey), mCount(aCount) {}
 
-		inline const int GetKey() const { return key; }
+		inline const int GetKey() const { return mKey; }
 
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "KeyPressedEvent: " << key << ", " << count;
+			ss << "KeyPressedEvent: " << mKey << ", " << mCount;
 			return ss.str();
 		}
 
@@ -23,21 +23,21 @@ namespace Ilargi
 		virtual const char* GetName() const override { return "Key Pressed Event"; }
 
 	private:
-		int key;
-		int count;
+		int mKey;
+		int mCount;
 	};
 
 	class KeyReleasedEvent : public Event
 	{
 	public:
-		KeyReleasedEvent(int k) : key(k) {}
+		KeyReleasedEvent(int aKey) : mKey(aKey) {}
 
-		inline const int GetKey() const { return key; }
+		inline const int GetKey() const { return mKey; }
 
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "KeyReleasedEvent: " << key;
+			ss << "KeyReleasedEvent: " << mKey;
 			return ss.str();
 		}
 
@@ -46,6 +46,6 @@ namespace Ilargi
 		virtual const char* GetName() const override { return "Key Released Event"; }
 
 	private:
-		int key;
+		int mKey;
 	};
 }

@@ -7,10 +7,10 @@
 
 namespace Ilargi
 {
-	VulkanMaterial::VulkanMaterial(std::shared_ptr<Shader> shader) : descriptorSet(VK_NULL_HANDLE)
+	VulkanMaterial::VulkanMaterial(std::shared_ptr<Shader> aShader) : mDescriptorSet(VK_NULL_HANDLE)
 	{
-		auto vulkanShader = std::static_pointer_cast<VulkanShader>(shader);
-		vulkanShader->AllocateDescriptorSet(0, descriptorSet);
+		auto vulkanShader = std::static_pointer_cast<VulkanShader>(aShader);
+		vulkanShader->AllocateDescriptorSet(0, mDescriptorSet);
 	}
 	
 	VulkanMaterial::~VulkanMaterial()
@@ -18,9 +18,9 @@ namespace Ilargi
 
 	}
 	
-	void VulkanMaterial::SetDiffuse(std::shared_ptr<Texture2D> texture)
+	void VulkanMaterial::SetDiffuse(std::shared_ptr<Texture2D> aTexture)
 	{
-		diffuse = texture;
+		mDiffuse = aTexture;
 
 		UpdateDescriptor();
 	}
@@ -29,7 +29,7 @@ namespace Ilargi
 	{
 		auto device = VulkanContext::GetLogicalDevice();
 
-		auto albedoTexture = std::static_pointer_cast<VulkanTexture2D>(diffuse);
+		auto albedoTexture = std::static_pointer_cast<VulkanTexture2D>(mDiffuse);
 
 		VkDescriptorImageInfo imageInfo = {};
 		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -38,7 +38,7 @@ namespace Ilargi
 
 		std::array<VkWriteDescriptorSet, 1> descriptorWrites{};
 		descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[0].dstSet = descriptorSet;
+		descriptorWrites[0].dstSet = mDescriptorSet;
 		descriptorWrites[0].dstBinding = 0;
 		descriptorWrites[0].dstArrayElement = 0;
 		descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;

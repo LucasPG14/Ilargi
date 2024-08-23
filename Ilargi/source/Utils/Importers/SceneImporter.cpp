@@ -10,19 +10,19 @@
 
 namespace Ilargi
 {
-	void SceneImporter::ImportScene(UUID uuid, const ResourceMetadata& metadata)
+	void SceneImporter::ImportScene(UUID aUUID, const ResourceMetadata& aMetadata)
 	{
-		if (metadata.sourceFile != metadata.filepath)
-			std::filesystem::copy(metadata.sourceFile, metadata.filepath);
+		if (aMetadata.sourceFile != aMetadata.filepath)
+			std::filesystem::copy(aMetadata.sourceFile, aMetadata.filepath);
 	}
 
-	std::shared_ptr<Resource> SceneImporter::LoadScene(const ResourceMetadata& metadata)
+	std::shared_ptr<Resource> SceneImporter::LoadScene(const ResourceMetadata& aMetadata)
 	{
 		std::shared_ptr<Scene> scene = std::make_shared<Scene>();
 
 		JsonDocument document;
 
-		std::ifstream file(metadata.filepath, std::ios::in);
+		std::ifstream file(aMetadata.filepath, std::ios::in);
 
 		deserializeJson(document, file);
 
@@ -64,11 +64,11 @@ namespace Ilargi
 		return scene;
 	}
 	
-	void SceneImporter::SaveScene(std::shared_ptr<Scene> scene, const std::filesystem::path& path)
+	void SceneImporter::SaveScene(const std::shared_ptr<Scene>& aScene, const std::filesystem::path& aFilepath)
 	{
 		JsonDocument document;
 
-		auto& world = scene->GetWorld();
+		auto& world = aScene->GetWorld();
 		auto& entities = world.storage<Entity>();
 
 		for (auto& entity : entities)
@@ -111,14 +111,14 @@ namespace Ilargi
 
 				if (auto mesh = staticMesh.staticMesh.lock())
 				{
-					uuid = mesh->resourceUUID;
+					uuid = mesh->mResourceUUID;
 				}
 
 				document[index]["StaticMeshComponent"]["UUID"] = static_cast<uint64_t>(uuid);
 			}
 		}
 
-		std::ofstream file(path, std::ios::out);
+		std::ofstream file(aFilepath, std::ios::out);
 
 		serializeJson(document, file);
 

@@ -34,22 +34,22 @@ namespace Ilargi
 	class StaticMesh : public Resource
 	{
 	public:
-		StaticMesh(const std::vector<StaticVertex>& vert, const std::vector<uint32_t>& ind);
+		StaticMesh(const std::vector<StaticVertex>& aVertices, const std::vector<uint32_t>& aIndices);
 		virtual ~StaticMesh();
 
 		const ResourceType GetType() const { return ResourceType::MESH; }
 
-		const std::shared_ptr<Material> GetMaterial() const { return material; }
-		const std::shared_ptr<VertexBuffer>& GetVertexBuffer() const { return vertexBuffer; }
-		const std::shared_ptr<IndexBuffer>& GetIndexBuffer() const { return indexBuffer; }
+		const std::shared_ptr<Material> GetMaterial() const { return mMaterial; }
+		const std::shared_ptr<VertexBuffer>& GetVertexBuffer() const { return mVertexBuffer; }
+		const std::shared_ptr<IndexBuffer>& GetIndexBuffer() const { return mIndexBuffer; }
 
 	private:
-		std::vector<StaticVertex> vertices;
+		std::vector<StaticVertex> mVertices;
 		std::vector<uint32_t> indices;
 
-		std::shared_ptr<VertexBuffer> vertexBuffer;
-		std::shared_ptr<IndexBuffer> indexBuffer;
+		std::shared_ptr<VertexBuffer> mVertexBuffer;
+		std::shared_ptr<IndexBuffer> mIndexBuffer;
 
-		std::shared_ptr<Material> material;
+		std::shared_ptr<Material> mMaterial;
 	};
 }

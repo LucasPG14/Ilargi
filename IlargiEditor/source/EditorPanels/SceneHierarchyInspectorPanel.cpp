@@ -14,7 +14,7 @@
 namespace Ilargi
 {
 	SceneHierarchyInspectorPanel::SceneHierarchyInspectorPanel()
-		: scene(nullptr), selected(entt::null)
+		: mScene(nullptr), mSelected(entt::null)
 	{
 	}
 
@@ -29,15 +29,15 @@ namespace Ilargi
 
 		if (ImGui::Button("Add"))
 		{
-			scene->CreateEntity();
+			mScene->CreateEntity();
 		}
 
 		if (ImGui::Button("CreateChild"))
 		{
-			scene->CreateChildrenEntity(selected);
+			mScene->CreateChildrenEntity(mSelected);
 		}
 
-		const auto& world = scene->GetWorld();
+		const auto& world = mScene->GetWorld();
 		const auto& view = world.view<InfoComponent, FamilyComponent>();
 
 		std::stack<Entity> stack;
@@ -52,7 +52,7 @@ namespace Ilargi
 			{
 				Entity childEntity = stack.top();
 				auto [info, family] = world.get<InfoComponent, FamilyComponent>(childEntity);
-				bool select = selected == childEntity;
+				bool select = mSelected == childEntity;
 
 				ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
 				if (select)
@@ -72,7 +72,7 @@ namespace Ilargi
 					UI::EndTreeNode((void*)childEntity, open);
 
 				if (ImGui::IsItemClicked(0) || ImGui::IsItemClicked(1))
-					selected = childEntity;
+					mSelected = childEntity;
 
 				UI::EndTreeNode((void*)childEntity, open);
 			}
@@ -97,18 +97,18 @@ namespace Ilargi
 		}
 
 		if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0) && !ImGui::IsAnyItemHovered())
-			selected = entt::null;
+			mSelected = entt::null;
 
 		if (ImGui::BeginPopupContextWindow("##HierarchypopUp"))
 		{
 			if (ImGui::MenuItem("Create Entity"))
 			{
-				scene->CreateEntity();
+				mScene->CreateEntity();
 			}
-			if (selected != entt::null && ImGui::MenuItem("Delete Entity"))
+			if (mSelected != entt::null && ImGui::MenuItem("Delete Entity"))
 			{
-				scene->DestroyEntity(selected);
-				selected = entt::null;
+				mScene->DestroyEntity(mSelected);
+				mSelected = entt::null;
 			}
 			ImGui::EndPopup();
 		}
@@ -119,15 +119,15 @@ namespace Ilargi
 		// --------------------------------------Inspector window----------------------------------------------
 		ImGui::Begin("Inspector", (bool*)0);
 
-		if (selected != entt::null)
+		if (mSelected != entt::null)
 			DrawInspector();
 
 		ImGui::End();
 
-		if (selected != entt::null && Input::IsKeyPressed(KeyCode::DELETE))
+		if (mSelected != entt::null && Input::IsKeyPressed(KeyCode::DELETE))
 		{
-			scene->DestroyEntity(selected);
-			selected = entt::null;
+			mScene->DestroyEntity(mSelected);
+			mSelected = entt::null;
 		}
 		// ----------------------------------------------------------------------------------------------------
 	}
@@ -139,10 +139,10 @@ namespace Ilargi
 		ImGui::PushStyleColor(ImGuiCol_HeaderActive, { 12.0f / 255.0f, 12.0f / 255.0f, 25.0f / 255.0f, 1.0f });
 		ImGui::Separator();
 
-		auto& world = scene->GetWorld();
-		if (world.try_get<TransformComponent>(selected))
+		auto& world = mScene->GetWorld();
+		if (world.try_get<TransformComponent>(mSelected))
 		{
-			TransformComponent& transformComponent = scene->GetWorld().get<TransformComponent>(selected);
+			TransformComponent& transformComponent = mScene->GetWorld().get<TransformComponent>(mSelected);
 			if (ImGui::CollapsingHeader("Transform Component"))
 			{
 				ImVec2 size = ImGui::CalcTextSize("Rotation");
@@ -163,9 +163,9 @@ namespace Ilargi
 			ImGui::Separator();
 		}
 
-		if (world.try_get<StaticMeshComponent>(selected))
+		if (world.try_get<StaticMeshComponent>(mSelected))
 		{
-			StaticMeshComponent& staticMesh = scene->GetWorld().get<StaticMeshComponent>(selected);
+			StaticMeshComponent& staticMesh = mScene->GetWorld().get<StaticMeshComponent>(mSelected);
 			if (ImGui::CollapsingHeader("Static Mesh Component"))
 			{
 				if (auto mesh = staticMesh.staticMesh.lock())
@@ -199,9 +199,9 @@ namespace Ilargi
 				
 		}
 
-		if (world.try_get<DirectionalLightComponent>(selected))
+		if (world.try_get<DirectionalLightComponent>(mSelected))
 		{
-			DirectionalLightComponent& dirLight = scene->GetWorld().get<DirectionalLightComponent>(selected);
+			DirectionalLightComponent& dirLight = mScene->GetWorld().get<DirectionalLightComponent>(mSelected);
 			if (ImGui::CollapsingHeader("Directional Light Component"))
 			{
 				ImGui::ColorPicker4("##Color", dirLight.radiance);

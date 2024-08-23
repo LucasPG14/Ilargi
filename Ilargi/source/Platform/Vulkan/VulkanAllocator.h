@@ -22,16 +22,16 @@ namespace Ilargi
 		static void Init();
 		static void Destroy();
 
-		static void AllocateBuffer(VulkanBuffer& buffer, const VkBufferCreateInfo& bufferInfo, VmaMemoryUsage usage);
-		static void DestroyBuffer(VulkanBuffer& buffer);
+		static void AllocateBuffer(VulkanBuffer& aBuffer, const VkBufferCreateInfo& aBufferInfo, VmaMemoryUsage aUsage);
+		static void DestroyBuffer(VulkanBuffer& aBuffer);
 
-		static void AllocateImage(Image& image, const VkImageCreateInfo& imageInfo, VmaMemoryUsage usage);
-		static void DestroyImage(Image& image);
+		static void AllocateImage(Image& aImage, const VkImageCreateInfo& aImageInfo, VmaMemoryUsage aUsage);
+		static void DestroyImage(Image& aImage);
 
-		static void* MapMemory(const VulkanBuffer& buffer);
-		static void UnmapMemory(VulkanBuffer& buffer);
+		static void* MapMemory(const VulkanBuffer& aBuffer);
+		static void UnmapMemory(VulkanBuffer& aBuffer);
 
 	private:
-		static VmaAllocator allocator;
+		static VmaAllocator sAllocator;
 	};
 }

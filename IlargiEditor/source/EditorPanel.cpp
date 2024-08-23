@@ -32,8 +32,8 @@ namespace Ilargi
 
 	static std::unordered_map<Texts, std::string> menuNames = {};
 
-	EditorPanel::EditorPanel() : Panel("Editor Panel"), hierarchyInspector(nullptr), resourcesPanel(nullptr), 
-		viewportSize({ 1080, 720 }), needToUpdateFramebuffer(false), constants(), operation(ImGuizmo::TRANSLATE)
+	EditorPanel::EditorPanel() : Panel("Editor Panel"), mHierarchyInspector(nullptr), mResourcesPanel(nullptr), 
+		mViewportSize({ 1080, 720 }), mNeedToUpdateFramebuffer(false), mConstants(), mOperation(ImGuizmo::TRANSLATE)
 	{
 	}
 
@@ -43,14 +43,14 @@ namespace Ilargi
 
 	void EditorPanel::OnInit()
 	{
-		hierarchyInspector = new SceneHierarchyInspectorPanel();
-		resourcesPanel = new ResourcesPanel();
+		mHierarchyInspector = new SceneHierarchyInspectorPanel();
+		mResourcesPanel = new ResourcesPanel();
 		
 		NewScene();
 
-		commandBuffer = CommandBuffer::Create(Renderer::GetConfig().maxFrames);
+		mCommandBuffer = CommandBuffer::Create(Renderer::GetConfig().maxFrames);
 		
-		framebuffer = Framebuffer::Create({ 1080, 720, { ImageFormat::RGBA8, ImageFormat::DEPTH32 }, false, true });
+		mFramebuffer = Framebuffer::Create({ 1080, 720, { ImageFormat::RGBA8, ImageFormat::DEPTH32 }, false, true });
 		{
 			PipelineProperties pipelineProperties;
 			pipelineProperties.name = "Geometry";
@@ -65,7 +65,7 @@ namespace Ilargi
 				{ ShaderDataType::FLOAT2, "texCoord" },
 			};
 
-			renderPass = RenderPass::Create({ framebuffer, Pipeline::Create(pipelineProperties), true });
+			mRenderPass = RenderPass::Create({ mFramebuffer, Pipeline::Create(pipelineProperties), true });
 		}
 
 		PipelineProperties pipelineProperties;
@@ -76,50 +76,50 @@ namespace Ilargi
 
 		//gridRenderPass = RenderPass::Create({ framebuffer, Pipeline::Create(pipelineProperties), false });
 		
-		uboCamera = UniformBuffer::Create(sizeof(mat4), Renderer::GetConfig().maxFrames);
+		mUBOCamera = UniformBuffer::Create(sizeof(mat4), Renderer::GetConfig().maxFrames);
 
 		LoadLanguage("Engine/Localization/english.json");
 	}
 
 	void EditorPanel::OnDestroy()
 	{
-		delete hierarchyInspector;
-		delete resourcesPanel;
+		delete mHierarchyInspector;
+		delete mResourcesPanel;
 
 		ResourceManager::Clear();
 
-		uboCamera->Destroy();
+		mUBOCamera->Destroy();
 		
-		scene->Destroy();
+		mScene->Destroy();
 
-		framebuffer->Destroy();
+		mFramebuffer->Destroy();
 		//gridRenderPass->Destroy();
-		renderPass->Destroy();
+		mRenderPass->Destroy();
 
-		commandBuffer->Destroy();
+		mCommandBuffer->Destroy();
 	}
 
 	void EditorPanel::Update()
 	{
-		if (needToUpdateFramebuffer)
+		if (mNeedToUpdateFramebuffer)
 		{
-			framebuffer->Resize(renderPass, (uint32_t)viewportSize.x, (uint32_t)viewportSize.y);
-			camera.Resize(viewportSize.x, viewportSize.y);
-			needToUpdateFramebuffer = false;
+			mFramebuffer->Resize(mRenderPass, (uint32_t)mViewportSize.x, (uint32_t)mViewportSize.y);
+			mCamera.Resize(mViewportSize.x, mViewportSize.y);
+			mNeedToUpdateFramebuffer = false;
 		}
 
-		camera.Update();
+		mCamera.Update();
 
-		commandBuffer->BeginCommand();
-		renderPass->BeginRenderPass(commandBuffer);
+		mCommandBuffer->BeginCommand();
+		mRenderPass->BeginRenderPass(mCommandBuffer);
 		
-		constants[0] = camera.GetProjectionMatrix() * camera.GetViewMatrix();
+		mConstants[0] = mCamera.GetProjectionMatrix() * mCamera.GetViewMatrix();
 
-		auto ent = *scene->GetWorld().view<TransformComponent, DirectionalLightComponent>().begin();
+		auto ent = *mScene->GetWorld().view<TransformComponent, DirectionalLightComponent>().begin();
 
-		auto [trans, light] = scene->GetWorld().view<TransformComponent, DirectionalLightComponent>().get<>(ent);
+		auto [trans, light] = mScene->GetWorld().view<TransformComponent, DirectionalLightComponent>().get<>(ent);
 
-		const auto& view = scene->GetWorld().view<TransformComponent, StaticMeshComponent>();
+		const auto& view = mScene->GetWorld().view<TransformComponent, StaticMeshComponent>();
 		for (auto entity : view)
 		{
 			auto [transform, meshComponent] = view.get<TransformComponent, StaticMeshComponent>(entity);
@@ -130,17 +130,17 @@ namespace Ilargi
 
 			transform.CalculateTransform();
 			
-			renderPass->GetProperties().pipeline->Bind(commandBuffer);
-			renderPass->GetProperties().pipeline->BindDescriptorSet(commandBuffer, mesh->GetMaterial());
-			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 0, 64, transform.transform);
-			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 64, 64, constants[0]);
+			mRenderPass->GetProperties().pipeline->Bind(mCommandBuffer);
+			mRenderPass->GetProperties().pipeline->BindDescriptorSet(mCommandBuffer, mesh->GetMaterial());
+			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 0, 64, transform.transform);
+			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 64, 64, mConstants[0]);
 			//renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 128, 16, mesh.staticMesh->GetColor());
-			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 144, 12, light.radiance);
-			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 156, 12, trans.rotation);
-			Renderer::SubmitGeometry(commandBuffer, mesh);
+			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 144, 12, light.radiance);
+			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 156, 12, trans.rotation);
+			Renderer::SubmitGeometry(mCommandBuffer, mesh);
 		}
 
-		renderPass->EndRenderPass(commandBuffer);
+		mRenderPass->EndRenderPass(mCommandBuffer);
 
 		//gridRenderPass->BeginRenderPass(commandBuffer);
 		//
@@ -152,8 +152,8 @@ namespace Ilargi
 		//
 		//gridRenderPass->EndRenderPass(commandBuffer);
 
-		commandBuffer->EndCommand();
-		commandBuffer->Submit();
+		mCommandBuffer->EndCommand();
+		mCommandBuffer->Submit();
 	}
 
 	void EditorPanel::RenderImGui()
@@ -190,19 +190,19 @@ namespace Ilargi
 
 		RenderViewport();
 
-		hierarchyInspector->Render();
-		resourcesPanel->Render();
+		mHierarchyInspector->Render();
+		mResourcesPanel->Render();
 
 		ImGui::End();
 	}
 	
-	void EditorPanel::OnEvent(Event& event)
+	void EditorPanel::OnEvent(Event& aEvent)
 	{
-		EventDispatcher dispatcher(event);
+		EventDispatcher dispatcher(aEvent);
 
 		dispatcher.Dispatch<KeyPressedEvent>(ILG_BIND_FN(EditorPanel::OnKeyEvent));
 
-		resourcesPanel->OnEvent(event);
+		mResourcesPanel->OnEvent(aEvent);
 	}
 	
 	void EditorPanel::LoadLanguage(std::filesystem::path path)
@@ -274,7 +274,7 @@ namespace Ilargi
 			}
 			ImGui::Separator();
 
-			bool enabled = hierarchyInspector->GetSelected() != entt::null ? true : false;
+			bool enabled = mHierarchyInspector->GetSelected() != entt::null ? true : false;
 			if (ImGui::MenuItem(menuNames[Texts::COPY].c_str(), "Ctrl + C", (bool*)0, enabled))
 			{
 				// TODO: Copy
@@ -285,8 +285,8 @@ namespace Ilargi
 			}
 			if (ImGui::MenuItem(menuNames[Texts::DELETE].c_str(), "Del", (bool*)0, enabled))
 			{
-				scene->DestroyEntity(hierarchyInspector->GetSelected());
-				hierarchyInspector->ResetSelected();
+				mScene->DestroyEntity(mHierarchyInspector->GetSelected());
+				mHierarchyInspector->ResetSelected();
 			}
 			if (ImGui::MenuItem(menuNames[Texts::DUPLICATE].c_str(), "Ctrl + D", (bool*)0, enabled))
 			{
@@ -315,15 +315,15 @@ namespace Ilargi
 		ImGui::Begin("Viewport", 0, ImGuiWindowFlags_NoDecoration);
 		ImVec2 frameViewportSize = ImGui::GetContentRegionAvail();
 
-		ImGui::Image(framebuffer->GetID(), frameViewportSize, { 0.0f, 1.0f }, { 1.0f, 0.0f });
+		ImGui::Image(mFramebuffer->GetID(), frameViewportSize, { 0.0f, 1.0f }, { 1.0f, 0.0f });
 
-		if (viewportSize != frameViewportSize)
+		if (mViewportSize != frameViewportSize)
 		{
-			viewportSize = frameViewportSize;
-			needToUpdateFramebuffer = true;
+			mViewportSize = frameViewportSize;
+			mNeedToUpdateFramebuffer = true;
 		}
 
-		Entity entity = hierarchyInspector->GetSelected();
+		Entity entity = mHierarchyInspector->GetSelected();
 		// Guizmo
 		if (entity != entt::null)
 		{
@@ -333,13 +333,13 @@ namespace Ilargi
 			ImGuizmo::SetDrawlist();
 			ImGuizmo::SetGizmoSizeClipSpace(0.15f);
 
-			const mat4& viewMatrix = camera.GetViewMatrix();
-			const mat4& projMatrix = camera.GetProjectionMatrix();
+			const mat4& viewMatrix = mCamera.GetViewMatrix();
+			const mat4& projMatrix = mCamera.GetProjectionMatrix();
 
-			TransformComponent& transformComp = scene->GetWorld().get<TransformComponent>(entity);
+			TransformComponent& transformComp = mScene->GetWorld().get<TransformComponent>(entity);
 			mat4& transform = transformComp.transform;
 
-			ImGuizmo::Manipulate(viewMatrix, projMatrix, (ImGuizmo::OPERATION)operation, ImGuizmo::WORLD, transform);
+			ImGuizmo::Manipulate(viewMatrix, projMatrix, (ImGuizmo::OPERATION)mOperation, ImGuizmo::WORLD, transform);
 
 			if (ImGuizmo::IsUsingAny())
 			{
@@ -363,16 +363,16 @@ namespace Ilargi
 				{
 					std::shared_ptr<Resource> resource = ResourceManager::GetResource(uuid);
 
-					Entity entity = scene->CreateEntity();
-					scene->CreateComponent<StaticMeshComponent>(entity, std::static_pointer_cast<StaticMesh>(resource));
+					Entity entity = mScene->CreateEntity();
+					mScene->CreateComponent<StaticMeshComponent>(entity, std::static_pointer_cast<StaticMesh>(resource));
 					break;
 				}
 				case ResourceType::SCENE:
 				{
 					std::shared_ptr<Resource> resource = ResourceManager::GetResource(uuid);
 
-					scene = std::static_pointer_cast<Scene>(resource);
-					hierarchyInspector->SetScene(scene);
+					mScene = std::static_pointer_cast<Scene>(resource);
+					mHierarchyInspector->SetScene(mScene);
 					break;
 				}
 				}
@@ -387,11 +387,11 @@ namespace Ilargi
 
 	void EditorPanel::NewScene()
 	{
-		scene = std::make_shared<Scene>();
-		hierarchyInspector->SetScene(scene);
+		mScene = std::make_shared<Scene>();
+		mHierarchyInspector->SetScene(mScene);
 
-		Entity entity = scene->CreateEntity("Directional Light");
-		scene->CreateComponent<DirectionalLightComponent>(entity);
+		Entity entity = mScene->CreateEntity("Directional Light");
+		mScene->CreateComponent<DirectionalLightComponent>(entity);
 	}
 
 	void EditorPanel::OpenScene()
@@ -401,9 +401,9 @@ namespace Ilargi
 		//	OpenScene(filepath);
 	}
 
-	void EditorPanel::OpenScene(std::string filepath)
+	void EditorPanel::OpenScene(std::string aFilepath)
 	{
-		std::shared_ptr<Scene> newScene = std::make_shared<Scene>();
+		//std::shared_ptr<Scene> newScene = std::make_shared<Scene>();
 	}
 
 	void EditorPanel::SaveSceneAs()
@@ -412,28 +412,28 @@ namespace Ilargi
 		if (!filepath.empty())
 		{
 			SaveScene(filepath);
-			resourcesPanel->RefreshAssets();
+			mResourcesPanel->RefreshAssets();
 		}
 	}
 
-	void EditorPanel::SaveScene(std::string filepath)
+	void EditorPanel::SaveScene(std::string aFilepath)
 	{
-		SceneImporter::SaveScene(scene, filepath);
+		SceneImporter::SaveScene(mScene, aFilepath);
 
 		// TODO: Think a better way of handle this if possible
-		auto start = filepath.find("Resources");
-		ResourceManager::ImportResource(std::filesystem::path(filepath.substr(start)).remove_filename(), std::filesystem::path(filepath.substr(start)));
+		auto start = aFilepath.find("Resources");
+		ResourceManager::ImportResource(std::filesystem::path(aFilepath.substr(start)).remove_filename(), std::filesystem::path(aFilepath.substr(start)));
 
 		ResourceManager::SaveResourceRegistry();
 	}
 	
-	bool EditorPanel::OnKeyEvent(KeyPressedEvent& event)
+	bool EditorPanel::OnKeyEvent(KeyPressedEvent& aEvent)
 	{
 		bool ctrl = Input::IsKeyPressed(KeyCode::LEFT_CONTROL) || Input::IsKeyPressed(KeyCode::RIGHT_CONTROL);
 		bool shift = Input::IsKeyPressed(KeyCode::LEFT_SHIFT) || Input::IsKeyPressed(KeyCode::RIGHT_SHIFT);
 		bool alt = Input::IsKeyPressed(KeyCode::LEFT_ALT) || Input::IsKeyPressed(KeyCode::RIGHT_ALT);
 
-		switch (event.GetKey())
+		switch (aEvent.GetKey())
 		{
 		case KeyCode::N:
 			if (ctrl)
@@ -461,15 +461,15 @@ namespace Ilargi
 			break;
 		case KeyCode::W:
 			if (!Input::IsMouseButtonPressed(MouseCode::RIGHT))
-				operation = ImGuizmo::TRANSLATE;
+				mOperation = ImGuizmo::TRANSLATE;
 			break;
 		case KeyCode::E:
 			if (!Input::IsMouseButtonPressed(MouseCode::RIGHT))
-				operation = ImGuizmo::ROTATE;
+				mOperation = ImGuizmo::ROTATE;
 			break;
 		case KeyCode::R:
 			if (!Input::IsMouseButtonPressed(MouseCode::RIGHT))
-				operation = ImGuizmo::SCALE;
+				mOperation = ImGuizmo::SCALE;
 			break;
 		case KeyCode::F4:
 			Application::Get()->CloseApp();

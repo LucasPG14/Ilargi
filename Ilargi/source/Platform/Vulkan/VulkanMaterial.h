@@ -10,20 +10,20 @@ namespace Ilargi
 	class VulkanMaterial : public Material
 	{
 	public:
-		VulkanMaterial(std::shared_ptr<Shader> shader);
+		VulkanMaterial(std::shared_ptr<Shader> aShader);
 		virtual ~VulkanMaterial();
 
-		const void* GetDescriptorSet() const override { return descriptorSet; }
-		std::shared_ptr<Texture2D> GetDiffuse() override { return diffuse; }
+		const void* GetDescriptorSet() const override { return mDescriptorSet; }
+		std::shared_ptr<Texture2D> GetDiffuse() override { return mDiffuse; }
 
-		void SetDiffuse(std::shared_ptr<Texture2D> texture) override;
+		void SetDiffuse(std::shared_ptr<Texture2D> aTexture) override;
 
 	private:
 		void UpdateDescriptor();
 
 	private:
-		VkDescriptorSet descriptorSet;
+		VkDescriptorSet mDescriptorSet;
 
-		std::shared_ptr<Texture2D> diffuse;
+		std::shared_ptr<Texture2D> mDiffuse;
 	};
 }

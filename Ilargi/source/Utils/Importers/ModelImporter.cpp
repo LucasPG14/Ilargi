@@ -35,16 +35,16 @@ namespace Ilargi
 		return *this;
 	}
 
-	void ModelImporter::ImportModel(UUID uuid, const ResourceMetadata& metadata)
+	void ModelImporter::ImportModel(UUID aUUID, const ResourceMetadata& aMetadata)
 	{
 		Assimp::Importer importer;
 
-		const aiScene* importScene = importer.ReadFile(metadata.sourceFile.string().c_str(), aiProcess_CalcTangentSpace | aiProcess_Triangulate |
+		const aiScene* importScene = importer.ReadFile(aMetadata.sourceFile.string().c_str(), aiProcess_CalcTangentSpace | aiProcess_Triangulate |
 			aiProcess_JoinIdenticalVertices | aiProcess_SortByPType);
 
 		if (!importScene)
 		{
-			ILG_CORE_ERROR("Couldn't import model: {0}", metadata.sourceFile.string());
+			ILG_CORE_ERROR("Couldn't import model: {0}", aMetadata.sourceFile.string());
 			return;
 		}
 
@@ -105,12 +105,12 @@ namespace Ilargi
 
 		memcpy(buf, indices.data(), indices.size() * sizeof(uint32_t));
 
-		FileSystem::WriteBinaryFile(metadata.filepath, buffer);
+		FileSystem::WriteBinaryFile(aMetadata.filepath, buffer);
 	}
 
-	std::shared_ptr<Resource> ModelImporter::LoadModel(const ResourceMetadata& metadata)
+	std::shared_ptr<Resource> ModelImporter::LoadModel(const ResourceMetadata& aMetadata)
 	{
-		const Buffer& buffer = FileSystem::ReadBinaryFile(metadata.filepath);
+		const Buffer& buffer = FileSystem::ReadBinaryFile(aMetadata.filepath);
 
 		char* data = buffer.data;
 
@@ -134,7 +134,7 @@ namespace Ilargi
 		return mesh;
 	}
 
-	void ModelImporter::ImportFBX(const std::filesystem::path& path, const std::shared_ptr<Scene>& scene)
+	void ModelImporter::ImportFBX(const std::filesystem::path& aFilepath, const std::shared_ptr<Scene>& aScene)
 	{
 		//Assimp::Importer importer;
 		//

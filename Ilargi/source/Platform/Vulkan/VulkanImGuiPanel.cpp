@@ -22,7 +22,7 @@ namespace Ilargi
 
 	VulkanImGuiPanel::VulkanImGuiPanel(GLFWwindow* win, const std::shared_ptr<Swapchain> swapchain)
 	{
-		vkSwapchain = std::static_pointer_cast<VulkanSwapchain>(swapchain);
+		mSwapchain = std::static_pointer_cast<VulkanSwapchain>(swapchain);
 
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -53,7 +53,7 @@ namespace Ilargi
 		imguiInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 		imguiInfo.Allocator = nullptr;
 		imguiInfo.CheckVkResultFn = CheckResult;
-		ImGui_ImplVulkan_Init(&imguiInfo, vkSwapchain->GetRenderPass());
+		ImGui_ImplVulkan_Init(&imguiInfo, mSwapchain->GetRenderPass());
 
 		io.Fonts->AddFontFromFileTTF("Engine/Fonts/arial.ttf", 16.0f);
 		{
@@ -94,7 +94,7 @@ namespace Ilargi
 		ImGui::EndFrame();
 		
 		// TODO: This must be done in another way
-		VkCommandBuffer cmdBuffer = vkSwapchain->GetCurrentCommand();
+		VkCommandBuffer cmdBuffer = mSwapchain->GetCurrentCommand();
 		{
 			VkCommandBufferBeginInfo beginInfo{};
 			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -105,11 +105,11 @@ namespace Ilargi
 
 			VkRenderPassBeginInfo renderPassInfo{};
 			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-			renderPassInfo.renderPass = vkSwapchain->GetRenderPass();
-			renderPassInfo.framebuffer = vkSwapchain->GetFramebuffer();
+			renderPassInfo.renderPass = mSwapchain->GetRenderPass();
+			renderPassInfo.framebuffer = mSwapchain->GetFramebuffer();
 
-			uint32_t width = vkSwapchain->GetWidth();
-			uint32_t height = vkSwapchain->GetHeight();
+			uint32_t width = mSwapchain->GetWidth();
+			uint32_t height = mSwapchain->GetHeight();
 
 			renderPassInfo.renderArea.offset = { 0, 0 };
 			renderPassInfo.renderArea.extent = { width, height};

@@ -12,99 +12,99 @@
 
 namespace Ilargi
 {
-	Application* Application::app = nullptr;
+	Application* Application::sApp = nullptr;
 
-	Application::Application(const ApplicationProperties& props) : close(false), minimized(false), properties(props)
+	Application::Application(const ApplicationProperties& aProps) : mClose(false), mMinimized(false), mProperties(aProps)
 	{
-		app = this;
+		sApp = this;
 
-		Log::SetClientName(props.appName);
+		Log::SetClientName(aProps.appName);
 
 		WindowProperties windowProps;
-		windowProps.appName = props.appName;
-		windowProps.width = props.width;
-		windowProps.height = props.height;
-		windowProps.fullscreen = props.fullscreen;
+		windowProps.appName = aProps.appName;
+		windowProps.width = aProps.width;
+		windowProps.height = aProps.height;
+		windowProps.fullscreen = aProps.fullscreen;
 		windowProps.iconPath = "";
-		window = std::make_unique<Window>(windowProps, ILG_BIND_FN(Application::OnEvent));
-		imguiPanel = ImGuiPanel::Create(window->GetWindow(), window->GetSwapchain());
+		mWindow = std::make_unique<Window>(windowProps, ILG_BIND_FN(Application::OnEvent));
+		mImguiPanel = ImGuiPanel::Create(mWindow->GetWindow(), mWindow->GetSwapchain());
 
 		Renderer::Init();
 	}
 	
 	Application::~Application()
 	{
-		for (Panel* panel : panels)
+		for (Panel* panel : mPanels)
 			panel->OnDestroy();
 
-		imguiPanel->Destroy();
-		window->Destroy();
+		mImguiPanel->Destroy();
+		mWindow->Destroy();
 	}
 	
 	void Application::Update() const
 	{
-		while (!close)
+		while (!mClose)
 		{
-			window->PollEvents();
-			if (minimized)
+			mWindow->PollEvents();
+			if (mMinimized)
 				continue;
 
-			for (Panel* panel : panels)
+			for (Panel* panel : mPanels)
 				panel->Update();
 
-			Renderer::Submit([this]() { imguiPanel->Begin(); });
+			Renderer::Submit([this]() { mImguiPanel->Begin(); });
 			Renderer::Submit([this]() 
 				{
-					for (Panel* panel : panels)
+					for (Panel* panel : mPanels)
 						panel->RenderImGui();
 				});
-			Renderer::Submit([this]() { imguiPanel->End(); });
+			Renderer::Submit([this]() { mImguiPanel->End(); });
 			
-			window->StartFrame();
+			mWindow->StartFrame();
 			Renderer::RenderQueue();
-			window->EndFrame();
+			mWindow->EndFrame();
 		}
 	}
 
-	void Application::AddPanel(Panel* panel)
+	void Application::AddPanel(Panel* aPanel)
 	{
-		panels.push_back(panel);
-		panel->OnInit();
+		mPanels.push_back(aPanel);
+		aPanel->OnInit();
 	}
 
-	void Application::OnEvent(Event& event)
+	void Application::OnEvent(Event& aEvent)
 	{
-		EventDispatcher dispatcher(event);
+		EventDispatcher dispatcher(aEvent);
 
 		dispatcher.Dispatch<WindowCloseEvent>(ILG_BIND_FN(Application::OnCloseEvent));
 		dispatcher.Dispatch<WindowResizeEvent>(ILG_BIND_FN(Application::OnResizeEvent));
 
-		for (Panel* panel : panels)
+		for (Panel* panel : mPanels)
 		{
-			if (event.handled)
+			if (aEvent.mHandled)
 				break;
 
-			panel->OnEvent(event);
+			panel->OnEvent(aEvent);
 		}
 	}
 
 	void Application::CloseApp()
 	{
-		close = true;
+		mClose = true;
 	}
 	
-	bool Application::OnCloseEvent(WindowCloseEvent& event)
+	bool Application::OnCloseEvent(WindowCloseEvent& aEvent)
 	{
 		CloseApp();
 		return true;
 	}
 	
-	bool Application::OnResizeEvent(WindowResizeEvent& event)
+	bool Application::OnResizeEvent(WindowResizeEvent& aEvent)
 	{
-		if (event.GetWidth() == 0 || event.GetHeight() == 0)
-			minimized = true;
+		if (aEvent.GetWidth() == 0 || aEvent.GetHeight() == 0)
+			mMinimized = true;
 		else
-			minimized = false;
+			mMinimized = false;
 
 		return false;
 	}
