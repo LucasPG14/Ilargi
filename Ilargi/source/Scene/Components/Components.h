@@ -42,7 +42,7 @@ namespace Ilargi
 
 	struct StaticMeshComponent
 	{
-		std::shared_ptr<StaticMesh> staticMesh;
+		std::weak_ptr<StaticMesh> staticMesh;
 	};
 
 	struct DirectionalLightComponent

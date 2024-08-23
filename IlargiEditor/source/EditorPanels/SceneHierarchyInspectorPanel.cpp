@@ -168,31 +168,35 @@ namespace Ilargi
 			StaticMeshComponent& staticMesh = scene->GetWorld().get<StaticMeshComponent>(selected);
 			if (ImGui::CollapsingHeader("Static Mesh Component"))
 			{
-				//ImGui::ColorPicker4("##Color", staticMesh.staticMesh->GetColor());
-				auto& material = staticMesh.staticMesh->GetMaterial();
+				if (auto mesh = staticMesh.staticMesh.lock())
+				{
+					//ImGui::ColorPicker4("##Color", staticMesh.staticMesh->GetColor());
+					auto& material = mesh->GetMaterial();
 
-				if (material->GetDiffuse())
-				{
-					ImGui::Image((void*)material->GetDiffuse()->GetID(), { 64, 64 });
-				}
-				else
-				{
-					ImGui::Text("Diffuse");
-				}
-				if (ImGui::BeginDragDropTarget())
-				{
-					auto payload = ImGui::AcceptDragDropPayload("RESOURCE");
-
-					if (payload)
+					if (material->GetDiffuse())
 					{
-						UUID uuid = *(UUID*)payload->Data;
-						auto metadata = ResourceManager::GetResourcesMetadata()[uuid];
+						ImGui::Image((void*)material->GetDiffuse()->GetID(), { 64, 64 });
+					}
+					else
+					{
+						ImGui::Text("Diffuse");
+					}
+					if (ImGui::BeginDragDropTarget())
+					{
+						auto payload = ImGui::AcceptDragDropPayload("RESOURCE");
 
-						material->SetDiffuse(std::static_pointer_cast<Texture2D>(ResourceManager::GetResource(uuid)));
+						if (payload)
+						{
+							UUID uuid = *(UUID*)payload->Data;
+							auto metadata = ResourceManager::GetResourcesMetadata()[uuid];
+
+							material->SetDiffuse(std::static_pointer_cast<Texture2D>(ResourceManager::GetResource(uuid)));
+						}
 					}
 				}
+				ImGui::Separator();
 			}
-			ImGui::Separator();
+				
 		}
 
 		if (world.try_get<DirectionalLightComponent>(selected))

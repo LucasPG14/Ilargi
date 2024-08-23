@@ -33,11 +33,11 @@ namespace Ilargi
 	void VulkanRender::DrawDefault(std::shared_ptr<CommandBuffer> commandBuffer) const
 	{
 		Renderer::Submit([commandBuffer]()
-			{
+		{
 				uint32_t currentFrame = Renderer::GetCurrentFrame();
 
 				auto cmdBuffer = std::static_pointer_cast<VulkanCommandBuffer>(commandBuffer)->GetCurrentCommand(currentFrame);
 				vkCmdDraw(cmdBuffer, 6, 1, 0, 0);
-			});
+		});
 	}
 }

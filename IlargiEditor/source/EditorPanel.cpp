@@ -122,18 +122,22 @@ namespace Ilargi
 		const auto& view = scene->GetWorld().view<TransformComponent, StaticMeshComponent>();
 		for (auto entity : view)
 		{
-			auto [transform, mesh] = view.get<TransformComponent, StaticMeshComponent>(entity);
+			auto [transform, meshComponent] = view.get<TransformComponent, StaticMeshComponent>(entity);
+
+			auto mesh = meshComponent.staticMesh.lock();
+			if (!mesh)
+				continue;
 
 			transform.CalculateTransform();
 			
 			renderPass->GetProperties().pipeline->Bind(commandBuffer);
-			renderPass->GetProperties().pipeline->BindDescriptorSet(commandBuffer, mesh.staticMesh->GetMaterial());
+			renderPass->GetProperties().pipeline->BindDescriptorSet(commandBuffer, mesh->GetMaterial());
 			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 0, 64, transform.transform);
 			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 64, 64, constants[0]);
 			//renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 128, 16, mesh.staticMesh->GetColor());
 			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 144, 12, light.radiance);
 			renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 156, 12, trans.rotation);
-			Renderer::SubmitGeometry(commandBuffer, mesh.staticMesh);
+			Renderer::SubmitGeometry(commandBuffer, mesh);
 		}
 
 		renderPass->EndRenderPass(commandBuffer);
@@ -408,13 +412,17 @@ namespace Ilargi
 		if (!filepath.empty())
 		{
 			SaveScene(filepath);
+			resourcesPanel->RefreshAssets();
 		}
 	}
 
 	void EditorPanel::SaveScene(std::string filepath)
 	{
 		SceneImporter::SaveScene(scene, filepath);
-		ResourceManager::ImportResource(std::filesystem::path(filepath).remove_filename(), filepath);
+
+		// TODO: Think a better way of handle this if possible
+		auto start = filepath.find("Resources");
+		ResourceManager::ImportResource(std::filesystem::path(filepath.substr(start)).remove_filename(), std::filesystem::path(filepath.substr(start)));
 
 		ResourceManager::SaveResourceRegistry();
 	}

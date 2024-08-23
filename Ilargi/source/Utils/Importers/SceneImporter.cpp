@@ -3,6 +3,7 @@
 #include "SceneImporter.h"
 #include "Scene/Scene.h"
 
+#include "Resources/ResourceManager.h"
 #include "Resources/Mesh.h"
 
 #include <ArduinoJson-v7.0.4.h>
@@ -43,11 +44,20 @@ namespace Ilargi
 			transform.scale.y = node["TransformComponent"]["Scale"]["y"];
 			transform.scale.z = node["TransformComponent"]["Scale"]["z"];
 
-			if (document[index].containsKey("StaticMeshComponent"))
+			if (node.containsKey("DirectionalLightComponent"))
 			{
-				const StaticMeshComponent& staticMesh = scene->CreateComponent<StaticMeshComponent>(entity);
+				DirectionalLightComponent& dirLight = scene->CreateComponent<DirectionalLightComponent>(entity);
 
-				staticMesh.staticMesh->resourceUUID = static_cast<uint64_t>(document[index]["StaticMeshComponent"]["UUID"]);
+				//dirLight.radiance = vec4();
+			}
+
+			if (node.containsKey("StaticMeshComponent"))
+			{
+				StaticMeshComponent& staticMesh = scene->CreateComponent<StaticMeshComponent>(entity);
+
+				UUID uuid = static_cast<uint64_t>(node["StaticMeshComponent"]["UUID"]);
+				
+				staticMesh.staticMesh = std::static_pointer_cast<StaticMesh>(ResourceManager::GetResource(uuid));
 			}
 		}
 
@@ -83,17 +93,34 @@ namespace Ilargi
 			const auto& info = world.get<InfoComponent>(entity);
 			document[index]["InfoComponent"]["Name"] = info.name;
 
+			if (world.try_get<DirectionalLightComponent>(entity))
+			{
+				const DirectionalLightComponent& dirLight = world.get<DirectionalLightComponent>(entity);
+
+				document[index]["DirectionalLightComponent"]["Radiance"]["X"] = dirLight.radiance.x;
+				document[index]["DirectionalLightComponent"]["Radiance"]["Y"] = dirLight.radiance.y;
+				document[index]["DirectionalLightComponent"]["Radiance"]["Z"] = dirLight.radiance.z;
+				document[index]["DirectionalLightComponent"]["Radiance"]["W"] = dirLight.radiance.w;
+			}
+
 			if (world.try_get<StaticMeshComponent>(entity))
 			{
 				const StaticMeshComponent& staticMesh = world.get<StaticMeshComponent>(entity);
 
-				document[index]["StaticMeshComponent"]["UUID"] = static_cast<uint64_t>(staticMesh.staticMesh->resourceUUID);
+				UUID uuid = 0;
+
+				if (auto mesh = staticMesh.staticMesh.lock())
+				{
+					uuid = mesh->resourceUUID;
+				}
+
+				document[index]["StaticMeshComponent"]["UUID"] = static_cast<uint64_t>(uuid);
 			}
 		}
 
 		std::ofstream file(path, std::ios::out);
 
-		serializeJsonPretty(document, file);
+		serializeJson(document, file);
 
 		file.close();
 	}

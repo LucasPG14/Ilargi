@@ -81,6 +81,8 @@ namespace Ilargi
 		resourcesMetadata[resourceUUID] = metadata;
 		importers[metadata.type](resourceUUID, metadata);
 
+		SaveResourceRegistry();
+
 		return resourceUUID;
 	}
 
@@ -95,6 +97,17 @@ namespace Ilargi
 			return resourcesMetadata[uuid];
 
 		return ResourceMetadata();
+	}
+
+	void ResourceManager::RemoveResource(UUID uuid)
+	{
+		if (loadedResources.contains(uuid))
+			loadedResources.erase(uuid);
+
+		if (resourcesMetadata.contains(uuid))
+			resourcesMetadata.erase(uuid);
+
+		SaveResourceRegistry();
 	}
 
 	std::shared_ptr<Resource> ResourceManager::GetResource(UUID uuid)

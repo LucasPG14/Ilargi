@@ -2,6 +2,7 @@
 #include "ResourcesPanel.h"
 
 #include "Base/UUID.h"
+#include "Base/Input.h"
 #include "Resources/ResourceManager.h"
 #include "Resources/Texture.h"
 
@@ -49,13 +50,7 @@ namespace Ilargi
 
 		ResourceManager::LoadResourceRegistry();
 
-		// TODO: Change this
-		const auto& assetsMap = ResourceManager::GetResourcesMetadata();
-
-		for (auto& [uuid, metadata] : assetsMap)
-		{
-			assets[metadata.filepath] = uuid;
-		}
+		RefreshAssets();
 	}
 
 	ResourcesPanel::~ResourcesPanel()
@@ -126,6 +121,18 @@ namespace Ilargi
 		EventDispatcher dispatcher(event);
 
 		dispatcher.Dispatch<WindowDropEvent>(ILG_BIND_FN(ResourcesPanel::OnDropEvent));
+		dispatcher.Dispatch<KeyPressedEvent>(ILG_BIND_FN(ResourcesPanel::OnKeyPressedEvent));
+	}
+
+	void ResourcesPanel::RefreshAssets()
+	{
+		assets.clear();
+		const auto& assetsMap = ResourceManager::GetResourcesMetadata();
+
+		for (auto& [uuid, metadata] : assetsMap)
+		{
+			assets[metadata.filepath] = uuid;
+		}
 	}
 	
 	bool ResourcesPanel::OnDropEvent(WindowDropEvent& event)
@@ -137,14 +144,22 @@ namespace Ilargi
 			ResourceManager::ImportResource(actualDir, paths[i]);
 		}
 
-		ResourceManager::SaveResourceRegistry();
+		RefreshAssets();
 
-		assets.clear();
-		const auto& assetsMap = ResourceManager::GetResourcesMetadata();
+		return true;
+	}
 
-		for (auto& [uuid, metadata] : assetsMap)
+	bool ResourcesPanel::OnKeyPressedEvent(KeyPressedEvent& event)
+	{
+		switch (event.GetKey())
 		{
-			assets[metadata.filepath] = uuid;
+		case KeyCode::DELETE:
+		{
+			std::filesystem::remove(selectedFile);
+			UUID resourceUUID = assets[selectedFile];
+			ResourceManager::RemoveResource(resourceUUID);
+			break;
+		}
 		}
 
 		return true;
@@ -257,12 +272,11 @@ namespace Ilargi
 			const auto& path = file.path();
 			const auto& relative = std::filesystem::relative(path, actualDir);
 			const auto& filename = path.stem().string();
+			const auto& extension = path.extension().string();
 
-			if (file.is_directory() || !Utils::IsResourceValid(path.extension().string()))
+			std::regex pattern(search, std::regex_constants::icase);
+			if (file.is_directory() || !Utils::IsResourceValid(extension) || !std::regex_search(filename, pattern))
 				continue;
-
-			//if (path.extension().string() != "itex" || path.extension().string() != "imodel")
-			//	continue;
 
 			ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });

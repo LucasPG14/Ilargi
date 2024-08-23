@@ -2,6 +2,7 @@
 
 #include "Events/Event.h"
 #include "Events/WindowEvents.h"
+#include "Events/KeyEvents.h"
 
 namespace Ilargi
 {
@@ -17,8 +18,11 @@ namespace Ilargi
 		void Render();
 		void OnEvent(Event& event);
 
+		void RefreshAssets();
+
 	private:
 		bool OnDropEvent(WindowDropEvent& event);
+		bool OnKeyPressedEvent(KeyPressedEvent& event);
 
 		void NormalDirectory();
 		void RecursiveDirectory();

@@ -23,6 +23,8 @@ namespace Ilargi
 		static std::unordered_map<UUID, ResourceMetadata> GetResourcesMetadata() { return resourcesMetadata; }
 		static std::unordered_map<UUID, std::shared_ptr<Resource>> GetLoadedResources() { return loadedResources; }
 
+		static void RemoveResource(UUID uuid);
+
 		static void SaveResourceRegistry();
 		static void LoadResourceRegistry();
 	private:
