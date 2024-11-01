@@ -147,18 +147,22 @@ namespace Ilargi
 			{
 				ImVec2 size = ImGui::CalcTextSize("Rotation");
 				float widthWindow = ImGui::GetContentRegionMax().x - size.x;
+				bool hasChanged = false;
 
 				ImGui::Text("Position");
 				ImGui::SameLine();
-				ImGui::DragFloat3("##Position", transformComponent.position);
+				hasChanged |= ImGui::DragFloat3("##Position", transformComponent.position);
 
 				ImGui::Text("Rotation");
 				ImGui::SameLine();
-				ImGui::DragFloat3("##Rotation", transformComponent.rotation);
+				hasChanged |= ImGui::DragFloat3("##Rotation", transformComponent.rotation);
 
 				ImGui::Text("Scale");
 				ImGui::SameLine();
-				ImGui::DragFloat3("##Scale", transformComponent.scale);
+				hasChanged |= ImGui::DragFloat3("##Scale", transformComponent.scale);
+
+				if (hasChanged)
+					transformComponent.CalculateTransform();
 			}
 			ImGui::Separator();
 		}
@@ -171,32 +175,46 @@ namespace Ilargi
 				if (auto mesh = staticMesh.staticMesh.lock())
 				{
 					//ImGui::ColorPicker4("##Color", staticMesh.staticMesh->GetColor());
-					auto& material = mesh->GetMaterial();
+					auto material = staticMesh.material.lock();
 
-					if (material->GetDiffuse())
+					if (material)
 					{
-						ImGui::Image((void*)material->GetDiffuse()->GetID(), { 64, 64 });
-					}
-					else
-					{
-						ImGui::Text("Diffuse");
-					}
-					if (ImGui::BeginDragDropTarget())
-					{
-						auto payload = ImGui::AcceptDragDropPayload("RESOURCE");
+						ImVec4 colorBg = { 0.43f, 0.43f, 0.50f, 0.50f };
+						ImGui::PushStyleColor(ImGuiCol_ChildBg, colorBg);
+						ImGui::PushStyleColor(ImGuiCol_Border, colorBg);
 
-						if (payload)
+						//ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
+						ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 2.0f, 2.0f });
+						if (ImGui::BeginChild("Diffuse", { 36, 36 }, true, ImGuiWindowFlags_NoDecoration))
 						{
-							UUID uuid = *(UUID*)payload->Data;
-							auto metadata = ResourceManager::GetResourcesMetadata()[uuid];
+							if (material->GetDiffuse())
+							{
+								ImGui::Image((void*)material->GetDiffuse()->GetID(), { 32, 32 });
+							}
+							else
+							{
+								ImGui::Text("Diffuse");
+							}
+							if (ImGui::BeginDragDropTarget())
+							{
+								auto payload = ImGui::AcceptDragDropPayload("RESOURCE");
 
-							material->SetDiffuse(std::static_pointer_cast<Texture2D>(ResourceManager::GetResource(uuid)));
+								if (payload)
+								{
+									UUID uuid = *(UUID*)payload->Data;
+									const auto& metadata = ResourceManager::GetResourcesMetadata()[uuid];
+
+									material->SetDiffuse(std::static_pointer_cast<Texture2D>(ResourceManager::GetResource(uuid)));
+								}
+							}
+							ImGui::EndChild();
 						}
+						ImGui::PopStyleColor(2);
+						ImGui::PopStyleVar(1);
 					}
 				}
 				ImGui::Separator();
-			}
-				
+			}	
 		}
 
 		if (world.try_get<DirectionalLightComponent>(mSelected))

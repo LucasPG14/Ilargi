@@ -35,7 +35,7 @@ namespace Ilargi
 	using ImportFn = std::function<void(UUID, const ResourceMetadata&)>;
 	static std::map<ResourceType, ImportFn> importers =
 	{
-		{ ResourceType::MODEL, ModelImporter::ImportModel },
+		{ ResourceType::MODEL, ModelImporter::ImportModel2 },
 		{ ResourceType::TEXTURE2D, TextureImporter::ImportTexture },
 		{ ResourceType::SCENE, SceneImporter::ImportScene },
 	};
@@ -44,7 +44,7 @@ namespace Ilargi
 	static std::map<ResourceType, LoadFn> loaders =
 	{
 		{ ResourceType::TEXTURE2D, TextureImporter::LoadTexture },
-		{ ResourceType::MODEL, ModelImporter::LoadModel },
+		{ ResourceType::MODEL, ModelImporter::LoadModel2 },
 		{ ResourceType::SCENE, SceneImporter::LoadScene },
 	};
 
@@ -77,6 +77,7 @@ namespace Ilargi
 		
 		metadata.sourceFile = aPath;
 		metadata.filepath = newPath;
+		//metadata.lastWriteTime = std::filesystem::last_write_time(aPath);
 
 		sResourcesMetadata[resourceUUID] = metadata;
 		importers[metadata.type](resourceUUID, metadata);

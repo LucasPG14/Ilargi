@@ -14,6 +14,7 @@ namespace Ilargi
 	class VertexBuffer;
 	class IndexBuffer;
 	class StaticMesh;
+	class Texture2D;
 
 	struct RendererConfig
 	{
@@ -40,6 +41,8 @@ namespace Ilargi
 
 		static void SubmitGeometry(std::shared_ptr<CommandBuffer> commandBuffer, std::shared_ptr<StaticMesh> mesh);
 		static void DrawDefault(std::shared_ptr<CommandBuffer> commandBuffer);
+		
+		static std::shared_ptr<Texture2D> GetDefaultTexture() { return sDefaultTexture; }
 
 		static const RendererConfig& GetConfig() { return sConfig; }
 		static const int GetCurrentFrame() { return sCurrentFrame; }
@@ -56,6 +59,8 @@ namespace Ilargi
 		static std::unique_ptr<Render> sRender;
 		
 		static std::shared_ptr<ShaderLibrary> sShaderLibrary;
+		
+		static std::shared_ptr<Texture2D> sDefaultTexture;
 
 		static RendererConfig sConfig;
 		static int sCurrentFrame;

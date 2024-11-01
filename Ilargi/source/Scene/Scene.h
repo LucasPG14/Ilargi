@@ -7,6 +7,8 @@
 
 namespace Ilargi
 {
+	class Model;
+
 	class Scene : public Resource
 	{
 	public:
@@ -16,6 +18,8 @@ namespace Ilargi
 		const ResourceType GetType() const override { return ResourceType::SCENE; }
 
 		void Destroy();
+
+		void LoadModel(const std::shared_ptr<Model>& model);
 
 		Entity CreateEntity(const std::string& aName = "Entity");
 		Entity CreateChildrenEntity(Entity aEntity, const std::string& aName = "Entity");

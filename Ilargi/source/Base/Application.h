@@ -16,6 +16,7 @@ namespace Ilargi
 		int width;
 		int height;
 		bool fullscreen;
+		std::string iconPath;
 	};
 
 	class Application

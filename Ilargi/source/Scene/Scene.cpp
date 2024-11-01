@@ -5,6 +5,8 @@
 #include "Renderer/VertexBuffer.h"
 #include "Renderer/IndexBuffer.h"
 
+#include "Resources/Model.h"
+
 #include "Utils/Importers/ModelImporter.h"
 
 namespace Ilargi
@@ -25,6 +27,19 @@ namespace Ilargi
 			mWorld.destroy(entity);
 		}
 		mWorld.clear();
+	}
+
+	void Scene::LoadModel(const std::shared_ptr<Model>& model)
+	{
+		// TODO: Refactor this
+		const std::vector<std::shared_ptr<StaticMesh>> meshes = model->GetMeshes();
+		const std::vector<std::shared_ptr<Material>> materials = model->GetMaterials();
+
+		for (int i = 0; i < meshes.size(); ++i)
+		{
+			Entity entity = CreateEntity();
+			CreateComponent<StaticMeshComponent>(entity, meshes[i], materials[i]);
+		}
 	}
 	
 	Entity Scene::CreateEntity(const std::string& aName)

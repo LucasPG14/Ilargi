@@ -25,7 +25,7 @@ namespace Ilargi
 		windowProps.width = aProps.width;
 		windowProps.height = aProps.height;
 		windowProps.fullscreen = aProps.fullscreen;
-		windowProps.iconPath = "";
+		windowProps.iconPath = aProps.iconPath;
 		mWindow = std::make_unique<Window>(windowProps, ILG_BIND_FN(Application::OnEvent));
 		mImguiPanel = ImGuiPanel::Create(mWindow->GetWindow(), mWindow->GetSwapchain());
 

@@ -50,8 +50,7 @@ namespace Ilargi
 		int channels;
 		if (!mProperties.iconPath.empty())
 		{
-			std::string iconPathStr = mProperties.iconPath.string();
-			icon.pixels = stbi_load(iconPathStr.c_str(), &icon.width, &icon.height, &channels, 4);
+			icon.pixels = stbi_load(mProperties.iconPath.c_str(), &icon.width, &icon.height, &channels, 4);
 			glfwSetWindowIcon(mWindow, 1, &icon);
 			stbi_image_free(icon.pixels);
 		}

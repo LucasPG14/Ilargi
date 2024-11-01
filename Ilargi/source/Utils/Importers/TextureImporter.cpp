@@ -13,7 +13,7 @@ namespace Ilargi
 {
 	TextureImporterOptions TextureImporter::sOptions = {};
 
-	void TextureImporter::ImportTexture(UUID uuid, const ResourceMetadata& metadata)
+	void TextureImporter::ImportTexture(UUID aUUID, const ResourceMetadata& aMetadata)
 	{
 		Buffer buffer;
 		int width, height, channels;
@@ -21,11 +21,11 @@ namespace Ilargi
 		stbi_set_flip_vertically_on_load(true);
 
 		// TODO: Need to save the width, height and channels of the image in the binary file
-		void* data = stbi_load(metadata.sourceFile.string().c_str(), &width, &height, &channels, STBI_rgb_alpha);
+		void* data = stbi_load(aMetadata.sourceFile.string().c_str(), &width, &height, &channels, STBI_rgb_alpha);
 
 		if (!data)
 		{
-			ILG_CORE_ERROR("Unable to load the texture: {0}", metadata.sourceFile.string());
+			ILG_CORE_ERROR("Unable to load the texture: {0}", aMetadata.sourceFile.string());
 			return;
 		}
 		int header[3] = { width, height, 4 };
@@ -43,15 +43,15 @@ namespace Ilargi
 			// TODO: Compress image
 		}
 
-		FileSystem::WriteBinaryFile(metadata.filepath, buffer);
+		FileSystem::WriteBinaryFile(aMetadata.filepath, buffer);
 	}
 	
-	std::shared_ptr<Texture2D> TextureImporter::LoadTexture(const ResourceMetadata& metadata)
+	std::shared_ptr<Texture2D> TextureImporter::LoadTexture(const ResourceMetadata& aMetadata)
 	{
 		// TODO: Take a look to the formats, doesn't allow to create an image with three channels
 		std::shared_ptr<Texture2D> texture;
 
-		const Buffer& buffer = FileSystem::ReadBinaryFile(metadata.filepath);
+		const Buffer& buffer = FileSystem::ReadBinaryFile(aMetadata.filepath);
 
 		char* data = buffer.data;
 

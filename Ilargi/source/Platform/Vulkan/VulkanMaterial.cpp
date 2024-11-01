@@ -1,5 +1,7 @@
 #include "ilargipch.h"
 
+#include "Renderer/Renderer.h"
+
 #include "VulkanMaterial.h"
 #include "VulkanContext.h"
 #include "VulkanTexture.h"
@@ -11,6 +13,9 @@ namespace Ilargi
 	{
 		auto vulkanShader = std::static_pointer_cast<VulkanShader>(aShader);
 		vulkanShader->AllocateDescriptorSet(0, mDescriptorSet);
+
+		mDiffuse = Renderer::GetDefaultTexture();
+		UpdateDescriptor();
 	}
 	
 	VulkanMaterial::~VulkanMaterial()

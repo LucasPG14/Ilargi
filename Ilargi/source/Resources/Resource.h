@@ -19,6 +19,7 @@ namespace Ilargi
 		ResourceType type = ResourceType::NONE;
 		std::filesystem::path filepath;
 		std::filesystem::path sourceFile;
+		std::filesystem::file_time_type lastWriteTime;
 	};
 
 	class Resource

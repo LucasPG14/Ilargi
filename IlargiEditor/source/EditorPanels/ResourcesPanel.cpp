@@ -184,8 +184,17 @@ namespace Ilargi
 			{
 				ImGui::Image((ImTextureID)mFolderIcon->GetID(), { cellX, cellX });
 
-				if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
-					mActualDir /= relative;
+				if (ImGui::IsItemHovered())
+				{
+					if (ImGui::IsMouseDoubleClicked(0))
+					{
+						mActualDir /= relative;
+					}
+					else if (ImGui::IsMouseClicked(0))
+					{
+						mSelectedFile = path;
+					}
+				}	
 
 				ImVec2 textSize = ImGui::CalcTextSize(filename.c_str());
 				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (cellX - textSize.x) * 0.5f);

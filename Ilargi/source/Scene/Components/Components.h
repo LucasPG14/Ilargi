@@ -9,6 +9,7 @@ namespace Ilargi
 	class VertexBuffer;
 	class IndexBuffer;
 	class StaticMesh;
+	class Material;
 
 	using Entity = entt::entity;
 
@@ -43,6 +44,7 @@ namespace Ilargi
 	struct StaticMeshComponent
 	{
 		std::weak_ptr<StaticMesh> staticMesh;
+		std::weak_ptr<Material> material;
 	};
 
 	struct DirectionalLightComponent

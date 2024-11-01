@@ -6,6 +6,7 @@
 
 #include "Localization.h"
 
+#include "Resources/Model.h"
 #include "Utils/FileSystem.h"
 #include "Utils/Importers/SceneImporter.h"
 
@@ -125,16 +126,14 @@ namespace Ilargi
 			auto [transform, meshComponent] = view.get<TransformComponent, StaticMeshComponent>(entity);
 
 			auto mesh = meshComponent.staticMesh.lock();
+			auto material = meshComponent.material.lock();
 			if (!mesh)
 				continue;
-
-			transform.CalculateTransform();
 			
 			mRenderPass->GetProperties().pipeline->Bind(mCommandBuffer);
-			mRenderPass->GetProperties().pipeline->BindDescriptorSet(mCommandBuffer, mesh->GetMaterial());
+			mRenderPass->GetProperties().pipeline->BindDescriptorSet(mCommandBuffer, material);
 			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 0, 64, transform.transform);
 			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 64, 64, mConstants[0]);
-			//renderPass->GetProperties().pipeline->PushConstants(commandBuffer, 128, 16, mesh.staticMesh->GetColor());
 			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 144, 12, light.radiance);
 			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 156, 12, trans.rotation);
 			Renderer::SubmitGeometry(mCommandBuffer, mesh);
@@ -363,8 +362,9 @@ namespace Ilargi
 				{
 					std::shared_ptr<Resource> resource = ResourceManager::GetResource(uuid);
 
-					Entity entity = mScene->CreateEntity();
-					mScene->CreateComponent<StaticMeshComponent>(entity, std::static_pointer_cast<StaticMesh>(resource));
+					mScene->LoadModel(std::static_pointer_cast<Model>(resource));
+					//Entity entity = mScene->CreateEntity();
+					//mScene->CreateComponent<StaticMeshComponent>(entity, std::static_pointer_cast<StaticMesh>(resource));
 					break;
 				}
 				case ResourceType::SCENE:

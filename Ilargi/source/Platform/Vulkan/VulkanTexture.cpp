@@ -183,8 +183,6 @@ namespace Ilargi
 
 		VulkanAllocator::UnmapMemory(buffer);
 
-		stbi_image_free(aData);
-
 		uint32_t mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(mWidth, mHeight)))) + 1;
 
 		VkImageCreateInfo imageInfo = {};

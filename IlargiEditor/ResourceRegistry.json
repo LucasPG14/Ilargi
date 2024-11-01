@@ -10,5 +10,47 @@
     "Type": 5,
     "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\Resources\\Example.ilargi",
     "Filepath": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\Resources\\Example.ilargi"
+  },
+  {
+    "UUID": 16573594032499875894,
+    "Type": 5,
+    "SourceFile": "Resources\\MyScene.ilargi",
+    "Filepath": "Resources\\MyScene.ilargi"
+  },
+  {
+    "UUID": 4668801614915753927,
+    "Type": 5,
+    "SourceFile": "Resources\\MyScene.ilargi",
+    "Filepath": "Resources\\MyScene.ilargi"
+  },
+  {
+    "UUID": 6504743348701937362,
+    "Type": 5,
+    "SourceFile": "Resources\\MyScene.ilargi",
+    "Filepath": "Resources\\MyScene.ilargi"
+  },
+  {
+    "UUID": 1445513820884342905,
+    "Type": 5,
+    "SourceFile": "Resources\\MyScene.ilargi",
+    "Filepath": "Resources\\MyScene.ilargi"
+  },
+  {
+    "UUID": 14446412860293088876,
+    "Type": 5,
+    "SourceFile": "Resources\\MyScene.ilargi",
+    "Filepath": "Resources\\MyScene.ilargi"
+  },
+  {
+    "UUID": 15289400244824970355,
+    "Type": 5,
+    "SourceFile": "Resources\\MyScene.ilargi",
+    "Filepath": "Resources\\MyScene.ilargi"
+  },
+  {
+    "UUID": 9564873625528624972,
+    "Type": 1,
+    "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\Resources\\models\\viking_room.obj",
+    "Filepath": "Resources\\viking_room.imodel"
   }
 ]

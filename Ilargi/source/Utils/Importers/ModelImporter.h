@@ -27,10 +27,16 @@ namespace Ilargi
 		std::vector<EntityNode> children;
 	};
 
-	struct MeshesInfo
+	struct MeshInfo
 	{
 		uint32_t vertices;
 		uint32_t indices;
+		uint32_t materialIndex;
+	};
+
+	struct MaterialInfo
+	{
+		vec4 color;
 	};
 
 	class StaticMesh;
@@ -40,7 +46,9 @@ namespace Ilargi
 	{
 	public:
 		static void ImportModel(UUID aUUID, const ResourceMetadata& aMetadata);
+		static void ImportModel2(UUID aUUID, const ResourceMetadata& aMetadata);
 		static std::shared_ptr<Resource> LoadModel(const ResourceMetadata& aMetadata);
+		static std::shared_ptr<Resource> LoadModel2(const ResourceMetadata& aMetadata);
 		
 		static void ImportFBX(const std::filesystem::path& aFilepath, const std::shared_ptr<Scene>& aScene);
 	};

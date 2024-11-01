@@ -31,6 +31,7 @@ namespace Ilargi
 			const auto& node = document[index];
 			const Entity entity = scene->CreateEntity(node["InfoComponent"]["Name"]);
 
+			// TODO: Create own function to store vectors
 			auto& transform = scene->GetWorld().get<TransformComponent>(entity);
 			transform.position.x = node["TransformComponent"]["Position"]["x"];
 			transform.position.y = node["TransformComponent"]["Position"]["y"];
@@ -48,7 +49,10 @@ namespace Ilargi
 			{
 				DirectionalLightComponent& dirLight = scene->CreateComponent<DirectionalLightComponent>(entity);
 
-				//dirLight.radiance = vec4();
+				dirLight.radiance.x = node["DirectionalLightComponent"]["Radiance"]["x"];
+				dirLight.radiance.y = node["DirectionalLightComponent"]["Radiance"]["y"];
+				dirLight.radiance.z = node["DirectionalLightComponent"]["Radiance"]["z"];
+				dirLight.radiance.w = node["DirectionalLightComponent"]["Radiance"]["w"];
 			}
 
 			if (node.containsKey("StaticMeshComponent"))
@@ -97,10 +101,10 @@ namespace Ilargi
 			{
 				const DirectionalLightComponent& dirLight = world.get<DirectionalLightComponent>(entity);
 
-				document[index]["DirectionalLightComponent"]["Radiance"]["X"] = dirLight.radiance.x;
-				document[index]["DirectionalLightComponent"]["Radiance"]["Y"] = dirLight.radiance.y;
-				document[index]["DirectionalLightComponent"]["Radiance"]["Z"] = dirLight.radiance.z;
-				document[index]["DirectionalLightComponent"]["Radiance"]["W"] = dirLight.radiance.w;
+				document[index]["DirectionalLightComponent"]["Radiance"]["r"] = dirLight.radiance.x;
+				document[index]["DirectionalLightComponent"]["Radiance"]["g"] = dirLight.radiance.y;
+				document[index]["DirectionalLightComponent"]["Radiance"]["b"] = dirLight.radiance.z;
+				document[index]["DirectionalLightComponent"]["Radiance"]["a"] = dirLight.radiance.w;
 			}
 
 			if (world.try_get<StaticMeshComponent>(entity))

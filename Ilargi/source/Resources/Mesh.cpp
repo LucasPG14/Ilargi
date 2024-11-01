@@ -13,8 +13,6 @@ namespace Ilargi
 	{
 		mVertexBuffer = VertexBuffer::Create((void*)mVertices.data(), static_cast<uint32_t>(mVertices.size() * sizeof(StaticVertex)));
 		mIndexBuffer = IndexBuffer::Create((void*)indices.data(), static_cast<uint32_t>(indices.size()));
-
-		mMaterial = Material::Create(Renderer::GetShaderLibrary()->Get("PBR_Static"));
 	}
 	
 	StaticMesh::~StaticMesh()
