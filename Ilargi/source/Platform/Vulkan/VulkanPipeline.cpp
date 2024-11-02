@@ -6,6 +6,7 @@
 #include "VulkanContext.h"
 #include "VulkanRenderPass.h"
 #include "VulkanCommandBuffer.h"
+#include "VulkanUniformBuffer.h"
 #include "VulkanFramebuffer.h"
 #include "VulkanShader.h"
 
@@ -293,15 +294,27 @@ namespace Ilargi
 			});
 	}
 	
-	void VulkanPipeline::BindDescriptorSet(const std::shared_ptr<CommandBuffer>& aCommandBuffer, std::shared_ptr<Material> aMaterial) const
+	void VulkanPipeline::BindDescriptorSet(const std::shared_ptr<CommandBuffer>& aCommandBuffer, std::shared_ptr<Material> aMaterial, uint32_t aSetIndex) const
 	{
-		Renderer::Submit([this, aCommandBuffer, aMaterial]()
+		Renderer::Submit([this, aCommandBuffer, aMaterial, aSetIndex]()
 			{
 				uint32_t currentFrame = Renderer::GetCurrentFrame();
 
 				auto cmdBuffer = std::static_pointer_cast<VulkanCommandBuffer>(aCommandBuffer)->GetCurrentCommand(currentFrame);
 				std::vector<VkDescriptorSet> descriptorSets = { (VkDescriptorSet)aMaterial->GetDescriptorSet() };
 				vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mPipelineLayout, 0, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
+			});
+	}
+
+	void VulkanPipeline::BindDescriptorSet(const std::shared_ptr<CommandBuffer>& aCommandBuffer, std::shared_ptr<UniformBuffer> aUniformBuffer, uint32_t aSetIndex) const
+	{
+		Renderer::Submit([this, aCommandBuffer, aUniformBuffer, aSetIndex]()
+			{
+				uint32_t currentFrame = Renderer::GetCurrentFrame();
+
+				auto cmdBuffer = std::static_pointer_cast<VulkanCommandBuffer>(aCommandBuffer)->GetCurrentCommand(currentFrame);
+				std::vector<VkDescriptorSet> descriptorSets = { (VkDescriptorSet)aUniformBuffer->GetDescriptorSet() };
+				vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mPipelineLayout, aSetIndex, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
 			});
 	}
 }

@@ -109,6 +109,8 @@ namespace Ilargi
 			mNeedToUpdateFramebuffer = false;
 		}
 
+		mScene->UpdatePointLights();
+
 		mCamera.Update();
 
 		mCommandBuffer->BeginCommand();
@@ -131,10 +133,12 @@ namespace Ilargi
 				continue;
 			
 			mRenderPass->GetProperties().pipeline->Bind(mCommandBuffer);
-			mRenderPass->GetProperties().pipeline->BindDescriptorSet(mCommandBuffer, material);
+			mRenderPass->GetProperties().pipeline->BindDescriptorSet(mCommandBuffer, material, 2);
+			//mRenderPass->GetProperties().pipeline->BindDescriptorSet(mCommandBuffer, mScene->GetPointLightsUBO(), 1);
 			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 0, 64, transform.transform);
 			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 64, 64, mConstants[0]);
-			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 144, 12, light.radiance);
+			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 128, 16, light.radiance);
+			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 144, 12, mCamera.GetPosition());
 			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 156, 12, trans.rotation);
 			Renderer::SubmitGeometry(mCommandBuffer, mesh);
 		}

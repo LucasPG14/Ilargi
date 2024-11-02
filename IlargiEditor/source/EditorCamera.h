@@ -15,6 +15,8 @@ namespace Ilargi
 
 		const mat4& GetViewProjectionMatrix() const { return mProjectionMatrix * mViewMatrix; }
 
+		vec3 GetPosition() { return mPosition; }
+
 		void Update();
 
 		void Resize(float aWidth, float aHeight);

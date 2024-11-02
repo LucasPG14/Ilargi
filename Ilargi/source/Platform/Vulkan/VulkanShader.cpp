@@ -167,6 +167,8 @@ namespace Ilargi
 
 	void VulkanShader::AllocateDescriptorSet(uint32_t aIndex, VkDescriptorSet& aDescriptorSet)
 	{
+		ILG_ASSERT(aIndex < mDescriptorSetLayouts.size(), "This descriptor set does not exist");
+
 		auto device = VulkanContext::GetLogicalDevice();
 
 		VkDescriptorSetAllocateInfo allocInfo = {};
@@ -314,6 +316,7 @@ namespace Ilargi
 
 			ILG_CORE_TRACE("Uniform Buffer: {0}", uniformBuffer.name.c_str());
 			ILG_CORE_TRACE("	Size: {0}", size);
+			ILG_CORE_TRACE("	Set: {0}", set);
 			ILG_CORE_TRACE("	Binding: {0}", binding);
 			ILG_CORE_TRACE("	Members: {0}", membersCount);
 

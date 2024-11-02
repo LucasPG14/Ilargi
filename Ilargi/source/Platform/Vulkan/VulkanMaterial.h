@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Resources/Material.h"
+#include "VulkanAllocator.h"
 #include <vulkan/vulkan.h>
 
 namespace Ilargi
@@ -14,9 +15,12 @@ namespace Ilargi
 		virtual ~VulkanMaterial();
 
 		const void* GetDescriptorSet() const override { return mDescriptorSet; }
+		const MaterialData& GetMaterialData() const override { return mMaterialData; }
+		MaterialData& GetMaterialData() override { return mMaterialData; }
 		std::shared_ptr<Texture2D> GetDiffuse() override { return mDiffuse; }
 
 		void SetDiffuse(std::shared_ptr<Texture2D> aTexture) override;
+
 
 	private:
 		void UpdateDescriptor();
@@ -24,6 +28,9 @@ namespace Ilargi
 	private:
 		VkDescriptorSet mDescriptorSet;
 
+		MaterialData mMaterialData;
+		VulkanBuffer mMaterialBuffer;
+		void* mMaterialBufferMapped;
 		std::shared_ptr<Texture2D> mDiffuse;
 	};
 }

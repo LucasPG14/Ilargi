@@ -28,10 +28,6 @@ namespace Ilargi
 
 		void CalculateTransform()
 		{
-			//const mat4& rotationMat = mat4(quat(radians(rotation)));
-
-			//glm::mat4 m = glm::toMat4(glm::quat(glm::radians(glm::vec3(rotation.x, rotation.y, rotation.z))));
-
 			transform = math::translate(position) * mat4(quat(radians(rotation))) * math::scale(scale);
 		}
 	};

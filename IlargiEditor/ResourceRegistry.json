@@ -52,5 +52,23 @@
     "Type": 1,
     "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\Resources\\models\\viking_room.obj",
     "Filepath": "Resources\\viking_room.imodel"
+  },
+  {
+    "UUID": 4977050734702809787,
+    "Type": 5,
+    "SourceFile": "Resources\\MyScene.ilargi",
+    "Filepath": "Resources\\MyScene.ilargi"
+  },
+  {
+    "UUID": 17632669649565145564,
+    "Type": 1,
+    "SourceFile": "C:\\Users\\lucas\\Downloads\\sphere.fbx",
+    "Filepath": "Resources\\sphere.imodel"
+  },
+  {
+    "UUID": 12110008006871437996,
+    "Type": 1,
+    "SourceFile": "C:\\Users\\lucas\\Downloads\\untitled.fbx",
+    "Filepath": "Resources\\untitled.imodel"
   }
 ]

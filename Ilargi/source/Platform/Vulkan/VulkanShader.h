@@ -33,6 +33,7 @@ namespace Ilargi
 		const std::vector<uint32_t> ConvertToSpirV(VkShaderStageFlagBits aStage, const std::string_view& aCode) const;
 
 		void ReflectShader(VkShaderStageFlags aStage, const std::vector<uint32_t>& aCode);
+	
 	private:
 		std::string mFilepath;
 		std::string mName;

@@ -134,12 +134,30 @@ namespace Ilargi
 	
 	void SceneHierarchyInspectorPanel::DrawInspector()
 	{
+		auto& world = mScene->GetWorld();
+
 		ImGui::PushStyleColor(ImGuiCol_Header, { 12.0f / 255.0f, 12.0f / 255.0f, 25.0f / 255.0f, 1.0f });
 		ImGui::PushStyleColor(ImGuiCol_HeaderHovered, { 12.0f / 255.0f, 12.0f / 255.0f, 25.0f / 255.0f, 1.0f });
 		ImGui::PushStyleColor(ImGuiCol_HeaderActive, { 12.0f / 255.0f, 12.0f / 255.0f, 25.0f / 255.0f, 1.0f });
 		ImGui::Separator();
 
-		auto& world = mScene->GetWorld();
+		if (ImGui::BeginCombo("##Add Component", "Add Component"))
+		{
+			if (ImGui::Selectable("Directional Light Component") && !mScene->HasComponent<DirectionalLightComponent>(mSelected))
+			{
+				mScene->CreateComponent<DirectionalLightComponent>(mSelected);
+			}
+			if (ImGui::Selectable("Point Light Component") && !mScene->HasComponent<PointLightComponent>(mSelected))
+			{
+				mScene->CreateComponent<PointLightComponent>(mSelected);
+			}
+			//if (ImGui::Selectable("Spot Light Component") && mScene->HasComponent<SpotLightComponent>(mSelected))
+			//{
+			//	mScene->CreateComponent<SpotLightComponent>(mSelected);
+			//}
+			ImGui::EndPopup();
+		}
+
 		if (world.try_get<TransformComponent>(mSelected))
 		{
 			TransformComponent& transformComponent = mScene->GetWorld().get<TransformComponent>(mSelected);
@@ -209,6 +227,18 @@ namespace Ilargi
 							}
 							ImGui::EndChild();
 						}
+						if (ImGui::ColorEdit4("Color", material->GetMaterialData().color))
+						{
+							material->SetDiffuse(nullptr);
+						}
+						if (ImGui::SliderFloat("Metallic", &material->GetMaterialData().metallic, 0.0f, 1.0f))
+						{
+							material->SetDiffuse(nullptr);
+						}
+						if (ImGui::SliderFloat("Roughness", &material->GetMaterialData().roughness, 0.0f, 1.0f))
+						{
+							material->SetDiffuse(nullptr);
+						}
 						ImGui::PopStyleColor(2);
 						ImGui::PopStyleVar(1);
 					}
@@ -223,6 +253,17 @@ namespace Ilargi
 			if (ImGui::CollapsingHeader("Directional Light Component"))
 			{
 				ImGui::ColorPicker4("##Color", dirLight.radiance);
+			}
+			ImGui::Separator();
+		}
+
+		if (world.try_get<PointLightComponent>(mSelected))
+		{
+			PointLightComponent& pointLight = mScene->GetWorld().get<PointLightComponent>(mSelected);
+			if (ImGui::CollapsingHeader("Point Light Component"))
+			{
+				ImGui::ColorPicker4("##Color", pointLight.radiance);
+				ImGui::SliderFloat("##Radius", &pointLight.radius, 0.2f, 10.0f);
 			}
 			ImGui::Separator();
 		}

@@ -7,6 +7,13 @@ namespace Ilargi
 	class Shader;
 	class Texture2D;
 
+	struct MaterialData
+	{
+		vec4 color = vec4(1.0f);
+		float metallic = 0.5f;
+		float roughness = 0.5f;
+	};
+
 	class Material : public Resource
 	{
 	public:
@@ -14,6 +21,8 @@ namespace Ilargi
 		const ResourceType GetType() const { return GetStaticType(); }
 
 		virtual const void* GetDescriptorSet() const = 0;
+		virtual const MaterialData& GetMaterialData() const = 0;
+		virtual MaterialData& GetMaterialData() = 0;
 
 		virtual std::shared_ptr<Texture2D> GetDiffuse() = 0;
 		virtual void SetDiffuse(std::shared_ptr<Texture2D> aTexture) = 0;

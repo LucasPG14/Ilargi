@@ -4,6 +4,7 @@ bin-int/
 
 # Ilargi files
 *.log
+*.spv
 
 # Visual Studio files and folder
 .vs/

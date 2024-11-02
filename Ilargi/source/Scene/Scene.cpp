@@ -1,9 +1,8 @@
 #include "ilargipch.h"
 
 #include "Scene.h"
-#include "Renderer/VertexBuffer.h"
-#include "Renderer/VertexBuffer.h"
-#include "Renderer/IndexBuffer.h"
+#include "Renderer/Renderer.h"
+#include "Renderer/UniformBuffer.h"
 
 #include "Resources/Model.h"
 
@@ -13,6 +12,8 @@ namespace Ilargi
 {
 	Scene::Scene()
 	{
+		mPointLightsUBO = UniformBuffer::Create(sizeof(PointLightUniformBuffer) * mSceneLights.pointLights.size(),
+			Renderer::GetConfig().maxFrames);
 	}
 	
 	Scene::~Scene()
@@ -69,5 +70,25 @@ namespace Ilargi
 	void Scene::DestroyEntity(Entity aEntity)
 	{
 		mWorld.destroy(aEntity);
+	}
+	
+	void Scene::UpdatePointLights()
+	{
+		const auto& view = mWorld.view<TransformComponent, PointLightComponent>();
+		mSceneLights.pointLightsSize = 0;
+
+		for (auto entity : view)
+		{
+			const auto&& [transform, light] = view.get<>(entity);
+
+			PointLightUniformBuffer pointLight;
+			pointLight.radiance = light.radiance;
+			pointLight.radius = light.radius;
+			pointLight.position = transform.position;
+
+			mSceneLights.pointLights[mSceneLights.pointLightsSize++] = pointLight;
+		}
+
+		mPointLightsUBO->SetData(mSceneLights.pointLights.data());
 	}
 }

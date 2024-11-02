@@ -7,61 +7,148 @@ layout(location = 2) in vec3 inTangent;
 layout(location = 3) in vec3 inBitangent;
 layout(location = 4) in vec2 inTexCoord;
 
-layout(set = 0, binding = 0) uniform UniformBufferObject 
-{
-    mat4 viewProj;
-} ubo;
-
 layout(push_constant) uniform Constants
 {
     mat4 modelMatrix;
     mat4 viewProj;
-    vec4 color;
     vec4 radiance;
+    vec3 viewPos;
     vec3 direction;
 } pushConstants;
 
 layout(location = 0) out vec2 vTexCoord;
-layout(location = 1) out vec3 normal;
-
-layout(location = 2) out vec3 dir;
-layout(location = 3) out vec4 lightColor;
+layout(location = 1) out vec3 vLightColor;
+layout(location = 2) out vec3 vNormal;
+layout(location = 3) out vec3 vLightDirection;
+layout(location = 4) out vec3 vFragPos;
+layout(location = 5) out vec3 vViewPos;
 
 void main() 
 {
     gl_Position = pushConstants.viewProj * pushConstants.modelMatrix * vec4(inPosition, 1.0); 
     vTexCoord = inTexCoord;
-    normal = inNormal;
-    dir = pushConstants.direction;
-    lightColor = pushConstants.radiance;
+    vLightColor = pushConstants.radiance.rgb;
+    vNormal = mat3(transpose(inverse(pushConstants.modelMatrix))) * inNormal;
+    vLightDirection = pushConstants.direction;
+    vFragPos = vec3(pushConstants.modelMatrix * vec4(inPosition, 1.0));
+    vViewPos = pushConstants.viewPos;
 }
 
 #type fragment
 #version 450
 
 layout(location = 0) in vec2 vTexCoord;
-layout(location = 1) in vec3 normal;
-
-layout(location = 2) in vec3 dir;
-layout(location = 3) in vec4 lightColor;
+layout(location = 1) in vec3 vLightColor;
+layout(location = 2) in vec3 vNormal;
+layout(location = 3) in vec3 vLightDirection;
+layout(location = 4) in vec3 vFragPos;
+layout(location = 5) in vec3 vViewPos;
 
 layout(location = 0) out vec4 outColor;
 
+struct PointLight
+{
+    vec4 radiance;
+    vec3 position;
+    float radius;
+};
 
-layout(set = 0, binding = 0) uniform sampler2D texSampler;
+// Descriptor sets
+layout(set = 1, binding = 0) uniform UniformBufferObject 
+{
+    PointLight pointLights[1024];
+} ubo;
+
+layout(set = 0, binding = 0) uniform sampler2D diffuseTex;
+layout(set = 0, binding = 1) uniform sampler2D normalTex;
+layout(set = 0, binding = 2) uniform sampler2D metallicTex;
+layout(set = 0, binding = 3) uniform sampler2D roughnessTex;
+layout(set = 0, binding = 4) uniform MaterialData
+{
+    vec4 color;
+    float metallic;
+    float roughness;
+} material;
+
+vec3 fresnelSchlick(float cosTheta, vec3 F0)
+{
+    return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+}
+
+float DistributionGGX(vec3 N, vec3 H, float roughness)
+{
+    float a = roughness * roughness;
+    float a2 = a * a;
+    float NdotH = max(dot(N, H), 0.0);
+    float NdotH2 = NdotH * NdotH;
+
+    float num = a2;
+    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+    denom = 3.1415 * denom * denom;
+
+    return num / denom;
+}
+
+float GeometrySchlickGGX(float NdotV, float roughness)
+{
+    float r = (roughness + 1.0);
+    float k = (r * r) / 8.0;
+
+    float num = NdotV;
+    float denom = NdotV * (1.0 - k) + k;
+
+    return num / denom;
+}
+float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
+{
+    float NdotV = max(dot(N, V), 0.0);
+    float NdotL = max(dot(N, L), 0.0);
+    float ggx2 = GeometrySchlickGGX(NdotV, roughness);
+    float ggx1 = GeometrySchlickGGX(NdotL, roughness);
+
+    return ggx1 * ggx2;
+}
 
 void main() 
 {
-    vec4 col = texture(texSampler, vTexCoord);
-    
-    vec3 norm = normalize(normal);
-    vec3 lightDir = normalize(-dir);
+    vec3 N = normalize(vNormal);
+    vec3 V = normalize(vViewPos - vFragPos);
 
-    float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = diff * lightColor.rgb;
-	 
-    //col.rgb *= diffuse;
+    vec3 F0 = vec3(0.04);
+    F0 = mix(F0, material.color.rgb, material.metallic);
 
-    col.rgb = pow(col.rgb, vec3(1.0 / 2.2));
-    outColor = vec4(col.rgb, col.a);
+    // reflectance equation
+    vec3 Lo = vec3(0.0);
+    //for (int i = 0; i < 4; ++i)
+    //{
+        // calculate per-light radiance
+        vec3 L = normalize(-vLightDirection);
+        vec3 H = normalize(V + L);
+        vec3 radiance = vLightColor;
+
+        // cook-torrance brdf
+        float NDF = DistributionGGX(N, H, material.roughness);
+        float G = GeometrySmith(N, V, L, material.roughness);
+        vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
+
+        vec3 kS = F;
+        vec3 kD = vec3(1.0) - kS;
+        kD *= 1.0 - material.metallic;
+
+        vec3 numerator = NDF * G * F;
+        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
+        vec3 specular = numerator / denominator;
+
+        // add to outgoing radiance Lo
+        float NdotL = max(dot(N, L), 0.0);
+        Lo += (kD * material.color.rgb / 3.1415 + specular) * radiance * NdotL;
+    //}
+
+    vec3 ambient = vec3(0.03) * material.color.rgb * 1.0;
+    vec3 color = ambient + Lo;
+
+    color = color / (color + vec3(1.0));
+    color = pow(color, vec3(1.0 / 2.2));
+
+    outColor = vec4(color, 1.0);
 }

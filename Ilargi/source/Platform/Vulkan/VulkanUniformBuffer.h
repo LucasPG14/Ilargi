@@ -15,10 +15,13 @@ namespace Ilargi
 
 		void SetData(void* data) override;
 
+		const void* GetDescriptorSet() const override;
+
 	private:
 		uint32_t mSize;
 
 		std::vector<VulkanBuffer> mUbos;
 		std::vector<void*> mUniformBuffersMapped;
+		std::vector<VkDescriptorSet> mDescriptorSets;
 	};
 }
