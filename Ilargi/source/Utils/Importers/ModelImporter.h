@@ -11,9 +11,9 @@ namespace Ilargi
 
 	struct TransformNode : public ComponentNode
 	{
-		vec3 position;
-		vec3 rotation;
-		vec3 scale;
+		glm::vec3 position;
+		glm::vec3 rotation;
+		glm::vec3 scale;
 	};
 
 	struct MeshNode : public ComponentNode
@@ -36,7 +36,7 @@ namespace Ilargi
 
 	struct MaterialInfo
 	{
-		vec4 color;
+		glm::vec4 color;
 	};
 
 	class StaticMesh;

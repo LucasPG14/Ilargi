@@ -5,6 +5,7 @@
 
 #include "Resources/ResourceManager.h"
 #include "Resources/Mesh.h"
+#include "Resources/Material.h"
 
 #include <ArduinoJson-v7.0.4.h>
 
@@ -119,6 +120,16 @@ namespace Ilargi
 				}
 
 				document[index]["StaticMeshComponent"]["UUID"] = static_cast<uint64_t>(uuid);
+
+				if (auto material = staticMesh.material.lock())
+				{
+					document[index]["StaticMeshComponent"]["Color"]["r"] = material->GetMaterialData().color.x;
+					document[index]["StaticMeshComponent"]["Color"]["g"] = material->GetMaterialData().color.y;
+					document[index]["StaticMeshComponent"]["Color"]["b"] = material->GetMaterialData().color.z;
+					document[index]["StaticMeshComponent"]["Color"]["a"] = material->GetMaterialData().color.w;
+					document[index]["StaticMeshComponent"]["Metallic"] = material->GetMaterialData().metallic;
+					document[index]["StaticMeshComponent"]["Roughness"] = material->GetMaterialData().roughness;
+				}
 			}
 		}
 

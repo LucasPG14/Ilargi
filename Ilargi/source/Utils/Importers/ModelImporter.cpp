@@ -17,96 +17,77 @@
 
 namespace Ilargi
 {
-	template<>
-	constexpr vec2& vec2::operator=(const aiVector3D& v)
-	{
-		x = v.x;
-		y = v.y;
-
-		return *this;
-	}
-
-	template<>
-	vec3& vec3::operator=(const aiVector3D& v)
-	{
-		x = v.x;
-		y = v.y;
-		z = v.z;
-
-		return *this;
-	}
-
 	void ModelImporter::ImportModel(UUID aUUID, const ResourceMetadata& aMetadata)
 	{
-		Assimp::Importer importer;
-
-		const aiScene* importScene = importer.ReadFile(aMetadata.sourceFile.string().c_str(), aiProcess_CalcTangentSpace | aiProcess_Triangulate |
-			aiProcess_JoinIdenticalVertices | aiProcess_SortByPType);
-
-		if (!importScene)
-		{
-			ILG_CORE_ERROR("Couldn't import model: {0}", aMetadata.sourceFile.string());
-			return;
-		}
-
-		std::vector<StaticVertex> vertices;
-		std::vector<uint32_t> indices;
-
-		const aiMesh* aiMesh = importScene->mMeshes[0];
-
-		bool hasNormals = aiMesh->HasNormals();
-		bool hasTexCoords = aiMesh->HasTextureCoords(0);
-		bool hasTangentsAndBitangents = aiMesh->HasTangentsAndBitangents();
-
-		uint32_t verticesCount = aiMesh->mNumVertices;
-		uint32_t numFaces = aiMesh->mNumFaces;
-
-		vertices.reserve(verticesCount);
-		indices.reserve(numFaces * 3);
-
-		for (int i = 0; i < verticesCount; ++i)
-		{
-			StaticVertex& vertex = vertices.emplace_back();
-			vertex.position = aiMesh->mVertices[i];
-
-			if (hasNormals)
-				vertex.normal = aiMesh->mNormals[i];
-
-			if (hasTexCoords)
-				vertex.texCoord = aiMesh->mTextureCoords[0][i];
-
-			if (hasTangentsAndBitangents)
-			{
-				vertex.tangent = aiMesh->mTangents[i];
-				vertex.bitangent = aiMesh->mBitangents[i];
-			}
-		}
-
-		for (uint32_t j = 0; j < numFaces; ++j)
-		{
-			aiFace face = aiMesh->mFaces[j];
-
-			for (uint32_t k = 0; k < face.mNumIndices; ++k)
-				indices.push_back(face.mIndices[k]);
-		}
-
-		int header[2] = { verticesCount, indices.size() };
-
-		Buffer buffer;
-
-		buffer.size = sizeof(header) + (vertices.size() * sizeof(StaticVertex)) + (indices.size() * sizeof(uint32_t));
-		buffer.data = new char[buffer.size];
-
-		char* buf = buffer.data;
-		memcpy(buf, header, sizeof(header));
-		buf += sizeof(header);
-
-		memcpy(buf, vertices.data(), vertices.size() * sizeof(StaticVertex));
-		buf += vertices.size() * sizeof(StaticVertex);
-
-		memcpy(buf, indices.data(), indices.size() * sizeof(uint32_t));
-
-		FileSystem::WriteBinaryFile(aMetadata.filepath, buffer);
+		//Assimp::Importer importer;
+		//
+		//const aiScene* importScene = importer.ReadFile(aMetadata.sourceFile.string().c_str(), aiProcess_CalcTangentSpace | aiProcess_Triangulate |
+		//	aiProcess_JoinIdenticalVertices | aiProcess_SortByPType);
+		//
+		//if (!importScene)
+		//{
+		//	ILG_CORE_ERROR("Couldn't import model: {0}", aMetadata.sourceFile.string());
+		//	return;
+		//}
+		//
+		//std::vector<StaticVertex> vertices;
+		//std::vector<uint32_t> indices;
+		//
+		//const aiMesh* aiMesh = importScene->mMeshes[0];
+		//
+		//bool hasNormals = aiMesh->HasNormals();
+		//bool hasTexCoords = aiMesh->HasTextureCoords(0);
+		//bool hasTangentsAndBitangents = aiMesh->HasTangentsAndBitangents();
+		//
+		//uint32_t verticesCount = aiMesh->mNumVertices;
+		//uint32_t numFaces = aiMesh->mNumFaces;
+		//
+		//vertices.reserve(verticesCount);
+		//indices.reserve(numFaces * 3);
+		//
+		//for (int i = 0; i < verticesCount; ++i)
+		//{
+		//	StaticVertex& vertex = vertices.emplace_back();
+		//	vertex.position = aiMesh->mVertices[i];
+		//
+		//	if (hasNormals)
+		//		vertex.normal = aiMesh->mNormals[i];
+		//
+		//	if (hasTexCoords)
+		//		vertex.texCoord = aiMesh->mTextureCoords[0][i];
+		//
+		//	if (hasTangentsAndBitangents)
+		//	{
+		//		vertex.tangent = aiMesh->mTangents[i];
+		//		vertex.bitangent = aiMesh->mBitangents[i];
+		//	}
+		//}
+		//
+		//for (uint32_t j = 0; j < numFaces; ++j)
+		//{
+		//	aiFace face = aiMesh->mFaces[j];
+		//
+		//	for (uint32_t k = 0; k < face.mNumIndices; ++k)
+		//		indices.push_back(face.mIndices[k]);
+		//}
+		//
+		//int header[2] = { verticesCount, indices.size() };
+		//
+		//Buffer buffer;
+		//
+		//buffer.size = sizeof(header) + (vertices.size() * sizeof(StaticVertex)) + (indices.size() * sizeof(uint32_t));
+		//buffer.data = new char[buffer.size];
+		//
+		//char* buf = buffer.data;
+		//memcpy(buf, header, sizeof(header));
+		//buf += sizeof(header);
+		//
+		//memcpy(buf, vertices.data(), vertices.size() * sizeof(StaticVertex));
+		//buf += vertices.size() * sizeof(StaticVertex);
+		//
+		//memcpy(buf, indices.data(), indices.size() * sizeof(uint32_t));
+		//
+		//FileSystem::WriteBinaryFile(aMetadata.filepath, buffer);
 	}
 
 	void ModelImporter::ImportModel2(UUID aUUID, const ResourceMetadata& aMetadata)
@@ -130,8 +111,6 @@ namespace Ilargi
 			const aiMaterial* aiMaterial = importScene->mMaterials[i];
 
 			MaterialInfo& materialInfo = materialsInfo.emplace_back();
-
-
 		}
 
 		std::vector<MeshInfo> meshesInfo;
@@ -158,18 +137,18 @@ namespace Ilargi
 			for (int i = 0; i < verticesCount; ++i)
 			{
 				StaticVertex& vertex = vertices.emplace_back();
-				vertex.position = aiMesh->mVertices[i];
+				vertex.position = { aiMesh->mVertices[i].x, aiMesh->mNormals[i].y, aiMesh->mNormals[i].z };
 
 				if (hasNormals)
-					vertex.normal = aiMesh->mNormals[i];
+					vertex.normal = { aiMesh->mNormals[i].x, aiMesh->mNormals[i].y, aiMesh->mNormals[i].z };
 
 				if (hasTexCoords)
-					vertex.texCoord = aiMesh->mTextureCoords[0][i];
+					vertex.texCoord = { aiMesh->mTextureCoords[0][i].x, aiMesh->mTextureCoords[0][i].y };
 
 				if (hasTangentsAndBitangents)
 				{
-					vertex.tangent = aiMesh->mTangents[i];
-					vertex.bitangent = aiMesh->mBitangents[i];
+					vertex.tangent = { aiMesh->mTangents[i].x, aiMesh->mTangents[i].y, aiMesh->mTangents[i].z };
+					vertex.bitangent = { aiMesh->mBitangents[i].x, aiMesh->mBitangents[i].y, aiMesh->mBitangents[i].z };
 				}
 			}
 

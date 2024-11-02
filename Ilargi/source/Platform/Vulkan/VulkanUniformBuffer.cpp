@@ -31,7 +31,7 @@ namespace Ilargi
 		mDescriptorSets.resize(Renderer::GetConfig().maxFrames, VK_NULL_HANDLE);
 		for (int i = 0; i < Renderer::GetConfig().maxFrames; ++i)
 		{
-//			vulkanShader->AllocateDescriptorSet(1, mDescriptorSets[i]);
+			vulkanShader->AllocateDescriptorSet(1, mDescriptorSets[i]);
 		}
 	}
 	
@@ -76,7 +76,7 @@ namespace Ilargi
 			descriptorWrites[i].pBufferInfo = &bufferInfo;
 		}
 
-		//vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+		vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}
 	
 	const void* VulkanUniformBuffer::GetDescriptorSet() const

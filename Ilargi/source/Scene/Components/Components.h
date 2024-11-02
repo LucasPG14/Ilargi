@@ -1,6 +1,11 @@
 #pragma once
 
-#include <Utils/Math/Math.h>
+#include <mat4x4.hpp>
+#include <vec2.hpp>
+#include <vec3.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <gtc/matrix_transform.hpp>
+#include <gtx/euler_angles.hpp>
 
 #include <string>
 
@@ -21,14 +26,15 @@ namespace Ilargi
 
 	struct TransformComponent
 	{
-		mat4 transform = mat4(1.0f);
-		vec3 position = vec3(0.0f);
-		vec3 rotation = vec3(0.0f);
-		vec3 scale = vec3(1.0f);
+		glm::mat4 transform = glm::mat4(1.0f);
+		glm::vec3 position = glm::vec3(0.0f);
+		glm::vec3 rotation = glm::vec3(0.0f);
+		glm::vec3 scale = glm::vec3(1.0f);
 
 		void CalculateTransform()
 		{
-			transform = math::translate(position) * mat4(quat(radians(rotation))) * math::scale(scale);
+			transform = glm::translate(glm::mat4(1.0), position) * glm::eulerAngleXYZ(glm::radians(rotation.x), glm::radians(rotation.y), glm::radians(rotation.z));
+			transform = glm::scale(transform, scale);
 		}
 	};
 
@@ -45,12 +51,12 @@ namespace Ilargi
 
 	struct DirectionalLightComponent
 	{
-		vec4 radiance = vec4(1.0f);
+		glm::vec4 radiance = glm::vec4(1.0f);
 	};
 
 	struct PointLightComponent
 	{
-		vec4 radiance = vec4(1.0f);
+		glm::vec4 radiance = glm::vec4(1.0f);
 		float radius = 1.0f;
 	};
 }

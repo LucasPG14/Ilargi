@@ -12,8 +12,7 @@ namespace Ilargi
 {
 	Scene::Scene()
 	{
-		mPointLightsUBO = UniformBuffer::Create(sizeof(PointLightUniformBuffer) * mSceneLights.pointLights.size(),
-			Renderer::GetConfig().maxFrames);
+		mSceneDataUBO = UniformBuffer::Create(sizeof(SceneData), Renderer::GetConfig().maxFrames);
 	}
 	
 	Scene::~Scene()
@@ -47,7 +46,7 @@ namespace Ilargi
 	{
 		Entity entity = mWorld.create();
 
-		CreateComponent<TransformComponent>(entity, mat4(1.0f));
+		CreateComponent<TransformComponent>(entity, glm::mat4(1.0f));
 		CreateComponent<InfoComponent>(entity, aName.c_str());
 		CreateComponent<FamilyComponent>(entity);
 
@@ -72,10 +71,13 @@ namespace Ilargi
 		mWorld.destroy(aEntity);
 	}
 	
-	void Scene::UpdatePointLights()
+	void Scene::UpdatePointLights(glm::mat4 aMatrix, glm::vec3 aPosition)
 	{
+		mSceneData.viewProjMatrix = aMatrix;
+		mSceneData.cameraPosition = aPosition;
+
 		const auto& view = mWorld.view<TransformComponent, PointLightComponent>();
-		mSceneLights.pointLightsSize = 0;
+		mSceneData.pointLightsSize = 0;
 
 		for (auto entity : view)
 		{
@@ -86,9 +88,9 @@ namespace Ilargi
 			pointLight.radius = light.radius;
 			pointLight.position = transform.position;
 
-			mSceneLights.pointLights[mSceneLights.pointLightsSize++] = pointLight;
+			mSceneData.pointLights[mSceneData.pointLightsSize++] = pointLight;
 		}
 
-		mPointLightsUBO->SetData(mSceneLights.pointLights.data());
+		mSceneDataUBO->SetData(&mSceneData);
 	}
 }

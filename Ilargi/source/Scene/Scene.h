@@ -12,15 +12,17 @@ namespace Ilargi
 
 	struct PointLightUniformBuffer
 	{
-		vec4 radiance;
-		vec3 position;
+		glm::vec4 radiance;
+		glm::vec3 position;
 		float radius;
 	};
 
-	struct SceneLights
+	struct SceneData
 	{
-		std::array<PointLightUniformBuffer, 1024> pointLights;
+		glm::mat4 viewProjMatrix;
+		glm::vec3 cameraPosition;
 		uint32_t pointLightsSize = 0;
+		std::array<PointLightUniformBuffer, 1024> pointLights;
 	};
 
 	class Scene : public Resource
@@ -39,7 +41,7 @@ namespace Ilargi
 		Entity CreateChildrenEntity(Entity aEntity, const std::string& aName = "Entity");
 		void DestroyEntity(Entity aEntity);
 
-		void UpdatePointLights();
+		void UpdatePointLights(glm::mat4 aMatrix, glm::vec3 aPosition);
 
 		template<typename T, typename... Args>
 		T& CreateComponent(Entity aEntity, Args&& ...aArgs)
@@ -63,12 +65,12 @@ namespace Ilargi
 		const entt::registry& GetWorld() const { return mWorld; }
 		entt::registry& GetWorld() { return mWorld; }
 
-		const std::shared_ptr<UniformBuffer> GetPointLightsUBO() const { return mPointLightsUBO; }
+		const std::shared_ptr<UniformBuffer> GetPointLightsUBO() const { return mSceneDataUBO; }
 
 	private:
 		entt::registry mWorld;
 
-		std::shared_ptr<UniformBuffer> mPointLightsUBO;
-		SceneLights mSceneLights;
+		std::shared_ptr<UniformBuffer> mSceneDataUBO;
+		SceneData mSceneData;
 	};
 }

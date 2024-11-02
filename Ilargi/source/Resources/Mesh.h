@@ -2,9 +2,9 @@
 
 #include "Resource.h"
 
-#include <Utils/Math/Vec2.h>
-#include <Utils/Math/Vec3.h>
-#include <Utils/Math/Vec4.h>
+#include <vec2.hpp>
+#include <vec3.hpp>
+#include <vec4.hpp>
 
 namespace Ilargi
 {
@@ -15,11 +15,11 @@ namespace Ilargi
 
 	struct StaticVertex
 	{
-		vec3 position;
-		vec3 normal;
-		vec3 tangent;
-		vec3 bitangent;
-		vec2 texCoord;
+		glm::vec3 position;
+		glm::vec3 normal;
+		glm::vec3 tangent;
+		glm::vec3 bitangent;
+		glm::vec2 texCoord;
 	};
 
 	struct StaticSubmesh

@@ -21,7 +21,6 @@ namespace Ilargi
 
 		void SetDiffuse(std::shared_ptr<Texture2D> aTexture) override;
 
-
 	private:
 		void UpdateDescriptor();
 

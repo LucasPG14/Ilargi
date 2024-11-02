@@ -10,6 +10,7 @@
 #include "Resources/Texture.h"
 
 #include <imgui/imgui.h>
+#include <gtc/type_ptr.hpp>
 
 namespace Ilargi
 {
@@ -169,15 +170,15 @@ namespace Ilargi
 
 				ImGui::Text("Position");
 				ImGui::SameLine();
-				hasChanged |= ImGui::DragFloat3("##Position", transformComponent.position);
+				hasChanged |= ImGui::DragFloat3("##Position", glm::value_ptr(transformComponent.position));
 
 				ImGui::Text("Rotation");
 				ImGui::SameLine();
-				hasChanged |= ImGui::DragFloat3("##Rotation", transformComponent.rotation);
+				hasChanged |= ImGui::DragFloat3("##Rotation", glm::value_ptr(transformComponent.rotation));
 
 				ImGui::Text("Scale");
 				ImGui::SameLine();
-				hasChanged |= ImGui::DragFloat3("##Scale", transformComponent.scale);
+				hasChanged |= ImGui::DragFloat3("##Scale", glm::value_ptr(transformComponent.scale));
 
 				if (hasChanged)
 					transformComponent.CalculateTransform();
@@ -192,7 +193,6 @@ namespace Ilargi
 			{
 				if (auto mesh = staticMesh.staticMesh.lock())
 				{
-					//ImGui::ColorPicker4("##Color", staticMesh.staticMesh->GetColor());
 					auto material = staticMesh.material.lock();
 
 					if (material)
@@ -227,7 +227,7 @@ namespace Ilargi
 							}
 							ImGui::EndChild();
 						}
-						if (ImGui::ColorEdit4("Color", material->GetMaterialData().color))
+						if (ImGui::ColorEdit4("Color", glm::value_ptr(material->GetMaterialData().color)))
 						{
 							material->SetDiffuse(nullptr);
 						}
@@ -252,7 +252,7 @@ namespace Ilargi
 			DirectionalLightComponent& dirLight = mScene->GetWorld().get<DirectionalLightComponent>(mSelected);
 			if (ImGui::CollapsingHeader("Directional Light Component"))
 			{
-				ImGui::ColorPicker4("##Color", dirLight.radiance);
+				ImGui::ColorPicker4("##Color", glm::value_ptr(dirLight.radiance));
 			}
 			ImGui::Separator();
 		}
@@ -262,7 +262,7 @@ namespace Ilargi
 			PointLightComponent& pointLight = mScene->GetWorld().get<PointLightComponent>(mSelected);
 			if (ImGui::CollapsingHeader("Point Light Component"))
 			{
-				ImGui::ColorPicker4("##Color", pointLight.radiance);
+				ImGui::ColorPicker4("##Color", glm::value_ptr(pointLight.radiance));
 				ImGui::SliderFloat("##Radius", &pointLight.radius, 0.2f, 10.0f);
 			}
 			ImGui::Separator();

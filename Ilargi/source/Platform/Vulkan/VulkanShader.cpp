@@ -100,6 +100,8 @@ namespace Ilargi
 	{	
 		ILG_PROFILE_FUNC
 
+		mSetBindingMap.fill({false, false, false, false, false, false, false, false});
+
 		auto device = VulkanContext::GetLogicalDevice();
 
 		auto directory = Utils::GetCacheDirectory() / std::filesystem::path(mName);
@@ -224,20 +226,6 @@ namespace Ilargi
 
 			CreateShaderModule(stage, result);
 		}
-
-		// TODO: Change this and automatize with reflect function
-		//descriptorSetLayouts.resize(descriptorSetBindings.size());
-		//{
-		//	for (int i = 0; i < descriptorSetLayouts.size(); ++i)
-		//	{
-		//		VkDescriptorSetLayoutCreateInfo layoutInfo = {};
-		//		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		//		layoutInfo.bindingCount = static_cast<uint32_t>(descriptorSetBindings[i].size());
-		//		layoutInfo.pBindings = descriptorSetBindings[i].data();
-		//
-		//		VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayouts[i]));
-		//	}
-		//}
 	}
 
 	void VulkanShader::CreateShaderModule(VkShaderStageFlagBits aStage, const std::vector<uint32_t>& aCode)
@@ -320,14 +308,18 @@ namespace Ilargi
 			ILG_CORE_TRACE("	Binding: {0}", binding);
 			ILG_CORE_TRACE("	Members: {0}", membersCount);
 
-			VkDescriptorSetLayoutBinding layoutBinding = {};
-			layoutBinding.binding = binding;
-			layoutBinding.descriptorCount = 1;
-			layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			layoutBinding.pImmutableSamplers = nullptr;
-			layoutBinding.stageFlags = aStage;
+			if (!mSetBindingMap[set][binding])
+			{
+				VkDescriptorSetLayoutBinding layoutBinding = {};
+				layoutBinding.binding = binding;
+				layoutBinding.descriptorCount = 1;
+				layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+				layoutBinding.pImmutableSamplers = nullptr;
+				layoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 
-			mDescriptorSetBindings[set].push_back(layoutBinding);
+				mSetBindingMap[set][binding] = true;
+				mDescriptorSetBindings[set].push_back(layoutBinding);
+			}
 		}
 
 		// Reflecting sampled images

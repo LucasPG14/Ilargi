@@ -31,6 +31,7 @@ IncludeDir = {}
 IncludeDir["ArduinoJson"] = "Ilargi/dependencies/arduinojson"
 IncludeDir["Assimp"] = "Ilargi/dependencies/Assimp/include"
 IncludeDir["GLFW"] = "Ilargi/dependencies/glfw/include"
+IncludeDir["GLM"] = "Ilargi/dependencies/glm"
 IncludeDir["ImGUI"] = "Ilargi/dependencies/imgui"
 IncludeDir["ImGuizmo"] = "Ilargi/dependencies/imguizmo"
 IncludeDir["entt"] = "Ilargi/dependencies/entt"
@@ -71,6 +72,7 @@ project "Ilargi"
 	{
 		"%{prj.name}/source",
 		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.GLM}",
 		"%{IncludeDir.ImGUI}",
 		"%{IncludeDir.ImGuizmo}",
 		"%{IncludeDir.Assimp}",
@@ -161,6 +163,7 @@ project "IlargiEditor"
 		"Ilargi/source",
 		"Ilargi/dependencies",
 		"Ilargi/dependencies/entt",
+		"Ilargi/dependencies/glm",
 		"Ilargi/dependencies/imguizmo",
 		"Ilargi/dependencies/stb"
 	}

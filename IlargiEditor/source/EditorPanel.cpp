@@ -13,24 +13,10 @@
 #include <imgui/imgui.h>
 #include <ImGuizmo.h>
 #include <arduinojson/ArduinoJson-v7.0.4.h>
+#include <gtc/type_ptr.hpp>
 
 namespace Ilargi
 {
-	template<>
-	vec2& vec2::operator=(const ImVec2& v)
-	{
-		x = v.x;
-		y = v.y;
-		
-		return *this;
-	}
-
-	template<>
-	bool vec2::operator!=(const ImVec2& v)
-	{
-		return (x != v.x || y != v.y);
-	}
-
 	static std::unordered_map<Texts, std::string> menuNames = {};
 
 	EditorPanel::EditorPanel() : Panel("Editor Panel"), mHierarchyInspector(nullptr), mResourcesPanel(nullptr), 
@@ -77,7 +63,7 @@ namespace Ilargi
 
 		//gridRenderPass = RenderPass::Create({ framebuffer, Pipeline::Create(pipelineProperties), false });
 		
-		mUBOCamera = UniformBuffer::Create(sizeof(mat4), Renderer::GetConfig().maxFrames);
+		mUBOCamera = UniformBuffer::Create(sizeof(glm::mat4), Renderer::GetConfig().maxFrames);
 
 		LoadLanguage("Engine/Localization/english.json");
 	}
@@ -109,14 +95,12 @@ namespace Ilargi
 			mNeedToUpdateFramebuffer = false;
 		}
 
-		mScene->UpdatePointLights();
-
 		mCamera.Update();
+
+		mScene->UpdatePointLights(mCamera.GetViewProjectionMatrix(), mCamera.GetPosition());
 
 		mCommandBuffer->BeginCommand();
 		mRenderPass->BeginRenderPass(mCommandBuffer);
-		
-		mConstants[0] = mCamera.GetProjectionMatrix() * mCamera.GetViewMatrix();
 
 		auto ent = *mScene->GetWorld().view<TransformComponent, DirectionalLightComponent>().begin();
 
@@ -133,13 +117,11 @@ namespace Ilargi
 				continue;
 			
 			mRenderPass->GetProperties().pipeline->Bind(mCommandBuffer);
-			mRenderPass->GetProperties().pipeline->BindDescriptorSet(mCommandBuffer, material, 2);
-			//mRenderPass->GetProperties().pipeline->BindDescriptorSet(mCommandBuffer, mScene->GetPointLightsUBO(), 1);
-			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 0, 64, transform.transform);
-			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 64, 64, mConstants[0]);
-			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 128, 16, light.radiance);
-			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 144, 12, mCamera.GetPosition());
-			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 156, 12, trans.rotation);
+			mRenderPass->GetProperties().pipeline->BindDescriptorSet(mCommandBuffer, material, 0);
+			mRenderPass->GetProperties().pipeline->BindDescriptorSet(mCommandBuffer, mScene->GetPointLightsUBO(), 1);
+			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 0, 64, glm::value_ptr(transform.transform));
+			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 64, 16, glm::value_ptr(light.radiance));
+			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 80, 12, glm::value_ptr(glm::radians(trans.rotation)));
 			Renderer::SubmitGeometry(mCommandBuffer, mesh);
 		}
 
@@ -320,9 +302,9 @@ namespace Ilargi
 
 		ImGui::Image(mFramebuffer->GetID(), frameViewportSize, { 0.0f, 1.0f }, { 1.0f, 0.0f });
 
-		if (mViewportSize != frameViewportSize)
+		if (mViewportSize.x != frameViewportSize.x || mViewportSize.y != frameViewportSize.y)
 		{
-			mViewportSize = frameViewportSize;
+			mViewportSize = glm::vec2(frameViewportSize.x, frameViewportSize.y);
 			mNeedToUpdateFramebuffer = true;
 		}
 
@@ -336,17 +318,17 @@ namespace Ilargi
 			ImGuizmo::SetDrawlist();
 			ImGuizmo::SetGizmoSizeClipSpace(0.15f);
 
-			const mat4& viewMatrix = mCamera.GetViewMatrix();
-			const mat4& projMatrix = mCamera.GetProjectionMatrix();
+			const glm::mat4& viewMatrix = mCamera.GetViewMatrix();
+			const glm::mat4& projMatrix = mCamera.GetProjectionMatrix();
 
 			TransformComponent& transformComp = mScene->GetWorld().get<TransformComponent>(entity);
-			mat4& transform = transformComp.transform;
+			glm::mat4& transform = transformComp.transform;
 
-			ImGuizmo::Manipulate(viewMatrix, projMatrix, (ImGuizmo::OPERATION)mOperation, ImGuizmo::WORLD, transform);
+			ImGuizmo::Manipulate(glm::value_ptr(viewMatrix), glm::value_ptr(projMatrix), (ImGuizmo::OPERATION)mOperation, ImGuizmo::WORLD, glm::value_ptr(transform));
 
 			if (ImGuizmo::IsUsingAny())
 			{
-				ImGuizmo::DecomposeMatrixToComponents(transform, transformComp.position, transformComp.rotation, transformComp.scale);
+				ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(transform), glm::value_ptr(transformComp.position), glm::value_ptr(transformComp.rotation), glm::value_ptr(transformComp.scale));
 			}
 		}
 

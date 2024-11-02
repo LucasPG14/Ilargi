@@ -10,11 +10,25 @@ layout(location = 4) in vec2 inTexCoord;
 layout(push_constant) uniform Constants
 {
     mat4 modelMatrix;
-    mat4 viewProj;
     vec4 radiance;
-    vec3 viewPos;
     vec3 direction;
 } pushConstants;
+
+struct PointLight
+{
+    vec4 radiance;
+    vec3 position;
+    float radius;
+};
+
+// Descriptor sets
+layout(set = 1, binding = 0) uniform SceneData
+{
+    mat4 viewProjMatrix;
+    vec3 cameraPos;
+    uint pointLightsSize;
+    PointLight pointLights[1024];
+} sceneData;
 
 layout(location = 0) out vec2 vTexCoord;
 layout(location = 1) out vec3 vLightColor;
@@ -25,13 +39,13 @@ layout(location = 5) out vec3 vViewPos;
 
 void main() 
 {
-    gl_Position = pushConstants.viewProj * pushConstants.modelMatrix * vec4(inPosition, 1.0); 
+    gl_Position = sceneData.viewProjMatrix * pushConstants.modelMatrix * vec4(inPosition, 1.0); 
     vTexCoord = inTexCoord;
     vLightColor = pushConstants.radiance.rgb;
     vNormal = mat3(transpose(inverse(pushConstants.modelMatrix))) * inNormal;
     vLightDirection = pushConstants.direction;
     vFragPos = vec3(pushConstants.modelMatrix * vec4(inPosition, 1.0));
-    vViewPos = pushConstants.viewPos;
+    vViewPos = sceneData.cameraPos;
 }
 
 #type fragment
@@ -46,19 +60,7 @@ layout(location = 5) in vec3 vViewPos;
 
 layout(location = 0) out vec4 outColor;
 
-struct PointLight
-{
-    vec4 radiance;
-    vec3 position;
-    float radius;
-};
-
-// Descriptor sets
-layout(set = 1, binding = 0) uniform UniformBufferObject 
-{
-    PointLight pointLights[1024];
-} ubo;
-
+// Material Descriptor Sets
 layout(set = 0, binding = 0) uniform sampler2D diffuseTex;
 layout(set = 0, binding = 1) uniform sampler2D normalTex;
 layout(set = 0, binding = 2) uniform sampler2D metallicTex;
@@ -109,6 +111,22 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
     return ggx1 * ggx2;
 }
 
+struct PointLight
+{
+    vec4 radiance;
+    vec3 position;
+    float radius;
+};
+
+// Descriptor sets
+layout(set = 1, binding = 0) uniform SceneData
+{
+    mat4 viewProjMatrix;
+    vec3 cameraPos;
+    uint pointLightsSize;
+    PointLight pointLights[1024];
+} sceneData;
+
 void main() 
 {
     vec3 N = normalize(vNormal);
@@ -119,12 +137,14 @@ void main()
 
     // reflectance equation
     vec3 Lo = vec3(0.0);
-    //for (int i = 0; i < 4; ++i)
-    //{
+    for (int i = 0; i < sceneData.pointLightsSize; ++i)
+    {
         // calculate per-light radiance
-        vec3 L = normalize(-vLightDirection);
+        vec3 L = normalize(sceneData.pointLights[i].position - vFragPos);
         vec3 H = normalize(V + L);
-        vec3 radiance = vLightColor;
+        float distance = length(sceneData.pointLights[i].position - vFragPos);
+        float attenuation = 1.0 / (distance * distance);
+        vec3 radiance = sceneData.pointLights[i].radiance.rgb * attenuation;
 
         // cook-torrance brdf
         float NDF = DistributionGGX(N, H, material.roughness);
@@ -141,8 +161,8 @@ void main()
 
         // add to outgoing radiance Lo
         float NdotL = max(dot(N, L), 0.0);
-        Lo += (kD * material.color.rgb / 3.1415 + specular) * radiance * NdotL;
-    //}
+        Lo += (kD * material.color.rgb / 3.1415 + specular) * sceneData.pointLights[i].radiance.rgb * NdotL;
+    }
 
     vec3 ambient = vec3(0.03) * material.color.rgb * 1.0;
     vec3 color = ambient + Lo;

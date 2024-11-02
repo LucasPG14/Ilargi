@@ -54,10 +54,10 @@ namespace Ilargi
 		SceneHierarchyInspectorPanel* mHierarchyInspector;
 		ResourcesPanel* mResourcesPanel;
 
-		vec2 mViewportSize;
+		glm::vec2 mViewportSize;
 		bool mNeedToUpdateFramebuffer;
 
-		mat4 mConstants[2];
+		glm::mat4 mConstants[2];
 		int mOperation;
 
 		// Grid

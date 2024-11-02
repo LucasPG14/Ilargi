@@ -44,5 +44,6 @@ namespace Ilargi
 		std::vector<VkDescriptorSetLayout> mDescriptorSetLayouts;
 
 		std::map<int, std::vector<VkDescriptorSetLayoutBinding>> mDescriptorSetBindings;
+		std::array<std::array<bool, 8>, 8> mSetBindingMap;
 	};
 }
