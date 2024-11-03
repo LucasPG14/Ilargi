@@ -33,11 +33,24 @@ namespace Ilargi
 			ILG_ASSERT(nullptr, "Vk format not found for Shader Data Type")
 			return VkFormat();
 		}
+
+		const std::filesystem::path GetPipelineCacheDirectory()
+		{
+			return { "Cache/vulkan/pipelines/" };
+		}
+
+		void CreatePipelineCacheDirectory()
+		{
+			const std::filesystem::path& cacheDirectory = GetPipelineCacheDirectory();
+			if (!std::filesystem::exists(cacheDirectory))
+				std::filesystem::create_directories(cacheDirectory);
+		}
 	}
 
 	VulkanPipeline::VulkanPipeline(const PipelineProperties& aProperties) 
 		: mProperties(aProperties), mPipeline(VK_NULL_HANDLE), mPipelineLayout(VK_NULL_HANDLE), mDescriptorSetLayout(VK_NULL_HANDLE)
 	{
+		Utils::CreatePipelineCacheDirectory();
 	}
 	
 	VulkanPipeline::~VulkanPipeline()

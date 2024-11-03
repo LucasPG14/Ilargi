@@ -90,15 +90,24 @@ namespace Ilargi
 			return "";
 		}
 
-		const std::filesystem::path GetCacheDirectory()
+		const std::filesystem::path GetShaderCacheDirectory()
 		{
 			return "Cache/vulkan/shaders/";
+		}
+
+		void CreateShaderCacheDirectory()
+		{
+			const std::filesystem::path& cacheDirectory = GetShaderCacheDirectory();
+			if (!std::filesystem::exists(cacheDirectory))
+				std::filesystem::create_directories(cacheDirectory);
 		}
 	}
 
 	VulkanShader::VulkanShader(std::string_view aFilepath) : mFilepath(aFilepath), mName(std::filesystem::path(aFilepath).stem().string())
 	{	
-		ILG_PROFILE_FUNC
+		ILG_PROFILE_FUNC;
+
+		Utils::CreateShaderCacheDirectory();
 
 		mSetBindingMap.fill({false, false, false, false, false, false, false, false});
 
@@ -106,7 +115,7 @@ namespace Ilargi
 
 		auto nonChacheFileTime = std::filesystem::last_write_time(aFilepath);
 
-		auto directory = Utils::GetCacheDirectory() / std::filesystem::path(mName);
+		auto directory = Utils::GetShaderCacheDirectory() / std::filesystem::path(mName);
 		
 		auto shaderCacheFile = directory;
 		shaderCacheFile += "_cache_vert.spv";
@@ -219,7 +228,7 @@ namespace Ilargi
 			auto result = ConvertToSpirV(stage, finalShaderCode);
 
 			std::filesystem::path filename = mFilepath;
-			std::filesystem::path cacheFile = Utils::GetCacheDirectory();
+			std::filesystem::path cacheFile = Utils::GetShaderCacheDirectory();
 			cacheFile += filename.stem();
 			cacheFile += Utils::GetCacheExtension(stage);
 
