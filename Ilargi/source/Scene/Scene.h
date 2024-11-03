@@ -65,7 +65,7 @@ namespace Ilargi
 		const entt::registry& GetWorld() const { return mWorld; }
 		entt::registry& GetWorld() { return mWorld; }
 
-		const std::shared_ptr<UniformBuffer> GetPointLightsUBO() const { return mSceneDataUBO; }
+		const std::shared_ptr<UniformBuffer> GetSceneDataUBO() const { return mSceneDataUBO; }
 
 	private:
 		entt::registry mWorld;

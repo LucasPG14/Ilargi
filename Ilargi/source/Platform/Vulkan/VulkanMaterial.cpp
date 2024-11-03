@@ -18,11 +18,17 @@ namespace Ilargi
 
 		auto device = VulkanContext::GetLogicalDevice();
 
-		VkBufferCreateInfo bufferInfo = {};
-		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-		bufferInfo.size = sizeof(MaterialData);
-		bufferInfo.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		VkBufferCreateInfo bufferInfo
+		{
+			VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,	// sType
+			nullptr,								// pNext
+			0,										// flags
+			sizeof(MaterialData),					// size
+			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,		// usage
+			VK_SHARING_MODE_EXCLUSIVE,				// sharingMode
+			0,										// queueFamilyIndexCount
+			nullptr									// pQueueFamilyIndices
+		};
 
 		VulkanAllocator::AllocateBuffer(mMaterialBuffer, bufferInfo, VMA_MEMORY_USAGE_CPU_TO_GPU);
 		mMaterialBufferMapped = VulkanAllocator::MapMemory(mMaterialBuffer);
@@ -55,14 +61,19 @@ namespace Ilargi
 			sizeof(MaterialData)
 		};
 
-		std::array<VkWriteDescriptorSet, 1> descriptorWrites {};
-		descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[0].dstSet = mDescriptorSet;
-		descriptorWrites[0].dstBinding = 4;
-		descriptorWrites[0].dstArrayElement = 0;
-		descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		descriptorWrites[0].descriptorCount = 1;
-		descriptorWrites[0].pBufferInfo = &bufferInfo;
+		std::array<VkWriteDescriptorSet, 1> descriptorWrites
+		{
+			VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET, // sType
+			nullptr,								// pNext
+			mDescriptorSet,							// dstSet
+			4,										// dstBinding
+			0,										// dstArrayElement
+			1,										// descriptorCount
+			VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,		// descriptorType
+			nullptr,								// pImageInfo
+			&bufferInfo,							// pBufferInfo
+			nullptr									// pTexelBufferView
+		};
 
 		vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}

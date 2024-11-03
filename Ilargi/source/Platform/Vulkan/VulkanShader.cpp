@@ -135,10 +135,14 @@ namespace Ilargi
 			{
 				if (mDescriptorSetBindings.find(i) != mDescriptorSetBindings.end())
 				{
-					VkDescriptorSetLayoutCreateInfo layoutInfo = {};
-					layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-					layoutInfo.bindingCount = static_cast<uint32_t>(mDescriptorSetBindings[i].size());
-					layoutInfo.pBindings = mDescriptorSetBindings[i].data();
+					VkDescriptorSetLayoutCreateInfo layoutInfo
+					{
+						VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,		// sType
+						nullptr,													// pNext
+						0,															// flags
+						static_cast<uint32_t>(mDescriptorSetBindings[i].size()),	// bindingCount
+						mDescriptorSetBindings[i].data()							// pBindings
+					};
 
 					VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &mDescriptorSetLayouts[i]));
 				}
@@ -173,11 +177,14 @@ namespace Ilargi
 
 		auto device = VulkanContext::GetLogicalDevice();
 
-		VkDescriptorSetAllocateInfo allocInfo = {};
-		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-		allocInfo.descriptorPool = VulkanContext::GetDescriptorPool();
-		allocInfo.descriptorSetCount = 1;
-		allocInfo.pSetLayouts = &mDescriptorSetLayouts[aIndex];
+		VkDescriptorSetAllocateInfo allocInfo
+		{
+			VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,		// sType
+			nullptr,											// pNext
+			VulkanContext::GetDescriptorPool(),					// descriptorPool
+			1,													// descriptorSetCount
+			&mDescriptorSetLayouts[aIndex]						// pSetLayouts
+		};
 
 		VK_CHECK_RESULT(vkAllocateDescriptorSets(device, &allocInfo, &aDescriptorSet));
 	}
@@ -232,10 +239,14 @@ namespace Ilargi
 	{
 		auto device = VulkanContext::GetLogicalDevice();
 
-		VkShaderModuleCreateInfo createInfo = {};
-		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-		createInfo.codeSize = 4 * aCode.size();
-		createInfo.pCode = aCode.data();
+		VkShaderModuleCreateInfo createInfo
+		{
+			VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,	// sType
+			nullptr,										// pNext
+			0,												// flags
+			4 * aCode.size(),								// codeSize
+			aCode.data()									// pCode
+		};
 
 		VkShaderModule shaderModule = nullptr;
 		VK_CHECK_RESULT(vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule));
@@ -310,12 +321,14 @@ namespace Ilargi
 
 			if (!mSetBindingMap[set][binding])
 			{
-				VkDescriptorSetLayoutBinding layoutBinding = {};
-				layoutBinding.binding = binding;
-				layoutBinding.descriptorCount = 1;
-				layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-				layoutBinding.pImmutableSamplers = nullptr;
-				layoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+				VkDescriptorSetLayoutBinding layoutBinding
+				{
+					binding,													// binding
+					VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,							// descriptorType
+					1,															// descriptorCount
+					VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,	// stageFlags
+					nullptr														// pImmutableSamplers
+				};
 
 				mSetBindingMap[set][binding] = true;
 				mDescriptorSetBindings[set].push_back(layoutBinding);
@@ -334,12 +347,14 @@ namespace Ilargi
 			ILG_CORE_TRACE("	Binding: {0}", binding);
 			ILG_CORE_TRACE("	Descriptor Set: {0}", set);
 
-			VkDescriptorSetLayoutBinding layoutBinding = {};
-			layoutBinding.binding = binding;
-			layoutBinding.descriptorCount = 1;
-			layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			layoutBinding.pImmutableSamplers = nullptr;
-			layoutBinding.stageFlags = aStage;
+			VkDescriptorSetLayoutBinding layoutBinding
+			{
+				binding,													// binding
+				VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,					// descriptorType
+				1,															// descriptorCount
+				aStage,														// stageFlags
+				nullptr														// pImmutableSamplers
+			};
 
 			mDescriptorSetBindings[set].push_back(layoutBinding);
 		}

@@ -12,17 +12,23 @@ namespace Ilargi
 
 		mCommandBuffers.resize(aFramesInFlight);
 
-		VkCommandBufferAllocateInfo allocInfo = {};
-		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.commandPool = VulkanContext::GetCommandPool();
-		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandBufferCount = static_cast<uint32_t>(mCommandBuffers.size());
+		VkCommandBufferAllocateInfo allocInfo
+		{
+			VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO, // sType
+			nullptr,										// pNext
+			VulkanContext::GetCommandPool(),				// commandPool
+			VK_COMMAND_BUFFER_LEVEL_PRIMARY,				// level
+			static_cast<uint32_t>(mCommandBuffers.size())	// commandBufferCount
+		};
 
 		VK_CHECK_RESULT(vkAllocateCommandBuffers(device, &allocInfo, mCommandBuffers.data()));
 
-		VkFenceCreateInfo fenceInfo = {};
-		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+		VkFenceCreateInfo fenceInfo
+		{
+			VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,	// sType
+			nullptr,								// pNext
+			VK_FENCE_CREATE_SIGNALED_BIT			// flags
+		};
 
 		VK_CHECK_RESULT(vkCreateFence(device, &fenceInfo, nullptr, &mFence));
 	}
@@ -44,10 +50,13 @@ namespace Ilargi
 			{
 				uint32_t currentFrame = Renderer::GetCurrentFrame();
 
-				VkCommandBufferBeginInfo beginInfo{};
-				beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-				beginInfo.flags = 0;
-				beginInfo.pInheritanceInfo = nullptr;
+				VkCommandBufferBeginInfo beginInfo
+				{
+					VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,	// sType
+					nullptr,										// pNext		
+					0,												// flags
+					nullptr											// pInheritanceInfo
+				};
 
 				VK_CHECK_RESULT(vkBeginCommandBuffer(mCommandBuffers[currentFrame], &beginInfo));
 			});
@@ -70,17 +79,20 @@ namespace Ilargi
 				uint32_t currentFrame = Renderer::GetCurrentFrame();
 				auto device = VulkanContext::GetLogicalDevice();
 				
-				VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+				VkPipelineStageFlags waitStages[] { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 
-				VkSubmitInfo submitInfo{};
-				submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-				submitInfo.pWaitDstStageMask = waitStages;
-				submitInfo.waitSemaphoreCount = 0;
-				submitInfo.pWaitSemaphores = nullptr;
-				submitInfo.signalSemaphoreCount = 0;
-				submitInfo.pSignalSemaphores = nullptr;
-				submitInfo.commandBufferCount = 1;
-				submitInfo.pCommandBuffers = &mCommandBuffers[currentFrame];
+				VkSubmitInfo submitInfo
+				{
+					VK_STRUCTURE_TYPE_SUBMIT_INFO,	// sType
+					nullptr,						// pNext								
+					0,								// waitSemaphoreCount
+					nullptr,						// pWaitSemaphores
+					waitStages,						// pWaitDstStageMask
+					1,								// commandBufferCount
+					&mCommandBuffers[currentFrame], // pCommandBuffers
+					0,								// signalSemaphoreCount
+					nullptr							// pSignalSemaphores
+				};
 
 				VK_CHECK_RESULT(vkResetFences(device, 1, &mFence));
 				VK_CHECK_RESULT(vkQueueSubmit(VulkanContext::GetGraphicsQueue(), 1, &submitInfo, mFence));

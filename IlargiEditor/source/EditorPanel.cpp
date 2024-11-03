@@ -39,27 +39,30 @@ namespace Ilargi
 		
 		mFramebuffer = Framebuffer::Create({ 1080, 720, { ImageFormat::RGBA8, ImageFormat::DEPTH32 }, false, true });
 		{
-			PipelineProperties pipelineProperties;
-			pipelineProperties.name = "Geometry";
-			pipelineProperties.shader = Renderer::GetShaderLibrary()->Get("PBR_Static");
-			pipelineProperties.depth = true;
-			pipelineProperties.layout =
+			PipelineProperties pipelineProperties
 			{
-				{ ShaderDataType::FLOAT3, "position" },
-				{ ShaderDataType::FLOAT3, "normal" },
-				{ ShaderDataType::FLOAT3, "tangent" },
-				{ ShaderDataType::FLOAT3, "bitangent" },
-				{ ShaderDataType::FLOAT2, "texCoord" },
+				"Geometry",											// name
+				true,												// depth
+				Renderer::GetShaderLibrary()->Get("PBR_Static"),	// shader
+				{													// layout
+					{ ShaderDataType::FLOAT3, "position" },
+					{ ShaderDataType::FLOAT3, "normal" },
+					{ ShaderDataType::FLOAT3, "tangent" },
+					{ ShaderDataType::FLOAT3, "bitangent" },
+					{ ShaderDataType::FLOAT2, "texCoord" },
+				}
 			};
 
 			mRenderPass = RenderPass::Create({ mFramebuffer, Pipeline::Create(pipelineProperties), true });
 		}
 
-		PipelineProperties pipelineProperties;
-		pipelineProperties.name = "Grid";
-		//pipelineProperties.shader = Renderer::GetShaderLibrary()->Get("Grid");
-		pipelineProperties.depth = true;
-		pipelineProperties.layout = {};
+		PipelineProperties pipelineProperties
+		{
+			"Grid",										// name
+			true,										// depth
+			Renderer::GetShaderLibrary()->Get("Grid"),	// shader
+			{}											// layout
+		};
 
 		//gridRenderPass = RenderPass::Create({ framebuffer, Pipeline::Create(pipelineProperties), false });
 		
@@ -118,7 +121,7 @@ namespace Ilargi
 			
 			mRenderPass->GetProperties().pipeline->Bind(mCommandBuffer);
 			mRenderPass->GetProperties().pipeline->BindDescriptorSet(mCommandBuffer, material, 0);
-			mRenderPass->GetProperties().pipeline->BindDescriptorSet(mCommandBuffer, mScene->GetPointLightsUBO(), 1);
+			mRenderPass->GetProperties().pipeline->BindDescriptorSet(mCommandBuffer, mScene->GetSceneDataUBO(), 1);
 			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 0, 64, glm::value_ptr(transform.transform));
 			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 64, 16, glm::value_ptr(light.radiance));
 			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 80, 12, glm::value_ptr(glm::radians(trans.rotation)));

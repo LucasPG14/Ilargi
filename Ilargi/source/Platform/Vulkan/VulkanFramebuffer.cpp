@@ -41,42 +41,44 @@ namespace Ilargi
 		{
 			VkFormat format = Utils::GetFormatFromImageFormat(mColorSpecifications[i++]);
 
-			VkImageCreateInfo imageInfo{};
-			imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-			imageInfo.imageType = VK_IMAGE_TYPE_2D;
-			imageInfo.extent.width = mProperties.width;
-			imageInfo.extent.height = mProperties.height;
-			imageInfo.extent.depth = 1;
-			imageInfo.mipLevels = 1;
-			imageInfo.arrayLayers = 1;
-			imageInfo.format = format;
-			imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-			imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-			imageInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
-
-			imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-			imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-			imageInfo.flags = 0;
+			VkImageCreateInfo imageInfo
+			{
+				imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,				// sType
+				nullptr,															// pNext
+				0,																	// flags
+				VK_IMAGE_TYPE_2D,													// imageType
+				format,																// format
+				{mProperties.width, mProperties.height, 1},							// extent
+				1,																	// mipLevels
+				1,																	// arrayLayers
+				VK_SAMPLE_COUNT_1_BIT,												// samples
+				VK_IMAGE_TILING_OPTIMAL,											// tiling
+				VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,	// usage
+				VK_SHARING_MODE_EXCLUSIVE,											// sharingMode
+				0,																	// queueFamilyIndexCount
+				nullptr,															// pQueueFamilyIndices
+				VK_IMAGE_LAYOUT_UNDEFINED											// initialLayout
+			};
 
 			VulkanAllocator::AllocateImage(attachment.image, imageInfo, VMA_MEMORY_USAGE_GPU_ONLY);
 
-			VkImageViewCreateInfo imageViewInfo = {};
-			imageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-			imageViewInfo.image = attachment.image.image;
-
-			imageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-			imageViewInfo.format = format;
-
-			imageViewInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-			imageViewInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-			imageViewInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-			imageViewInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-
-			imageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			imageViewInfo.subresourceRange.baseMipLevel = 0;
-			imageViewInfo.subresourceRange.levelCount = 1;
-			imageViewInfo.subresourceRange.baseArrayLayer = 0;
-			imageViewInfo.subresourceRange.layerCount = 1;
+			VkImageViewCreateInfo imageViewInfo
+			{
+				VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,	// sType
+				nullptr,									// pNext
+				0,											// flags
+				attachment.image.image,						// image
+				VK_IMAGE_VIEW_TYPE_2D,						// viewType
+				format,										// format
+				{VK_COMPONENT_SWIZZLE_IDENTITY},			// components: RGBA
+				{											// subresourceRange:
+					VK_IMAGE_ASPECT_COLOR_BIT,					// aspectMask
+					0,											// baseMipLevel
+					1,											// levelCount
+					0,											// baseArrayLayer
+					1											// layerCount
+				}
+			};
 
 			VK_CHECK_RESULT(vkCreateImageView(device, &imageViewInfo, nullptr, &attachment.imageView));
 
@@ -88,42 +90,44 @@ namespace Ilargi
 		{
 			VkFormat depthFormat = Utils::GetFormatFromImageFormat(mDepthSpecification);
 			
-			VkImageCreateInfo imageInfo{};
-			imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-			imageInfo.imageType = VK_IMAGE_TYPE_2D;
-			imageInfo.extent.width = mProperties.width;
-			imageInfo.extent.height = mProperties.height;
-			imageInfo.extent.depth = 1;
-			imageInfo.mipLevels = 1;
-			imageInfo.arrayLayers = 1;
-			imageInfo.format = depthFormat;
-			imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-			imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-			imageInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-
-			imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-			imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-			imageInfo.flags = 0;
+			VkImageCreateInfo imageInfo
+			{
+				imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,	// sType
+				nullptr,												// pNext
+				0,														// flags
+				VK_IMAGE_TYPE_2D,										// imageType
+				depthFormat,											// format
+				{mProperties.width, mProperties.height, 1},				// extent
+				1,														// mipLevels
+				1,														// arrayLayers
+				VK_SAMPLE_COUNT_1_BIT,									// samples
+				VK_IMAGE_TILING_OPTIMAL,								// tiling
+				VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,			// usage
+				VK_SHARING_MODE_EXCLUSIVE,								// sharingMode
+				0,														// queueFamilyIndexCount
+				nullptr,												// pQueueFamilyIndices
+				VK_IMAGE_LAYOUT_UNDEFINED								// initialLayout
+			};
 
 			VulkanAllocator::AllocateImage(mDepthAttachment.image, imageInfo, VMA_MEMORY_USAGE_GPU_ONLY);
 			
-			VkImageViewCreateInfo imageViewInfo = {};
-			imageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-			imageViewInfo.image = mDepthAttachment.image.image;
-
-			imageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-			imageViewInfo.format = depthFormat;
-
-			imageViewInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-			imageViewInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-			imageViewInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-			imageViewInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-
-			imageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-			imageViewInfo.subresourceRange.baseMipLevel = 0;
-			imageViewInfo.subresourceRange.levelCount = 1;
-			imageViewInfo.subresourceRange.baseArrayLayer = 0;
-			imageViewInfo.subresourceRange.layerCount = 1;
+			VkImageViewCreateInfo imageViewInfo
+			{
+				VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,	// sType
+				nullptr,									// pNext
+				0,											// flags
+				mDepthAttachment.image.image,				// image
+				VK_IMAGE_VIEW_TYPE_2D,						// viewType
+				depthFormat,								// format
+				{VK_COMPONENT_SWIZZLE_IDENTITY},			// components: RGBA
+				{											// subresourceRange:
+					VK_IMAGE_ASPECT_DEPTH_BIT,					// aspectMask
+					0,											// baseMipLevel
+					1,											// levelCount
+					0,											// baseArrayLayer
+					1											// layerCount
+				}
+			};
 			
 			VK_CHECK_RESULT(vkCreateImageView(device, &imageViewInfo, nullptr, &mDepthAttachment.imageView));
 
@@ -132,14 +136,18 @@ namespace Ilargi
 
 		// Creating the framebuffer
 		{
-			VkFramebufferCreateInfo framebufferInfo = {};
-			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-			framebufferInfo.renderPass = aRenderPass;
-			framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-			framebufferInfo.pAttachments = attachments.data();
-			framebufferInfo.width = mProperties.width;
-			framebufferInfo.height = mProperties.height;
-			framebufferInfo.layers = 1;
+			VkFramebufferCreateInfo framebufferInfo
+			{
+				VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,	// sType
+				nullptr,									// pNext
+				0,											// flags
+				aRenderPass,								// renderPass
+				static_cast<uint32_t>(attachments.size()),	// attachmentCount
+				attachments.data(),							// pAttachments
+				mProperties.width,							// width
+				mProperties.height,							// height
+				1											// layers
+			};
 
 			VK_CHECK_RESULT(vkCreateFramebuffer(device, &framebufferInfo, nullptr, &mFramebuffer));
 		}
@@ -147,65 +155,83 @@ namespace Ilargi
 		// Sampler
 		if (!mSampler) 
 		{
-			VkSamplerCreateInfo samplerInfo{};
-			samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-			samplerInfo.magFilter = VK_FILTER_LINEAR;
-			samplerInfo.minFilter = VK_FILTER_LINEAR;
-
-			samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-			samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-			samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-
-			samplerInfo.anisotropyEnable = VK_FALSE;
-			samplerInfo.maxAnisotropy = Renderer::GetConfig().maxAnisotropy;
-			samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-			samplerInfo.unnormalizedCoordinates = VK_FALSE;
-			samplerInfo.compareEnable = VK_FALSE;
-			samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-
-			samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-			samplerInfo.mipLodBias = 0.0f;
-			samplerInfo.minLod = 0.0f;
-			samplerInfo.maxLod = 0.0f;
+			VkSamplerCreateInfo samplerInfo
+			{
+				VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,	// sType
+				nullptr,								// pNext
+				0,										// flags
+				VK_FILTER_LINEAR,						// magFilter
+				VK_FILTER_LINEAR,						// minFilter
+				VK_SAMPLER_MIPMAP_MODE_LINEAR,			// mipmapMode
+				VK_SAMPLER_ADDRESS_MODE_REPEAT,			// addressModeU
+				VK_SAMPLER_ADDRESS_MODE_REPEAT,			// addressModeV
+				VK_SAMPLER_ADDRESS_MODE_REPEAT,			// addressModeW
+				0.0f,									// mipLodBias
+				VK_FALSE,								// anisotropyEnable
+				Renderer::GetConfig().maxAnisotropy,	// maxAnisotropy
+				VK_FALSE,								// compareEnable
+				VK_COMPARE_OP_ALWAYS,					// compareOp
+				0.0f,									// minLod
+				0.0f,									// maxLod
+				VK_BORDER_COLOR_INT_OPAQUE_BLACK,		// borderColor
+				VK_FALSE								// unnormalizedCoordinates
+			};
 
 			VK_CHECK_RESULT(vkCreateSampler(device, &samplerInfo, nullptr, &mSampler));
 		}
 
 		// 
 		{
-			VkDescriptorSetLayoutBinding binding[1] = {};
-			binding[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			binding[0].descriptorCount = 1;
-			binding[0].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+			VkDescriptorSetLayoutBinding binding[1]
+			{
+				0,											// binding
+				VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,	// descriptorType
+				1,											// descriptorCount
+				VK_SHADER_STAGE_FRAGMENT_BIT,				// stageFlags
+				nullptr										// pImmutableSamplers
+			};
 			
-			VkDescriptorSetLayoutCreateInfo info = {};
-			info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-			info.bindingCount = 1;
-			info.pBindings = binding;
+			VkDescriptorSetLayoutCreateInfo info
+			{
+				VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,	// sType
+				nullptr,												// pNext
+				0,														// flags
+				1,														// bindingCount
+				binding													// pBindings
+			};
 			VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &info, nullptr, &mDescriptorSetLayout));
 
-			VkDescriptorSetAllocateInfo allocInfo{};
-			allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-			allocInfo.descriptorPool = VulkanContext::GetDescriptorPool();
-			allocInfo.descriptorSetCount = 1;
-			allocInfo.pSetLayouts = &mDescriptorSetLayout;
+			VkDescriptorSetAllocateInfo allocInfo
+			{
+				VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,	// sType
+				nullptr,										// pNext
+				VulkanContext::GetDescriptorPool(),				// descriptorPool
+				1,												// descriptorSetCount
+				&mDescriptorSetLayout							// pSetLayouts
+			};
 
 			VK_CHECK_RESULT(vkAllocateDescriptorSets(device, &allocInfo, &mDescriptorSet));
 
-			VkDescriptorImageInfo imageInfo = {};
-			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-			imageInfo.imageView = mColorAttachments[0].imageView;
-			imageInfo.sampler = mSampler;
+			VkDescriptorImageInfo imageInfo
+			{
+				mSampler,									// sampler
+				mColorAttachments[0].imageView,				// imageView
+				VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL	// imageLayout
+			};
 
-			std::array<VkWriteDescriptorSet, 1> descriptorWrites = {};
-
-			descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			descriptorWrites[0].dstSet = mDescriptorSet;
-			descriptorWrites[0].dstBinding = 0;
-			descriptorWrites[0].dstArrayElement = 0;
-			descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			descriptorWrites[0].descriptorCount = 1;
-			descriptorWrites[0].pImageInfo = &imageInfo;
+			std::array<VkWriteDescriptorSet, 1> descriptorWrites
+			{
+				VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,		// sType
+				nullptr,									// pNext
+				mDescriptorSet,								// dstSet
+				0,											// dstBinding
+				0,											// dstArrayElement
+				1,											// descriptorCount
+				VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,	// descriptorType
+				&imageInfo,									// pImageInfo
+				nullptr,									// pBufferInfo
+				nullptr										// pTexelBufferView
+			};
 
 			vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 		

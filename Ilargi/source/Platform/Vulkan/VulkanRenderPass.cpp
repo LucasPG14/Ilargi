@@ -60,22 +60,28 @@ namespace Ilargi
 		subpass.pColorAttachments = colorAttachmentRefs.data();
 		subpass.pDepthStencilAttachment = depthAttachmentRef.layout == VK_IMAGE_LAYOUT_UNDEFINED ? nullptr : &depthAttachmentRef;
 
-		VkSubpassDependency dependency = {};
-		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-		dependency.dstSubpass = 0;
-		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-		dependency.srcAccessMask = 0;
-		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+		VkSubpassDependency dependency
+		{
+			VK_SUBPASS_EXTERNAL,																		// srcSubpass
+			0,																							// dstSubpass
+			VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, // srcStageMask
+			VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, // dstStageMask
+			0,																							// srcAccessMask
+			VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT			// dstAccessMask
+		};
 
-		VkRenderPassCreateInfo renderPassInfo = {};
-		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-		renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-		renderPassInfo.pAttachments = attachments.data();
-		renderPassInfo.subpassCount = 1;
-		renderPassInfo.pSubpasses = &subpass;
-		renderPassInfo.dependencyCount = 1;
-		renderPassInfo.pDependencies = &dependency;
+		VkRenderPassCreateInfo renderPassInfo
+		{
+			VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,	// sType
+			nullptr,									// pNext
+			0,											// flags
+			static_cast<uint32_t>(attachments.size()),	// attachmentCount
+			attachments.data(),							// pAttachments
+			1,											// subpassCount
+			&subpass,									// pSubpasses
+			1,											// dependencyCount
+			&dependency									// pDependencies
+		};
 
 		VK_CHECK_RESULT(vkCreateRenderPass(device, &renderPassInfo, nullptr, &mRenderPass));
 
@@ -102,32 +108,39 @@ namespace Ilargi
 				auto framebuffer = std::static_pointer_cast<VulkanFramebuffer>(mProperties.framebuffer);
 				auto cmdBuffer = std::static_pointer_cast<VulkanCommandBuffer>(commandBuffer)->GetCurrentCommand(Renderer::GetCurrentFrame());
 
-				VkRenderPassBeginInfo renderPassInfo = {};
-				renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-				renderPassInfo.renderPass = mRenderPass;
-				renderPassInfo.framebuffer = framebuffer->GetFramebuffer();
-
 				uint32_t width = framebuffer->GetWidth();
 				uint32_t height = framebuffer->GetHeight();
 
-				renderPassInfo.renderArea.offset = { 0, 0 };
-				renderPassInfo.renderArea.extent = { width, height };
+				VkRenderPassBeginInfo renderPassInfo
+				{
+					VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,	// sType
+					nullptr,									// pNext
+					mRenderPass,								// renderPass
+					framebuffer->GetFramebuffer(),				// framebuffer
+					{											// renderArea
+						{ 0, 0 },									// offset
+						{ width, height }							// extent
+					},
+					static_cast<uint32_t>(mClearValues.size()),	// clearValueCount
+					mClearValues.data()							// pClearValues
+				};
 
-				renderPassInfo.clearValueCount = static_cast<uint32_t>(mClearValues.size());
-				renderPassInfo.pClearValues = mClearValues.data();
-
-				VkViewport viewport{};
-				viewport.x = 0.0f;
-				viewport.y = 0.0f;
-				viewport.width = (float)width;
-				viewport.height = (float)height;
-				viewport.minDepth = 0.0f;
-				viewport.maxDepth = 1.0f;
+				VkViewport viewport
+				{
+					0.0f,			// x
+					0.0f,			// y
+					(float)width,	// width
+					(float)height,	// height
+					0.0f,			// minDepth
+					1.0f			// maxDepth
+				};
 				vkCmdSetViewport(cmdBuffer, 0, 1, &viewport);
 
-				VkRect2D scissor{};
-				scissor.offset = { 0, 0 };
-				scissor.extent = { width, height };
+				VkRect2D scissor
+				{
+					{ 0, 0 },			// offset
+					{ width, height }	// extent
+				};
 				vkCmdSetScissor(cmdBuffer, 0, 1, &scissor);
 
 				vkCmdBeginRenderPass(cmdBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);

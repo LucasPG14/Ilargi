@@ -14,11 +14,17 @@ namespace Ilargi
 		mUbos.resize(framesInFlight);
 		mUniformBuffersMapped.resize(framesInFlight);
 
-		VkBufferCreateInfo bufferInfo = {};
-		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-		bufferInfo.size = mSize;
-		bufferInfo.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		VkBufferCreateInfo bufferInfo
+		{
+			VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,	// sType
+			nullptr,								// pNext
+			0,										// flags
+			mSize,									// size
+			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,		// usage
+			VK_SHARING_MODE_EXCLUSIVE,				// sharingMode
+			0,										// queueFamilyIndexCount
+			nullptr									// pQueueFamilyIndices
+		};
 
 		for (size_t i = 0; i < framesInFlight; i++)
 		{

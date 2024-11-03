@@ -9,11 +9,17 @@ namespace Ilargi
 {
 	VulkanVertexBuffer::VulkanVertexBuffer(void* aData, uint32_t aSize) 
 	{
-		VkBufferCreateInfo vertexBufferInfo = {};
-		vertexBufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-		vertexBufferInfo.size = aSize;
-		vertexBufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-		vertexBufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		VkBufferCreateInfo vertexBufferInfo
+		{
+			VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,	// sType
+			nullptr,								// pNext
+			0,										// flags
+			aSize,									// size
+			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,		// usage
+			VK_SHARING_MODE_EXCLUSIVE,				// sharingMode
+			0,										// queueFamilyIndexCount
+			nullptr									// pQueueFamilyIndices
+		};
 
 		// TODO: Should be only on the GPU using a staging buffer
 		VulkanAllocator::AllocateBuffer(mBuffer, vertexBufferInfo, VMA_MEMORY_USAGE_CPU_TO_GPU);

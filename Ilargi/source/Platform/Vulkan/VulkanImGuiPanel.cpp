@@ -96,43 +96,54 @@ namespace Ilargi
 		// TODO: This must be done in another way
 		VkCommandBuffer cmdBuffer = mSwapchain->GetCurrentCommand();
 		{
-			VkCommandBufferBeginInfo beginInfo{};
-			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-			beginInfo.flags = 0;
-			beginInfo.pInheritanceInfo = nullptr;
+			VkCommandBufferBeginInfo beginInfo
+			{
+				VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,	// sType
+				nullptr,										// pNext
+				0,												// flags
+				nullptr											// pInheritanceInfo
+			};
 
 			vkBeginCommandBuffer(cmdBuffer, &beginInfo);
 
-			VkRenderPassBeginInfo renderPassInfo{};
-			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-			renderPassInfo.renderPass = mSwapchain->GetRenderPass();
-			renderPassInfo.framebuffer = mSwapchain->GetFramebuffer();
-
 			uint32_t width = mSwapchain->GetWidth();
 			uint32_t height = mSwapchain->GetHeight();
-
-			renderPassInfo.renderArea.offset = { 0, 0 };
-			renderPassInfo.renderArea.extent = { width, height};
 
 			std::array<VkClearValue, 2> clearValues = {};
 			clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
 			clearValues[1].depthStencil = { 1.0f, 0 };
 
-			renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-			renderPassInfo.pClearValues = clearValues.data();
+			VkRenderPassBeginInfo renderPassInfo
+			{
+				VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,	// sType
+				nullptr,									// pNext
+				mSwapchain->GetRenderPass(),				// renderPass
+				mSwapchain->GetFramebuffer(),				// framebuffer
+				{											// renderArea
+					{ 0, 0 },									// offset
+					{ width, height}							// extent
+				}, 
+				static_cast<uint32_t>(clearValues.size()),	// clearValueCount
+				clearValues.data()							// pClearValues
+			};
 
-			VkViewport viewport{};
-			viewport.x = 0.0f;
-			viewport.y = 0.0f;
-			viewport.width = (float)width;
-			viewport.height = (float)height;
-			viewport.minDepth = 0.0f;
-			viewport.maxDepth = 1.0f;
+			VkViewport viewport
+			{
+				0.0f,			// x
+				0.0f,			// y
+				(float)width,	// width
+				(float)height,	// height
+				0.0f,			// minDepth
+				1.0f			// maxDepth
+			};
 			vkCmdSetViewport(cmdBuffer, 0, 1, &viewport);
 
-			VkRect2D scissor{};
-			scissor.offset = { 0, 0 };
-			scissor.extent = { width, height };
+
+			VkRect2D scissor
+			{
+				{ 0, 0 },			// offset
+				{ width, height }	// extent
+			};
 			vkCmdSetScissor(cmdBuffer, 0, 1, &scissor);
 
 			vkCmdBeginRenderPass(cmdBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);

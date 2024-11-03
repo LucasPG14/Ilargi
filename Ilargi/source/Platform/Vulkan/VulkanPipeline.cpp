@@ -69,12 +69,16 @@ namespace Ilargi
 
 		// Creating the pipeline layout
 		{
-			VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
-			pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-			pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(shader->GetDescriptorSetLayout().size());
-			pipelineLayoutInfo.pSetLayouts = shader->GetDescriptorSetLayout().data();
-			pipelineLayoutInfo.pushConstantRangeCount = static_cast<uint32_t>(shader->GetPushConstants().size());
-			pipelineLayoutInfo.pPushConstantRanges = shader->GetPushConstants().data();
+			VkPipelineLayoutCreateInfo pipelineLayoutInfo
+			{
+				VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,					// sType
+				nullptr,														// pNext
+				0,																// flags
+				static_cast<uint32_t>(shader->GetDescriptorSetLayout().size()), // setLayoutCount
+				shader->GetDescriptorSetLayout().data(),						// pSetLayouts
+				static_cast<uint32_t>(shader->GetPushConstants().size()),		// pushConstantRangeCount
+				shader->GetPushConstants().data()								// pPushConstantRanges
+			};
 
 			VK_CHECK_RESULT(vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &mPipelineLayout));
 		}
@@ -83,20 +87,27 @@ namespace Ilargi
 		std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
 		for (auto&& [type, shaderModule] : shaders)
 		{
-			VkPipelineShaderStageCreateInfo shaderStageInfo = {};
-			shaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-			shaderStageInfo.stage = type;
-			shaderStageInfo.module = shaderModule;
-			shaderStageInfo.pName = "main";
+			VkPipelineShaderStageCreateInfo shaderStageInfo
+			{
+				VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,	// sType
+				nullptr,												// pNext
+				0,														// flags
+				type,													// stage
+				shaderStageInfo.module = shaderModule,					// module
+				shaderStageInfo.pName = "main",							// pName
+				nullptr													// pSpecializationInfo
+			};
 
 			shaderStages.push_back(shaderStageInfo);
 		}
 
 		// TODO: Gives an error when layout is empty
-		VkVertexInputBindingDescription bindingDescription = {};
-		bindingDescription.binding = 0;
-		bindingDescription.stride = mProperties.layout.GetStride();
-		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+		VkVertexInputBindingDescription bindingDescription
+		{
+			0,								// binding
+			mProperties.layout.GetStride(), // stride
+			VK_VERTEX_INPUT_RATE_VERTEX		// inputRate
+		};
 
 		const auto& elements = mProperties.layout.GetElements();
 		std::vector<VkVertexInputAttributeDescription> attributeDescriptions(elements.size());
@@ -112,32 +123,44 @@ namespace Ilargi
 			i++;
 		}
 
-		VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
-		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-		vertexInputInfo.vertexBindingDescriptionCount = attributeDescriptions.size() == 0 ? 0 : 1;
-		vertexInputInfo.pVertexBindingDescriptions = attributeDescriptions.size() == 0 ? VK_NULL_HANDLE : &bindingDescription;
-		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
-		vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+		VkPipelineVertexInputStateCreateInfo vertexInputInfo
+		{
+			VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,					// sType
+			nullptr,																	// pNext
+			0,																			// flags
+			attributeDescriptions.size() == 0 ? 0 : 1,									// vertexBindingDescriptionCount
+			attributeDescriptions.size() == 0 ? VK_NULL_HANDLE : &bindingDescription,	// pVertexBindingDescriptions
+			static_cast<uint32_t>(attributeDescriptions.size()),						// vertexAttributeDescriptionCount
+			attributeDescriptions.data()												// pVertexAttributeDescriptions
+		};
 
-		VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
-		inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-		inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-		inputAssembly.primitiveRestartEnable = VK_FALSE;
+		VkPipelineInputAssemblyStateCreateInfo inputAssembly
+		{
+			VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,	// sType
+			nullptr,														// pNext
+			0,																// flags
+			VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,							// topology
+			VK_FALSE														// primitiveRestartEnable
+		};
 
 		uint32_t width = 1080;
 		uint32_t height = 720;
 
-		VkViewport viewport{};
-		viewport.x = 0.0f;
-		viewport.y = 0.0f;
-		viewport.width = (float)width;
-		viewport.height = (float)height;
-		viewport.minDepth = 0.0f;
-		viewport.maxDepth = 1.0f;
+		VkViewport viewport
+		{
+			0.0f,			// x
+			0.0f,			// y
+			(float)width,	// width
+			(float)height,	// height
+			0.0f,			// minDepth
+			1.0f			// maxDepth
+		};
 
-		VkRect2D scissor{};
-		scissor.offset = { 0, 0 };
-		scissor.extent = { width, height };
+		VkRect2D scissor
+		{
+			{ 0, 0 },			// offset
+			{ width, height }	// extent
+		};
 
 		std::vector<VkDynamicState> dynamicStates =
 		{
@@ -145,40 +168,55 @@ namespace Ilargi
 			VK_DYNAMIC_STATE_SCISSOR
 		};
 
-		VkPipelineDynamicStateCreateInfo dynamicState = {};
-		dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-		dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
-		dynamicState.pDynamicStates = dynamicStates.data();
+		VkPipelineDynamicStateCreateInfo dynamicState
+		{
+			VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,	// sType
+			nullptr,												// pNext
+			0,														// flags
+			static_cast<uint32_t>(dynamicStates.size()),			// dynamicStateCount
+			dynamicStates.data()									// pDynamicStates
+		};
 
-		VkPipelineViewportStateCreateInfo viewportState = {};
-		viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-		viewportState.viewportCount = 1;
-		viewportState.pViewports = &viewport;
-		viewportState.scissorCount = 1;
-		viewportState.pScissors = &scissor;
+		VkPipelineViewportStateCreateInfo viewportState
+		{
+			VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,	// sType
+			nullptr,												// pNext
+			0,														// flags
+			1,														// viewportCount
+			&viewport,												// pViewports
+			1,														// scissorCount
+			&scissor												// pScissors
+		};
 
-		VkPipelineRasterizationStateCreateInfo rasterizer = {};
-		rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-		rasterizer.depthClampEnable = VK_FALSE;
-		rasterizer.rasterizerDiscardEnable = VK_FALSE;
-		rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-		rasterizer.lineWidth = 1.0f;
-		rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-		rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+		VkPipelineRasterizationStateCreateInfo rasterizer
+		{
+			VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO, // sType
+			nullptr,													// pNext
+			0,															// flags
+			VK_FALSE,													// depthClampEnable
+			VK_FALSE,													// rasterizerDiscardEnable
+			VK_POLYGON_MODE_FILL,										// polygonMode
+			VK_CULL_MODE_BACK_BIT,										// cullMode
+			VK_FRONT_FACE_CLOCKWISE,									// frontFace
+			VK_FALSE,													// depthBiasEnable
+			0.0f,														// depthBiasConstantFactor
+			0.0f,														// depthBiasClamp
+			0.0f,														// depthBiasSlopeFactor
+			1.0f														// lineWidth
+		};
 
-		rasterizer.depthBiasEnable = VK_FALSE;
-		rasterizer.depthBiasConstantFactor = 0.0f;
-		rasterizer.depthBiasClamp = 0.0f;
-		rasterizer.depthBiasSlopeFactor = 0.0f;
-
-		VkPipelineMultisampleStateCreateInfo multisampling{};
-		multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-		multisampling.sampleShadingEnable = VK_FALSE;
-		multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-		multisampling.minSampleShading = 1.0f;
-		multisampling.pSampleMask = nullptr;
-		multisampling.alphaToCoverageEnable = VK_FALSE;
-		multisampling.alphaToOneEnable = VK_FALSE;
+		VkPipelineMultisampleStateCreateInfo multisampling
+		{
+			VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,	// sType
+			nullptr,													// pNext
+			0,															// flags
+			VK_SAMPLE_COUNT_1_BIT,										// rasterizationSamples
+			VK_FALSE,													// sampleShadingEnable
+			1.0f,														// minSampleShading
+			nullptr,													// pSampleMask
+			VK_FALSE,													// alphaToCoverageEnable
+			VK_FALSE													// alphaToOneEnable
+		};
 
 		std::vector<VkPipelineColorBlendAttachmentState> colorBlendAttachments;
 
@@ -198,30 +236,35 @@ namespace Ilargi
 			colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
 		}
 
-		VkPipelineColorBlendStateCreateInfo colorBlending = {};
-		colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-		colorBlending.logicOpEnable = VK_FALSE;
-		colorBlending.logicOp = VK_LOGIC_OP_COPY;
-		colorBlending.attachmentCount = static_cast<uint32_t>(colorBlendAttachments.size());
-		colorBlending.pAttachments = colorBlendAttachments.data();
-		colorBlending.blendConstants[0] = 0.0f;
-		colorBlending.blendConstants[1] = 0.0f;
-		colorBlending.blendConstants[2] = 0.0f;
-		colorBlending.blendConstants[3] = 0.0f;
+		VkPipelineColorBlendStateCreateInfo colorBlending
+		{
+			VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,	// sType
+			nullptr,													// pNext
+			0,															// flags
+			VK_FALSE,													// logicOpEnable
+			VK_LOGIC_OP_COPY,											// logicOp
+			static_cast<uint32_t>(colorBlendAttachments.size()),		// attachmentCount
+			colorBlendAttachments.data(),								// pAttachments
+			{ 0.0f, 0.0f, 0.0f, 0.0f }									// blendConstants
+		};
 
 		if (mProperties.depth)
 		{
-			VkPipelineDepthStencilStateCreateInfo depthStencil = {};
-			depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-			depthStencil.depthTestEnable = VK_TRUE;
-			depthStencil.depthWriteEnable = VK_TRUE;
-			depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
-			depthStencil.depthBoundsTestEnable = VK_FALSE;
-			depthStencil.minDepthBounds = 0.0f;
-			depthStencil.maxDepthBounds = 1.0f;
-			depthStencil.stencilTestEnable = VK_FALSE;
-			depthStencil.front = {};
-			depthStencil.back = {};
+			VkPipelineDepthStencilStateCreateInfo depthStencil
+			{
+				VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO, // sType
+				nullptr,													// pNext
+				0,															// flags
+				VK_TRUE,													// depthTestEnable
+				VK_TRUE,													// depthWriteEnable
+				VK_COMPARE_OP_LESS,											// depthCompareOp
+				VK_FALSE,													// depthBoundsTestEnable
+				VK_FALSE,													// stencilTestEnable
+				{},															// front
+				{},															// back
+				0.0f,														// minDepthBounds
+				1.0f														// maxDepthBounds
+			};
 			pipelineInfo.pDepthStencilState = &depthStencil;
 		}
 		

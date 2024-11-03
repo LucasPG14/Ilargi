@@ -58,28 +58,34 @@ namespace Ilargi
 	{
 		// Filling aplication info struct to create the instance
 		{
-			VkApplicationInfo applicationInfo = {};
-			applicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-			applicationInfo.pApplicationName = aAppName.data();
-			applicationInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-			applicationInfo.pEngineName = "Ilargi";
-			applicationInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-			applicationInfo.apiVersion = VK_API_VERSION_1_0;
-
-			VkInstanceCreateInfo instanceInfo = {};
-			instanceInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-			instanceInfo.pApplicationInfo = &applicationInfo;
+			VkApplicationInfo applicationInfo
+			{
+				VK_STRUCTURE_TYPE_APPLICATION_INFO, // sType
+				nullptr,							// pNext
+				aAppName.data(),					// pApplicationName
+				VK_MAKE_VERSION(1, 0, 0),			// applicationVersion
+				"Ilargi",							// pEngineName
+				VK_MAKE_VERSION(1, 0, 0),			// engineVersion
+				VK_API_VERSION_1_0,					// apiVersion
+			};
 
 			auto extensions = GetRequiredExtensions();
-			instanceInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
-			instanceInfo.ppEnabledExtensionNames = extensions.data();
-			
-			#ifdef ILG_DEBUG
-				instanceInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-				instanceInfo.ppEnabledLayerNames = validationLayers.data();
-			#else
-				instanceInfo.enabledLayerCount = 0;
-			#endif
+			VkInstanceCreateInfo instanceInfo
+			{
+				VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,				// sType
+				nullptr,											// pNext
+				0,													// flags
+				&applicationInfo,									// pApplicationInfo
+				#ifdef ILG_DEBUG
+					static_cast<uint32_t>(validationLayers.size()), // enabledLayerCount
+					validationLayers.data(),						// ppEnabledLayerNames
+				#else
+					0,												// enabledLayerCount
+					nullptr,										// ppEnabledLayerNames
+				#endif
+				static_cast<uint32_t>(extensions.size()),			// enabledExtensionCount
+				extensions.data()									// ppEnabledExtensionNames
+			};
 
 			VK_CHECK_RESULT(vkCreateInstance(&instanceInfo, nullptr, &sInstance));
 		}
@@ -89,12 +95,18 @@ namespace Ilargi
 		{
 			mDebugMessenger = VK_NULL_HANDLE;
 
-			VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo = {};
-			debugCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-			debugCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-			debugCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-			debugCreateInfo.pfnUserCallback = VulkanDebugCallback;
-			debugCreateInfo.pUserData = nullptr;
+			VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo
+			{
+				VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,												// sType
+				nullptr,																								// pNext
+				0,																										// flags
+				VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | 
+					VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,														// messageSeverity
+				VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |			// messageType
+					VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
+				VulkanDebugCallback,																					// pfnUserCallback
+				nullptr																									// pUserData
+			};
 
 			auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(sInstance, "vkCreateDebugUtilsMessengerEXT");
 			ILG_ASSERT(func != nullptr, "Vulkan function to enable validation layers not found!");
@@ -103,7 +115,7 @@ namespace Ilargi
 		}
 		#endif
 
-		// TODO: Maybe this should done in another way if we need to change GLFW to support other platforms
+		// TODO: Maybe this should be done in another way if we need to change GLFW to support other platforms
 		VK_CHECK_RESULT(glfwCreateWindowSurface(sInstance, aWindow, nullptr, &sSurface));
 
 		// Creating the physical device
@@ -148,23 +160,24 @@ namespace Ilargi
 				queueCreateInfos.push_back(queueCreateInfo);
 			}
 
-			VkDeviceCreateInfo deviceInfo = {};
-			deviceInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-
-			deviceInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
-			deviceInfo.pQueueCreateInfos = queueCreateInfos.data();
-
-			deviceInfo.pEnabledFeatures = &deviceFeatures;
-
-			deviceInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
-			deviceInfo.ppEnabledExtensionNames = deviceExtensions.data();
-
-			#ifdef ILG_DEBUG
-				deviceInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-				deviceInfo.ppEnabledLayerNames = validationLayers.data();
-			#else
-				deviceInfo.enabledLayerCount = 0;
-			#endif
+			VkDeviceCreateInfo deviceInfo
+			{
+				VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,						// sType
+				nullptr,													// pNext
+				0,															// flags
+				static_cast<uint32_t>(queueCreateInfos.size()),				// queueCreateInfoCount
+				deviceInfo.pQueueCreateInfos = queueCreateInfos.data(),		// pQueueCreateInfos
+				#ifdef ILG_DEBUG
+					static_cast<uint32_t>(validationLayers.size()),			// enabledLayerCount
+					validationLayers.data(),								// ppEnabledLayerNames
+				#else
+					0,														// enabledLayerCount
+					nullptr,												// ppEnabledLayerNames
+				#endif
+				static_cast<uint32_t>(deviceExtensions.size()),				// enabledExtensionCount
+				deviceExtensions.data(),									// ppEnabledExtensionNames
+				&deviceFeatures												// pEnabledFeatures
+			};
 			
 			VK_CHECK_RESULT(vkCreateDevice(sPhysicalDevice, &deviceInfo, nullptr, &sLogicalDevice));
 		}
@@ -173,10 +186,13 @@ namespace Ilargi
 
 		// Creating command pool
 		{
-			VkCommandPoolCreateInfo poolInfo = {};
-			poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-			poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-			poolInfo.queueFamilyIndex = sIndices.graphicsFamily;
+			VkCommandPoolCreateInfo poolInfo
+			{
+				VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,			// sType
+				nullptr,											// pNext
+				VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,	// flags
+				sIndices.graphicsFamily								// queueFamilyIndex
+			};
 
 			VK_CHECK_RESULT(vkCreateCommandPool(sLogicalDevice, &poolInfo, nullptr, &sCommandPool));
 		}
@@ -184,7 +200,7 @@ namespace Ilargi
 		VulkanAllocator::Init();
 
 		{
-			VkDescriptorPoolSize poolSizes[] =
+			VkDescriptorPoolSize poolSizes[]
 			{
 				{ VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
 				{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
@@ -199,12 +215,15 @@ namespace Ilargi
 				{ VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
 			};
 
-			VkDescriptorPoolCreateInfo poolInfo = {};
-			poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-			poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
-			poolInfo.maxSets = 1000;
-			poolInfo.poolSizeCount = static_cast<uint32_t>(std::size(poolSizes));
-			poolInfo.pPoolSizes = poolSizes;
+			VkDescriptorPoolCreateInfo poolInfo
+			{
+				VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,		// sType
+				nullptr,											// pNext
+				VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT,	// flags
+				1000,												// maxSets
+				static_cast<uint32_t>(std::size(poolSizes)),		// poolSizeCount
+				poolSizes											// pPoolSizes
+			};
 
 			VK_CHECK_RESULT(vkCreateDescriptorPool(sLogicalDevice, &poolInfo, nullptr, &sDescriptorPool));
 		}
@@ -237,18 +256,25 @@ namespace Ilargi
 	
 	const VkCommandBuffer VulkanContext::BeginSingleCommandBuffer()
 	{
-		VkCommandBufferAllocateInfo allocInfo{};
-		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandPool = sCommandPool;
-		allocInfo.commandBufferCount = 1;
+		VkCommandBufferAllocateInfo allocInfo
+		{
+			VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO, // sType
+			nullptr,										// pNext
+			sCommandPool,									// commandPool
+			VK_COMMAND_BUFFER_LEVEL_PRIMARY,				// level
+			1,												// commandBufferCount
+		};
 
 		VkCommandBuffer commandBuffer;
 		vkAllocateCommandBuffers(sLogicalDevice, &allocInfo, &commandBuffer);
 
-		VkCommandBufferBeginInfo beginInfo = {};
-		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+		VkCommandBufferBeginInfo beginInfo
+		{
+			VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,	// sType
+			nullptr,										// pNext
+			VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,	// flags
+			nullptr											// pInheritanceInfo
+		};
 
 		vkBeginCommandBuffer(commandBuffer, &beginInfo);
 
@@ -259,10 +285,18 @@ namespace Ilargi
 	{
 		vkEndCommandBuffer(aCommandBuffer);
 
-		VkSubmitInfo submitInfo{};
-		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &aCommandBuffer;
+		VkSubmitInfo submitInfo
+		{
+			VK_STRUCTURE_TYPE_SUBMIT_INFO,	// sType
+			nullptr,						// pNext
+			0,								// waitSemaphoreCount
+			nullptr,						// pWaitSemaphores
+			nullptr,						// pWaitDstStageMask
+			1,								// commandBufferCount
+			&aCommandBuffer,				// pCommandBuffers
+			0,								// signalSemaphoreCount
+			nullptr							// pSignalSemaphores
+		};
 
 		vkQueueSubmit(sGraphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
 		vkQueueWaitIdle(sGraphicsQueue);

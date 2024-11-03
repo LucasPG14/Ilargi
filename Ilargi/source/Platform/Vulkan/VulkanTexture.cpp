@@ -52,11 +52,17 @@ namespace Ilargi
 
 		VkDeviceSize imageSize = mWidth * mHeight * 4;
 
-		VkBufferCreateInfo bufferInfo = {};
-		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-		bufferInfo.size = imageSize;
-		bufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		VkBufferCreateInfo bufferInfo
+		{
+			VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,	// sType
+			nullptr,								// pNext
+			0,										// flags
+			imageSize,								// size
+			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,		// usage
+			VK_SHARING_MODE_EXCLUSIVE,				// sharingMode
+			0,										// queueFamilyIndexCount
+			nullptr									// pQueueFamilyIndices
+		};
 
 		VulkanAllocator::AllocateBuffer(buffer, bufferInfo, VMA_MEMORY_USAGE_CPU_TO_GPU);
 		void* vkData = VulkanAllocator::MapMemory(buffer);
@@ -69,23 +75,28 @@ namespace Ilargi
 
 		uint32_t mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(mWidth, mHeight)))) + 1;
 
-		VkImageCreateInfo imageInfo = {};
-		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-		imageInfo.imageType = VK_IMAGE_TYPE_2D;
-		imageInfo.extent.width = mWidth;
-		imageInfo.extent.height = mHeight;
-		imageInfo.extent.depth = 1;
-		imageInfo.mipLevels = mipLevels;
-		imageInfo.arrayLayers = 1;
-
-		imageInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
-		imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-		imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-
-		imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
-		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-		imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-		imageInfo.flags = 0;
+		VkImageCreateInfo imageInfo
+		{
+			VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,																// sType
+			nullptr,																							// pNext
+			0,																									// flags
+			VK_IMAGE_TYPE_2D,																					// imageType
+			VK_FORMAT_R8G8B8A8_SRGB,																			// format
+			{																									// extent
+				mWidth,																								// width
+				mHeight,																							// height
+				1																									// depth
+			},
+			mipLevels,																							// mipLevels
+			1,																									// arrayLayers
+			VK_SAMPLE_COUNT_1_BIT,																				// samples
+			VK_IMAGE_TILING_OPTIMAL,																			// tiling
+			VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,		// usage
+			VK_SHARING_MODE_EXCLUSIVE,																			// sharingMode
+			0,																									// queueFamilyIndexCount
+			nullptr,																							// pQueueFamilyIndices
+			VK_IMAGE_LAYOUT_UNDEFINED																			// initialLayout
+		};
 
 		VulkanAllocator::AllocateImage(image, imageInfo, VMA_MEMORY_USAGE_GPU_ONLY);
 
@@ -94,18 +105,28 @@ namespace Ilargi
 		{
 			VkCommandBuffer commandBuffer = VulkanContext::BeginSingleCommandBuffer();
 
-			VkBufferImageCopy region{};
-			region.bufferOffset = 0;
-			region.bufferRowLength = 0;
-			region.bufferImageHeight = 0;
-
-			region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			region.imageSubresource.mipLevel = 0;
-			region.imageSubresource.baseArrayLayer = 0;
-			region.imageSubresource.layerCount = 1;
-
-			region.imageOffset = { 0, 0, 0 };
-			region.imageExtent = { mWidth, mHeight, 1 };
+			VkBufferImageCopy region
+			{
+				0,								// bufferOffset
+				0,								// bufferRowLength
+				0,								// bufferImageHeight
+				{								// imageSubresource
+					VK_IMAGE_ASPECT_COLOR_BIT,		// aspectMask
+					0,								// mipLevel
+					0,								// baseArrayLayer
+					1,								// layerCount
+				},
+				{								// imageOffset
+					0,								// x
+					0,								// y
+					0								// z
+				}, 
+				{								// imageExtent
+					mWidth,							// width
+					mHeight,						// height
+					1								// depth
+				} 
+			};
 
 			vkCmdCopyBufferToImage(commandBuffer, buffer.buffer, image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
@@ -118,38 +139,50 @@ namespace Ilargi
 		// TODO: Check if the texture format is allowed to have MIPMAP_MODE_LINEAR
 		GenerateMipMaps(mipLevels);
 
-		VkImageViewCreateInfo viewInfo = {};
-		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		viewInfo.image = image.image;
-		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		viewInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
-		viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		viewInfo.subresourceRange.baseMipLevel = 0;
-		viewInfo.subresourceRange.levelCount = mipLevels;
-		viewInfo.subresourceRange.baseArrayLayer = 0;
-		viewInfo.subresourceRange.layerCount = 1;
+		VkImageViewCreateInfo viewInfo
+		{
+			VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,	// sType
+			nullptr,									// pNext
+			0,											// flags
+			image.image,								// image
+			VK_IMAGE_VIEW_TYPE_2D,						// viewType
+			VK_FORMAT_R8G8B8A8_SRGB,					// format
+			{											// components
+
+			},
+			{											// subresourceRange
+				VK_IMAGE_ASPECT_COLOR_BIT,					// aspectMask
+				0,											// baseMipLevel
+				mipLevels,									// levelCount
+				0,											// baseArrayLayer
+				1											// layerCount
+			}
+		};
 
 		VK_CHECK_RESULT(vkCreateImageView(device, &viewInfo, nullptr, &mImageView));
 
 		{
-			VkSamplerCreateInfo samplerInfo = {};
-			samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-			samplerInfo.magFilter = VK_FILTER_LINEAR;
-			samplerInfo.minFilter = VK_FILTER_LINEAR;
-			samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-			samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-			samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-			samplerInfo.anisotropyEnable = VK_FALSE;
-			samplerInfo.maxAnisotropy = 1.0f;
-			samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-			samplerInfo.unnormalizedCoordinates = VK_FALSE;
-			samplerInfo.compareEnable = VK_FALSE;
-			samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-
-			samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-			samplerInfo.minLod = 0.0f;
-			samplerInfo.maxLod = static_cast<float>(mipLevels);
-			samplerInfo.mipLodBias = 0.0f;
+			VkSamplerCreateInfo samplerInfo
+			{
+				VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,	// sType
+				nullptr,								// pNext
+				0,										// flags
+				VK_FILTER_LINEAR,						// magFilter
+				VK_FILTER_LINEAR,						// minFilter
+				VK_SAMPLER_MIPMAP_MODE_LINEAR,			// mipmapMode
+				VK_SAMPLER_ADDRESS_MODE_REPEAT,			// addressModeU
+				VK_SAMPLER_ADDRESS_MODE_REPEAT,			// addressModeV
+				VK_SAMPLER_ADDRESS_MODE_REPEAT,			// addressModeW
+				0.0f,									// mipLodBias
+				VK_FALSE,								// anisotropyEnable
+				1.0f,									// maxAnisotropy
+				VK_FALSE,								// compareEnable
+				VK_COMPARE_OP_ALWAYS,					// compareOp
+				0.0f,									// minLod
+				static_cast<float>(mipLevels),			// maxLod
+				VK_BORDER_COLOR_INT_OPAQUE_BLACK,		// borderColor
+				VK_FALSE								// unnormalizedCoordinates
+			};
 
 			VK_CHECK_RESULT(vkCreateSampler(device, &samplerInfo, nullptr, &mSampler));
 		}
@@ -170,11 +203,17 @@ namespace Ilargi
 		// TODO: Change this to support channels
 		VkDeviceSize imageSize = mWidth * mHeight * 4;
 
-		VkBufferCreateInfo bufferInfo = {};
-		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-		bufferInfo.size = imageSize;
-		bufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		VkBufferCreateInfo bufferInfo
+		{
+			VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,	// sType
+			nullptr,								// pNext
+			0,										// flags
+			imageSize,								// size
+			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,		// usage
+			VK_SHARING_MODE_EXCLUSIVE,				// sharingMode
+			0,										// queueFamilyIndexCount
+			nullptr									// pQueueFamilyIndices
+		};
 
 		VulkanAllocator::AllocateBuffer(buffer, bufferInfo, VMA_MEMORY_USAGE_CPU_TO_GPU);
 		void* vkData = VulkanAllocator::MapMemory(buffer);
@@ -185,23 +224,28 @@ namespace Ilargi
 
 		uint32_t mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(mWidth, mHeight)))) + 1;
 
-		VkImageCreateInfo imageInfo = {};
-		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-		imageInfo.imageType = VK_IMAGE_TYPE_2D;
-		imageInfo.extent.width = mWidth;
-		imageInfo.extent.height = mHeight;
-		imageInfo.extent.depth = 1;
-		imageInfo.mipLevels = mipLevels;
-		imageInfo.arrayLayers = 1;
-
-		imageInfo.format = format;
-		imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-		imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-
-		imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
-		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-		imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-		imageInfo.flags = 0;
+		VkImageCreateInfo imageInfo
+		{
+			VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,																// sType
+			nullptr,																							// pNext
+			0,																									// flags
+			VK_IMAGE_TYPE_2D,																					// imageType
+			format,																								// format
+			{																									// extent
+				mWidth,																								// width
+				mHeight,																							// height
+				1																									// depth
+			},
+			mipLevels,																							// mipLevels
+			1,																									// arrayLayers
+			VK_SAMPLE_COUNT_1_BIT,																				// samples
+			VK_IMAGE_TILING_OPTIMAL,																			// tiling
+			VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,		// usage
+			VK_SHARING_MODE_EXCLUSIVE,																			// sharingMode
+			0,																									// queueFamilyIndexCount
+			nullptr,																							// pQueueFamilyIndices
+			VK_IMAGE_LAYOUT_UNDEFINED																			// initialLayout
+		};
 
 		VulkanAllocator::AllocateImage(image, imageInfo, VMA_MEMORY_USAGE_GPU_ONLY);
 
@@ -210,18 +254,28 @@ namespace Ilargi
 		{
 			VkCommandBuffer commandBuffer = VulkanContext::BeginSingleCommandBuffer();
 
-			VkBufferImageCopy region{};
-			region.bufferOffset = 0;
-			region.bufferRowLength = 0;
-			region.bufferImageHeight = 0;
-
-			region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			region.imageSubresource.mipLevel = 0;
-			region.imageSubresource.baseArrayLayer = 0;
-			region.imageSubresource.layerCount = 1;
-
-			region.imageOffset = { 0, 0, 0 };
-			region.imageExtent = { mWidth, mHeight, 1 };
+			VkBufferImageCopy region
+			{
+				0,								// bufferOffset
+				0,								// bufferRowLength
+				0,								// bufferImageHeight
+				{								// imageSubresource
+					VK_IMAGE_ASPECT_COLOR_BIT,		// aspectMask
+					0,								// mipLevel
+					0,								// baseArrayLayer
+					1,								// layerCount
+				},
+				{								// imageOffset
+					0,								// x
+					0,								// y
+					0								// z
+				},
+				{								// imageExtent
+					mWidth,							// width
+					mHeight,						// height
+					1								// depth
+				}
+			};
 
 			vkCmdCopyBufferToImage(commandBuffer, buffer.buffer, image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
@@ -234,38 +288,51 @@ namespace Ilargi
 		// TODO: Check if the texture format is allowed to have MIPMAP_MODE_LINEAR
 		GenerateMipMaps(mipLevels);
 
-		VkImageViewCreateInfo viewInfo = {};
-		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		viewInfo.image = image.image;
-		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		viewInfo.format = format;
-		viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		viewInfo.subresourceRange.baseMipLevel = 0;
-		viewInfo.subresourceRange.levelCount = mipLevels;
-		viewInfo.subresourceRange.baseArrayLayer = 0;
-		viewInfo.subresourceRange.layerCount = 1;
+		VkImageViewCreateInfo viewInfo
+		{
+			VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,	// sType
+			nullptr,									// pNext
+			0,											// flags
+			image.image,								// image
+			VK_IMAGE_VIEW_TYPE_2D,						// viewType
+			format,										// format
+			{											// components
+
+			},
+			{											// subresourceRange
+				VK_IMAGE_ASPECT_COLOR_BIT,					// aspectMask
+				0,											// baseMipLevel
+				mipLevels,									// levelCount
+				0,											// baseArrayLayer
+				1											// layerCount
+			}
+		};
 
 		VK_CHECK_RESULT(vkCreateImageView(device, &viewInfo, nullptr, &mImageView));
 
+		// Creating sampler
 		{
-			VkSamplerCreateInfo samplerInfo = {};
-			samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-			samplerInfo.magFilter = VK_FILTER_LINEAR;
-			samplerInfo.minFilter = VK_FILTER_LINEAR;
-			samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-			samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-			samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-			samplerInfo.anisotropyEnable = VK_FALSE;
-			samplerInfo.maxAnisotropy = 1.0f;
-			samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-			samplerInfo.unnormalizedCoordinates = VK_FALSE;
-			samplerInfo.compareEnable = VK_FALSE;
-			samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-
-			samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-			samplerInfo.minLod = 0.0f;
-			samplerInfo.maxLod = static_cast<float>(mipLevels);
-			samplerInfo.mipLodBias = 0.0f;
+			VkSamplerCreateInfo samplerInfo
+			{
+				VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,	// sType
+				nullptr,								// pNext
+				0,										// flags
+				VK_FILTER_LINEAR,						// magFilter
+				VK_FILTER_LINEAR,						// minFilter
+				VK_SAMPLER_MIPMAP_MODE_LINEAR,			// mipmapMode
+				VK_SAMPLER_ADDRESS_MODE_REPEAT,			// addressModeU
+				VK_SAMPLER_ADDRESS_MODE_REPEAT,			// addressModeV
+				VK_SAMPLER_ADDRESS_MODE_REPEAT,			// addressModeW
+				0.0f,									// mipLodBias
+				VK_FALSE,								// anisotropyEnable
+				1.0f,									// maxAnisotropy
+				VK_FALSE,								// compareEnable
+				VK_COMPARE_OP_ALWAYS,					// compareOp
+				0.0f,									// minLod
+				static_cast<float>(mipLevels),			// maxLod
+				VK_BORDER_COLOR_INT_OPAQUE_BLACK,		// borderColor
+				VK_FALSE								// unnormalizedCoordinates
+			};
 
 			VK_CHECK_RESULT(vkCreateSampler(device, &samplerInfo, nullptr, &mSampler));
 		}

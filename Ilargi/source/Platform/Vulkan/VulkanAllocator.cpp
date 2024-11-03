@@ -39,12 +39,12 @@ namespace Ilargi
 
 	void VulkanAllocator::AllocateImage(Image& aImage, const VkImageCreateInfo& aImageInfo, VmaMemoryUsage aUsage)
 	{
-		VmaAllocationCreateInfo vmaallocInfo = {};
-		vmaallocInfo.usage = aUsage;
-		vmaallocInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
-		vmaallocInfo.priority = 1.0f;
+		VmaAllocationCreateInfo vmaAllocInfo = {};
+		vmaAllocInfo.usage = aUsage;
+		vmaAllocInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
+		vmaAllocInfo.priority = 1.0f;
 
-		vmaCreateImage(sAllocator, &aImageInfo, &vmaallocInfo, &aImage.image, &aImage.allocation, nullptr);
+		vmaCreateImage(sAllocator, &aImageInfo, &vmaAllocInfo, &aImage.image, &aImage.allocation, nullptr);
 	}
 
 	void VulkanAllocator::DestroyImage(Image& aImage)

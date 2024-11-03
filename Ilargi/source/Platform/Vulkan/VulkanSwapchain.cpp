@@ -42,11 +42,14 @@ namespace Ilargi
 		{
 			mCommandBuffers.resize(imageCount);
 
-			VkCommandBufferAllocateInfo allocInfo = {};
-			allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-			allocInfo.commandPool = VulkanContext::GetCommandPool();
-			allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-			allocInfo.commandBufferCount = static_cast<uint32_t>(mCommandBuffers.size());
+			VkCommandBufferAllocateInfo allocInfo
+			{
+				VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO, // sType
+				nullptr,										// pNext
+				VulkanContext::GetCommandPool(),				// commandPool
+				VK_COMMAND_BUFFER_LEVEL_PRIMARY,				// level
+				static_cast<uint32_t>(mCommandBuffers.size())	// commandBufferCount
+			};
 
 			VK_CHECK_RESULT(vkAllocateCommandBuffers(device, &allocInfo, mCommandBuffers.data()));
 		}
@@ -57,12 +60,19 @@ namespace Ilargi
 			mRenderFinished.resize(imageCount);
 			mFences.resize(imageCount);
 
-			VkSemaphoreCreateInfo semaphoreInfo = {};
-			semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+			VkSemaphoreCreateInfo semaphoreInfo
+			{
+				VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,	// sType
+				nullptr,									// pNext
+				0											// flags
+			};
 			
-			VkFenceCreateInfo fenceInfo = {};
-			fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-			fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+			VkFenceCreateInfo fenceInfo
+			{
+				VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,	// sType
+				nullptr,								// pNext
+				VK_FENCE_CREATE_SIGNALED_BIT			// flags
+			};
 			
 			for (uint32_t i = 0; i < imageCount; ++i)
 			{
@@ -92,18 +102,20 @@ namespace Ilargi
 	{
 		auto device = VulkanContext::GetLogicalDevice();
 
-		VkSubmitInfo submitInfo{};
-		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-
 		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-		submitInfo.pWaitDstStageMask = waitStages;
-		submitInfo.waitSemaphoreCount = 1;
-		submitInfo.pWaitSemaphores = &mImageAvailable[mCurrentFrame];
-		submitInfo.signalSemaphoreCount = 1;
-		submitInfo.pSignalSemaphores = &mRenderFinished[mCurrentFrame];
-
-		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &mCommandBuffers[mCurrentFrame];
+		
+		VkSubmitInfo submitInfo
+		{
+			VK_STRUCTURE_TYPE_SUBMIT_INFO,		// sType
+			nullptr,							// pNext
+			1,									// waitSemaphoreCount
+			&mImageAvailable[mCurrentFrame],	// pWaitSemaphores
+			waitStages,							// pWaitDstStageMask
+			1,									// commandBufferCount
+			&mCommandBuffers[mCurrentFrame],	// pCommandBuffers
+			1,									// signalSemaphoreCount
+			&mRenderFinished[mCurrentFrame]		// pSignalSemaphores
+		};
 
 		VK_CHECK_RESULT(vkResetFences(device, 1, &mFences[mCurrentFrame]));
 		VK_CHECK_RESULT(vkQueueSubmit(VulkanContext::GetGraphicsQueue(), 1, &submitInfo, mFences[mCurrentFrame]));
@@ -113,15 +125,17 @@ namespace Ilargi
 
 	void VulkanSwapchain::Present(VkDevice aDevice, VkSemaphore aRenderFinish)
 	{
-		VkPresentInfoKHR presentInfo = {};
-		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-		presentInfo.waitSemaphoreCount = 1;
-		presentInfo.pWaitSemaphores = &aRenderFinish;
-		presentInfo.swapchainCount = 1;
-		presentInfo.pSwapchains = &mSwapchain;
-		presentInfo.pImageIndices = &mCurrentImageIndex;
-
-		presentInfo.pResults = nullptr;
+		VkPresentInfoKHR presentInfo
+		{
+			VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,		// sType
+			nullptr,								// pNext
+			1,										// waitSemaphoreCount
+			&aRenderFinish,							// pWaitSemaphores
+			1,										// swapchainCount
+			&mSwapchain,							// pSwapchains
+			&mCurrentImageIndex,					// pImageIndices
+			nullptr									// pResults
+		};
 
 		VkResult result = vkQueuePresentKHR(mPresentQueue, &presentInfo);
 		if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
@@ -245,23 +259,28 @@ namespace Ilargi
 
 			for (size_t i = 0; i < mSwapchainImages.size(); ++i)
 			{
-				VkImageViewCreateInfo createInfo{};
-				createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-				createInfo.image = mSwapchainImages[i];
-
-				createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-				createInfo.format = mSurfaceFormat.format;
-
-				createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-				createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-				createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-				createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-
-				createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-				createInfo.subresourceRange.baseMipLevel = 0;
-				createInfo.subresourceRange.levelCount = 1;
-				createInfo.subresourceRange.baseArrayLayer = 0;
-				createInfo.subresourceRange.layerCount = 1;
+				VkImageViewCreateInfo createInfo
+				{
+					VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,	// sType
+					nullptr,									// pNext
+					0,											// flags
+					mSwapchainImages[i],						// image
+					VK_IMAGE_VIEW_TYPE_2D,						// viewType
+					mSurfaceFormat.format,						// format
+					{											// components
+						VK_COMPONENT_SWIZZLE_IDENTITY,				// r
+						VK_COMPONENT_SWIZZLE_IDENTITY,				// g
+						VK_COMPONENT_SWIZZLE_IDENTITY,				// b
+						VK_COMPONENT_SWIZZLE_IDENTITY				// a
+					},
+					{											// subresourceRange
+						VK_IMAGE_ASPECT_COLOR_BIT,					// aspectMask
+						0,											// baseMipLevel
+						1,											// levelCount
+						0,											// baseArrayLayer
+						1											// layerCount
+					}
+				};
 
 				VK_CHECK_RESULT(vkCreateImageView(device, &createInfo, nullptr, &mImageViews[i]));
 			}
@@ -269,41 +288,53 @@ namespace Ilargi
 
 		// Depth image and image view
 		{
-			VkImageCreateInfo imageInfo = {};
-			imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-			imageInfo.imageType = VK_IMAGE_TYPE_2D;
-			imageInfo.extent.width = mExtent.width;
-			imageInfo.extent.height = mExtent.height;
-			imageInfo.extent.depth = 1;
-			imageInfo.mipLevels = 1;
-			imageInfo.arrayLayers = 1;
-			imageInfo.format = VK_FORMAT_D32_SFLOAT;
-			imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-			imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-			imageInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-			imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-			imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-			imageInfo.flags = 0;
+			VkImageCreateInfo imageInfo
+			{
+				VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,			// sType
+				nullptr,										// pNext
+				0,												// flags
+				VK_IMAGE_TYPE_2D,								// imageType
+				VK_FORMAT_D32_SFLOAT,							// format
+				{												// extent
+					mExtent.width,									// width
+					mExtent.height,									// height
+					1,												// depth
+				},
+				1,												// mipLevels
+				1,												// arrayLayers
+				VK_SAMPLE_COUNT_1_BIT,							// samples
+				VK_IMAGE_TILING_OPTIMAL,						// tiling
+				VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,	// usage
+				VK_SHARING_MODE_EXCLUSIVE,						// sharingMode
+				0,												// queueFamilyIndexCount
+				nullptr,										// pQueueFamilyIndices
+				VK_IMAGE_LAYOUT_UNDEFINED						// initialLayout
+			};
 
 			VulkanAllocator::AllocateImage(mDepthImage, imageInfo, VMA_MEMORY_USAGE_GPU_ONLY);
 
-			VkImageViewCreateInfo createInfo{};
-			createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-			createInfo.image = mDepthImage.image;
-
-			createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-			createInfo.format = VK_FORMAT_D32_SFLOAT;
-
-			createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-
-			createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-			createInfo.subresourceRange.baseMipLevel = 0;
-			createInfo.subresourceRange.levelCount = 1;
-			createInfo.subresourceRange.baseArrayLayer = 0;
-			createInfo.subresourceRange.layerCount = 1;
+			VkImageViewCreateInfo createInfo
+			{
+				VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,	// sType
+				nullptr,									// pNext
+				0,											// flags
+				mDepthImage.image,							// image
+				VK_IMAGE_VIEW_TYPE_2D,						// viewType
+				VK_FORMAT_D32_SFLOAT,						// format
+				{											// components
+					VK_COMPONENT_SWIZZLE_IDENTITY,				// r
+					VK_COMPONENT_SWIZZLE_IDENTITY,				// g
+					VK_COMPONENT_SWIZZLE_IDENTITY,				// b
+					VK_COMPONENT_SWIZZLE_IDENTITY,				// a
+				},
+				{											// subresourceRange
+					VK_IMAGE_ASPECT_DEPTH_BIT,					// aspectMask
+					0,											// baseMipLevel
+					1,											// levelCount
+					0,											// baseArrayLayer
+					1											// layerCount
+				}
+			};
 
 			VK_CHECK_RESULT(vkCreateImageView(device, &createInfo, nullptr, &mDepthImageView));
 		}
@@ -320,14 +351,18 @@ namespace Ilargi
 			{
 				std::array<VkImageView, 2> attachments = { mImageViews[i], mDepthImageView };
 
-				VkFramebufferCreateInfo framebufferInfo = {};
-				framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-				framebufferInfo.renderPass = mRenderPass;
-				framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-				framebufferInfo.pAttachments = attachments.data();
-				framebufferInfo.width = mExtent.width;
-				framebufferInfo.height = mExtent.height;
-				framebufferInfo.layers = 1;
+				VkFramebufferCreateInfo framebufferInfo
+				{
+					VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,	// sType
+					nullptr,									// pNext
+					0,											// flags
+					mRenderPass,								// renderPass
+					static_cast<uint32_t>(attachments.size()),	// attachmentCount
+					attachments.data(),							// pAttachments
+					mExtent.width,								// width
+					mExtent.height,								// height
+					1											// layers
+				};
 
 				VK_CHECK_RESULT(vkCreateFramebuffer(device, &framebufferInfo, nullptr, &mFramebuffers[i]));
 			}
@@ -351,59 +386,82 @@ namespace Ilargi
 
 	void VulkanSwapchain::CreateRenderPass(VkDevice aDevice)
 	{
-		VkAttachmentDescription colorAttachment{};
-		colorAttachment.format = mSurfaceFormat.format;
-		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+		VkAttachmentDescription colorAttachment
+		{
+			0,									// flags
+			mSurfaceFormat.format,				// format
+			VK_SAMPLE_COUNT_1_BIT,				// samples
+			VK_ATTACHMENT_LOAD_OP_CLEAR,		// loadOp
+			VK_ATTACHMENT_STORE_OP_STORE,		// storeOp
+			VK_ATTACHMENT_LOAD_OP_DONT_CARE,	// stencilLoadOp
+			VK_ATTACHMENT_STORE_OP_DONT_CARE,	// stencilStoreOp
+			VK_IMAGE_LAYOUT_UNDEFINED,			// initialLayout
+			VK_IMAGE_LAYOUT_PRESENT_SRC_KHR		// finalLayout
+		};
 
-		colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		VkAttachmentReference colorAttachmentRef
+		{
+			0,											// attachment
+			VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL	// layout
+		};
 
-		colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+		VkAttachmentDescription depthAttachment
+		{
+			0,													// flags
+			VK_FORMAT_D32_SFLOAT,								// format
+			VK_SAMPLE_COUNT_1_BIT,								// samples
+			VK_ATTACHMENT_LOAD_OP_CLEAR,						// loadOp
+			VK_ATTACHMENT_STORE_OP_DONT_CARE,					// storeOp
+			VK_ATTACHMENT_LOAD_OP_DONT_CARE,					// stencilLoadOp
+			VK_ATTACHMENT_STORE_OP_DONT_CARE,					// stencilStoreOp
+			VK_IMAGE_LAYOUT_UNDEFINED,							// initialLayout
+			VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL	// finalLayout
+		};
 
-		VkAttachmentReference colorAttachmentRef = {};
-		colorAttachmentRef.attachment = 0;
-		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		VkAttachmentReference depthAttachmentRef
+		{
+			1,													// attachment
+			VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL	// layout
+		};
 
-		VkAttachmentDescription depthAttachment = {};
-		depthAttachment.format = VK_FORMAT_D32_SFLOAT;
-		depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-		depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		VkSubpassDescription subpass
+		{
+			0,									// flags
+			VK_PIPELINE_BIND_POINT_GRAPHICS,	// pipelineBindPoint
+			0,									// inputAttachmentCount
+			nullptr,							// pInputAttachments
+			1,									// colorAttachmentCount
+			&colorAttachmentRef,				// pColorAttachments
+			nullptr,							// pResolveAttachments
+			&depthAttachmentRef,				// pDepthStencilAttachment
+			0,									// preserveAttachmentCount
+			nullptr								// pPreserveAttachments
+		};
 
-		VkAttachmentReference depthAttachmentRef = {};
-		depthAttachmentRef.attachment = 1;
-		depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-		VkSubpassDescription subpass = {};
-		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-		subpass.colorAttachmentCount = 1;
-		subpass.pColorAttachments = &colorAttachmentRef;
-		subpass.pDepthStencilAttachment = &depthAttachmentRef;
-
-		VkSubpassDependency dependency = {};
-		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-		dependency.dstSubpass = 0;
-		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-		dependency.srcAccessMask = 0;
-		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+		VkSubpassDependency dependency
+		{
+			VK_SUBPASS_EXTERNAL,																			// srcSubpass
+			0,																								// dstSubpass
+			VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,		// srcStageMask
+			VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,		// dstStageMask
+			0,																								// srcAccessMask
+			VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,			// dstAccessMask
+			0																								// dependencyFlags
+		};
 
 		std::array<VkAttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
-		VkRenderPassCreateInfo renderPassInfo = {};
-		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-		renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-		renderPassInfo.pAttachments = attachments.data();
-		renderPassInfo.subpassCount = 1;
-		renderPassInfo.pSubpasses = &subpass;
-		renderPassInfo.dependencyCount = 1;
-		renderPassInfo.pDependencies = &dependency;
+		VkRenderPassCreateInfo renderPassInfo
+		{
+			VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,	// sType
+			nullptr,									// pNext
+			0,											// flags
+			static_cast<uint32_t>(attachments.size()),	// attachmentCount
+			attachments.data(),							// pAttachments
+			1,											// subpassCount
+			&subpass,									// pSubpasses
+			1,											// dependencyCount
+			&dependency									// pDependencies
+		};
 
 		VK_CHECK_RESULT(vkCreateRenderPass(aDevice, &renderPassInfo, nullptr, &mRenderPass));
 	}
