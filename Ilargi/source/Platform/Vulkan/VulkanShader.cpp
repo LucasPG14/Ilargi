@@ -104,13 +104,15 @@ namespace Ilargi
 
 		auto device = VulkanContext::GetLogicalDevice();
 
+		auto nonChacheFileTime = std::filesystem::last_write_time(aFilepath);
+
 		auto directory = Utils::GetCacheDirectory() / std::filesystem::path(mName);
 		
 		auto shaderCacheFile = directory;
 		shaderCacheFile += "_cache_vert.spv";
 
 		// TODO: Find a way to do this cleaner
-		if (std::filesystem::directory_entry(shaderCacheFile).exists())
+		if (std::filesystem::directory_entry(shaderCacheFile).exists() && std::filesystem::last_write_time(shaderCacheFile) > nonChacheFileTime)
 		{
 			auto result = Utils::ReadCacheFile(shaderCacheFile.string());
 
@@ -118,7 +120,7 @@ namespace Ilargi
 		}
 		shaderCacheFile = directory;
 		shaderCacheFile += "_cache_frag.spv";
-		if (std::filesystem::directory_entry(shaderCacheFile).exists())
+		if (std::filesystem::directory_entry(shaderCacheFile).exists() && std::filesystem::last_write_time(shaderCacheFile) > nonChacheFileTime)
 		{
 			auto result = Utils::ReadCacheFile(shaderCacheFile.string());
 			CreateShaderModule(VK_SHADER_STAGE_FRAGMENT_BIT, result);

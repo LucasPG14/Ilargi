@@ -60,7 +60,7 @@ namespace Ilargi
 		{
 			"Grid",										// name
 			true,										// depth
-			Renderer::GetShaderLibrary()->Get("Grid"),	// shader
+			//Renderer::GetShaderLibrary()->Get("Grid"),	// shader
 			{}											// layout
 		};
 
