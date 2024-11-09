@@ -12,6 +12,7 @@ namespace Ilargi
 		TEXTURE2D,
 		MATERIAL,
 		SCENE,
+		SKYBOX
 	};
 
 	struct ResourceMetadata

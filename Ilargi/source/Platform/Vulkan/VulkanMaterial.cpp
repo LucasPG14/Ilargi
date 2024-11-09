@@ -38,22 +38,28 @@ namespace Ilargi
 	
 	VulkanMaterial::~VulkanMaterial()
 	{
+		VulkanAllocator::UnmapMemory(mMaterialBuffer);
 		VulkanAllocator::DestroyBuffer(mMaterialBuffer);
 	}
 	
-	void VulkanMaterial::SetDiffuse(std::shared_ptr<Texture2D> aTexture)
+	void VulkanMaterial::UpdateDiffuse(std::shared_ptr<Texture2D> aTexture)
 	{
 		mDiffuse = aTexture;
 
 		UpdateDescriptor();
 	}
 	
+	void VulkanMaterial::UpdateMaterialData()
+	{
+		UpdateDescriptor();
+	}
+
 	void VulkanMaterial::UpdateDescriptor()
 	{
 		auto device = VulkanContext::GetLogicalDevice();
+		auto albedo = std::static_pointer_cast<VulkanTexture2D>(mDiffuse);
 
 		memcpy(mMaterialBufferMapped, &mMaterialData, sizeof(MaterialData));
-
 		VkDescriptorBufferInfo bufferInfo
 		{
 			mMaterialBuffer.buffer,
@@ -61,19 +67,40 @@ namespace Ilargi
 			sizeof(MaterialData)
 		};
 
-		std::array<VkWriteDescriptorSet, 1> descriptorWrites
+		std::vector<VkWriteDescriptorSet> descriptorWrites
 		{
-			VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET, // sType
-			nullptr,								// pNext
-			mDescriptorSet,							// dstSet
-			4,										// dstBinding
-			0,										// dstArrayElement
-			1,										// descriptorCount
-			VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,		// descriptorType
-			nullptr,								// pImageInfo
-			&bufferInfo,							// pBufferInfo
-			nullptr									// pTexelBufferView
+			{
+				VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET, // sType
+				nullptr,								// pNext
+				mDescriptorSet,							// dstSet
+				4,										// dstBinding
+				0,										// dstArrayElement
+				1,										// descriptorCount
+				VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,		// descriptorType
+				nullptr,								// pImageInfo
+				&bufferInfo,							// pBufferInfo
+				nullptr									// pTexelBufferView
+			}
 		};
+
+		if (albedo)
+		{
+			VkDescriptorImageInfo imageInfo
+			{
+				albedo->GetSampler(),
+				albedo->GetImageView(),
+				VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+			};
+
+			auto& descriptorWrite = descriptorWrites.emplace_back();
+
+			descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrite.dstSet = mDescriptorSet;
+			descriptorWrite.dstBinding = 0;
+			descriptorWrite.descriptorCount = 1;
+			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			descriptorWrite.pImageInfo = &imageInfo;
+		}
 
 		vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}

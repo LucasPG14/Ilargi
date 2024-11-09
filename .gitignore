@@ -1,10 +1,10 @@
 # Binaries
 **/bin/
 bin-int/
+**/Cache/
 
 # Ilargi files
 *.log
-*.spv
 
 # Visual Studio files and folder
 .vs/

@@ -23,6 +23,7 @@
 #include <set>
 #include <string>
 #include <format>
+#include <any>
 
 // Own files
 #include "Base/Debug.h"

@@ -15,7 +15,7 @@
 namespace Ilargi
 {
 	SceneHierarchyInspectorPanel::SceneHierarchyInspectorPanel()
-		: mScene(nullptr), mSelected(entt::null)
+		: mScene(nullptr), mSelected(entt::null), mIsWindowFocused(false)
 	{
 	}
 
@@ -27,6 +27,8 @@ namespace Ilargi
 	{
 		// --------------------------------------Hierarchy window----------------------------------------------
 		ImGui::Begin("Scene Hierarchy", (bool*)0, ImGuiWindowFlags_NoCollapse);
+
+		mIsWindowFocused = ImGui::IsWindowFocused();
 
 		if (ImGui::Button("Add"))
 		{
@@ -63,7 +65,7 @@ namespace Ilargi
 				stack.pop();
 				if (open && !family.children.empty())
 				{
-					for (int i = family.children.size() - 1; i >= 0; --i)
+					for (uint64_t i { family.children.size() - 1U }; i >= 0U; --i)
 					{
 						stack.push(family.children[i]);
 					}
@@ -100,7 +102,7 @@ namespace Ilargi
 		if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0) && !ImGui::IsAnyItemHovered())
 			mSelected = entt::null;
 
-		if (ImGui::BeginPopupContextWindow("##HierarchypopUp"))
+		if (ImGui::BeginPopupContextWindow("##HierarchyPopUp"))
 		{
 			if (ImGui::MenuItem("Create Entity"))
 			{
@@ -125,7 +127,7 @@ namespace Ilargi
 
 		ImGui::End();
 
-		if (mSelected != entt::null && Input::IsKeyPressed(KeyCode::DELETE))
+		if (mSelected != entt::null && mIsWindowFocused && Input::IsKeyPressed(KeyCode::DELETE))
 		{
 			mScene->DestroyEntity(mSelected);
 			mSelected = entt::null;
@@ -141,6 +143,15 @@ namespace Ilargi
 		ImGui::PushStyleColor(ImGuiCol_HeaderHovered, { 12.0f / 255.0f, 12.0f / 255.0f, 25.0f / 255.0f, 1.0f });
 		ImGui::PushStyleColor(ImGuiCol_HeaderActive, { 12.0f / 255.0f, 12.0f / 255.0f, 25.0f / 255.0f, 1.0f });
 		ImGui::Separator();
+
+		if (world.try_get<InfoComponent>(mSelected))
+		{
+			InfoComponent& infoComponent = mScene->GetWorld().get<InfoComponent>(mSelected);
+			char* buf = infoComponent.name.data();
+			ImGui::InputText("##Name", buf, infoComponent.name.size() + 2);
+		}
+
+		ImGui::SameLine();
 
 		if (ImGui::BeginCombo("##Add Component", "Add Component"))
 		{
@@ -222,22 +233,22 @@ namespace Ilargi
 									UUID uuid = *(UUID*)payload->Data;
 									const auto& metadata = ResourceManager::GetResourcesMetadata()[uuid];
 
-									material->SetDiffuse(std::static_pointer_cast<Texture2D>(ResourceManager::GetResource(uuid)));
+									material->UpdateDiffuse(std::static_pointer_cast<Texture2D>(ResourceManager::GetResource(uuid)));
 								}
 							}
 							ImGui::EndChild();
 						}
 						if (ImGui::ColorEdit4("Color", glm::value_ptr(material->GetMaterialData().color)))
 						{
-							material->SetDiffuse(nullptr);
+							material->UpdateMaterialData();
 						}
 						if (ImGui::SliderFloat("Metallic", &material->GetMaterialData().metallic, 0.0f, 1.0f))
 						{
-							material->SetDiffuse(nullptr);
+							material->UpdateMaterialData();
 						}
 						if (ImGui::SliderFloat("Roughness", &material->GetMaterialData().roughness, 0.0f, 1.0f))
 						{
-							material->SetDiffuse(nullptr);
+							material->UpdateMaterialData();
 						}
 						ImGui::PopStyleColor(2);
 						ImGui::PopStyleVar(1);
@@ -252,7 +263,9 @@ namespace Ilargi
 			DirectionalLightComponent& dirLight = mScene->GetWorld().get<DirectionalLightComponent>(mSelected);
 			if (ImGui::CollapsingHeader("Directional Light Component"))
 			{
-				ImGui::ColorPicker4("##Color", glm::value_ptr(dirLight.radiance));
+				ImGui::Text("Radiance");
+				ImGui::SameLine();
+				ImGui::ColorEdit3("##Color", glm::value_ptr(dirLight.radiance));
 			}
 			ImGui::Separator();
 		}
@@ -262,7 +275,12 @@ namespace Ilargi
 			PointLightComponent& pointLight = mScene->GetWorld().get<PointLightComponent>(mSelected);
 			if (ImGui::CollapsingHeader("Point Light Component"))
 			{
-				ImGui::ColorPicker4("##Color", glm::value_ptr(pointLight.radiance));
+				ImGui::Text("Radiance");
+				ImGui::SameLine();
+				ImGui::ColorEdit3("##Color", glm::value_ptr(pointLight.radiance));
+
+				ImGui::Text("Radius");
+				ImGui::SameLine();
 				ImGui::SliderFloat("##Radius", &pointLight.radius, 0.2f, 10.0f);
 			}
 			ImGui::Separator();

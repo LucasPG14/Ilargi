@@ -37,6 +37,8 @@ namespace Ilargi
 		for (Panel* panel : mPanels)
 			panel->OnDestroy();
 
+		Renderer::Destroy();
+
 		mImguiPanel->Destroy();
 		mWindow->Destroy();
 	}

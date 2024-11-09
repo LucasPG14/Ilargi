@@ -14,7 +14,9 @@ namespace Ilargi
 		const VkShaderStageFlagBits GetShaderStageFromString(const std::string& type)
 		{
 			if (type == "vertex")	return VK_SHADER_STAGE_VERTEX_BIT;
+			if (type == "vert") return VK_SHADER_STAGE_VERTEX_BIT;
 			if (type == "fragment") return VK_SHADER_STAGE_FRAGMENT_BIT;
+			if (type == "frag") return VK_SHADER_STAGE_FRAGMENT_BIT;
 
 			ILG_ASSERT(nullptr, "Shader stage type not supported");
 			return VK_SHADER_STAGE_VERTEX_BIT;
@@ -108,31 +110,29 @@ namespace Ilargi
 		ILG_PROFILE_FUNC;
 
 		Utils::CreateShaderCacheDirectory();
+		const auto& directory = Utils::GetShaderCacheDirectory();
 
 		mSetBindingMap.fill({false, false, false, false, false, false, false, false});
 
 		auto device = VulkanContext::GetLogicalDevice();
 
-		auto nonChacheFileTime = std::filesystem::last_write_time(aFilepath);
+		auto nonCacheFileTime = std::filesystem::last_write_time(aFilepath);
+		auto shaderCacheFile = mName + "_cache_";
 
-		auto directory = Utils::GetShaderCacheDirectory() / std::filesystem::path(mName);
-		
-		auto shaderCacheFile = directory;
-		shaderCacheFile += "_cache_vert.spv";
-
-		// TODO: Find a way to do this cleaner
-		if (std::filesystem::directory_entry(shaderCacheFile).exists() && std::filesystem::last_write_time(shaderCacheFile) > nonChacheFileTime)
+		for (const auto& file : std::filesystem::recursive_directory_iterator(directory))
 		{
-			auto result = Utils::ReadCacheFile(shaderCacheFile.string());
+			const auto& filename = file.path().stem().string();
+			std::regex pattern(shaderCacheFile, std::regex_constants::icase);
+			if (!std::regex_search(filename, pattern))
+				continue;
 
-			CreateShaderModule(VK_SHADER_STAGE_VERTEX_BIT, result);
-		}
-		shaderCacheFile = directory;
-		shaderCacheFile += "_cache_frag.spv";
-		if (std::filesystem::directory_entry(shaderCacheFile).exists() && std::filesystem::last_write_time(shaderCacheFile) > nonChacheFileTime)
-		{
-			auto result = Utils::ReadCacheFile(shaderCacheFile.string());
-			CreateShaderModule(VK_SHADER_STAGE_FRAGMENT_BIT, result);
+			if (std::filesystem::last_write_time(file.path()) < nonCacheFileTime)
+				break;
+
+			std::string typeStr = filename.substr(filename.find_last_of("_") + 1);
+
+			auto result = Utils::ReadCacheFile(file.path().string());
+			CreateShaderModule(Utils::GetShaderStageFromString(typeStr), result);
 		}
 
 		if (mShaders.empty())
@@ -142,20 +142,20 @@ namespace Ilargi
 		{
 			uint32_t size = (--mDescriptorSetBindings.end())->first + 1;
 			mDescriptorSetLayouts.resize(size);
-			for (int i = 0; i < size; ++i)
+			for (uint32_t setBindingIndex { 0 }; setBindingIndex < size; ++setBindingIndex)
 			{
-				if (mDescriptorSetBindings.find(i) != mDescriptorSetBindings.end())
+				if (mDescriptorSetBindings.find(setBindingIndex) != mDescriptorSetBindings.end())
 				{
 					VkDescriptorSetLayoutCreateInfo layoutInfo
 					{
-						VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,		// sType
-						nullptr,													// pNext
-						0,															// flags
-						static_cast<uint32_t>(mDescriptorSetBindings[i].size()),	// bindingCount
-						mDescriptorSetBindings[i].data()							// pBindings
+						VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,					// sType
+						nullptr,																// pNext
+						0,																		// flags
+						static_cast<uint32_t>(mDescriptorSetBindings[setBindingIndex].size()),	// bindingCount
+						mDescriptorSetBindings[setBindingIndex].data()							// pBindings
 					};
 
-					VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &mDescriptorSetLayouts[i]));
+					VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &mDescriptorSetLayouts[setBindingIndex]));
 				}
 			}
 		}

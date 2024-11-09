@@ -23,9 +23,10 @@ namespace Ilargi
 		float maxAnisotropy;
 	};
 
-	struct RendererData
+	struct RendererStatistics
 	{
-		//mat4 viewProj;
+		uint32_t numMeshes = 0;
+		uint32_t drawCalls = 0;
 	};
 
 	using RenderFn = std::function<void()>;
@@ -34,6 +35,7 @@ namespace Ilargi
 	{
 	public:
 		static void Init();
+		static void Destroy();
 
 		static void SetConfig(const RendererConfig& aConfig) { sConfig = aConfig; }
 
@@ -45,6 +47,7 @@ namespace Ilargi
 		static std::shared_ptr<Texture2D> GetDefaultTexture() { return sDefaultTexture; }
 
 		static const RendererConfig& GetConfig() { return sConfig; }
+		static const RendererStatistics& GetStatistics() { return sStats; }
 		static const int GetCurrentFrame() { return sCurrentFrame; }
 
 		static GraphicsAPI GetGraphicsAPI() { return sGraphicsAPI; }
@@ -63,6 +66,7 @@ namespace Ilargi
 		static std::shared_ptr<Texture2D> sDefaultTexture;
 
 		static RendererConfig sConfig;
+		static RendererStatistics sStats;
 		static int sCurrentFrame;
 
 		static std::vector<RenderFn> sQueue;

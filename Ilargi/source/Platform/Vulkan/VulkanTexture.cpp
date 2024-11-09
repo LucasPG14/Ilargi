@@ -19,7 +19,7 @@ namespace Ilargi
 			{
 			case 1: return VK_FORMAT_R8_SRGB;
 			case 2: return VK_FORMAT_R8G8_SRGB;
-			case 3: return VK_FORMAT_R8G8B8_SRGB;
+			case 3: return VK_FORMAT_R8G8B8A8_SRGB;
 			case 4: return VK_FORMAT_R8G8B8A8_SRGB;
 			}
 
@@ -198,10 +198,10 @@ namespace Ilargi
 		VulkanBuffer buffer;
 
 		// TODO: Change this to allow more formats (metallic, roughness.... textures)
-		VkFormat format = VK_FORMAT_R8G8B8A8_SRGB;
+		VkFormat format = Utils::GetFormatFromChannels(aChannels);
 
 		// TODO: Change this to support channels
-		VkDeviceSize imageSize = mWidth * mHeight * 4;
+		VkDeviceSize imageSize = mWidth * mHeight * aChannels;
 
 		VkBufferCreateInfo bufferInfo
 		{
@@ -410,7 +410,7 @@ namespace Ilargi
 		int32_t mipWidth = mWidth;
 		int32_t mipHeight = mHeight;
 
-		for (uint32_t i = 1; i < aMipLevels; ++i) 
+		for (uint32_t i { 1 }; i < aMipLevels; ++i)
 		{
 			barrier.subresourceRange.baseMipLevel = i - 1;
 			barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;

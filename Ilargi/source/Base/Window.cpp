@@ -170,7 +170,7 @@ namespace Ilargi
 
 			std::vector<std::filesystem::path> eventPaths;
 			eventPaths.reserve(pathCount);
-			for (int i = 0; i < pathCount; ++i)
+			for (int i { 0 }; i < pathCount; ++i)
 			{
 				eventPaths.push_back(paths[i]);
 			}

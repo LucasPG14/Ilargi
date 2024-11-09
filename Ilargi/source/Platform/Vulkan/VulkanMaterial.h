@@ -19,7 +19,8 @@ namespace Ilargi
 		MaterialData& GetMaterialData() override { return mMaterialData; }
 		std::shared_ptr<Texture2D> GetDiffuse() override { return mDiffuse; }
 
-		void SetDiffuse(std::shared_ptr<Texture2D> aTexture) override;
+		void UpdateDiffuse(std::shared_ptr<Texture2D> aTexture) override;
+		void UpdateMaterialData() override;
 
 	private:
 		void UpdateDescriptor();

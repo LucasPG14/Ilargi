@@ -10,15 +10,15 @@ layout(location = 4) in vec2 inTexCoord;
 layout(push_constant) uniform Constants
 {
     mat4 modelMatrix;
-    vec4 radiance;
+    vec3 radiance;
     vec3 direction;
 } pushConstants;
 
 struct PointLight
 {
-    vec4 radiance;
-    vec3 position;
+    vec3 radiance;
     float radius;
+    vec3 position;
 };
 
 // Descriptor sets
@@ -132,8 +132,10 @@ void main()
     vec3 N = normalize(vNormal);
     vec3 V = normalize(vViewPos - vFragPos);
 
+    vec3 materialColor = material.color.rgb * texture(diffuseTex, vTexCoord).rgb;
+
     vec3 F0 = vec3(0.04);
-    F0 = mix(F0, material.color.rgb, material.metallic);
+    F0 = mix(F0, materialColor, material.metallic);
 
     // reflectance equation
     vec3 Lo = vec3(0.0);
@@ -143,6 +145,7 @@ void main()
         vec3 L = normalize(sceneData.pointLights[i].position - vFragPos);
         vec3 H = normalize(V + L);
         float distance = length(sceneData.pointLights[i].position - vFragPos);
+
         float attenuation = 1.0 / (distance * distance);
         vec3 radiance = sceneData.pointLights[i].radiance.rgb * attenuation;
 
@@ -164,7 +167,7 @@ void main()
         Lo += (kD * material.color.rgb / 3.1415 + specular) * sceneData.pointLights[i].radiance.rgb * NdotL;
     }
 
-    vec3 ambient = vec3(0.03) * material.color.rgb * 1.0;
+    vec3 ambient = vec3(0.03) * materialColor * 1.0;
     vec3 color = ambient + Lo;
 
     color = color / (color + vec3(1.0));

@@ -141,7 +141,7 @@ namespace Ilargi
 			VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,					// sType
 			nullptr,																	// pNext
 			0,																			// flags
-			attributeDescriptions.size() == 0 ? 0 : 1,									// vertexBindingDescriptionCount
+			attributeDescriptions.size() == 0 ? 0U : 1U,								// vertexBindingDescriptionCount
 			attributeDescriptions.size() == 0 ? VK_NULL_HANDLE : &bindingDescription,	// pVertexBindingDescriptions
 			static_cast<uint32_t>(attributeDescriptions.size()),						// vertexAttributeDescriptionCount
 			attributeDescriptions.data()												// pVertexAttributeDescriptions
@@ -233,7 +233,7 @@ namespace Ilargi
 
 		std::vector<VkPipelineColorBlendAttachmentState> colorBlendAttachments;
 
-		for (int i = 0; i < aFormats.size(); ++i)
+		for (uint32_t i { 0 }; i < aFormats.size(); ++i)
 		{
 			if (Utils::IsDepth(aFormats[i]))
 				continue;

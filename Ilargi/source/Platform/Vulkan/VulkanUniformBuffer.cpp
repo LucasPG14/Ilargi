@@ -26,7 +26,7 @@ namespace Ilargi
 			nullptr									// pQueueFamilyIndices
 		};
 
-		for (size_t i = 0; i < framesInFlight; i++)
+		for (uint32_t i { 0 }; i < framesInFlight; ++i)
 		{
 			VulkanAllocator::AllocateBuffer(mUbos[i], bufferInfo, VMA_MEMORY_USAGE_CPU_TO_GPU);
 			mUniformBuffersMapped[i] = VulkanAllocator::MapMemory(mUbos[i]);
@@ -35,9 +35,9 @@ namespace Ilargi
 		auto vulkanShader = std::static_pointer_cast<VulkanShader>(Renderer::GetShaderLibrary()->Get("PBR_Static"));
 
 		mDescriptorSets.resize(Renderer::GetConfig().maxFrames, VK_NULL_HANDLE);
-		for (int i = 0; i < Renderer::GetConfig().maxFrames; ++i)
+		for (uint32_t setIndex { 0U }; setIndex < Renderer::GetConfig().maxFrames; ++setIndex)
 		{
-			vulkanShader->AllocateDescriptorSet(1, mDescriptorSets[i]);
+			vulkanShader->AllocateDescriptorSet(1, mDescriptorSets[setIndex]);
 		}
 	}
 	
@@ -50,7 +50,7 @@ namespace Ilargi
 	{
 		vkDeviceWaitIdle(VulkanContext::GetLogicalDevice());
 
-		for (int i = 0; i < mUbos.size(); ++i)
+		for (uint32_t i { 0U }; i < mUbos.size(); ++i)
 		{
 			VulkanAllocator::UnmapMemory(mUbos[i]);
 			VulkanAllocator::DestroyBuffer(mUbos[i]);
@@ -71,7 +71,7 @@ namespace Ilargi
 
 		std::array<VkWriteDescriptorSet, 3> descriptorWrites{};
 
-		for (int i = 0; i < 3; ++i)
+		for (uint32_t i { 0U }; i < 3U; ++i)
 		{
 			descriptorWrites[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 			descriptorWrites[i].dstSet = mDescriptorSets[currentFrame];

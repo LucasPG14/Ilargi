@@ -30,6 +30,8 @@ namespace Ilargi
 
 		// Allocate the buffer
 		vmaCreateBuffer(sAllocator, &aBufferInfo, &vmaAllocInfo, &aBuffer.buffer, &aBuffer.allocation, nullptr);
+		
+		aBuffer.allocation->SetName(sAllocator, "Buffer");
 	}
 	
 	void VulkanAllocator::DestroyBuffer(VulkanBuffer& aBuffer)
@@ -45,6 +47,7 @@ namespace Ilargi
 		vmaAllocInfo.priority = 1.0f;
 
 		vmaCreateImage(sAllocator, &aImageInfo, &vmaAllocInfo, &aImage.image, &aImage.allocation, nullptr);
+		aImage.allocation->SetName(sAllocator, "Image");
 	}
 
 	void VulkanAllocator::DestroyImage(Image& aImage)

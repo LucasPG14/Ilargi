@@ -9,11 +9,11 @@
 
 namespace Ilargi
 {
-	std::shared_ptr<Shader> Shader::Create(std::string_view aVert)
+	std::shared_ptr<Shader> Shader::Create(std::string_view aCode)
 	{
 		switch (Renderer::GetGraphicsAPI())
 		{
-		case GraphicsAPI::VULKAN:	return std::make_shared<VulkanShader>(aVert);
+		case GraphicsAPI::VULKAN:	return std::make_shared<VulkanShader>(aCode);
 		}
 
 		ILG_ASSERT(nullptr, "The platform specified is not supported");
@@ -26,6 +26,11 @@ namespace Ilargi
 	
 	ShaderLibrary::~ShaderLibrary()
 	{
+	}
+
+	void ShaderLibrary::Init()
+	{
+		Add("Shaders/PBR_Static.shader");
 	}
 	
 	void ShaderLibrary::Add(std::string aName, std::shared_ptr<Shader> aShader)

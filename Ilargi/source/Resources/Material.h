@@ -25,7 +25,9 @@ namespace Ilargi
 		virtual MaterialData& GetMaterialData() = 0;
 
 		virtual std::shared_ptr<Texture2D> GetDiffuse() = 0;
-		virtual void SetDiffuse(std::shared_ptr<Texture2D> aTexture) = 0;
+		virtual void UpdateDiffuse(std::shared_ptr<Texture2D> aTexture) = 0;
+
+		virtual void UpdateMaterialData() = 0;
 
 		static std::shared_ptr<Material> Create(std::shared_ptr<Shader> aShader);
 	};

@@ -19,6 +19,9 @@ namespace Ilargi
 			case ResourceType::MODEL: return ".imodel";
 			case ResourceType::SCENE: return ".ilargi";
 			}
+
+			ILG_ASSERT(false, "This resource type is not supported");
+			return "";
 		}
 	}
 
@@ -35,7 +38,7 @@ namespace Ilargi
 	using ImportFn = std::function<void(UUID, const ResourceMetadata&)>;
 	static std::map<ResourceType, ImportFn> importers =
 	{
-		{ ResourceType::MODEL, ModelImporter::ImportModel2 },
+		{ ResourceType::MODEL, ModelImporter::ImportModel },
 		{ ResourceType::TEXTURE2D, TextureImporter::ImportTexture },
 		{ ResourceType::SCENE, SceneImporter::ImportScene },
 	};
@@ -44,7 +47,7 @@ namespace Ilargi
 	static std::map<ResourceType, LoadFn> loaders =
 	{
 		{ ResourceType::TEXTURE2D, TextureImporter::LoadTexture },
-		{ ResourceType::MODEL, ModelImporter::LoadModel2 },
+		{ ResourceType::MODEL, ModelImporter::LoadModel },
 		{ ResourceType::SCENE, SceneImporter::LoadScene },
 	};
 
@@ -77,7 +80,7 @@ namespace Ilargi
 		
 		metadata.sourceFile = aPath;
 		metadata.filepath = newPath;
-		//metadata.lastWriteTime = std::filesystem::last_write_time(aPath);
+		metadata.lastWriteTime = std::filesystem::last_write_time(aPath);
 
 		sResourcesMetadata[resourceUUID] = metadata;
 		importers[metadata.type](resourceUUID, metadata);
@@ -154,7 +157,7 @@ namespace Ilargi
 		for (auto it = sResourcesMetadata.begin(); it != sResourcesMetadata.end(); ++it)
 		{
 			const ResourceMetadata& metadata = it->second;
-			int index = document.size();
+			uint32_t index = document.size();
 
 			document[index]["UUID"] = static_cast<uint64_t>(it->first);
 			document[index]["Type"] = static_cast<int>(metadata.type);
@@ -176,7 +179,7 @@ namespace Ilargi
 		deserializeJson(document, file);
 		file.close();
 		
-		for (int i = 0; i < document.size(); ++i)
+		for (uint32_t i { 0U }; i < document.size(); ++i)
 		{
 			UUID uuid = static_cast<uint64_t>(document[i]["UUID"]);
 			ResourceMetadata metadata;

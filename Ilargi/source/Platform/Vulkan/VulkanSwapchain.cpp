@@ -74,7 +74,7 @@ namespace Ilargi
 				VK_FENCE_CREATE_SIGNALED_BIT			// flags
 			};
 			
-			for (uint32_t i = 0; i < imageCount; ++i)
+			for (uint32_t i { 0 }; i < imageCount; ++i)
 			{
 				VK_CHECK_RESULT(vkCreateSemaphore(device, &semaphoreInfo, nullptr, &mImageAvailable[i]));
 
@@ -159,7 +159,7 @@ namespace Ilargi
 
 		vkDeviceWaitIdle(device);
 
-		for (size_t i = 0; i < mImageAvailable.size(); ++i)
+		for (uint32_t i { 0 }; i < mImageAvailable.size(); ++i)
 		{
 			vkDestroySemaphore(device, mImageAvailable[i], nullptr);
 			vkDestroySemaphore(device, mRenderFinished[i], nullptr);
@@ -257,7 +257,7 @@ namespace Ilargi
 		{
 			mImageViews.resize(mSwapchainImages.size());
 
-			for (size_t i = 0; i < mSwapchainImages.size(); ++i)
+			for (uint32_t i { 0 }; i < mSwapchainImages.size(); ++i)
 			{
 				VkImageViewCreateInfo createInfo
 				{
@@ -347,7 +347,7 @@ namespace Ilargi
 		{
 			mFramebuffers.resize(mImageViews.size());
 
-			for (size_t i = 0; i < mImageViews.size(); i++)
+			for (uint32_t i { 0 }; i < mImageViews.size(); ++i)
 			{
 				std::array<VkImageView, 2> attachments = { mImageViews[i], mDepthImageView };
 
@@ -374,7 +374,7 @@ namespace Ilargi
 		auto device = VulkanContext::GetLogicalDevice();
 
 		VulkanAllocator::DestroyImage(mDepthImage);
-		for (size_t i = 0; i < mFramebuffers.size(); ++i)
+		for (uint32_t i { 0 }; i < mFramebuffers.size(); ++i)
 		{
 			vkDestroyFramebuffer(device, mFramebuffers[i], nullptr);
 			vkDestroyImageView(device, mImageViews[i], nullptr);

@@ -27,7 +27,7 @@ namespace Ilargi
 
 		deserializeJson(document, file);
 
-		for (int index = 0; index < document.size(); ++index)
+		for (uint32_t index { 0U }; index < document.size(); ++index)
 		{
 			const auto& node = document[index];
 			const Entity entity = scene->CreateEntity(node["InfoComponent"]["Name"]);
@@ -50,10 +50,19 @@ namespace Ilargi
 			{
 				DirectionalLightComponent& dirLight = scene->CreateComponent<DirectionalLightComponent>(entity);
 
-				dirLight.radiance.x = node["DirectionalLightComponent"]["Radiance"]["x"];
-				dirLight.radiance.y = node["DirectionalLightComponent"]["Radiance"]["y"];
-				dirLight.radiance.z = node["DirectionalLightComponent"]["Radiance"]["z"];
-				dirLight.radiance.w = node["DirectionalLightComponent"]["Radiance"]["w"];
+				dirLight.radiance.r = node["DirectionalLightComponent"]["Radiance"]["r"];
+				dirLight.radiance.g = node["DirectionalLightComponent"]["Radiance"]["g"];
+				dirLight.radiance.b = node["DirectionalLightComponent"]["Radiance"]["b"];
+			}
+
+			if (node.containsKey("PointLightComponent"))
+			{
+				PointLightComponent& pointLight = scene->CreateComponent<PointLightComponent>(entity);
+
+				pointLight.radiance.r = node["PointLightComponent"]["Radiance"]["r"];
+				pointLight.radiance.g = node["PointLightComponent"]["Radiance"]["g"];
+				pointLight.radiance.b = node["PointLightComponent"]["Radiance"]["b"];
+				pointLight.radius = node["PointLightComponent"]["Radius"];
 			}
 
 			if (node.containsKey("StaticMeshComponent"))
@@ -102,10 +111,19 @@ namespace Ilargi
 			{
 				const DirectionalLightComponent& dirLight = world.get<DirectionalLightComponent>(entity);
 
-				document[index]["DirectionalLightComponent"]["Radiance"]["r"] = dirLight.radiance.x;
-				document[index]["DirectionalLightComponent"]["Radiance"]["g"] = dirLight.radiance.y;
-				document[index]["DirectionalLightComponent"]["Radiance"]["b"] = dirLight.radiance.z;
-				document[index]["DirectionalLightComponent"]["Radiance"]["a"] = dirLight.radiance.w;
+				document[index]["DirectionalLightComponent"]["Radiance"]["r"] = dirLight.radiance.r;
+				document[index]["DirectionalLightComponent"]["Radiance"]["g"] = dirLight.radiance.g;
+				document[index]["DirectionalLightComponent"]["Radiance"]["b"] = dirLight.radiance.b;
+			}
+
+			if (world.try_get<PointLightComponent>(entity))
+			{
+				const PointLightComponent& pointLight = world.get<PointLightComponent>(entity);
+
+				document[index]["PointLightComponent"]["Radiance"]["r"] = pointLight.radiance.r;
+				document[index]["PointLightComponent"]["Radiance"]["g"] = pointLight.radiance.g;
+				document[index]["PointLightComponent"]["Radiance"]["b"] = pointLight.radiance.b;
+				document[index]["PointLightComponent"]["Radius"] = pointLight.radius;
 			}
 
 			if (world.try_get<StaticMeshComponent>(entity))
@@ -123,10 +141,10 @@ namespace Ilargi
 
 				if (auto material = staticMesh.material.lock())
 				{
-					document[index]["StaticMeshComponent"]["Color"]["r"] = material->GetMaterialData().color.x;
-					document[index]["StaticMeshComponent"]["Color"]["g"] = material->GetMaterialData().color.y;
-					document[index]["StaticMeshComponent"]["Color"]["b"] = material->GetMaterialData().color.z;
-					document[index]["StaticMeshComponent"]["Color"]["a"] = material->GetMaterialData().color.w;
+					document[index]["StaticMeshComponent"]["Color"]["r"] = material->GetMaterialData().color.r;
+					document[index]["StaticMeshComponent"]["Color"]["g"] = material->GetMaterialData().color.g;
+					document[index]["StaticMeshComponent"]["Color"]["b"] = material->GetMaterialData().color.b;
+					document[index]["StaticMeshComponent"]["Color"]["a"] = material->GetMaterialData().color.a;
 					document[index]["StaticMeshComponent"]["Metallic"] = material->GetMaterialData().metallic;
 					document[index]["StaticMeshComponent"]["Roughness"] = material->GetMaterialData().roughness;
 				}
@@ -135,7 +153,7 @@ namespace Ilargi
 
 		std::ofstream file(aFilepath, std::ios::out);
 
-		serializeJson(document, file);
+		serializeJsonPretty(document, file);
 
 		file.close();
 	}

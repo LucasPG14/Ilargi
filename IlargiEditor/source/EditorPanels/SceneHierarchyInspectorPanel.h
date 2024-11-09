@@ -24,5 +24,7 @@ namespace Ilargi
 		std::shared_ptr<Scene> mScene;
 
 		Entity mSelected;
+
+		bool mIsWindowFocused;
 	};
 }

@@ -27,6 +27,8 @@ namespace Ilargi
 			mWorld.destroy(entity);
 		}
 		mWorld.clear();
+
+		mSceneDataUBO->Destroy();
 	}
 
 	void Scene::LoadModel(const std::shared_ptr<Model>& model)
@@ -35,7 +37,7 @@ namespace Ilargi
 		const std::vector<std::shared_ptr<StaticMesh>> meshes = model->GetMeshes();
 		const std::vector<std::shared_ptr<Material>> materials = model->GetMaterials();
 
-		for (int i = 0; i < meshes.size(); ++i)
+		for (uint32_t i { 0U }; i < meshes.size(); ++i)
 		{
 			Entity entity = CreateEntity();
 			CreateComponent<StaticMeshComponent>(entity, meshes[i], materials[i]);

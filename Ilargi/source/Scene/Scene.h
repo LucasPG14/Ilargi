@@ -12,9 +12,9 @@ namespace Ilargi
 
 	struct PointLightUniformBuffer
 	{
-		glm::vec4 radiance;
-		glm::vec3 position;
+		glm::vec3 radiance;
 		float radius;
+		alignas(16)glm::vec3 position;
 	};
 
 	struct SceneData

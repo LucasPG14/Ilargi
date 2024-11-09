@@ -22,7 +22,7 @@ namespace Ilargi
 		VkAttachmentReference depthAttachmentRef = {};
 		depthAttachmentRef.layout = VK_IMAGE_LAYOUT_UNDEFINED;
 		
-		for (int i = 0; i < formats.size(); ++i)
+		for (uint32_t i { 0 }; i < formats.size(); ++i)
 		{
 			bool isDepth = Utils::IsDepth(formats[i]);
 

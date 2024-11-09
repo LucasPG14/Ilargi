@@ -37,5 +37,7 @@ namespace Ilargi
 
 		std::shared_ptr<Texture2D> mFolderIcon;
 		std::shared_ptr<Texture2D> mFileIcon;
+
+		bool mResourcesPanelFocused;
 	};
 }

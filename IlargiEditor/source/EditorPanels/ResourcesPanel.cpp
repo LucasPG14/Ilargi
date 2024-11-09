@@ -61,6 +61,8 @@ namespace Ilargi
 	{
 		ImGui::Begin("Resources Panel");
 
+		mResourcesPanelFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows);
+
 		if (ImGui::ArrowButton("Arrow", ImGuiDir_Left))
 		{
 			mActualDir = mActualDir.has_parent_path() ? mActualDir.parent_path() : mActualDir;
@@ -75,7 +77,7 @@ namespace Ilargi
 
 		ImGui::SetNextItemWidth(200.0f);
 		char* buf = mSearch.data();
-		ImGui::InputText("##Search...", buf, sizeof(buf));
+		ImGui::InputTextWithHint("##Search...", "Search...", buf, sizeof(buf));
 		mSearch = buf;
 
 		for (auto dir : mActualDir)
@@ -101,7 +103,7 @@ namespace Ilargi
 
 		ImGui::Columns(1);
 
-		if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+		if (!mSelectedFile.empty() && mResourcesPanelFocused && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 			mSelectedFile.clear();
 
 		if (ImGui::BeginPopupContextWindow("##HierarchyPopup"))
@@ -139,7 +141,7 @@ namespace Ilargi
 	{
 		const std::vector<std::filesystem::path>& paths = aEvent.GetPaths();
 
-		for (int i = 0; i < paths.size(); ++i)
+		for (uint32_t i { 0U }; i < paths.size(); ++i)
 		{
 			ResourceManager::ImportResource(mActualDir, paths[i]);
 		}
@@ -155,9 +157,12 @@ namespace Ilargi
 		{
 		case KeyCode::DELETE:
 		{
-			std::filesystem::remove(mSelectedFile);
-			UUID resourceUUID = mResources[mSelectedFile];
-			ResourceManager::RemoveResource(resourceUUID);
+			if (mResourcesPanelFocused && !mSelectedFile.empty())
+			{
+				std::filesystem::remove(mSelectedFile);
+				UUID resourceUUID = mResources[mSelectedFile];
+				ResourceManager::RemoveResource(resourceUUID);
+			}
 			break;
 		}
 		}
@@ -275,6 +280,7 @@ namespace Ilargi
 		int columns = int(ImGui::GetContentRegionAvail().x / cellX);
 
 		ImGui::Columns(columns, (const char*)0, false);
+		std::regex pattern(mSearch, std::regex_constants::icase);
 
 		for (const auto& file : std::filesystem::recursive_directory_iterator(mActualDir))
 		{
@@ -283,7 +289,6 @@ namespace Ilargi
 			const auto& filename = path.stem().string();
 			const auto& extension = path.extension().string();
 
-			std::regex pattern(mSearch, std::regex_constants::icase);
 			if (file.is_directory() || !Utils::IsResourceValid(extension) || !std::regex_search(filename, pattern))
 				continue;
 

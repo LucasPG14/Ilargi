@@ -15,8 +15,19 @@
 #include <arduinojson/ArduinoJson-v7.0.4.h>
 #include <gtc/type_ptr.hpp>
 
+
 namespace Ilargi
 {
+	bool operator==(const glm::vec2& v, const ImVec2& v2)
+	{
+		return v.x == v2.x && v.y == v2.y;
+	}
+
+	bool operator!=(const glm::vec2& v, const ImVec2& v2)
+	{
+		return v.x != v2.x || v.y != v2.y;
+	}
+
 	static std::unordered_map<Texts, std::string> menuNames = {};
 
 	EditorPanel::EditorPanel() : Panel("Editor Panel"), mHierarchyInspector(nullptr), mResourcesPanel(nullptr), 
@@ -123,8 +134,8 @@ namespace Ilargi
 			mRenderPass->GetProperties().pipeline->BindDescriptorSet(mCommandBuffer, material, 0);
 			mRenderPass->GetProperties().pipeline->BindDescriptorSet(mCommandBuffer, mScene->GetSceneDataUBO(), 1);
 			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 0, 64, glm::value_ptr(transform.transform));
-			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 64, 16, glm::value_ptr(light.radiance));
-			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 80, 12, glm::value_ptr(glm::radians(trans.rotation)));
+			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 64, 12, glm::value_ptr(light.radiance));
+			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 76, 12, glm::value_ptr(glm::radians(trans.rotation)));
 			Renderer::SubmitGeometry(mCommandBuffer, mesh);
 		}
 
@@ -305,7 +316,7 @@ namespace Ilargi
 
 		ImGui::Image(mFramebuffer->GetID(), frameViewportSize, { 0.0f, 1.0f }, { 1.0f, 0.0f });
 
-		if (mViewportSize.x != frameViewportSize.x || mViewportSize.y != frameViewportSize.y)
+		if (mViewportSize != frameViewportSize)
 		{
 			mViewportSize = glm::vec2(frameViewportSize.x, frameViewportSize.y);
 			mNeedToUpdateFramebuffer = true;
