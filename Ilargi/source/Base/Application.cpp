@@ -12,9 +12,9 @@
 
 namespace Ilargi
 {
-	Application* Application::sApp = nullptr;
+	Application* Application::sApp { nullptr };
 
-	Application::Application(const ApplicationProperties& aProps) : mClose(false), mMinimized(false), mProperties(aProps)
+	Application::Application(const ApplicationProperties& aProps) : mClose{ false }, mMinimized{ false }, mProperties{ aProps }
 	{
 		sApp = this;
 

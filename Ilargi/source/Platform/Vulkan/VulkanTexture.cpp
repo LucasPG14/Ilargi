@@ -31,13 +31,13 @@ namespace Ilargi
 	VulkanTexture2D::VulkanTexture2D(std::filesystem::path aFilepath) : mWidth(0), mHeight(0), image(), 
 		mImageView(VK_NULL_HANDLE), mSampler(VK_NULL_HANDLE), mDescriptorSet(VK_NULL_HANDLE)
 	{
-		auto device = VulkanContext::GetLogicalDevice();
+		auto device{ VulkanContext::GetLogicalDevice() };
 
 		int w, h, channels;
 
 		stbi_set_flip_vertically_on_load(false);
 
-		void* data = stbi_load(aFilepath.string().c_str(), &w, &h, &channels, 4);
+		void* data{ stbi_load(aFilepath.string().c_str(), &w, &h, &channels, 4) };
 
 		if (!data)
 		{
@@ -50,7 +50,7 @@ namespace Ilargi
 
 		VulkanBuffer buffer;
 
-		VkDeviceSize imageSize = mWidth * mHeight * 4;
+		VkDeviceSize imageSize{ mWidth * mHeight * 4 };
 
 		VkBufferCreateInfo bufferInfo
 		{
@@ -65,7 +65,7 @@ namespace Ilargi
 		};
 
 		VulkanAllocator::AllocateBuffer(buffer, bufferInfo, VMA_MEMORY_USAGE_CPU_TO_GPU);
-		void* vkData = VulkanAllocator::MapMemory(buffer);
+		void* vkData{ VulkanAllocator::MapMemory(buffer) };
 
 		memcpy(vkData, data, imageSize);
 
@@ -73,7 +73,7 @@ namespace Ilargi
 
 		stbi_image_free(data);
 
-		uint32_t mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(mWidth, mHeight)))) + 1;
+		uint32_t mipLevels{ static_cast<uint32_t>(std::floor(std::log2(std::max(mWidth, mHeight)))) + 1 };
 
 		VkImageCreateInfo imageInfo
 		{
@@ -103,7 +103,7 @@ namespace Ilargi
 		TransitionLayout(mipLevels, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
 		{
-			VkCommandBuffer commandBuffer = VulkanContext::BeginSingleCommandBuffer();
+			VkCommandBuffer commandBuffer{ VulkanContext::BeginSingleCommandBuffer() };
 
 			VkBufferImageCopy region
 			{
@@ -193,15 +193,13 @@ namespace Ilargi
 	VulkanTexture2D::VulkanTexture2D(void* aData, int aWidth, int aHeight, int aChannels) : mWidth(aWidth), mHeight(aHeight), image(),
 		mImageView(VK_NULL_HANDLE), mSampler(VK_NULL_HANDLE), mDescriptorSet(VK_NULL_HANDLE)
 	{
-		auto device = VulkanContext::GetLogicalDevice();
+		auto device{ VulkanContext::GetLogicalDevice() };
 
 		VulkanBuffer buffer;
 
-		// TODO: Change this to allow more formats (metallic, roughness.... textures)
-		VkFormat format = Utils::GetFormatFromChannels(aChannels);
+		VkFormat format{ Utils::GetFormatFromChannels(aChannels) };
 
-		// TODO: Change this to support channels
-		VkDeviceSize imageSize = mWidth * mHeight * aChannels;
+		VkDeviceSize imageSize{ mWidth * mHeight * aChannels };
 
 		VkBufferCreateInfo bufferInfo
 		{
@@ -216,13 +214,13 @@ namespace Ilargi
 		};
 
 		VulkanAllocator::AllocateBuffer(buffer, bufferInfo, VMA_MEMORY_USAGE_CPU_TO_GPU);
-		void* vkData = VulkanAllocator::MapMemory(buffer);
+		void* vkData{ VulkanAllocator::MapMemory(buffer) };
 
 		memcpy(vkData, aData, imageSize);
 
 		VulkanAllocator::UnmapMemory(buffer);
 
-		uint32_t mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(mWidth, mHeight)))) + 1;
+		uint32_t mipLevels{ static_cast<uint32_t>(std::floor(std::log2(std::max(mWidth, mHeight)))) + 1 };
 
 		VkImageCreateInfo imageInfo
 		{
@@ -252,7 +250,7 @@ namespace Ilargi
 		TransitionLayout(mipLevels, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
 		{
-			VkCommandBuffer commandBuffer = VulkanContext::BeginSingleCommandBuffer();
+			VkCommandBuffer commandBuffer{ VulkanContext::BeginSingleCommandBuffer() };
 
 			VkBufferImageCopy region
 			{
@@ -342,7 +340,7 @@ namespace Ilargi
 	
 	VulkanTexture2D::~VulkanTexture2D()
 	{
-		auto device = VulkanContext::GetLogicalDevice();
+		auto device{ VulkanContext::GetLogicalDevice() };
 
 		VulkanAllocator::DestroyImage(image);
 		vkDestroySampler(device, mSampler, nullptr);
@@ -352,7 +350,7 @@ namespace Ilargi
 	void VulkanTexture2D::TransitionLayout(uint32_t aMipLevels, VkImageLayout aOldLayout, VkImageLayout aNewLayout)
 	{
 		// Transitioning image
-		VkCommandBuffer commandBuffer = VulkanContext::BeginSingleCommandBuffer();
+		VkCommandBuffer commandBuffer{ VulkanContext::BeginSingleCommandBuffer() };
 
 		VkImageMemoryBarrier barrier = {};
 		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -368,8 +366,8 @@ namespace Ilargi
 		barrier.subresourceRange.baseArrayLayer = 0;
 		barrier.subresourceRange.layerCount = 1;
 
-		VkPipelineStageFlags sourceStage = 0;
-		VkPipelineStageFlags destinationStage = 0;
+		VkPipelineStageFlags sourceStage{ 0 };
+		VkPipelineStageFlags destinationStage{ 0 };
 
 		if (aOldLayout == VK_IMAGE_LAYOUT_UNDEFINED && aNewLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) 
 		{
@@ -395,7 +393,7 @@ namespace Ilargi
 	
 	void VulkanTexture2D::GenerateMipMaps(uint32_t aMipLevels)
 	{
-		VkCommandBuffer commandBuffer = VulkanContext::BeginSingleCommandBuffer();
+		VkCommandBuffer commandBuffer{ VulkanContext::BeginSingleCommandBuffer() };
 
 		VkImageMemoryBarrier barrier{};
 		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -407,8 +405,8 @@ namespace Ilargi
 		barrier.subresourceRange.layerCount = 1;
 		barrier.subresourceRange.levelCount = 1;
 
-		int32_t mipWidth = mWidth;
-		int32_t mipHeight = mHeight;
+		int32_t mipWidth{ static_cast<int32_t>(mWidth) };
+		int32_t mipHeight{ static_cast<int32_t>(mHeight) };
 
 		for (uint32_t i { 1 }; i < aMipLevels; ++i)
 		{
@@ -421,7 +419,7 @@ namespace Ilargi
 			vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, 
 				nullptr, 0, nullptr, 1, &barrier);
 		
-			VkImageBlit blit = {};
+			VkImageBlit blit {};
 			blit.srcOffsets[0] = { 0, 0, 0 };
 			blit.srcOffsets[1] = { mipWidth, mipHeight, 1 };
 			blit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -430,8 +428,8 @@ namespace Ilargi
 			blit.srcSubresource.layerCount = 1;
 			blit.dstOffsets[0] = { 0, 0, 0 };
 
-			mipWidth = mipWidth > 1 ? (int32_t)(mipWidth * 0.5f) : 1;
-			mipHeight = mipHeight > 1 ? (int32_t)(mipHeight * 0.5f) : 1;
+			mipWidth = mipWidth > 1 ? static_cast<int32_t>(mipWidth * 0.5f) : 1;
+			mipHeight = mipHeight > 1 ? static_cast<int32_t>(mipHeight * 0.5f) : 1;
 			blit.dstOffsets[1] = { mipWidth, mipHeight, 1 };
 			blit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 			blit.dstSubresource.mipLevel = i;

@@ -36,6 +36,8 @@ namespace Ilargi
 				return true;
 			if (extension == std::string(".ilargi"))
 				return true;
+			if (extension == std::string(".imat"))
+				return true;
 
 			return false;
 		}
@@ -76,18 +78,18 @@ namespace Ilargi
 		ImGui::SameLine();
 
 		ImGui::SetNextItemWidth(200.0f);
-		char* buf = mSearch.data();
+		char* buf{ mSearch.data() };
 		ImGui::InputTextWithHint("##Search...", "Search...", buf, sizeof(buf));
 		mSearch = buf;
 
 		for (auto dir : mActualDir)
 		{
-			auto s = mActualDir.parent_path();
+			auto actualDirParent{ mActualDir.parent_path() };
 			ImGui::SameLine();
 			ImGui::Text(dir.string().c_str());
 			if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
 			{
-				uint32_t end = mActualDir.string().find(dir.string()) + dir.string().length();
+				uint64_t end{ mActualDir.string().find(dir.string()) + dir.string().length() };
 				mActualDir = mActualDir.string().substr(0, end);
 				break;
 			}
@@ -129,7 +131,7 @@ namespace Ilargi
 	void ResourcesPanel::RefreshAssets()
 	{
 		mResources.clear();
-		const auto& assetsMap = ResourceManager::GetResourcesMetadata();
+		const auto& assetsMap{ ResourceManager::GetResourcesMetadata() };
 
 		for (auto& [uuid, metadata] : assetsMap)
 		{
@@ -139,7 +141,7 @@ namespace Ilargi
 	
 	bool ResourcesPanel::OnDropEvent(WindowDropEvent& aEvent)
 	{
-		const std::vector<std::filesystem::path>& paths = aEvent.GetPaths();
+		const std::vector<std::filesystem::path>& paths{ aEvent.GetPaths() };
 
 		for (uint32_t i { 0U }; i < paths.size(); ++i)
 		{
@@ -160,7 +162,7 @@ namespace Ilargi
 			if (mResourcesPanelFocused && !mSelectedFile.empty())
 			{
 				std::filesystem::remove(mSelectedFile);
-				UUID resourceUUID = mResources[mSelectedFile];
+				UUID resourceUUID{ mResources[mSelectedFile] };
 				ResourceManager::RemoveResource(resourceUUID);
 			}
 			break;
@@ -172,18 +174,18 @@ namespace Ilargi
 	
 	void ResourcesPanel::NormalDirectory()
 	{
-		constexpr float cellX = 128.0f;
-		constexpr float cellY = 190.0f;
+		constexpr float cellX { 128.0f };
+		constexpr float cellY { 190.0f };
 
-		int columns = int(ImGui::GetContentRegionAvail().x / cellX);
+		int columns{ int(ImGui::GetContentRegionAvail().x / cellX) };
 
 		ImGui::Columns(columns, (const char*)0, false);
 
 		for (const auto& file : std::filesystem::directory_iterator(mActualDir))
 		{
-			const auto& path = file.path();
-			const auto& relative = std::filesystem::relative(path, mActualDir);
-			const auto& filename = path.stem().string();
+			const auto& path{ file.path() };
+			const auto& relative{ std::filesystem::relative(path, mActualDir) };
+			const auto& filename{ path.stem().string() };
 
 			if (file.is_directory())
 			{
@@ -201,7 +203,7 @@ namespace Ilargi
 					}
 				}	
 
-				ImVec2 textSize = ImGui::CalcTextSize(filename.c_str());
+				ImVec2 textSize{ ImGui::CalcTextSize(filename.c_str()) };
 				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (cellX - textSize.x) * 0.5f);
 				ImGui::Text(filename.c_str());
 			}
@@ -213,7 +215,7 @@ namespace Ilargi
 				ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
 				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
 
-				ImVec4 colorBg = { 0.43f, 0.43f, 0.50f, 0.50f };
+				ImVec4 colorBg { 0.43f, 0.43f, 0.50f, 0.50f };
 				if (mSelectedFile == path)
 					colorBg = { 0.26f, 0.59f, 0.98f, 0.40f };
 
@@ -251,12 +253,12 @@ namespace Ilargi
 					ImGui::Text(filename.c_str());
 					if (mResources.find(path) != mResources.end())
 					{
-						UUID uuid = mResources[path];
-						const ResourceMetadata& metadata = ResourceManager::GetMetadata(uuid);
+						UUID uuid{ mResources[path] };
+						const ResourceMetadata& metadata{ ResourceManager::GetMetadata(uuid) };
 					
-						std::string resType = Utils::GetStringFromResourceType(metadata.type);
+						std::string resType{ Utils::GetStringFromResourceType(metadata.type) };
 
-						ImVec2 textSize = ImGui::CalcTextSize(resType.c_str());
+						ImVec2 textSize{ ImGui::CalcTextSize(resType.c_str()) };
 						ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (cellX - textSize.x - 5.0f));
 						ImGui::SetCursorPosY(cellY - textSize.y - 5.0f);
 						ImGui::Text(resType.c_str());
@@ -274,20 +276,20 @@ namespace Ilargi
 	
 	void ResourcesPanel::RecursiveDirectory()
 	{
-		constexpr float cellX = 128.0f;
-		constexpr float cellY = 190.0f;
+		constexpr float cellX { 128.0f };
+		constexpr float cellY { 190.0f };
 
-		int columns = int(ImGui::GetContentRegionAvail().x / cellX);
+		int columns{ int(ImGui::GetContentRegionAvail().x / cellX) };
 
 		ImGui::Columns(columns, (const char*)0, false);
 		std::regex pattern(mSearch, std::regex_constants::icase);
 
 		for (const auto& file : std::filesystem::recursive_directory_iterator(mActualDir))
 		{
-			const auto& path = file.path();
-			const auto& relative = std::filesystem::relative(path, mActualDir);
-			const auto& filename = path.stem().string();
-			const auto& extension = path.extension().string();
+			const auto& path{ file.path() };
+			const auto& relative{ std::filesystem::relative(path, mActualDir) };
+			const auto& filename{ path.stem().string() };
+			const auto& extension{ path.extension().string() };
 
 			if (file.is_directory() || !Utils::IsResourceValid(extension) || !std::regex_search(filename, pattern))
 				continue;
@@ -315,12 +317,12 @@ namespace Ilargi
 				ImGui::Text(filename.c_str());
 				if (mResources.find(path) != mResources.end())
 				{
-					UUID uuid = mResources[path];
-					const ResourceMetadata& metadata = ResourceManager::GetMetadata(uuid);
+					UUID uuid{ mResources[path] };
+					const ResourceMetadata& metadata{ ResourceManager::GetMetadata(uuid) };
 
-					std::string resType = Utils::GetStringFromResourceType(metadata.type);
+					std::string resType{ Utils::GetStringFromResourceType(metadata.type) };
 
-					ImVec2 textSize = ImGui::CalcTextSize(resType.c_str());
+					ImVec2 textSize{ ImGui::CalcTextSize(resType.c_str()) };
 					ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (cellX - textSize.x - 5.0f));
 					ImGui::SetCursorPosY(cellY - textSize.y - 5.0f);
 					ImGui::Text(resType.c_str());

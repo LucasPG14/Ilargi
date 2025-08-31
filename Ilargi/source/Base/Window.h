@@ -6,11 +6,11 @@ namespace Ilargi
 {
 	struct WindowProperties
 	{
-		std::string appName = "";
-		int width = 0;
-		int height = 0;
-		bool fullscreen = false;
-		std::string iconPath = "";
+		std::string appName{ "" };
+		int width{ 0 };
+		int height{ 0 };
+		bool fullscreen{ false };
+		std::string iconPath{ "" };
 	};
 
 	class Event;

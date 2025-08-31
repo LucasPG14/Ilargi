@@ -14,7 +14,7 @@ namespace Ilargi
 	EditorCamera::EditorCamera() : mViewMatrix(), mProjectionMatrix(), mPosition(0.0f, 0.0f, 5.0f), mUp(0.0f, 1.0f, 0.0f),
 		mFront(0.0f, 0.0f, -1.0f), mHorizontalFov(glm::radians(70.0f)), mNearPlane(0.1f), mFarPlane(1000.0f), mMousePosition(0.0f)
 	{
-		float aspectRatio = 1080.0f / 720.0f;
+		float aspectRatio{ 1080.0f / 720.0f };
 		mProjectionMatrix = glm::perspective(glm::radians(60.0f), aspectRatio, mNearPlane, mFarPlane);
 
 		ComputeViewMatrix();
@@ -26,14 +26,14 @@ namespace Ilargi
 	
 	void EditorCamera::Update()
 	{
-		constexpr float speed = 5.0f;
+		constexpr float speed{ 5.0f };
 
-		glm::vec3 newPos = mPosition;
-		glm::vec3 newFront = mFront;
-		glm::vec3 newUp = mUp;
+		glm::vec3 newPos{ mPosition };
+		glm::vec3 newFront{ mFront };
+		glm::vec3 newUp{ mUp };
 
-		const glm::vec2& mouse = Input::GetMousePos();
-		glm::vec2 delta = (mouse - mMousePosition) * 0.0001f;
+		const glm::vec2& mouse{ Input::GetMousePos() };
+		glm::vec2 delta{ (mouse - mMousePosition) * 0.0001f };
 		mMousePosition = mouse;
 
 		delta.x = -delta.x * (0.016f * 1000.0f);
@@ -67,7 +67,7 @@ namespace Ilargi
 
 			if (Input::IsKeyPressed(KeyCode::LEFT_ALT))
 			{
-				glm::quat orbit = glm::quat(glm::vec3(mPosition.z >= 0.0f ? delta.y * 2.0f : -delta.y * 2.0f, delta.x * 2.0f, 0.0));
+				glm::quat orbit{ glm::quat(glm::vec3(mPosition.z >= 0.0f ? delta.y * 2.0f : -delta.y * 2.0f, delta.x * 2.0f, 0.0)) };
 				
 				newPos = glm::normalize(orbit) * newPos;
 				newFront = glm::normalize(glm::vec3(0.0) - newPos);
@@ -76,8 +76,8 @@ namespace Ilargi
 			{
 				if (delta.y != 0)
 				{
-					const glm::quat& quaternion = glm::quat(delta.y, glm::normalize(glm::cross(mFront, mUp)));
-					const glm::quat& conjQuat = glm::conjugate(quaternion);
+					const glm::quat& quaternion{ glm::quat(delta.y, glm::normalize(glm::cross(mFront, mUp))) };
+					const glm::quat& conjQuat{ glm::conjugate(quaternion) };
 
 					newFront = glm::normalize(quaternion * newFront * conjQuat);
 					newUp = glm::normalize(quaternion * newUp * conjQuat);
@@ -85,8 +85,8 @@ namespace Ilargi
 				}
 				if (delta.x != 0)
 				{
-					const glm::quat& quaternion = glm::quat(delta.x, glm::vec3(0.0f, 1.0f, 0.0f));
-					const glm::quat& conjQuat = glm::conjugate(quaternion);
+					const glm::quat& quaternion{ glm::quat(delta.x, glm::vec3(0.0f, 1.0f, 0.0f)) };
+					const glm::quat& conjQuat{ glm::conjugate(quaternion) };
 
 					newFront = glm::normalize(quaternion * newFront * conjQuat);
 					newUp = glm::normalize(quaternion * newUp * conjQuat);
@@ -104,7 +104,7 @@ namespace Ilargi
 
 	void EditorCamera::Resize(float aWidth, float aHeight)
 	{
-		float aspectRatio = aWidth / aHeight;
+		float aspectRatio{ aWidth / aHeight };
 		mProjectionMatrix = glm::perspective(glm::radians(60.0f), aspectRatio, mNearPlane, mFarPlane);
 	}
 	

@@ -8,7 +8,7 @@ namespace Ilargi
 {
 	VulkanCommandBuffer::VulkanCommandBuffer(uint32_t aFramesInFlight) : mQueryPoolCount(aFramesInFlight * 2)
 	{
-		auto device = VulkanContext::GetLogicalDevice();
+		auto device{ VulkanContext::GetLogicalDevice() };
 
 		mCommandBuffers.resize(aFramesInFlight);
 
@@ -39,7 +39,7 @@ namespace Ilargi
 
 	void VulkanCommandBuffer::Destroy() const
 	{
-		auto device = VulkanContext::GetLogicalDevice();
+		auto device{ VulkanContext::GetLogicalDevice() };
 
 		vkDestroyFence(device, mFence, nullptr);
 	}
@@ -48,7 +48,7 @@ namespace Ilargi
 	{
 		Renderer::Submit([this]()
 			{
-				uint32_t currentFrame = Renderer::GetCurrentFrame();
+				uint32_t currentFrame{ Renderer::GetCurrentFrame() };
 
 				VkCommandBufferBeginInfo beginInfo
 				{
@@ -66,7 +66,7 @@ namespace Ilargi
 	{
 		Renderer::Submit([this]()
 			{
-				uint32_t currentFrame = Renderer::GetCurrentFrame();
+				uint32_t currentFrame{ Renderer::GetCurrentFrame() };
 
 				VK_CHECK_RESULT(vkEndCommandBuffer(mCommandBuffers[currentFrame]));
 			});
@@ -76,8 +76,8 @@ namespace Ilargi
 	{
 		Renderer::Submit([this]()
 			{
-				uint32_t currentFrame = Renderer::GetCurrentFrame();
-				auto device = VulkanContext::GetLogicalDevice();
+				uint32_t currentFrame{ Renderer::GetCurrentFrame() };
+				auto device{ VulkanContext::GetLogicalDevice() };
 				
 				VkPipelineStageFlags waitStages[] { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 

@@ -9,7 +9,7 @@ namespace Ilargi
 {
 	VulkanUniformBuffer::VulkanUniformBuffer(uint32_t s, uint32_t framesInFlight) : mSize(s)
 	{
-		auto device = VulkanContext::GetLogicalDevice();
+		auto device{ VulkanContext::GetLogicalDevice() };
 
 		mUbos.resize(framesInFlight);
 		mUniformBuffersMapped.resize(framesInFlight);
@@ -32,7 +32,7 @@ namespace Ilargi
 			mUniformBuffersMapped[i] = VulkanAllocator::MapMemory(mUbos[i]);
 		}
 
-		auto vulkanShader = std::static_pointer_cast<VulkanShader>(Renderer::GetShaderLibrary()->Get("PBR_Static"));
+		auto vulkanShader{ std::static_pointer_cast<VulkanShader>(Renderer::GetShaderLibrary()->Get("PBR_Static")) };
 
 		mDescriptorSets.resize(Renderer::GetConfig().maxFrames, VK_NULL_HANDLE);
 		for (uint32_t setIndex { 0U }; setIndex < Renderer::GetConfig().maxFrames; ++setIndex)
@@ -59,15 +59,17 @@ namespace Ilargi
 	
 	void VulkanUniformBuffer::SetData(void* data)
 	{
-		auto device = VulkanContext::GetLogicalDevice();
-		uint32_t currentFrame = Renderer::GetCurrentFrame();
+		auto device{ VulkanContext::GetLogicalDevice() };
+		uint32_t currentFrame{ Renderer::GetCurrentFrame() };
 
 		memcpy(mUniformBuffersMapped[currentFrame], data, mSize);
 
-		VkDescriptorBufferInfo bufferInfo = {};
-		bufferInfo.buffer = mUbos[currentFrame].buffer;
-		bufferInfo.offset = 0;
-		bufferInfo.range = mSize;
+		VkDescriptorBufferInfo bufferInfo
+		{
+			mUbos[currentFrame].buffer,		// buffer
+			0,								// offset
+			mSize							// range
+		};
 
 		std::array<VkWriteDescriptorSet, 3> descriptorWrites{};
 

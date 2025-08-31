@@ -4,6 +4,7 @@
 #include "Utils/Importers/ModelImporter.h"
 #include "Utils/Importers/TextureImporter.h"
 #include "Utils/Importers/SceneImporter.h"
+#include "Utils/Importers/MaterialImporter.h"
 
 #include <ArduinoJson-v7.0.4.h>
 
@@ -25,7 +26,7 @@ namespace Ilargi
 		}
 	}
 
-	const std::map<std::string, ResourceType> extensionsMap = 
+	const std::map<std::string, ResourceType> extensionsMap
 	{
 		{ ".png",		ResourceType::TEXTURE2D },
 		{ ".jpg",		ResourceType::TEXTURE2D },
@@ -36,7 +37,7 @@ namespace Ilargi
 	};
 
 	using ImportFn = std::function<void(UUID, const ResourceMetadata&)>;
-	static std::map<ResourceType, ImportFn> importers =
+	static std::map<ResourceType, ImportFn> importers
 	{
 		{ ResourceType::MODEL, ModelImporter::ImportModel },
 		{ ResourceType::TEXTURE2D, TextureImporter::ImportTexture },
@@ -44,11 +45,12 @@ namespace Ilargi
 	};
 
 	using LoadFn = std::function<std::shared_ptr<Resource>(const ResourceMetadata&)>;
-	static std::map<ResourceType, LoadFn> loaders =
+	static std::map<ResourceType, LoadFn> loaders
 	{
 		{ ResourceType::TEXTURE2D, TextureImporter::LoadTexture },
 		{ ResourceType::MODEL, ModelImporter::LoadModel },
 		{ ResourceType::SCENE, SceneImporter::LoadScene },
+		{ ResourceType::MATERIAL, MaterialImporter::LoadMaterial },
 	};
 
 	std::unordered_map<UUID, ResourceMetadata> ResourceManager::sResourcesMetadata;
@@ -76,7 +78,7 @@ namespace Ilargi
 		ResourceMetadata metadata;
 		metadata.type = GetResourceType(aPath.extension().string());
 		
-		std::string newPath = (aActualDir / aPath.stem()).string() + Utils::GetExtensionFromResourceType(metadata.type);
+		std::string newPath{ (aActualDir / aPath.stem()).string() + Utils::GetExtensionFromResourceType(metadata.type) };
 		
 		metadata.sourceFile = aPath;
 		metadata.filepath = newPath;
@@ -119,14 +121,14 @@ namespace Ilargi
 		if (!ExistsResource(aUUID))
 			return nullptr;
 
-		std::shared_ptr<Resource> resource = nullptr;
+		std::shared_ptr<Resource> resource{ nullptr };
 		if (IsResourceLoaded(aUUID))
 		{
 			resource = sLoadedResources.at(aUUID);
 			return resource;
 		}
 
-		const auto& metadata = sResourcesMetadata.at(aUUID);
+		const auto& metadata{ sResourcesMetadata.at(aUUID) };
 		resource = loaders[metadata.type](metadata);
 		resource->mResourceUUID = aUUID;
 		sLoadedResources[aUUID] = resource;
@@ -156,8 +158,8 @@ namespace Ilargi
 
 		for (auto it = sResourcesMetadata.begin(); it != sResourcesMetadata.end(); ++it)
 		{
-			const ResourceMetadata& metadata = it->second;
-			uint32_t index = document.size();
+			const ResourceMetadata& metadata{ it->second };
+			uint32_t index{ (uint32_t)document.size() };
 
 			document[index]["UUID"] = static_cast<uint64_t>(it->first);
 			document[index]["Type"] = static_cast<int>(metadata.type);
@@ -181,7 +183,7 @@ namespace Ilargi
 		
 		for (uint32_t i { 0U }; i < document.size(); ++i)
 		{
-			UUID uuid = static_cast<uint64_t>(document[i]["UUID"]);
+			UUID uuid{ static_cast<uint64_t>(document[i]["UUID"]) };
 			ResourceMetadata metadata;
 
 			metadata.filepath = static_cast<const char*>(document[i]["Filepath"]);

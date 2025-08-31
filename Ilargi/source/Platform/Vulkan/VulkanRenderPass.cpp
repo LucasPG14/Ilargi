@@ -14,35 +14,35 @@ namespace Ilargi
 {
 	VulkanRenderPass::VulkanRenderPass(const RenderPassProperties& props) : mProperties(props)
 	{
-		auto device = VulkanContext::GetLogicalDevice();
-		const std::vector<ImageFormat>& formats = mProperties.framebuffer->GetProperties().formats;
+		auto device{ VulkanContext::GetLogicalDevice() };
+		const std::vector<ImageFormat>& formats{ mProperties.framebuffer->GetProperties().formats };
 		
 		std::vector<VkAttachmentDescription> attachments;
 		std::vector<VkAttachmentReference> colorAttachmentRefs;
-		VkAttachmentReference depthAttachmentRef = {};
+		VkAttachmentReference depthAttachmentRef {};
 		depthAttachmentRef.layout = VK_IMAGE_LAYOUT_UNDEFINED;
 		
 		for (uint32_t i { 0 }; i < formats.size(); ++i)
 		{
-			bool isDepth = Utils::IsDepth(formats[i]);
+			bool isDepth{ Utils::IsDepth(formats[i]) };
 
-			VkAttachmentDescription& attachment = attachments.emplace_back();
+			VkAttachmentDescription& attachment{ attachments.emplace_back() };
 			attachment.format = Utils::GetFormatFromImageFormat(formats[i]);
 			attachment.samples = VK_SAMPLE_COUNT_1_BIT;
-			attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+			attachment.loadOp = !mProperties.clearDepth ? VK_ATTACHMENT_LOAD_OP_LOAD : VK_ATTACHMENT_LOAD_OP_CLEAR;
 			attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 			
-			attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-			attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+			attachment.stencilLoadOp = !mProperties.clearDepth ? VK_ATTACHMENT_LOAD_OP_LOAD : VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+			attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
 			
-			attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-			attachment.finalLayout = isDepth ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			attachment.initialLayout = !mProperties.clearDepth ? isDepth ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL : VK_IMAGE_LAYOUT_UNDEFINED;
+			attachment.finalLayout = isDepth ? !mProperties.clearDepth ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL : VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-			VkClearValue& clearValue = mClearValues.emplace_back();
+			VkClearValue& clearValue{ mClearValues.emplace_back() };
 
 			if (!isDepth)
 			{
-				VkAttachmentReference& attachmentRef = colorAttachmentRefs.emplace_back();
+				VkAttachmentReference& attachmentRef{ colorAttachmentRefs.emplace_back() };
 				attachmentRef.attachment = i;
 				attachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 				clearValue.color = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -54,11 +54,19 @@ namespace Ilargi
 			clearValue.depthStencil = { 1.0f, 0 };
 		}
 
-		VkSubpassDescription subpass = {};
-		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-		subpass.colorAttachmentCount = static_cast<uint32_t>(colorAttachmentRefs.size());
-		subpass.pColorAttachments = colorAttachmentRefs.data();
-		subpass.pDepthStencilAttachment = depthAttachmentRef.layout == VK_IMAGE_LAYOUT_UNDEFINED ? nullptr : &depthAttachmentRef;
+		VkSubpassDescription subpass 
+		{
+			0,																							// flags
+			VK_PIPELINE_BIND_POINT_GRAPHICS,															// sType
+			0,																							// inputAttachmentCount
+			nullptr,																					// pInputAttachments
+			static_cast<uint32_t>(colorAttachmentRefs.size()),											// colorAttachmentCount
+			colorAttachmentRefs.data(),																	// pColorAttachments
+			nullptr,																					// pResolveAttachments
+			depthAttachmentRef.layout == VK_IMAGE_LAYOUT_UNDEFINED ? nullptr : &depthAttachmentRef,		// pDepthStencilAttachment
+			0,																							// preserveAttachmentCount
+			nullptr																						// pPreserveAttachments
+		};
 
 		VkSubpassDependency dependency
 		{
@@ -66,7 +74,7 @@ namespace Ilargi
 			0,																							// dstSubpass
 			VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, // srcStageMask
 			VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, // dstStageMask
-			0,																							// srcAccessMask
+			VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,			// srcAccessMask
 			VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT			// dstAccessMask
 		};
 
@@ -95,7 +103,7 @@ namespace Ilargi
 
 	void VulkanRenderPass::Destroy()
 	{
-		auto device = VulkanContext::GetLogicalDevice();
+		auto device{ VulkanContext::GetLogicalDevice() };
 
 		mProperties.pipeline->Destroy();
 		vkDestroyRenderPass(device, mRenderPass, nullptr);
@@ -105,11 +113,11 @@ namespace Ilargi
 	{
 		Renderer::Submit([this, commandBuffer]()
 			{
-				auto framebuffer = std::static_pointer_cast<VulkanFramebuffer>(mProperties.framebuffer);
-				auto cmdBuffer = std::static_pointer_cast<VulkanCommandBuffer>(commandBuffer)->GetCurrentCommand(Renderer::GetCurrentFrame());
+				auto framebuffer{ std::static_pointer_cast<VulkanFramebuffer>(mProperties.framebuffer) };
+				auto cmdBuffer{ std::static_pointer_cast<VulkanCommandBuffer>(commandBuffer)->GetCurrentCommand(Renderer::GetCurrentFrame()) };
 
-				uint32_t width = framebuffer->GetWidth();
-				uint32_t height = framebuffer->GetHeight();
+				uint32_t width{ framebuffer->GetWidth() };
+				uint32_t height{ framebuffer->GetHeight() };
 
 				VkRenderPassBeginInfo renderPassInfo
 				{
@@ -121,7 +129,8 @@ namespace Ilargi
 						{ 0, 0 },									// offset
 						{ width, height }							// extent
 					},
-					static_cast<uint32_t>(mClearValues.size()),	// clearValueCount
+					
+					mProperties.clearDepth ? static_cast<uint32_t>(mClearValues.size()) : 0,	// clearValueCount
 					mClearValues.data()							// pClearValues
 				};
 
@@ -151,7 +160,7 @@ namespace Ilargi
 	{
 		Renderer::Submit([commandBuffer]()
 			{
-				auto cmdBuffer = std::static_pointer_cast<VulkanCommandBuffer>(commandBuffer)->GetCurrentCommand(Renderer::GetCurrentFrame());
+				auto cmdBuffer{ std::static_pointer_cast<VulkanCommandBuffer>(commandBuffer)->GetCurrentCommand(Renderer::GetCurrentFrame()) };
 				vkCmdEndRenderPass(cmdBuffer);
 			});
 	}

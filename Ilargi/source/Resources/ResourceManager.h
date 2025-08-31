@@ -16,6 +16,7 @@ namespace Ilargi
 		static bool ExistsResource(UUID aUUID);
 
 		static const ResourceMetadata& GetMetadata(UUID aUUID);
+
 		static std::shared_ptr<Resource> GetResource(UUID aUUID);
 
 		static bool IsResourceLoaded(UUID aUUID);

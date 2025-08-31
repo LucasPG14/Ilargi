@@ -20,9 +20,9 @@ namespace Ilargi
 	{
 		Renderer::Submit([aCommandBuffer, aVertexBuffer, aIndexBuffer]()
 			{
-				uint32_t currentFrame = Renderer::GetCurrentFrame();
+				uint32_t currentFrame{ Renderer::GetCurrentFrame() };
 
-				auto cmdBuffer = std::static_pointer_cast<VulkanCommandBuffer>(aCommandBuffer)->GetCurrentCommand(currentFrame);
+				auto cmdBuffer{ std::static_pointer_cast<VulkanCommandBuffer>(aCommandBuffer)->GetCurrentCommand(currentFrame) };
 				aVertexBuffer->Bind(aCommandBuffer);
 				aIndexBuffer->Bind(aCommandBuffer);
 
@@ -34,9 +34,9 @@ namespace Ilargi
 	{
 		Renderer::Submit([aCommandBuffer]()
 		{
-				uint32_t currentFrame = Renderer::GetCurrentFrame();
+				uint32_t currentFrame{ Renderer::GetCurrentFrame() };
 
-				auto cmdBuffer = std::static_pointer_cast<VulkanCommandBuffer>(aCommandBuffer)->GetCurrentCommand(currentFrame);
+				auto cmdBuffer{ std::static_pointer_cast<VulkanCommandBuffer>(aCommandBuffer)->GetCurrentCommand(currentFrame) };
 				vkCmdDraw(cmdBuffer, 6, 1, 0, 0);
 		});
 	}

@@ -22,7 +22,7 @@ namespace Ilargi
 
 		// TODO: Should be only on the GPU using a staging buffer
 		VulkanAllocator::AllocateBuffer(mBuffer, indexBufferInfo, VMA_MEMORY_USAGE_CPU_TO_GPU);
-		void* bufferData = VulkanAllocator::MapMemory(mBuffer);
+		void* bufferData{ VulkanAllocator::MapMemory(mBuffer) };
 		memcpy(bufferData, data, indexBufferInfo.size);
 		VulkanAllocator::UnmapMemory(mBuffer);
 	}
@@ -34,8 +34,8 @@ namespace Ilargi
 
 	void VulkanIndexBuffer::Bind(std::shared_ptr<CommandBuffer> commandBuffer) const
 	{
-		uint32_t currentFrame = Renderer::GetCurrentFrame();
-		auto cmdBuffer = std::static_pointer_cast<VulkanCommandBuffer>(commandBuffer);
+		uint32_t currentFrame{ Renderer::GetCurrentFrame() };
+		auto cmdBuffer{ std::static_pointer_cast<VulkanCommandBuffer>(commandBuffer) };
 		
 		vkCmdBindIndexBuffer(cmdBuffer->GetCurrentCommand(currentFrame), mBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
 	}

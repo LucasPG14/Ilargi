@@ -7,9 +7,10 @@
 
 namespace Ilargi
 {
-	Model::Model(const std::vector<std::shared_ptr<StaticMesh>>& aMeshes) : mMeshes(aMeshes)
+	Model::Model(const std::vector<std::shared_ptr<StaticMesh>>& aMeshes, const std::vector<std::shared_ptr<Material>>& aMaterials) 
+		: mMeshes(aMeshes), mMaterials(aMaterials)
 	{
-		mMaterials.push_back(Material::Create(Renderer::GetShaderLibrary()->Get("PBR_Static")));
+		//mMaterials.push_back(Material::Create(Renderer::GetShaderLibrary()->Get("PBR_Static")));
 	}
 
 	Model::~Model()

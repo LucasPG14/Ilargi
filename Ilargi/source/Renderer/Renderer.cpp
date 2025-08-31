@@ -8,18 +8,18 @@
 
 namespace Ilargi
 {
-	GraphicsAPI Renderer::sGraphicsAPI = GraphicsAPI::VULKAN;
-	std::unique_ptr<Render> Renderer::sRender = Render::Create();
-	std::shared_ptr<ShaderLibrary> Renderer::sShaderLibrary = std::make_shared<ShaderLibrary>();
-	std::shared_ptr<Texture2D> Renderer::sDefaultTexture = nullptr;
-	RendererConfig Renderer::sConfig = {};
-	RendererStatistics Renderer::sStats = {};
-	int Renderer::sCurrentFrame = 0;
-	std::vector<std::function<void()>> Renderer::sQueue = {};
+	GraphicsAPI Renderer::sGraphicsAPI{ GraphicsAPI::VULKAN };
+	std::unique_ptr<Render> Renderer::sRender{ Render::Create() };
+	std::shared_ptr<ShaderLibrary> Renderer::sShaderLibrary{ std::make_shared<ShaderLibrary>() };
+	std::shared_ptr<Texture2D> Renderer::sDefaultTexture{ nullptr };
+	RendererConfig Renderer::sConfig {};
+	RendererStatistics Renderer::sStats {};
+	uint32_t Renderer::sCurrentFrame{ 0U };
+	std::vector<std::function<void()>> Renderer::sQueue {};
 
 	void Renderer::Init()
 	{
-		uint32_t data = 0xffffffff;
+		uint32_t data{ 0xffffffff };
 		sDefaultTexture = Texture2D::Create(&data, 1, 1, 4);
 
 		sShaderLibrary->Init();

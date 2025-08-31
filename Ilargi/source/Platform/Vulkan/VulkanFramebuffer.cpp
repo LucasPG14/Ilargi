@@ -29,21 +29,21 @@ namespace Ilargi
 
 	void VulkanFramebuffer::Init(VkRenderPass aRenderPass)
 	{
-		auto device = VulkanContext::GetLogicalDevice();
+		auto device{ VulkanContext::GetLogicalDevice() };
 		
 		std::vector<VkImageView> attachments;
 
-		uint32_t maxSamples = Renderer::GetConfig().maxAASamples;
+		uint32_t maxSamples{ Renderer::GetConfig().maxAASamples };
 
 		mColorAttachments.resize(mColorSpecifications.size());
-		int i = 0;
+		int i{ 0 };
 		for (VulkanAttachment& attachment : mColorAttachments)
 		{
-			VkFormat format = Utils::GetFormatFromImageFormat(mColorSpecifications[i++]);
+			VkFormat format{ Utils::GetFormatFromImageFormat(mColorSpecifications[i++]) };
 
 			VkImageCreateInfo imageInfo
 			{
-				imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,				// sType
+				VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,								// sType
 				nullptr,															// pNext
 				0,																	// flags
 				VK_IMAGE_TYPE_2D,													// imageType
@@ -88,11 +88,11 @@ namespace Ilargi
 		// Creating the depth image
 		if (mDepthSpecification != ImageFormat::NONE)
 		{
-			VkFormat depthFormat = Utils::GetFormatFromImageFormat(mDepthSpecification);
+			VkFormat depthFormat{ Utils::GetFormatFromImageFormat(mDepthSpecification) };
 			
 			VkImageCreateInfo imageInfo
 			{
-				imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,	// sType
+				VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,					// sType
 				nullptr,												// pNext
 				0,														// flags
 				VK_IMAGE_TYPE_2D,										// imageType
@@ -241,7 +241,7 @@ namespace Ilargi
 	
 	void VulkanFramebuffer::Destroy()
 	{
-		auto device = VulkanContext::GetLogicalDevice();
+		auto device{ VulkanContext::GetLogicalDevice() };
 
 		for (auto colorAttachment : mColorAttachments)
 		{
@@ -262,7 +262,7 @@ namespace Ilargi
 		mProperties.width = aWidth;
 		mProperties.height = aHeight;
 
-		auto device = VulkanContext::GetLogicalDevice();
+		auto device{ VulkanContext::GetLogicalDevice() };
 		vkDeviceWaitIdle(device);
 
 		for (auto colorAttachment : mColorAttachments)

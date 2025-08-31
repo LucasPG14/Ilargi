@@ -22,7 +22,7 @@ namespace Ilargi
 	Window::Window(const WindowProperties& aProps, EventCallback aEventCallback)
 		: mEventFunc(aEventCallback), mProperties(aProps), mContext(nullptr)
 	{
-		int success = glfwInit();
+		int success{ glfwInit() };
 
 		ILG_ASSERT(success, "Error while initializing the GLFW library");
 
@@ -31,8 +31,8 @@ namespace Ilargi
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 		glfwWindowHint(GLFW_MAXIMIZED, mProperties.fullscreen);
 
-		GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
-		const GLFWvidmode* videoMode = glfwGetVideoMode(primaryMonitor);
+		GLFWmonitor* primaryMonitor{ glfwGetPrimaryMonitor() };
+		const GLFWvidmode* videoMode{ glfwGetVideoMode(primaryMonitor) };
 
 		int monitorX, monitorY;
 		glfwGetMonitorPos(primaryMonitor, &monitorX, &monitorY);
@@ -96,7 +96,7 @@ namespace Ilargi
 		// ---------------------------------Setting the close callback---------------------------------------
 		glfwSetWindowCloseCallback(mWindow, [](GLFWwindow* win)
 		{
-			Window& window = *(Window*)glfwGetWindowUserPointer(win);
+			Window& window{ *(Window*)glfwGetWindowUserPointer(win) };
 
 			WindowCloseEvent closeEvent;
 			window.mEventFunc(closeEvent);
@@ -105,7 +105,7 @@ namespace Ilargi
 		// ---------------------------------Setting the resize callback--------------------------------------
 		glfwSetFramebufferSizeCallback(mWindow, [](GLFWwindow* win, int w, int h)
 		{
-			Window& window = *(Window*)glfwGetWindowUserPointer(win);
+			Window& window{ *(Window*)glfwGetWindowUserPointer(win) };
 
 			//window.GetSwapchain()->SetWidthAndHeight(w, h);
 			
@@ -116,7 +116,7 @@ namespace Ilargi
 		// ---------------------------------Setting the key callback--------------------------------------
 		glfwSetKeyCallback(mWindow, [](GLFWwindow* win, int key, int scancode, int action, int mods)
 		{
-			Window& window = *(Window*)glfwGetWindowUserPointer(win);
+			Window& window{ *(Window*)glfwGetWindowUserPointer(win) };
 
 			switch (action)
 			{
@@ -144,7 +144,7 @@ namespace Ilargi
 		// -----------------------------Setting the mouse button callback---------------------------------
 		glfwSetMouseButtonCallback(mWindow, [](GLFWwindow* win, int button, int action, int mods)
 		{
-			Window& window = *(Window*)glfwGetWindowUserPointer(win);
+			Window& window{ *(Window*)glfwGetWindowUserPointer(win) };
 
 			switch (action)
 			{
@@ -166,7 +166,7 @@ namespace Ilargi
 		// ---------------------------------Setting the drop callback-------------------------------------
 		glfwSetDropCallback(mWindow, [](GLFWwindow* win, int pathCount, const char* paths[])
 		{
-			Window& window = *(Window*)glfwGetWindowUserPointer(win);
+			Window& window{ *(Window*)glfwGetWindowUserPointer(win) };
 
 			std::vector<std::filesystem::path> eventPaths;
 			eventPaths.reserve(pathCount);

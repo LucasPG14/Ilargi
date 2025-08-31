@@ -20,20 +20,19 @@ namespace Ilargi
 
 		stbi_set_flip_vertically_on_load(true);
 
-		// TODO: Need to save the width, height and channels of the image in the binary file
-		void* data = stbi_load(aMetadata.sourceFile.string().c_str(), &width, &height, &channels, STBI_rgb_alpha);
+		void* data{ stbi_load(aMetadata.sourceFile.string().c_str(), &width, &height, &channels, STBI_rgb_alpha) };
 
 		if (!data)
 		{
 			ILG_CORE_ERROR("Unable to load the texture: {0}", aMetadata.sourceFile.string());
 			return;
 		}
-		int header[3] = { width, height, 4 };
+		int header[3] { width, height, 4 };
 		buffer.size = sizeof(header) + (width * height * 4);
 
 		buffer.data = new char[buffer.size];
 		
-		char* buf = buffer.data;
+		char* buf{ buffer.data };
 		memcpy(buf, header, sizeof(header));
 		buf += sizeof(header);
 		memcpy(buf, data, width * height * 4);
@@ -51,9 +50,9 @@ namespace Ilargi
 		// TODO: Take a look to the formats, doesn't allow to create an image with three channels
 		std::shared_ptr<Texture2D> texture;
 
-		const Buffer& buffer = FileSystem::ReadBinaryFile(aMetadata.filepath);
+		const Buffer& buffer{ FileSystem::ReadBinaryFile(aMetadata.filepath) };
 
-		char* data = buffer.data;
+		char* data{ buffer.data };
 
 		int width, height, channels;
 
@@ -66,7 +65,7 @@ namespace Ilargi
 		memcpy(&channels, data, sizeof(int));
 		data += sizeof(int);
 
-		void* imageData = new char[width * height * channels];
+		void* imageData{ new char[width * height * channels] };
 		memcpy(imageData, data, width * height * channels);
 
 		return Texture2D::Create(imageData, width, height, channels);

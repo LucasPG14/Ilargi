@@ -6,7 +6,7 @@
 
 namespace Ilargi
 {
-	VmaAllocator VulkanAllocator::sAllocator = VK_NULL_HANDLE;
+	VmaAllocator VulkanAllocator::sAllocator{ VK_NULL_HANDLE };
 
 	void VulkanAllocator::Init()
 	{

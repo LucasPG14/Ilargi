@@ -39,7 +39,7 @@ layout(location = 5) out vec3 vViewPos;
 
 void main() 
 {
-    gl_Position = sceneData.viewProjMatrix * pushConstants.modelMatrix * vec4(inPosition, 1.0); 
+    gl_Position = sceneData.viewProjMatrix * pushConstants.modelMatrix * vec4(inPosition, 2.0); 
     vTexCoord = inTexCoord;
     vLightColor = pushConstants.radiance.rgb;
     vNormal = mat3(transpose(inverse(pushConstants.modelMatrix))) * inNormal;
@@ -127,6 +127,36 @@ layout(set = 1, binding = 0) uniform SceneData
     PointLight pointLights[1024];
 } sceneData;
 
+vec3 CalculateDirectionalLight(vec3 F0)
+{
+    vec3 N = normalize(vNormal);
+    vec3 V = normalize(vViewPos - vFragPos);
+    vec3 color = vec3(0.0f);
+    
+    // calculate per-light radiance
+    vec3 L = -vLightDirection;
+    vec3 H = normalize(V + L);
+
+    vec3 radiance = vLightColor;
+
+    // cook-torrance brdf
+    float NDF = DistributionGGX(N, H, material.roughness);
+    float G = GeometrySmith(N, V, L, material.roughness);
+    vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
+
+    vec3 kS = F;
+    vec3 kD = vec3(1.0) - kS;
+    kD *= 1.0 - material.metallic;
+
+    vec3 numerator = NDF * G * F;
+    float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
+    vec3 specular = numerator / denominator;
+
+    // add to outgoing radiance Lo
+    float NdotL = max(dot(N, L), 0.0);
+    return (kD * material.color.rgb / 3.1415 + specular) * radiance * NdotL;
+}
+
 void main() 
 {
     vec3 N = normalize(vNormal);
@@ -138,7 +168,7 @@ void main()
     F0 = mix(F0, materialColor, material.metallic);
 
     // reflectance equation
-    vec3 Lo = vec3(0.0);
+    vec3 Lo = CalculateDirectionalLight(F0);
     for (int i = 0; i < sceneData.pointLightsSize; ++i)
     {
         // calculate per-light radiance

@@ -26,7 +26,7 @@ namespace Ilargi
 
 	VulkanSwapchain::VulkanSwapchain() : mSwapchain(VK_NULL_HANDLE), mCurrentFrame(0), mCurrentImageIndex(0)
 	{
-		auto device = VulkanContext::GetLogicalDevice();
+		auto device{ VulkanContext::GetLogicalDevice() };
 
 		QuerySwapchainSupport(VulkanContext::GetPhysicalDevice());
 
@@ -36,7 +36,7 @@ namespace Ilargi
 
 		CreateFramebuffers();
 
-		uint32_t imageCount = Renderer::GetConfig().maxFrames;
+		uint32_t imageCount{ Renderer::GetConfig().maxFrames };
 
 		// Creating command buffers
 		{
@@ -93,16 +93,16 @@ namespace Ilargi
 
 	void VulkanSwapchain::StartFrame()
 	{
-		auto device = VulkanContext::GetLogicalDevice();
+		auto device{ VulkanContext::GetLogicalDevice() };
 
 		vkAcquireNextImageKHR(device, mSwapchain, UINT64_MAX, mImageAvailable[mCurrentFrame], VK_NULL_HANDLE, &mCurrentImageIndex);
 	}
 
 	void VulkanSwapchain::EndFrame()
 	{
-		auto device = VulkanContext::GetLogicalDevice();
+		auto device{ VulkanContext::GetLogicalDevice() };
 
-		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+		VkPipelineStageFlags waitStages[] { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 		
 		VkSubmitInfo submitInfo
 		{
@@ -137,7 +137,7 @@ namespace Ilargi
 			nullptr									// pResults
 		};
 
-		VkResult result = vkQueuePresentKHR(mPresentQueue, &presentInfo);
+		VkResult result{ vkQueuePresentKHR(mPresentQueue, &presentInfo) };
 		if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
 		{
 			if (result == VK_ERROR_OUT_OF_DATE_KHR)
@@ -155,7 +155,7 @@ namespace Ilargi
 
 	void VulkanSwapchain::Destroy()
 	{
-		auto device = VulkanContext::GetLogicalDevice();
+		auto device{ VulkanContext::GetLogicalDevice() };
 
 		vkDeviceWaitIdle(device);
 
@@ -184,15 +184,15 @@ namespace Ilargi
 
 	void VulkanSwapchain::CreateSwapchain()
 	{
-		auto device = VulkanContext::GetLogicalDevice();
-		auto physicalDevice = VulkanContext::GetPhysicalDevice();
-		auto surface = VulkanContext::GetSurface();
+		auto device{ VulkanContext::GetLogicalDevice() };
+		auto physicalDevice{ VulkanContext::GetPhysicalDevice() };
+		auto surface{ VulkanContext::GetSurface() };
 		
 		VkPhysicalDeviceProperties physicalDeviceProperties;
 		vkGetPhysicalDeviceProperties(physicalDevice, &physicalDeviceProperties);
 
 		RendererConfig config;
-		VkSampleCountFlags counts = physicalDeviceProperties.limits.framebufferColorSampleCounts & physicalDeviceProperties.limits.framebufferDepthSampleCounts;
+		VkSampleCountFlags counts{ physicalDeviceProperties.limits.framebufferColorSampleCounts & physicalDeviceProperties.limits.framebufferDepthSampleCounts };
 
 		config.maxAASamples = Utils::GetAASamples(counts);
 		config.maxAnisotropy = physicalDeviceProperties.limits.maxSamplerAnisotropy;
@@ -203,7 +203,7 @@ namespace Ilargi
 		QuerySwapchainSupport(VulkanContext::GetPhysicalDevice());
 		mExtent = capabilities.currentExtent;
 		
-		uint32_t imageCount = capabilities.minImageCount + 1;
+		uint32_t imageCount{ capabilities.minImageCount + 1 };
 
 		if (capabilities.maxImageCount > 0 && imageCount > capabilities.maxImageCount)
 		{
@@ -213,7 +213,7 @@ namespace Ilargi
 		
 		Renderer::SetConfig(config);
 
-		VkSwapchainCreateInfoKHR swapchainInfo = {};
+		VkSwapchainCreateInfoKHR swapchainInfo {};
 		swapchainInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 		swapchainInfo.surface = VulkanContext::GetSurface();
 
@@ -224,8 +224,8 @@ namespace Ilargi
 		swapchainInfo.imageArrayLayers = 1;
 		swapchainInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-		QueueFamilyIndices indices = VulkanContext::GetQueueIndices();
-		uint32_t queueFamilyIndices[] = { indices.graphicsFamily, indices.presentFamily };
+		QueueFamilyIndices indices{ VulkanContext::GetQueueIndices() };
+		uint32_t queueFamilyIndices[] { indices.graphicsFamily, indices.presentFamily };
 
 		if (indices.graphicsFamily != indices.presentFamily)
 		{
@@ -342,14 +342,14 @@ namespace Ilargi
 
 	void VulkanSwapchain::CreateFramebuffers()
 	{
-		auto device = VulkanContext::GetLogicalDevice();
+		auto device{ VulkanContext::GetLogicalDevice() };
 		// Creating the framebuffers
 		{
 			mFramebuffers.resize(mImageViews.size());
 
 			for (uint32_t i { 0 }; i < mImageViews.size(); ++i)
 			{
-				std::array<VkImageView, 2> attachments = { mImageViews[i], mDepthImageView };
+				std::array<VkImageView, 2> attachments { mImageViews[i], mDepthImageView };
 
 				VkFramebufferCreateInfo framebufferInfo
 				{
@@ -371,7 +371,7 @@ namespace Ilargi
 
 	void VulkanSwapchain::CleanUpSwapchain()
 	{
-		auto device = VulkanContext::GetLogicalDevice();
+		auto device{ VulkanContext::GetLogicalDevice() };
 
 		VulkanAllocator::DestroyImage(mDepthImage);
 		for (uint32_t i { 0 }; i < mFramebuffers.size(); ++i)
@@ -449,7 +449,7 @@ namespace Ilargi
 			0																								// dependencyFlags
 		};
 
-		std::array<VkAttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
+		std::array<VkAttachmentDescription, 2> attachments { colorAttachment, depthAttachment };
 		VkRenderPassCreateInfo renderPassInfo
 		{
 			VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,	// sType
@@ -468,7 +468,7 @@ namespace Ilargi
 
 	void VulkanSwapchain::QuerySwapchainSupport(VkPhysicalDevice aDevice)
 	{
-		auto surface = VulkanContext::GetSurface();
+		auto surface{ VulkanContext::GetSurface() };
 
 		uint32_t formatCount;
 		vkGetPhysicalDeviceSurfaceFormatsKHR(aDevice, surface, &formatCount, nullptr);

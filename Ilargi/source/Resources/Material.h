@@ -9,9 +9,9 @@ namespace Ilargi
 
 	struct MaterialData
 	{
-		glm::vec4 color = glm::vec4(1.0f);
-		float metallic = 0.5f;
-		float roughness = 0.5f;
+		glm::vec4 color{ glm::vec4(1.0f) };
+		float metallic{ 0.5f };
+		float roughness{ 0.5f };
 	};
 
 	class Material : public Resource
@@ -29,6 +29,6 @@ namespace Ilargi
 
 		virtual void UpdateMaterialData() = 0;
 
-		static std::shared_ptr<Material> Create(std::shared_ptr<Shader> aShader);
+		static std::shared_ptr<Material> Create(std::shared_ptr<Shader> aShader, const MaterialData& aMaterialData = {});
 	};
 }

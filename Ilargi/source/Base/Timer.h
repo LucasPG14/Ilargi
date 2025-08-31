@@ -25,9 +25,9 @@ namespace Ilargi
 
 		void Stop()
 		{
-			auto end = std::chrono::high_resolution_clock::now();
+			auto end{ std::chrono::high_resolution_clock::now() };
 
-			auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - mStart);
+			auto duration{ std::chrono::duration_cast<std::chrono::milliseconds>(end - mStart) };
 
 			ILG_CORE_TRACE("The function took: {0}", duration);
 		}

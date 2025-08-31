@@ -20,16 +20,16 @@ namespace Ilargi
 
 	struct FamilyComponent
 	{
-		Entity parent = entt::null;
+		Entity parent{ entt::null };
 		std::vector<Entity> children;
 	};
 
 	struct TransformComponent
 	{
-		glm::mat4 transform = glm::mat4(1.0f);
-		glm::vec3 position = glm::vec3(0.0f);
-		glm::vec3 rotation = glm::vec3(0.0f);
-		glm::vec3 scale = glm::vec3(1.0f);
+		glm::mat4 transform{ glm::mat4(1.0f) };
+		glm::vec3 position{ glm::vec3(0.0f) };
+		glm::vec3 rotation{ glm::vec3(0.0f) };
+		glm::vec3 scale{ glm::vec3(1.0f) };
 
 		void CalculateTransform()
 		{
@@ -51,12 +51,12 @@ namespace Ilargi
 
 	struct DirectionalLightComponent
 	{
-		glm::vec3 radiance = glm::vec3(1.0f);
+		glm::vec3 radiance{ glm::vec3(1.0f) };
 	};
 
 	struct PointLightComponent
 	{
-		glm::vec3 radiance = glm::vec3(1.0f);
-		float radius = 1.0f;
+		glm::vec3 radiance{ glm::vec3(1.0f) };
+		float radius{ 1.0f };
 	};
 }

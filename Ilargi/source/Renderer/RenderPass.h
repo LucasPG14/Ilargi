@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Framebuffer.h"
+
 namespace Ilargi
 {
 	class Framebuffer;

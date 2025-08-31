@@ -25,8 +25,8 @@ namespace Ilargi
 
 	struct RendererStatistics
 	{
-		uint32_t numMeshes = 0;
-		uint32_t drawCalls = 0;
+		uint32_t numMeshes{ 0U };
+		uint32_t drawCalls{ 0U };
 	};
 
 	using RenderFn = std::function<void()>;
@@ -48,7 +48,7 @@ namespace Ilargi
 
 		static const RendererConfig& GetConfig() { return sConfig; }
 		static const RendererStatistics& GetStatistics() { return sStats; }
-		static const int GetCurrentFrame() { return sCurrentFrame; }
+		static const uint32_t GetCurrentFrame() { return sCurrentFrame; }
 
 		static GraphicsAPI GetGraphicsAPI() { return sGraphicsAPI; }
 		
@@ -67,7 +67,7 @@ namespace Ilargi
 
 		static RendererConfig sConfig;
 		static RendererStatistics sStats;
-		static int sCurrentFrame;
+		static uint32_t sCurrentFrame;
 
 		static std::vector<RenderFn> sQueue;
 	};

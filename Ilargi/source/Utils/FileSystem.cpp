@@ -12,7 +12,7 @@ namespace Ilargi
 {
 	Buffer FileSystem::ReadBinaryFile(const std::filesystem::path& filepath)
 	{
-		Buffer buffer = {};
+		Buffer buffer {};
 
 		std::ifstream file(filepath, std::ios::in | std::ios::binary);
 
@@ -45,7 +45,7 @@ namespace Ilargi
 	std::string FileSystem::OpenFile(const char* filter)
 	{
 		OPENFILENAMEA openFile;
-		CHAR sizeFile[256] = { 0 };
+		CHAR sizeFile[256] { 0 };
 		ZeroMemory(&openFile, sizeof(OPENFILENAMEA));
 		openFile.lStructSize = sizeof(OPENFILENAMEA);
 		openFile.hwndOwner = glfwGetWin32Window(Application::Get()->GetWindow().GetWindow());
@@ -65,7 +65,7 @@ namespace Ilargi
 	std::string FileSystem::SaveFile(const char* filter)
 	{
 		OPENFILENAMEA openFile;
-		CHAR sizeFile[256] = { 0 };
+		CHAR sizeFile[256] { 0 };
 		ZeroMemory(&openFile, sizeof(OPENFILENAMEA));
 		openFile.lStructSize = sizeof(OPENFILENAMEA);
 		openFile.hwndOwner = glfwGetWin32Window(Application::Get()->GetWindow().GetWindow());

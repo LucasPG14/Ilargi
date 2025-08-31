@@ -13,7 +13,7 @@ namespace Ilargi::UI
         ImGui::Text(name.data());
         ImGui::PopStyleVar();
 
-		float width = ImGui::GetWindowWidth();
+        float width{ ImGui::GetWindowWidth() };
 		ImGui::SameLine();
         ImGui::SetCursorPos({ width - 25, ImGui::GetCursorPosY() - 3.0f });
 		ImGui::Checkbox("##checkbox", value);
@@ -21,7 +21,7 @@ namespace Ilargi::UI
 
 	void Slider(std::string_view name, float* value, float min, float max)
 	{
-		float width = ImGui::GetWindowWidth();
+        float width{ ImGui::GetWindowWidth() };
 
 		ImGui::Text(name.data());
 		ImGui::SameLine(width - 25);
@@ -56,13 +56,13 @@ namespace Ilargi::UI
 	
     void IlargiStyle()
     {
-        ImGuiStyle* style = &ImGui::GetStyle();
-        ImVec4* colors = style->Colors;
+        ImGuiStyle* style{ &ImGui::GetStyle() };
+        ImVec4* colors{ style->Colors };
 
-        ImVec4 bgColor = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
-        ImVec4 borderColor = ImVec4(0.05f, 0.05f, 0.05f, 1.0f);
-        ImVec4 titleBg = ImVec4(51.0f / 255.0f, 51.0f / 255.0f, 51.0f / 255.0f, 0.20f);
-        ImVec4 titleBgActive = ImVec4(77.0f / 255.0f, 77.0f / 255.0f, 77.0f / 255.0f, 0.30f);
+        ImVec4 bgColor{ ImVec4(0.1f, 0.1f, 0.1f, 1.0f) };
+        ImVec4 borderColor{ ImVec4(0.05f, 0.05f, 0.05f, 1.0f) };
+        ImVec4 titleBg{ ImVec4(51.0f / 255.0f, 51.0f / 255.0f, 51.0f / 255.0f, 0.20f) };
+        ImVec4 titleBgActive{ ImVec4(77.0f / 255.0f, 77.0f / 255.0f, 77.0f / 255.0f, 0.30f) };
 
         style->DockingSeparatorSize = 3.0f;
 
@@ -125,13 +125,13 @@ namespace Ilargi::UI
     
     void IlargiStyle2()
     {
-        ImGuiStyle& style = ImGui::GetStyle();
-        ImVec4* colors = style.Colors;
+        ImGuiStyle& style{ ImGui::GetStyle() };
+        ImVec4* colors{ style.Colors };
 
-        ImVec4 bgColor = ImVec4(12.0f / 255.0f, 12.0f / 255.0f, 25.0f / 255.0f, 1.0f);
-        ImVec4 borderColor = ImVec4(146.0f / 255.0f, 171.0f / 255.0f, 1.0f, 1.0f);
-        ImVec4 titleBg = ImVec4(51.0f / 255.0f, 51.0f / 255.0f, 51.0f / 255.0f, 0.20f);
-        ImVec4 titleBgActive = ImVec4(77.0f / 255.0f, 77.0f / 255.0f, 77.0f / 255.0f, 0.30f);
+        ImVec4 bgColor{ ImVec4(12.0f / 255.0f, 12.0f / 255.0f, 25.0f / 255.0f, 1.0f) };
+        ImVec4 borderColor{ ImVec4(146.0f / 255.0f, 171.0f / 255.0f, 1.0f, 1.0f) };
+        ImVec4 titleBg{ ImVec4(51.0f / 255.0f, 51.0f / 255.0f, 51.0f / 255.0f, 0.20f) };
+        ImVec4 titleBgActive{ ImVec4(77.0f / 255.0f, 77.0f / 255.0f, 77.0f / 255.0f, 0.30f) };
 
         style.DockingSeparatorSize = 3.0f;
 

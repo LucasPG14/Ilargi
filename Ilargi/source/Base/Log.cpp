@@ -11,12 +11,12 @@
 
 namespace Ilargi
 {
-	std::string Log::sClientName = "";
+	std::string Log::sClientName { "" };
 
 	void Log::CoreTrace(std::string_view str)
 	{
-		auto now = std::chrono::system_clock::now();
-		auto time = std::chrono::system_clock::to_time_t(now);
+		auto now{ std::chrono::system_clock::now() };
+		auto time{ std::chrono::system_clock::to_time_t(now) };
 		tm tt;
 		localtime_s(&tt, &time);
 
@@ -25,8 +25,8 @@ namespace Ilargi
 	
 	void Log::CoreInfo(std::string_view str)
 	{
-		auto now = std::chrono::system_clock::now();
-		auto time = std::chrono::system_clock::to_time_t(now);
+		auto now{ std::chrono::system_clock::now() };
+		auto time{ std::chrono::system_clock::to_time_t(now) };
 		tm tt;
 		localtime_s(&tt, &time);
 
@@ -35,8 +35,8 @@ namespace Ilargi
 	
 	void Log::CoreWarn(std::string_view str)
 	{
-		auto now = std::chrono::system_clock::now();
-		auto time = std::chrono::system_clock::to_time_t(now);
+		auto now{ std::chrono::system_clock::now() };
+		auto time{ std::chrono::system_clock::to_time_t(now) };
 		tm tt;
 		localtime_s(&tt, &time);
 
@@ -45,8 +45,8 @@ namespace Ilargi
 	
 	void Log::CoreError(std::string_view str)
 	{
-		auto now = std::chrono::system_clock::now();
-		auto time = std::chrono::system_clock::to_time_t(now);
+		auto now{ std::chrono::system_clock::now() };
+		auto time{ std::chrono::system_clock::to_time_t(now) };
 		tm tt;
 		localtime_s(&tt, &time);
 
@@ -55,8 +55,8 @@ namespace Ilargi
 	
 	void Log::Trace(std::string_view str)
 	{
-		auto now = std::chrono::system_clock::now();
-		auto time = std::chrono::system_clock::to_time_t(now);
+		auto now{ std::chrono::system_clock::now() };
+		auto time{ std::chrono::system_clock::to_time_t(now) };
 		tm tt;
 		localtime_s(&tt, &time);
 
@@ -65,8 +65,8 @@ namespace Ilargi
 	
 	void Log::Info(std::string_view str)
 	{
-		auto now = std::chrono::system_clock::now();
-		auto time = std::chrono::system_clock::to_time_t(now);
+		auto now{ std::chrono::system_clock::now() };
+		auto time{ std::chrono::system_clock::to_time_t(now) };
 		tm tt;
 		localtime_s(&tt, &time);
 
@@ -75,8 +75,8 @@ namespace Ilargi
 	
 	void Log::Warn(std::string_view str)
 	{
-		auto now = std::chrono::system_clock::now();
-		auto time = std::chrono::system_clock::to_time_t(now);
+		auto now{ std::chrono::system_clock::now() };
+		auto time{ std::chrono::system_clock::to_time_t(now) };
 		tm tt;
 		localtime_s(&tt, &time);
 
@@ -85,8 +85,8 @@ namespace Ilargi
 	
 	void Log::Error(std::string_view str)
 	{
-		auto now = std::chrono::system_clock::now();
-		auto time = std::chrono::system_clock::to_time_t(now);
+		auto now{ std::chrono::system_clock::now() };
+		auto time{ std::chrono::system_clock::to_time_t(now) };
 		tm tt;
 		localtime_s(&tt, &time);
 

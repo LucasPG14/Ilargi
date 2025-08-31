@@ -23,7 +23,7 @@ namespace Ilargi
 		virtual std::string ToString() const { return GetName(); }
 
 	public:
-		bool mHandled = false;
+		bool mHandled{ false };
 	};
 
 	class EventDispatcher

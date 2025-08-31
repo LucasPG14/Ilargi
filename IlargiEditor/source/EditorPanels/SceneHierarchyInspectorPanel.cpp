@@ -40,8 +40,8 @@ namespace Ilargi
 			mScene->CreateChildrenEntity(mSelected);
 		}
 
-		const auto& world = mScene->GetWorld();
-		const auto& view = world.view<InfoComponent, FamilyComponent>();
+		const auto& world{ mScene->GetWorld() };
+		const auto& view{ world.view<InfoComponent, FamilyComponent>() };
 
 		std::stack<Entity> stack;
 		for (const auto& entity : view)
@@ -53,15 +53,15 @@ namespace Ilargi
 
 			while (!stack.empty())
 			{
-				Entity childEntity = stack.top();
-				auto [info, family] = world.get<InfoComponent, FamilyComponent>(childEntity);
-				bool select = mSelected == childEntity;
+				Entity childEntity{ stack.top() };
+				auto [info, family] { world.get<InfoComponent, FamilyComponent>(childEntity)};
+				bool select{ mSelected == childEntity };
 
-				ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
+				ImGuiTreeNodeFlags flags{ ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth };
 				if (select)
 					flags |= ImGuiTreeNodeFlags_Selected;
 				
-				bool open = UI::BeginTreeNode((void*)childEntity, info.name, flags);
+				bool open{ UI::BeginTreeNode((void*)childEntity, info.name, flags) };
 				stack.pop();
 				if (open && !family.children.empty())
 				{
@@ -137,7 +137,7 @@ namespace Ilargi
 	
 	void SceneHierarchyInspectorPanel::DrawInspector()
 	{
-		auto& world = mScene->GetWorld();
+		auto& world{ mScene->GetWorld() };
 
 		ImGui::PushStyleColor(ImGuiCol_Header, { 12.0f / 255.0f, 12.0f / 255.0f, 25.0f / 255.0f, 1.0f });
 		ImGui::PushStyleColor(ImGuiCol_HeaderHovered, { 12.0f / 255.0f, 12.0f / 255.0f, 25.0f / 255.0f, 1.0f });
@@ -146,8 +146,8 @@ namespace Ilargi
 
 		if (world.try_get<InfoComponent>(mSelected))
 		{
-			InfoComponent& infoComponent = mScene->GetWorld().get<InfoComponent>(mSelected);
-			char* buf = infoComponent.name.data();
+			InfoComponent& infoComponent{ mScene->GetWorld().get<InfoComponent>(mSelected) };
+			char* buf{ infoComponent.name.data() };
 			ImGui::InputText("##Name", buf, infoComponent.name.size() + 2);
 		}
 
@@ -172,12 +172,12 @@ namespace Ilargi
 
 		if (world.try_get<TransformComponent>(mSelected))
 		{
-			TransformComponent& transformComponent = mScene->GetWorld().get<TransformComponent>(mSelected);
+			TransformComponent& transformComponent{ mScene->GetWorld().get<TransformComponent>(mSelected) };
 			if (ImGui::CollapsingHeader("Transform Component"))
 			{
-				ImVec2 size = ImGui::CalcTextSize("Rotation");
-				float widthWindow = ImGui::GetContentRegionMax().x - size.x;
-				bool hasChanged = false;
+				ImVec2 size{ ImGui::CalcTextSize("Rotation") };
+				float widthWindow{ ImGui::GetContentRegionMax().x - size.x };
+				bool hasChanged{ false };
 
 				ImGui::Text("Position");
 				ImGui::SameLine();
@@ -199,16 +199,16 @@ namespace Ilargi
 
 		if (world.try_get<StaticMeshComponent>(mSelected))
 		{
-			StaticMeshComponent& staticMesh = mScene->GetWorld().get<StaticMeshComponent>(mSelected);
+			StaticMeshComponent& staticMesh{ mScene->GetWorld().get<StaticMeshComponent>(mSelected) };
 			if (ImGui::CollapsingHeader("Static Mesh Component"))
 			{
-				if (auto mesh = staticMesh.staticMesh.lock())
+				if (auto mesh{ staticMesh.staticMesh.lock() })
 				{
-					auto material = staticMesh.material.lock();
+					auto material{ staticMesh.material.lock() };
 
 					if (material)
 					{
-						ImVec4 colorBg = { 0.43f, 0.43f, 0.50f, 0.50f };
+						ImVec4 colorBg { 0.43f, 0.43f, 0.50f, 0.50f };
 						ImGui::PushStyleColor(ImGuiCol_ChildBg, colorBg);
 						ImGui::PushStyleColor(ImGuiCol_Border, colorBg);
 
@@ -226,12 +226,12 @@ namespace Ilargi
 							}
 							if (ImGui::BeginDragDropTarget())
 							{
-								auto payload = ImGui::AcceptDragDropPayload("RESOURCE");
+								auto payload{ ImGui::AcceptDragDropPayload("RESOURCE") };
 
 								if (payload)
 								{
-									UUID uuid = *(UUID*)payload->Data;
-									const auto& metadata = ResourceManager::GetResourcesMetadata()[uuid];
+									UUID uuid{ *(UUID*)payload->Data };
+									const auto& metadata{ ResourceManager::GetResourcesMetadata()[uuid] };
 
 									material->UpdateDiffuse(std::static_pointer_cast<Texture2D>(ResourceManager::GetResource(uuid)));
 								}
@@ -260,7 +260,7 @@ namespace Ilargi
 
 		if (world.try_get<DirectionalLightComponent>(mSelected))
 		{
-			DirectionalLightComponent& dirLight = mScene->GetWorld().get<DirectionalLightComponent>(mSelected);
+			DirectionalLightComponent& dirLight{ mScene->GetWorld().get<DirectionalLightComponent>(mSelected) };
 			if (ImGui::CollapsingHeader("Directional Light Component"))
 			{
 				ImGui::Text("Radiance");
@@ -272,7 +272,7 @@ namespace Ilargi
 
 		if (world.try_get<PointLightComponent>(mSelected))
 		{
-			PointLightComponent& pointLight = mScene->GetWorld().get<PointLightComponent>(mSelected);
+			PointLightComponent& pointLight{ mScene->GetWorld().get<PointLightComponent>(mSelected) };
 			if (ImGui::CollapsingHeader("Point Light Component"))
 			{
 				ImGui::Text("Radiance");

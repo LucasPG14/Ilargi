@@ -7,7 +7,7 @@ namespace Ilargi
 {
 	struct TextureImporterOptions
 	{
-		bool normalMap = false;
+		bool normalMap{ false };
 	};
 
 	class UUID;

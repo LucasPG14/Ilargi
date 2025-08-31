@@ -99,7 +99,7 @@ namespace Ilargi
 
 		void CreateShaderCacheDirectory()
 		{
-			const std::filesystem::path& cacheDirectory = GetShaderCacheDirectory();
+			const std::filesystem::path& cacheDirectory{ GetShaderCacheDirectory() };
 			if (!std::filesystem::exists(cacheDirectory))
 				std::filesystem::create_directories(cacheDirectory);
 		}
@@ -110,18 +110,18 @@ namespace Ilargi
 		ILG_PROFILE_FUNC;
 
 		Utils::CreateShaderCacheDirectory();
-		const auto& directory = Utils::GetShaderCacheDirectory();
+		const auto& directory{ Utils::GetShaderCacheDirectory() };
 
 		mSetBindingMap.fill({false, false, false, false, false, false, false, false});
 
-		auto device = VulkanContext::GetLogicalDevice();
+		auto device{ VulkanContext::GetLogicalDevice() };
 
-		auto nonCacheFileTime = std::filesystem::last_write_time(aFilepath);
-		auto shaderCacheFile = mName + "_cache_";
+		auto nonCacheFileTime{ std::filesystem::last_write_time(aFilepath) };
+		auto shaderCacheFile{ mName + "_cache_" };
 
 		for (const auto& file : std::filesystem::recursive_directory_iterator(directory))
 		{
-			const auto& filename = file.path().stem().string();
+			const auto& filename{ file.path().stem().string() };
 			std::regex pattern(shaderCacheFile, std::regex_constants::icase);
 			if (!std::regex_search(filename, pattern))
 				continue;
@@ -129,9 +129,9 @@ namespace Ilargi
 			if (std::filesystem::last_write_time(file.path()) < nonCacheFileTime)
 				break;
 
-			std::string typeStr = filename.substr(filename.find_last_of("_") + 1);
+			std::string typeStr{ filename.substr(filename.find_last_of("_") + 1) };
 
-			auto result = Utils::ReadCacheFile(file.path().string());
+			auto result{ Utils::ReadCacheFile(file.path().string()) };
 			CreateShaderModule(Utils::GetShaderStageFromString(typeStr), result);
 		}
 
@@ -140,7 +140,7 @@ namespace Ilargi
 
 		if (!mDescriptorSetBindings.empty())
 		{
-			uint32_t size = (--mDescriptorSetBindings.end())->first + 1;
+			uint32_t size{ (--mDescriptorSetBindings.end())->first + 1U };
 			mDescriptorSetLayouts.resize(size);
 			for (uint32_t setBindingIndex { 0 }; setBindingIndex < size; ++setBindingIndex)
 			{
@@ -167,7 +167,7 @@ namespace Ilargi
 	
 	void VulkanShader::Destroy()
 	{
-		auto device = VulkanContext::GetLogicalDevice();
+		auto device{ VulkanContext::GetLogicalDevice() };
 
 		for (auto& [stage, module] : mShaders)
 		{
@@ -186,7 +186,7 @@ namespace Ilargi
 	{
 		ILG_ASSERT(aIndex < mDescriptorSetLayouts.size(), "This descriptor set does not exist");
 
-		auto device = VulkanContext::GetLogicalDevice();
+		auto device{ VulkanContext::GetLogicalDevice() };
 
 		VkDescriptorSetAllocateInfo allocInfo
 		{
@@ -202,33 +202,33 @@ namespace Ilargi
 	
 	void VulkanShader::ProcessShader()
 	{
-		auto device = VulkanContext::GetLogicalDevice();
+		auto device{ VulkanContext::GetLogicalDevice() };
 
-		std::string code = Utils::ReadFile(mFilepath.data());
+		std::string code{ Utils::ReadFile(mFilepath.data()) };
 
-		const char* type = "#type";
-		size_t typeLength = strlen(type);
-		size_t pos = code.find(type, 0);
+		const char* type{ "#type" };
+		size_t typeLength{ strlen(type) };
+		size_t pos{ code.find(type, 0) };
 
 		while (pos != std::string::npos)
 		{
-			size_t eol = code.find_first_of("\r\n", pos);
+			size_t eol{ code.find_first_of("\r\n", pos) };
 			ILG_ASSERT(eol != std::string::npos, "Syntax Error");
-			size_t begin = pos + typeLength + 1;
-			std::string shader = code.substr(begin, eol - begin);
+			size_t begin{ pos + typeLength + 1 };
+			std::string shader{ code.substr(begin, eol - begin) };
 
 			ILG_ASSERT(shader == "vertex" || shader == "fragment", "Invalid Shader Type");
 
-			size_t nextLinePosition = code.find_first_not_of("\r\n", eol);
+			size_t nextLinePosition{ code.find_first_not_of("\r\n", eol) };
 			pos = code.find(type, nextLinePosition);
 			
-			std::string finalShaderCode = code.substr(nextLinePosition, pos - (nextLinePosition == std::string::npos ? code.size() - 1 : nextLinePosition));
+			std::string finalShaderCode{ code.substr(nextLinePosition, pos - (nextLinePosition == std::string::npos ? code.size() - 1 : nextLinePosition)) };
 			
-			VkShaderStageFlagBits stage = Utils::GetShaderStageFromString(shader.data());
-			auto result = ConvertToSpirV(stage, finalShaderCode);
+			VkShaderStageFlagBits stage{ Utils::GetShaderStageFromString(shader.data()) };
+			auto result{ ConvertToSpirV(stage, finalShaderCode) };
 
-			std::filesystem::path filename = mFilepath;
-			std::filesystem::path cacheFile = Utils::GetShaderCacheDirectory();
+			std::filesystem::path filename{ mFilepath };
+			std::filesystem::path cacheFile{ Utils::GetShaderCacheDirectory() };
 			cacheFile += filename.stem();
 			cacheFile += Utils::GetCacheExtension(stage);
 
@@ -248,7 +248,7 @@ namespace Ilargi
 
 	void VulkanShader::CreateShaderModule(VkShaderStageFlagBits aStage, const std::vector<uint32_t>& aCode)
 	{
-		auto device = VulkanContext::GetLogicalDevice();
+		auto device{ VulkanContext::GetLogicalDevice() };
 
 		VkShaderModuleCreateInfo createInfo
 		{
@@ -259,7 +259,7 @@ namespace Ilargi
 			aCode.data()									// pCode
 		};
 
-		VkShaderModule shaderModule = nullptr;
+		VkShaderModule shaderModule{ nullptr };
 		VK_CHECK_RESULT(vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule));
 
 		ILG_CORE_TRACE("VulkanShader::Reflect - {0} {1}", Utils::ShaderStageToString(aStage), mFilepath);
@@ -278,7 +278,7 @@ namespace Ilargi
 		options.SetGenerateDebugInfo();
 		options.SetOptimizationLevel(shaderc_optimization_level_performance);
 
-		shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv(code.data(), Utils::GLShaderStageToShaderC(stage), mFilepath.c_str(), options);
+		shaderc::SpvCompilationResult module{ compiler.CompileGlslToSpv(code.data(), Utils::GLShaderStageToShaderC(stage), mFilepath.c_str(), options) };
 		
 		if (module.GetCompilationStatus() != shaderc_compilation_status_success)
 		{
@@ -292,37 +292,37 @@ namespace Ilargi
 	void VulkanShader::ReflectShader(VkShaderStageFlags aStage, const std::vector<uint32_t>& aCode)
 	{
 		spirv_cross::Compiler compiler(aCode);
-		spirv_cross::ShaderResources resources = compiler.get_shader_resources();
+		spirv_cross::ShaderResources resources{ compiler.get_shader_resources() };
 
 		// Reflecting push constants
 		
-		const auto& constants = resources.push_constant_buffers;
+		const auto& constants{ resources.push_constant_buffers };
 		for (const auto& pushConstant : constants)
 		{
-			const auto& type = compiler.get_type(pushConstant.base_type_id);
-			uint32_t size = static_cast<uint32_t>(compiler.get_declared_struct_size(type));
-			uint32_t binding = compiler.get_decoration(pushConstant.id, spv::DecorationBinding);
-			uint32_t membersCount = static_cast<uint32_t>(type.member_types.size());
+			const auto& type{ compiler.get_type(pushConstant.base_type_id) };
+			uint32_t size{ static_cast<uint32_t>(compiler.get_declared_struct_size(type)) };
+			uint32_t binding{ compiler.get_decoration(pushConstant.id, spv::DecorationBinding) };
+			uint32_t membersCount{ static_cast<uint32_t>(type.member_types.size()) };
 
 			ILG_CORE_TRACE("Push Constant: {0}", compiler.get_name(pushConstant.base_type_id));
 			ILG_CORE_TRACE("	Size: {0}", size);
 			ILG_CORE_TRACE("	Binding: {0}", binding);
 			ILG_CORE_TRACE("	Members: {0}", membersCount);
 
-			VkPushConstantRange pushConstant = { aStage, 0, size };
+			VkPushConstantRange pushConstant { aStage, 0, size };
 			
 			mPushConstants.push_back(pushConstant);
 		}
 
 		// Reflecting uniform buffers
-		const auto& resUniformBuffers = resources.uniform_buffers;
+		const auto& resUniformBuffers{ resources.uniform_buffers };
 		for (const auto& uniformBuffer : resUniformBuffers)
 		{
-			const auto& type = compiler.get_type(uniformBuffer.base_type_id);
-			uint32_t size = static_cast<uint32_t>(compiler.get_declared_struct_size(type));
-			uint32_t binding = compiler.get_decoration(uniformBuffer.id, spv::DecorationBinding);
-			uint32_t set = compiler.get_decoration(uniformBuffer.id, spv::DecorationDescriptorSet);
-			uint32_t membersCount = static_cast<uint32_t>(type.member_types.size());
+			const auto& type{ compiler.get_type(uniformBuffer.base_type_id) };
+			uint32_t size{ static_cast<uint32_t>(compiler.get_declared_struct_size(type)) };
+			uint32_t binding{ compiler.get_decoration(uniformBuffer.id, spv::DecorationBinding) };
+			uint32_t set{ compiler.get_decoration(uniformBuffer.id, spv::DecorationDescriptorSet) };
+			uint32_t membersCount{ static_cast<uint32_t>(type.member_types.size()) };
 
 			ILG_CORE_TRACE("Uniform Buffer: {0}", uniformBuffer.name.c_str());
 			ILG_CORE_TRACE("	Size: {0}", size);
@@ -347,12 +347,12 @@ namespace Ilargi
 		}
 
 		// Reflecting sampled images
-		const auto& sampledImages = resources.sampled_images;
+		const auto& sampledImages{ resources.sampled_images };
 		for (const auto& sampledImage : sampledImages)
 		{
-			const auto& type = compiler.get_type(sampledImage.base_type_id);
-			uint32_t binding = compiler.get_decoration(sampledImage.id, spv::DecorationBinding);
-			uint32_t set = compiler.get_decoration(sampledImage.id, spv::DecorationDescriptorSet);
+			const auto& type{ compiler.get_type(sampledImage.base_type_id) };
+			uint32_t binding{ compiler.get_decoration(sampledImage.id, spv::DecorationBinding) };
+			uint32_t set{ compiler.get_decoration(sampledImage.id, spv::DecorationDescriptorSet) };
 
 			ILG_CORE_TRACE("Sampler2D: {0}", sampledImage.name.c_str());
 			ILG_CORE_TRACE("	Binding: {0}", binding);
@@ -371,13 +371,13 @@ namespace Ilargi
 		}
 
 		// Reflecting separate images
-		const auto& sepImages = resources.separate_images;
+		const auto& sepImages{ resources.separate_images };
 		for (const auto& separateImage : sepImages)
 		{
-			const auto& type = compiler.get_type(separateImage.base_type_id);
-			uint32_t size = static_cast<uint32_t>(compiler.get_declared_struct_size(type));
-			uint32_t binding = compiler.get_decoration(separateImage.id, spv::DecorationBinding);
-			uint32_t membersCount = static_cast<uint32_t>(type.member_types.size());
+			const auto& type{ compiler.get_type(separateImage.base_type_id) };
+			uint32_t size{ static_cast<uint32_t>(compiler.get_declared_struct_size(type)) };
+			uint32_t binding{ compiler.get_decoration(separateImage.id, spv::DecorationBinding) };
+			uint32_t membersCount{ static_cast<uint32_t>(type.member_types.size()) };
 
 			ILG_CORE_TRACE("Uniform Buffer: {0}", separateImage.name.c_str());
 			ILG_CORE_TRACE("	Size: {0}", size);
@@ -386,13 +386,13 @@ namespace Ilargi
 		}
 
 		// Reflecting separate images
-		const auto& sepSamplers = resources.separate_samplers;
+		const auto& sepSamplers{ resources.separate_samplers };
 		for (const auto& separateSampler : sepSamplers)
 		{
-			const auto& type = compiler.get_type(separateSampler.base_type_id);
-			uint32_t size = static_cast<uint32_t>(compiler.get_declared_struct_size(type));
-			uint32_t binding = compiler.get_decoration(separateSampler.id, spv::DecorationBinding);
-			uint32_t membersCount = static_cast<uint32_t>(type.member_types.size());
+			const auto& type{ compiler.get_type(separateSampler.base_type_id) };
+			uint32_t size{ static_cast<uint32_t>(compiler.get_declared_struct_size(type)) };
+			uint32_t binding{ compiler.get_decoration(separateSampler.id, spv::DecorationBinding) };
+			uint32_t membersCount{ static_cast<uint32_t>(type.member_types.size()) };
 
 			ILG_CORE_TRACE("Uniform Buffer: {0}", separateSampler.name.c_str());
 			ILG_CORE_TRACE("	Size: {0}", size);

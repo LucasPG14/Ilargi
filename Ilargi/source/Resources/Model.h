@@ -10,7 +10,7 @@ namespace Ilargi
 	class Model : public Resource
 	{
 	public:
-		Model(const std::vector<std::shared_ptr<StaticMesh>>& aMeshes);
+		Model(const std::vector<std::shared_ptr<StaticMesh>>& aMeshes, const std::vector<std::shared_ptr<Material>>& aMaterials);
 		virtual ~Model();
 
 		static ResourceType GetStaticType() { return ResourceType::MODEL; }

@@ -3,27 +3,29 @@
 #include "Base/UUID.h"
 #include "Resources/Resource.h"
 
+struct aiScene;
+struct aiNode;
+
 namespace Ilargi
 {
 	struct ComponentNode
 	{
 	};
 
-	struct TransformNode : public ComponentNode
-	{
-		glm::vec3 position;
-		glm::vec3 rotation;
-		glm::vec3 scale;
-	};
-
 	struct MeshNode : public ComponentNode
 	{
-		uint64_t uuid;
-	};
+		uint32_t meshID;
+		uint32_t materialID;
+ 	};
 
 	struct EntityNode
 	{
-		std::vector<ComponentNode> components;
+		std::string name;
+		glm::vec3 position;
+		glm::vec3 rotation;
+		glm::vec3 scale;
+		MeshNode meshNode;
+		int numChildren{ -1 };
 		std::vector<EntityNode> children;
 	};
 
@@ -46,6 +48,10 @@ namespace Ilargi
 	{
 	public:
 		static void ImportModel(UUID aUUID, const ResourceMetadata& aMetadata);
+		static void ImportModel2(UUID aUUID, const ResourceMetadata& aMetadata);
 		static std::shared_ptr<Resource> LoadModel(const ResourceMetadata& aMetadata);
+
+	private:
+		static void ReturnModelHierarchy(const aiScene* aScene, const aiNode* aNode, std::vector<EntityNode>& hierarchy);
 	};
 }

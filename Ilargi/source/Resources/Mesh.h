@@ -37,7 +37,8 @@ namespace Ilargi
 		StaticMesh(const std::vector<StaticVertex>& aVertices, const std::vector<uint32_t>& aIndices);
 		virtual ~StaticMesh();
 
-		const ResourceType GetType() const { return ResourceType::MESH; }
+		static ResourceType GetStaticType() { return ResourceType::MODEL; }
+		const ResourceType GetType() const { return GetStaticType(); }
 
 		const std::shared_ptr<Material> GetMaterial() const { return mMaterial; }
 		const std::shared_ptr<VertexBuffer>& GetVertexBuffer() const { return mVertexBuffer; }

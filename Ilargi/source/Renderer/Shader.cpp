@@ -31,6 +31,7 @@ namespace Ilargi
 	void ShaderLibrary::Init()
 	{
 		Add("Shaders/PBR_Static.shader");
+		Add("Shaders/Grid.shader");
 	}
 	
 	void ShaderLibrary::Add(std::string aName, std::shared_ptr<Shader> aShader)
@@ -41,8 +42,8 @@ namespace Ilargi
 
 	void ShaderLibrary::Add(std::string aFilepath)
 	{
-		std::shared_ptr<Shader> shader = Shader::Create(aFilepath);
-		std::string name = std::filesystem::path(aFilepath).stem().string();
+		std::shared_ptr<Shader> shader{ Shader::Create(aFilepath) };
+		std::string name{ std::filesystem::path(aFilepath).stem().string() };
 
 		Add(name, shader);
 	}

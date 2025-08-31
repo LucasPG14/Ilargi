@@ -71,11 +71,11 @@ namespace Ilargi
 		{
 			"Grid",										// name
 			true,										// depth
-			//Renderer::GetShaderLibrary()->Get("Grid"),	// shader
+			Renderer::GetShaderLibrary()->Get("Grid"),	// shader
 			{}											// layout
 		};
 
-		//gridRenderPass = RenderPass::Create({ framebuffer, Pipeline::Create(pipelineProperties), false });
+		mGridRenderPass = RenderPass::Create({ mFramebuffer, Pipeline::Create(pipelineProperties), false });
 		
 		mUBOCamera = UniformBuffer::Create(sizeof(glm::mat4), Renderer::GetConfig().maxFrames);
 
@@ -94,7 +94,7 @@ namespace Ilargi
 		mScene->Destroy();
 
 		mFramebuffer->Destroy();
-		//gridRenderPass->Destroy();
+		mGridRenderPass->Destroy();
 		mRenderPass->Destroy();
 
 		mCommandBuffer->Destroy();
@@ -114,19 +114,20 @@ namespace Ilargi
 		mScene->UpdatePointLights(mCamera.GetViewProjectionMatrix(), mCamera.GetPosition());
 
 		mCommandBuffer->BeginCommand();
+
 		mRenderPass->BeginRenderPass(mCommandBuffer);
 
-		auto ent = *mScene->GetWorld().view<TransformComponent, DirectionalLightComponent>().begin();
+		auto ent{ *mScene->GetWorld().view<TransformComponent, DirectionalLightComponent>().begin() };
 
-		auto [trans, light] = mScene->GetWorld().view<TransformComponent, DirectionalLightComponent>().get<>(ent);
+		auto [trans, light] { mScene->GetWorld().view<TransformComponent, DirectionalLightComponent>().get<>(ent)};
 
-		const auto& view = mScene->GetWorld().view<TransformComponent, StaticMeshComponent>();
+		const auto& view{ mScene->GetWorld().view<TransformComponent, StaticMeshComponent>() };
 		for (auto entity : view)
 		{
-			auto [transform, meshComponent] = view.get<TransformComponent, StaticMeshComponent>(entity);
+			auto [transform, meshComponent] { view.get<TransformComponent, StaticMeshComponent>(entity)};
 
-			auto mesh = meshComponent.staticMesh.lock();
-			auto material = meshComponent.material.lock();
+			auto mesh{ meshComponent.staticMesh.lock() };
+			auto material{ meshComponent.material.lock() };
 			if (!mesh)
 				continue;
 			
@@ -141,15 +142,17 @@ namespace Ilargi
 
 		mRenderPass->EndRenderPass(mCommandBuffer);
 
-		//gridRenderPass->BeginRenderPass(commandBuffer);
-		//
-		//gridRenderPass->GetProperties().pipeline->Bind(commandBuffer);
-		//gridRenderPass->GetProperties().pipeline->PushConstants(commandBuffer, 0, 64, camera.GetViewMatrix());
-		//gridRenderPass->GetProperties().pipeline->PushConstants(commandBuffer, 64, 64, camera.GetProjectionMatrix());
-		//
-		//Renderer::DrawDefault(commandBuffer);
-		//
-		//gridRenderPass->EndRenderPass(commandBuffer);
+		// Grid
+		mGridRenderPass->BeginRenderPass(mCommandBuffer);
+
+		mGridRenderPass->GetProperties().pipeline->Bind(mCommandBuffer);
+		mGridRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 0, 64, glm::value_ptr(mCamera.GetViewMatrix()));
+		mGridRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 64, 64, glm::value_ptr(mCamera.GetProjectionMatrix()));
+		//mGridRenderPass->GetProperties().pipeline->BindDescriptorSet(mCommandBuffer, mScene->GetSceneDataUBO(), 1);
+
+		//Renderer::DrawDefault(mCommandBuffer);
+
+		mGridRenderPass->EndRenderPass(mCommandBuffer);
 
 		mCommandBuffer->EndCommand();
 		mCommandBuffer->Submit();
@@ -157,11 +160,11 @@ namespace Ilargi
 
 	void EditorPanel::RenderImGui()
 	{
-		static bool dockspaceOpen = true;
-		static ImGuiDockNodeFlags dockspaceFlags = ImGuiDockNodeFlags_None;
+		static bool dockspaceOpen{ true };
+		static ImGuiDockNodeFlags dockspaceFlags{ ImGuiDockNodeFlags_None };
 
-		ImGuiWindowFlags windowFlags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-		ImGuiViewport* viewport = ImGui::GetMainViewport();
+		ImGuiWindowFlags windowFlags{ ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking };
+		ImGuiViewport* viewport{ ImGui::GetMainViewport() };
 		ImGui::SetNextWindowPos(viewport->Pos);
 		ImGui::SetNextWindowSize(viewport->Size);
 		ImGui::SetNextWindowViewport(viewport->ID);
@@ -177,11 +180,11 @@ namespace Ilargi
 		ImGui::Begin("DockSpace Demo", &dockspaceOpen, windowFlags);
 		ImGui::PopStyleVar(3);
 
-		ImGuiIO& io = ImGui::GetIO();
-		ImGuiStyle& style = ImGui::GetStyle();
+		ImGuiIO& io{ ImGui::GetIO() };
+		ImGuiStyle& style{ ImGui::GetStyle() };
 		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
 		{
-			ImGuiID id = ImGui::GetID("Dockspace");
+			ImGuiID id{ ImGui::GetID("Dockspace") };
 			ImGui::DockSpace(id, { 0.0f, 0.0f }, dockspaceFlags);
 		}
 
@@ -273,7 +276,7 @@ namespace Ilargi
 			}
 			ImGui::Separator();
 
-			bool enabled = mHierarchyInspector->GetSelected() != entt::null ? true : false;
+			bool enabled{ mHierarchyInspector->GetSelected() != entt::null ? true : false };
 			if (ImGui::MenuItem(menuNames[Texts::COPY].c_str(), "Ctrl + C", (bool*)0, enabled))
 			{
 				// TODO: Copy
@@ -312,7 +315,7 @@ namespace Ilargi
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
 		ImGui::Begin("Viewport", 0, ImGuiWindowFlags_NoDecoration);
-		ImVec2 frameViewportSize = ImGui::GetContentRegionAvail();
+		ImVec2 frameViewportSize{ ImGui::GetContentRegionAvail() };
 
 		ImGui::Image(mFramebuffer->GetID(), frameViewportSize, { 0.0f, 1.0f }, { 1.0f, 0.0f });
 
@@ -322,7 +325,7 @@ namespace Ilargi
 			mNeedToUpdateFramebuffer = true;
 		}
 
-		Entity entity = mHierarchyInspector->GetSelected();
+		Entity entity{ mHierarchyInspector->GetSelected() };
 		// Guizmo
 		if (entity != entt::null)
 		{
@@ -332,11 +335,11 @@ namespace Ilargi
 			ImGuizmo::SetDrawlist();
 			ImGuizmo::SetGizmoSizeClipSpace(0.15f);
 
-			const glm::mat4& viewMatrix = mCamera.GetViewMatrix();
-			const glm::mat4& projMatrix = mCamera.GetProjectionMatrix();
+			const glm::mat4& viewMatrix{ mCamera.GetViewMatrix() };
+			const glm::mat4& projMatrix{ mCamera.GetProjectionMatrix() };
 
-			TransformComponent& transformComp = mScene->GetWorld().get<TransformComponent>(entity);
-			glm::mat4& transform = transformComp.transform;
+			TransformComponent& transformComp{ mScene->GetWorld().get<TransformComponent>(entity) };
+			glm::mat4& transform{ transformComp.transform };
 
 			ImGuizmo::Manipulate(glm::value_ptr(viewMatrix), glm::value_ptr(projMatrix), (ImGuizmo::OPERATION)mOperation, ImGuizmo::WORLD, glm::value_ptr(transform));
 
@@ -348,30 +351,30 @@ namespace Ilargi
 
 		if (ImGui::BeginDragDropTarget())
 		{
-			auto payload = ImGui::AcceptDragDropPayload("RESOURCE");
+			auto payload{ ImGui::AcceptDragDropPayload("RESOURCE") };
 
 			if (payload)
 			{
 				// TODO: Drag and drop from resource panel to viewport
-				UUID uuid = *(UUID*)payload->Data;
-				auto metadata = ResourceManager::GetResourcesMetadata()[uuid];
+				UUID uuid{ *(UUID*)payload->Data };
+				auto metadata{ ResourceManager::GetResourcesMetadata()[uuid] };
 
 				switch (metadata.type)
 				{
 				case ResourceType::MODEL:
 				{
-					std::shared_ptr<Resource> resource = ResourceManager::GetResource(uuid);
+					std::shared_ptr<Model> resource{ std::static_pointer_cast<Model>(ResourceManager::GetResource(uuid)) };
 
-					mScene->LoadModel(std::static_pointer_cast<Model>(resource));
+					mScene->LoadModel(resource);
 					//Entity entity = mScene->CreateEntity();
 					//mScene->CreateComponent<StaticMeshComponent>(entity, std::static_pointer_cast<StaticMesh>(resource));
 					break;
 				}
 				case ResourceType::SCENE:
 				{
-					std::shared_ptr<Resource> resource = ResourceManager::GetResource(uuid);
+					std::shared_ptr<Scene> resource{ std::static_pointer_cast<Scene>(ResourceManager::GetResource(uuid)) };
 
-					mScene = std::static_pointer_cast<Scene>(resource);
+					mScene = resource;
 					mHierarchyInspector->SetScene(mScene);
 					break;
 				}
@@ -390,7 +393,7 @@ namespace Ilargi
 		mScene = std::make_shared<Scene>();
 		mHierarchyInspector->SetScene(mScene);
 
-		Entity entity = mScene->CreateEntity("Directional Light");
+		Entity entity{ mScene->CreateEntity("Directional Light") };
 		mScene->CreateComponent<DirectionalLightComponent>(entity);
 	}
 
@@ -408,7 +411,7 @@ namespace Ilargi
 
 	void EditorPanel::SaveSceneAs()
 	{
-		std::string filepath = FileSystem::SaveFile("Ilargi Scene (.ilargi)\0*.ilargi\0");
+		std::string filepath{ FileSystem::SaveFile("Ilargi Scene (.ilargi)\0*.ilargi\0") };
 		if (!filepath.empty())
 		{
 			SaveScene(filepath);
@@ -421,7 +424,7 @@ namespace Ilargi
 		SceneImporter::SaveScene(mScene, aFilepath);
 
 		// TODO: Think a better way of handle this if possible
-		auto start = aFilepath.find("Resources");
+		auto start{ aFilepath.find("Resources") };
 		ResourceManager::ImportResource(std::filesystem::path(aFilepath.substr(start)).remove_filename(), std::filesystem::path(aFilepath.substr(start)));
 
 		ResourceManager::SaveResourceRegistry();
@@ -429,9 +432,9 @@ namespace Ilargi
 	
 	bool EditorPanel::OnKeyEvent(KeyPressedEvent& aEvent)
 	{
-		bool ctrl = Input::IsKeyPressed(KeyCode::LEFT_CONTROL) || Input::IsKeyPressed(KeyCode::RIGHT_CONTROL);
-		bool shift = Input::IsKeyPressed(KeyCode::LEFT_SHIFT) || Input::IsKeyPressed(KeyCode::RIGHT_SHIFT);
-		bool alt = Input::IsKeyPressed(KeyCode::LEFT_ALT) || Input::IsKeyPressed(KeyCode::RIGHT_ALT);
+		bool ctrl{ Input::IsKeyPressed(KeyCode::LEFT_CONTROL) || Input::IsKeyPressed(KeyCode::RIGHT_CONTROL) };
+		bool shift{ Input::IsKeyPressed(KeyCode::LEFT_SHIFT) || Input::IsKeyPressed(KeyCode::RIGHT_SHIFT) };
+		bool alt{ Input::IsKeyPressed(KeyCode::LEFT_ALT) || Input::IsKeyPressed(KeyCode::RIGHT_ALT) };
 
 		switch (aEvent.GetKey())
 		{

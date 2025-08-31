@@ -11,7 +11,7 @@ namespace Ilargi
 	class VulkanMaterial : public Material
 	{
 	public:
-		VulkanMaterial(std::shared_ptr<Shader> aShader);
+		VulkanMaterial(std::shared_ptr<Shader> aShader, const MaterialData& aMaterialData);
 		virtual ~VulkanMaterial();
 
 		const void* GetDescriptorSet() const override { return mDescriptorSet; }

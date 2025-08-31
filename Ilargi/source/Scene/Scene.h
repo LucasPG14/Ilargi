@@ -21,7 +21,7 @@ namespace Ilargi
 	{
 		glm::mat4 viewProjMatrix;
 		glm::vec3 cameraPosition;
-		uint32_t pointLightsSize = 0;
+		uint32_t pointLightsSize{ 0U };
 		std::array<PointLightUniformBuffer, 1024> pointLights;
 	};
 
@@ -31,7 +31,8 @@ namespace Ilargi
 		Scene();
 		~Scene();
 
-		const ResourceType GetType() const override { return ResourceType::SCENE; }
+		static ResourceType GetStaticType() { return ResourceType::SCENE; }
+		const ResourceType GetType() const { return GetStaticType(); }
 
 		void Destroy();
 

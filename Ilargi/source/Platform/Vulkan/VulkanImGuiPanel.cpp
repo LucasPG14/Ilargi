@@ -26,7 +26,7 @@ namespace Ilargi
 
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
-		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		ImGuiIO& io{ ImGui::GetIO() };
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
@@ -37,10 +37,10 @@ namespace Ilargi
 
 		ImGui_ImplGlfw_InitForVulkan(win, true);
 		
-		auto device = VulkanContext::GetLogicalDevice();
-		uint32_t maxFrames = Renderer::GetConfig().maxFrames;
+		auto device{ VulkanContext::GetLogicalDevice() };
+		uint32_t maxFrames{ Renderer::GetConfig().maxFrames };
 
-		ImGui_ImplVulkan_InitInfo imguiInfo = {};
+		ImGui_ImplVulkan_InitInfo imguiInfo {};
 		imguiInfo.Instance = VulkanContext::GetInstance();
 		imguiInfo.PhysicalDevice = VulkanContext::GetPhysicalDevice();
 		imguiInfo.Device = device;
@@ -57,7 +57,7 @@ namespace Ilargi
 
 		io.Fonts->AddFontFromFileTTF("Engine/Fonts/arial.ttf", 16.0f);
 		{
-			VkCommandBuffer commandBuffer = VulkanContext::BeginSingleCommandBuffer();
+			VkCommandBuffer commandBuffer{ VulkanContext::BeginSingleCommandBuffer() };
 			
 			ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
 			
@@ -72,7 +72,7 @@ namespace Ilargi
 
 	void VulkanImGuiPanel::Destroy() const
 	{
-		auto device = VulkanContext::GetLogicalDevice();
+		auto device{ VulkanContext::GetLogicalDevice() };
 
 		vkDeviceWaitIdle(device);
 
@@ -94,7 +94,7 @@ namespace Ilargi
 		ImGui::EndFrame();
 		
 		// TODO: This must be done in another way
-		VkCommandBuffer cmdBuffer = mSwapchain->GetCurrentCommand();
+		VkCommandBuffer cmdBuffer{ mSwapchain->GetCurrentCommand() };
 		{
 			VkCommandBufferBeginInfo beginInfo
 			{
@@ -106,10 +106,10 @@ namespace Ilargi
 
 			vkBeginCommandBuffer(cmdBuffer, &beginInfo);
 
-			uint32_t width = mSwapchain->GetWidth();
-			uint32_t height = mSwapchain->GetHeight();
+			uint32_t width{ mSwapchain->GetWidth() };
+			uint32_t height{ mSwapchain->GetHeight() };
 
-			std::array<VkClearValue, 2> clearValues = {};
+			std::array<VkClearValue, 2> clearValues {};
 			clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
 			clearValues[1].depthStencil = { 1.0f, 0 };
 
