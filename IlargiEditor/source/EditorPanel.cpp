@@ -53,7 +53,8 @@ namespace Ilargi
 			PipelineProperties pipelineProperties
 			{
 				"Geometry",											// name
-				true,												// depth
+				true,										// testDepth
+				true,										// writeDepth
 				Renderer::GetShaderLibrary()->Get("PBR_Static"),	// shader
 				{													// layout
 					{ ShaderDataType::FLOAT3, "position" },
@@ -64,19 +65,22 @@ namespace Ilargi
 				}
 			};
 
-			mRenderPass = RenderPass::Create({ mFramebuffer, Pipeline::Create(pipelineProperties), true });
+			mRenderPass = RenderPass::Create({ mFramebuffer, Pipeline::Create(pipelineProperties), false });
 		}
 
-		PipelineProperties pipelineProperties
 		{
-			"Grid",										// name
-			true,										// depth
-			Renderer::GetShaderLibrary()->Get("Grid"),	// shader
-			{}											// layout
-		};
+			PipelineProperties pipelineProperties
+			{
+				"Grid",										// name
+				true,										// testDepth
+				false,										// writeDepth
+				Renderer::GetShaderLibrary()->Get("Grid"),	// shader
+				{}											// layout
+			};
 
-		mGridRenderPass = RenderPass::Create({ mFramebuffer, Pipeline::Create(pipelineProperties), false });
-		
+			mGridRenderPass = RenderPass::Create({ mFramebuffer, Pipeline::Create(pipelineProperties), true });
+		}
+
 		mUBOCamera = UniformBuffer::Create(sizeof(glm::mat4), Renderer::GetConfig().maxFrames);
 
 		LoadLanguage("Engine/Localization/english.json");
@@ -115,44 +119,8 @@ namespace Ilargi
 
 		mCommandBuffer->BeginCommand();
 
-		mRenderPass->BeginRenderPass(mCommandBuffer);
-
-		auto ent{ *mScene->GetWorld().view<TransformComponent, DirectionalLightComponent>().begin() };
-
-		auto [trans, light] { mScene->GetWorld().view<TransformComponent, DirectionalLightComponent>().get<>(ent)};
-
-		const auto& view{ mScene->GetWorld().view<TransformComponent, StaticMeshComponent>() };
-		for (auto entity : view)
-		{
-			auto [transform, meshComponent] { view.get<TransformComponent, StaticMeshComponent>(entity)};
-
-			auto mesh{ meshComponent.staticMesh.lock() };
-			auto material{ meshComponent.material.lock() };
-			if (!mesh)
-				continue;
-			
-			mRenderPass->GetProperties().pipeline->Bind(mCommandBuffer);
-			mRenderPass->GetProperties().pipeline->BindDescriptorSet(mCommandBuffer, material, 0);
-			mRenderPass->GetProperties().pipeline->BindDescriptorSet(mCommandBuffer, mScene->GetSceneDataUBO(), 1);
-			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 0, 64, glm::value_ptr(transform.transform));
-			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 64, 12, glm::value_ptr(light.radiance));
-			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 76, 12, glm::value_ptr(glm::radians(trans.rotation)));
-			Renderer::SubmitGeometry(mCommandBuffer, mesh);
-		}
-
-		mRenderPass->EndRenderPass(mCommandBuffer);
-
-		// Grid
-		mGridRenderPass->BeginRenderPass(mCommandBuffer);
-
-		mGridRenderPass->GetProperties().pipeline->Bind(mCommandBuffer);
-		mGridRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 0, 64, glm::value_ptr(mCamera.GetViewMatrix()));
-		mGridRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 64, 64, glm::value_ptr(mCamera.GetProjectionMatrix()));
-		//mGridRenderPass->GetProperties().pipeline->BindDescriptorSet(mCommandBuffer, mScene->GetSceneDataUBO(), 1);
-
-		//Renderer::DrawDefault(mCommandBuffer);
-
-		mGridRenderPass->EndRenderPass(mCommandBuffer);
+		DrawGrid();
+		DrawGeometry();
 
 		mCommandBuffer->EndCommand();
 		mCommandBuffer->Submit();
@@ -205,6 +173,50 @@ namespace Ilargi
 		dispatcher.Dispatch<KeyPressedEvent>(ILG_BIND_FN(EditorPanel::OnKeyEvent));
 
 		mResourcesPanel->OnEvent(aEvent);
+	}
+
+	void EditorPanel::DrawGrid()
+	{
+		mGridRenderPass->BeginRenderPass(mCommandBuffer);
+
+		mGridRenderPass->GetProperties().pipeline->Bind(mCommandBuffer);
+		mGridRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 0, 64, glm::value_ptr(mCamera.GetViewMatrix()));
+		mGridRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 64, 64, glm::value_ptr(mCamera.GetProjectionMatrix()));
+		//mGridRenderPass->GetProperties().pipeline->BindDescriptorSet(mCommandBuffer, mScene->GetSceneDataUBO(), 1);
+
+		Renderer::DrawDefault(mCommandBuffer);
+
+		mGridRenderPass->EndRenderPass(mCommandBuffer);
+	}
+
+	void EditorPanel::DrawGeometry()
+	{
+		mRenderPass->BeginRenderPass(mCommandBuffer);
+
+		auto ent{ *mScene->GetWorld().view<TransformComponent, DirectionalLightComponent>().begin() };
+
+		auto [trans, light] { mScene->GetWorld().view<TransformComponent, DirectionalLightComponent>().get<>(ent)};
+
+		const auto& view{ mScene->GetWorld().view<TransformComponent, StaticMeshComponent>() };
+		for (auto entity : view)
+		{
+			auto [transform, meshComponent] { view.get<TransformComponent, StaticMeshComponent>(entity)};
+
+			auto mesh{ meshComponent.staticMesh.lock() };
+			auto material{ meshComponent.material.lock() };
+			if (!mesh)
+				continue;
+
+			mRenderPass->GetProperties().pipeline->Bind(mCommandBuffer);
+			mRenderPass->GetProperties().pipeline->BindDescriptorSet(mCommandBuffer, material, 0);
+			mRenderPass->GetProperties().pipeline->BindDescriptorSet(mCommandBuffer, mScene->GetSceneDataUBO(), 1);
+			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 0, 64, glm::value_ptr(transform.transform));
+			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 64, 12, glm::value_ptr(light.radiance));
+			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 76, 12, glm::value_ptr(glm::radians(trans.rotation)));
+			Renderer::SubmitGeometry(mCommandBuffer, mesh);
+		}
+
+		mRenderPass->EndRenderPass(mCommandBuffer);
 	}
 	
 	void EditorPanel::LoadLanguage(std::filesystem::path path)

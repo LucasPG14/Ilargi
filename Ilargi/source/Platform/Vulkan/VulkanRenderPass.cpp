@@ -29,14 +29,14 @@ namespace Ilargi
 			VkAttachmentDescription& attachment{ attachments.emplace_back() };
 			attachment.format = Utils::GetFormatFromImageFormat(formats[i]);
 			attachment.samples = VK_SAMPLE_COUNT_1_BIT;
-			attachment.loadOp = !mProperties.clearDepth ? VK_ATTACHMENT_LOAD_OP_LOAD : VK_ATTACHMENT_LOAD_OP_CLEAR;
+			attachment.loadOp = mProperties.clearValues ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
 			attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 			
-			attachment.stencilLoadOp = !mProperties.clearDepth ? VK_ATTACHMENT_LOAD_OP_LOAD : VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+			attachment.stencilLoadOp = mProperties.clearValues ? VK_ATTACHMENT_LOAD_OP_DONT_CARE : VK_ATTACHMENT_LOAD_OP_LOAD;
 			attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
 			
-			attachment.initialLayout = !mProperties.clearDepth ? isDepth ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL : VK_IMAGE_LAYOUT_UNDEFINED;
-			attachment.finalLayout = isDepth ? !mProperties.clearDepth ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL : VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			attachment.initialLayout = mProperties.clearValues ? VK_IMAGE_LAYOUT_UNDEFINED : isDepth ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			attachment.finalLayout = isDepth ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
 			VkClearValue& clearValue{ mClearValues.emplace_back() };
 
@@ -129,9 +129,9 @@ namespace Ilargi
 						{ 0, 0 },									// offset
 						{ width, height }							// extent
 					},
-					
-					mProperties.clearDepth ? static_cast<uint32_t>(mClearValues.size()) : 0,	// clearValueCount
-					mClearValues.data()							// pClearValues
+					mProperties.clearValues ? static_cast<uint32_t>(mClearValues.size()) : 0,	// clearValueCount 
+					mClearValues.data()							// pClearValues 
+
 				};
 
 				VkViewport viewport

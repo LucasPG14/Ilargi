@@ -12,7 +12,7 @@ namespace Ilargi
 	{
 		std::shared_ptr<Framebuffer> framebuffer;
 		std::shared_ptr<Pipeline> pipeline;
-		bool clearDepth;
+		bool clearValues;
 	};
 
 	class RenderPass

@@ -39,7 +39,7 @@ layout(location = 5) out vec3 vViewPos;
 
 void main() 
 {
-    gl_Position = sceneData.viewProjMatrix * pushConstants.modelMatrix * vec4(inPosition, 2.0); 
+    gl_Position = sceneData.viewProjMatrix * pushConstants.modelMatrix * vec4(inPosition, 1.0);
     vTexCoord = inTexCoord;
     vLightColor = pushConstants.radiance.rgb;
     vNormal = mat3(transpose(inverse(pushConstants.modelMatrix))) * inNormal;

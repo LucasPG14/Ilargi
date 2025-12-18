@@ -94,7 +94,8 @@ namespace Ilargi
 	struct PipelineProperties
 	{
 		std::string name;
-		bool depth = true;
+		bool testDepth = true;
+		bool writeDepth = true;
 		std::shared_ptr<Shader> shader;
 		Layout layout;
 	};

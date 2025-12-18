@@ -61,63 +61,64 @@ namespace Ilargi
 
 	void ResourcesPanel::Render()
 	{
-		ImGui::Begin("Resources Panel");
-
-		mResourcesPanelFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows);
-
-		if (ImGui::ArrowButton("Arrow", ImGuiDir_Left))
+		if (ImGui::Begin("Resources Panel"))
 		{
-			mActualDir = mActualDir.has_parent_path() ? mActualDir.parent_path() : mActualDir;
-		}
+			mResourcesPanelFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows);
 
-		ImGui::SameLine();
-
-		if (ImGui::ArrowButton("Arrow", ImGuiDir_Right))
-		{
-		}
-		ImGui::SameLine();
-
-		ImGui::SetNextItemWidth(200.0f);
-		char* buf{ mSearch.data() };
-		ImGui::InputTextWithHint("##Search...", "Search...", buf, sizeof(buf));
-		mSearch = buf;
-
-		for (auto dir : mActualDir)
-		{
-			auto actualDirParent{ mActualDir.parent_path() };
-			ImGui::SameLine();
-			ImGui::Text(dir.string().c_str());
-			if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
+			if (ImGui::ArrowButton("Arrow", ImGuiDir_Left))
 			{
-				uint64_t end{ mActualDir.string().find(dir.string()) + dir.string().length() };
-				mActualDir = mActualDir.string().substr(0, end);
-				break;
+				mActualDir = mActualDir.has_parent_path() ? mActualDir.parent_path() : mActualDir;
 			}
 
 			ImGui::SameLine();
-			ImGui::Text("/");
-		}
-		
-		if (!mSearch.empty())
-			RecursiveDirectory();
-		else 
-			NormalDirectory();
 
-		ImGui::Columns(1);
-
-		if (!mSelectedFile.empty() && mResourcesPanelFocused && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-			mSelectedFile.clear();
-
-		if (ImGui::BeginPopupContextWindow("##HierarchyPopup"))
-		{
-			if (ImGui::MenuItem("Create Folder"))
+			if (ImGui::ArrowButton("Arrow", ImGuiDir_Right))
 			{
-				std::filesystem::create_directory(mActualDir / "New Folder");
 			}
-			ImGui::EndPopup();
-		}
+			ImGui::SameLine();
 
-		ImGui::End();
+			ImGui::SetNextItemWidth(200.0f);
+			char* buf{ mSearch.data() };
+			ImGui::InputTextWithHint("##Search...", "Search...", buf, sizeof(buf));
+			mSearch = buf;
+
+			for (auto dir : mActualDir)
+			{
+				auto actualDirParent{ mActualDir.parent_path() };
+				ImGui::SameLine();
+				ImGui::Text(dir.string().c_str());
+				if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
+				{
+					uint64_t end{ mActualDir.string().find(dir.string()) + dir.string().length() };
+					mActualDir = mActualDir.string().substr(0, end);
+					break;
+				}
+
+				ImGui::SameLine();
+				ImGui::Text("/");
+			}
+
+			if (!mSearch.empty())
+				RecursiveDirectory();
+			else
+				NormalDirectory();
+
+			ImGui::Columns(1);
+
+			if (!mSelectedFile.empty() && mResourcesPanelFocused && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+				mSelectedFile.clear();
+
+			if (ImGui::BeginPopupContextWindow("##HierarchyPopup"))
+			{
+				if (ImGui::MenuItem("Create Folder"))
+				{
+					std::filesystem::create_directory(mActualDir / "New Folder");
+				}
+				ImGui::EndPopup();
+			}
+
+			ImGui::End();
+		}
 	}
 	
 	void ResourcesPanel::OnEvent(Event& aEvent)

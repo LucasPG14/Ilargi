@@ -27,6 +27,9 @@ namespace Ilargi
 		void OnEvent(Event& aEvent) override;
 
 	private:
+		void DrawGrid();
+		void DrawGeometry();
+
 		void LoadLanguage(std::filesystem::path aFilepath);
 
 		void RenderMainMenuBar();

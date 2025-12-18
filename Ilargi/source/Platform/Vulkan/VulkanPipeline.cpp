@@ -261,15 +261,15 @@ namespace Ilargi
 			{ 0.0f, 0.0f, 0.0f, 0.0f }									// blendConstants
 		};
 
-		if (mProperties.depth)
+		if (mProperties.writeDepth || mProperties.testDepth)
 		{
 			VkPipelineDepthStencilStateCreateInfo depthStencil
 			{
 				VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO, // sType
 				nullptr,													// pNext
 				0,															// flags
-				VK_TRUE,													// depthTestEnable
-				VK_TRUE,													// depthWriteEnable
+				mProperties.testDepth,										// depthTestEnable
+				mProperties.writeDepth,										// depthWriteEnable
 				VK_COMPARE_OP_LESS,											// depthCompareOp
 				VK_FALSE,													// depthBoundsTestEnable
 				VK_FALSE,													// stencilTestEnable

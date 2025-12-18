@@ -188,8 +188,8 @@ namespace Ilargi
 
 			metadata.filepath = static_cast<const char*>(document[i]["Filepath"]);
 			
-			//if (!std::filesystem::exists(metadata.filepath))
-			//	continue;
+			if (!std::filesystem::exists(metadata.filepath))
+				continue;
 
 			metadata.type = static_cast<ResourceType>((int)document[i]["Type"]);
 			metadata.sourceFile = static_cast<const char*>(document[i]["SourceFile"]);

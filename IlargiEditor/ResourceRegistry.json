@@ -12,18 +12,6 @@
     "Filepath": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\Resources\\Example.ilargi"
   },
   {
-    "UUID": 3091809964765284108,
-    "Type": 4,
-    "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\Resources\\models\\viking_room.obj",
-    "Filepath": "Resources\\DefaultMaterial.imat"
-  },
-  {
-    "UUID": 16573594032499875894,
-    "Type": 5,
-    "SourceFile": "Resources\\MyScene.ilargi",
-    "Filepath": "Resources\\MyScene.ilargi"
-  },
-  {
     "UUID": 4668801614915753927,
     "Type": 5,
     "SourceFile": "Resources\\MyScene.ilargi",
@@ -36,22 +24,28 @@
     "Filepath": "Resources\\MyScene.ilargi"
   },
   {
+    "UUID": 3091809964765284108,
+    "Type": 4,
+    "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\Resources\\models\\viking_room.obj",
+    "Filepath": "Resources\\DefaultMaterial.imat"
+  },
+  {
+    "UUID": 16573594032499875894,
+    "Type": 5,
+    "SourceFile": "Resources\\MyScene.ilargi",
+    "Filepath": "Resources\\MyScene.ilargi"
+  },
+  {
     "UUID": 1445513820884342905,
     "Type": 5,
     "SourceFile": "Resources\\MyScene.ilargi",
     "Filepath": "Resources\\MyScene.ilargi"
   },
   {
-    "UUID": 14446412860293088876,
-    "Type": 5,
-    "SourceFile": "Resources\\MyScene.ilargi",
-    "Filepath": "Resources\\MyScene.ilargi"
-  },
-  {
-    "UUID": 17459805187331547242,
-    "Type": 1,
+    "UUID": 4690487845922851371,
+    "Type": 4,
     "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\Resources\\models\\viking_room.obj",
-    "Filepath": "Resources\\viking_room.imodel"
+    "Filepath": "Resources\\DefaultMaterial.imat"
   },
   {
     "UUID": 8731671024636187495,
@@ -60,16 +54,22 @@
     "Filepath": "Resources\\DefaultMaterial.imat"
   },
   {
-    "UUID": 15289400244824970355,
+    "UUID": 17459805187331547242,
+    "Type": 1,
+    "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\Resources\\models\\viking_room.obj",
+    "Filepath": "Resources\\viking_room.imodel"
+  },
+  {
+    "UUID": 14446412860293088876,
     "Type": 5,
     "SourceFile": "Resources\\MyScene.ilargi",
     "Filepath": "Resources\\MyScene.ilargi"
   },
   {
-    "UUID": 9564873625528624972,
-    "Type": 1,
-    "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\Resources\\models\\viking_room.obj",
-    "Filepath": "Resources\\viking_room.imodel"
+    "UUID": 15289400244824970355,
+    "Type": 5,
+    "SourceFile": "Resources\\MyScene.ilargi",
+    "Filepath": "Resources\\MyScene.ilargi"
   },
   {
     "UUID": 5518253188537692133,
@@ -78,10 +78,10 @@
     "Filepath": "Resources\\viking_room.imodel"
   },
   {
-    "UUID": 8017466653585943489,
-    "Type": 4,
+    "UUID": 9564873625528624972,
+    "Type": 1,
     "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\Resources\\models\\viking_room.obj",
-    "Filepath": "Resources\\Texture1.imat"
+    "Filepath": "Resources\\viking_room.imodel"
   },
   {
     "UUID": 4977050734702809787,
@@ -90,7 +90,13 @@
     "Filepath": "Resources\\MyScene.ilargi"
   },
   {
-    "UUID": 2892863922345703593,
+    "UUID": 8017466653585943489,
+    "Type": 4,
+    "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\Resources\\models\\viking_room.obj",
+    "Filepath": "Resources\\Texture1.imat"
+  },
+  {
+    "UUID": 15527011061165841488,
     "Type": 1,
     "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\Resources\\models\\viking_room.obj",
     "Filepath": "Resources\\viking_room.imodel"
@@ -102,7 +108,7 @@
     "Filepath": "Resources\\sphere.imodel"
   },
   {
-    "UUID": 15527011061165841488,
+    "UUID": 2892863922345703593,
     "Type": 1,
     "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\Resources\\models\\viking_room.obj",
     "Filepath": "Resources\\viking_room.imodel"
@@ -180,7 +186,7 @@
     "Filepath": "Resources\\Texture1.imat"
   },
   {
-    "UUID": 9390786538273913628,
+    "UUID": 8645843431253371218,
     "Type": 1,
     "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\Resources\\models\\viking_room.obj",
     "Filepath": "Resources\\viking_room.imodel"
@@ -190,6 +196,12 @@
     "Type": 4,
     "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\Resources\\models\\viking_room.obj",
     "Filepath": "Resources\\DefaultMaterial.imat"
+  },
+  {
+    "UUID": 9390786538273913628,
+    "Type": 1,
+    "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\Resources\\models\\viking_room.obj",
+    "Filepath": "Resources\\viking_room.imodel"
   },
   {
     "UUID": 16877086816605186457,
@@ -214,5 +226,17 @@
     "Type": 5,
     "SourceFile": "Resources\\Scene2.ilargi",
     "Filepath": "Resources\\Scene2.ilargi"
+  },
+  {
+    "UUID": 11451782461287197795,
+    "Type": 4,
+    "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\Resources\\models\\viking_room.obj",
+    "Filepath": "Resources\\Texture1.imat"
+  },
+  {
+    "UUID": 7091204269780923191,
+    "Type": 3,
+    "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\Resources\\textures\\viking_room.png",
+    "Filepath": "Resources\\viking_room.itex"
   }
 ]

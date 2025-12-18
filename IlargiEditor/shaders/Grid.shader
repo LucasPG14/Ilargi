@@ -40,9 +40,8 @@ void main()
     
     fragView = pushConstant.view;
     fragProj = pushConstant.proj;
-    near = 0.01;
+    near = 0.001;
     far = 100.0;
-    //gl_Position = pushConstant.proj * pushConstant.view * vec4(gridPlane[gl_VertexIndex].xyz, 1.0);
 }
 
 #type fragment
@@ -93,13 +92,12 @@ void main()
     float t = -nearPoint.y / (farPoint.y - nearPoint.y);
     vec3 fragPos3D = nearPoint + t * (farPoint - nearPoint);
 
-    //gl_FragDepth = computeDepth(fragPos3D);
+    gl_FragDepth = computeDepth(fragPos3D);
 
     float linearDepth = computeLinearDepth(fragPos3D);
     float fading = max(0, (0.5 - linearDepth));
 
     outColor = (grid(fragPos3D, 10, true) + grid(fragPos3D, 1, true)) * float(t > 0); // adding multiple resolution for the grid
-    outColor.a *= fading;
 }
 
 
