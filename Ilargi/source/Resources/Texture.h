@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Resources/Resource.h"
+#include "Resource.h"
 
 namespace Ilargi
 {
@@ -15,7 +15,7 @@ namespace Ilargi
 		static ResourceType GetStaticType() { return ResourceType::TEXTURE2D; }
 		const ResourceType GetType() const { return GetStaticType(); }
 
-		static std::shared_ptr<Texture2D> Create(std::filesystem::path filepath);
-		static std::shared_ptr<Texture2D> Create(void* data, int width, int height, int channels);
+		static std::shared_ptr<Texture2D> Create(std::filesystem::path aFilepath);
+		static std::shared_ptr<Texture2D> Create(void* aData, int aWidth, int aHeight, int aChannels);
 	};
 }

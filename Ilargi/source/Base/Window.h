@@ -6,11 +6,11 @@ namespace Ilargi
 {
 	struct WindowProperties
 	{
-		std::string appName = "";
-		int width = 0;
-		int height = 0;
-		bool fullscreen = false;
-		std::filesystem::path iconPath = "";
+		std::string appName{ "" };
+		int width{ 0 };
+		int height{ 0 };
+		bool fullscreen{ false };
+		std::string iconPath{ "" };
 	};
 
 	class Event;
@@ -22,7 +22,7 @@ namespace Ilargi
 	class Window
 	{
 	public:
-		Window(const WindowProperties& props, EventCallback eventCallback);
+		Window(const WindowProperties& aProps, EventCallback aEventCallback);
 		virtual ~Window();
 
 		void Destroy();
@@ -32,19 +32,19 @@ namespace Ilargi
 
 		void PollEvents() const;
 
-		GLFWwindow* GetWindow() const { return window; }
-		const std::shared_ptr<Swapchain> GetSwapchain() const { return swapchain; }
+		GLFWwindow* GetWindow() const { return mWindow; }
+		const std::shared_ptr<Swapchain> GetSwapchain() const { return mSwapchain; }
 
 	private:
 
 		void SettingCallbacks() const;
 	private:
-		GLFWwindow* window;
+		GLFWwindow* mWindow;
 
-		EventCallback eventFunc;
-		WindowProperties properties;
+		EventCallback mEventFunc;
+		WindowProperties mProperties;
 
-		std::shared_ptr<GraphicsContext> context;
-		std::shared_ptr<Swapchain> swapchain;
+		std::shared_ptr<GraphicsContext> mContext;
+		std::shared_ptr<Swapchain> mSwapchain;
 	};
 }

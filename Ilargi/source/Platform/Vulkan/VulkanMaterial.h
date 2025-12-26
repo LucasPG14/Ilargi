@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Resources/Material.h"
+#include "VulkanAllocator.h"
 #include <vulkan/vulkan.h>
 
 namespace Ilargi
@@ -10,20 +11,29 @@ namespace Ilargi
 	class VulkanMaterial : public Material
 	{
 	public:
-		VulkanMaterial(std::shared_ptr<Shader> shader);
+		VulkanMaterial(std::shared_ptr<Shader> aShader, const MaterialData& aMaterialData);
 		virtual ~VulkanMaterial();
 
-		const void* GetDescriptorSet() const override { return descriptorSet; }
-		std::shared_ptr<Texture2D> GetDiffuse() override { return diffuse; }
+		const std::shared_ptr<Shader>& GetShader() const override { return mShader; }
 
-		void SetDiffuse(std::shared_ptr<Texture2D> texture) override;
+		const void* GetDescriptorSet() const override { return mDescriptorSet; }
+		const MaterialData& GetMaterialData() const override { return mMaterialData; }
+		MaterialData& GetMaterialData() override { return mMaterialData; }
+		std::shared_ptr<Texture2D> GetDiffuse() override { return mDiffuse; }
+
+		void UpdateDiffuse(std::shared_ptr<Texture2D> aTexture) override;
+		void UpdateMaterialData() override;
 
 	private:
 		void UpdateDescriptor();
 
 	private:
-		VkDescriptorSet descriptorSet;
+		std::shared_ptr<Shader> mShader;
+		VkDescriptorSet mDescriptorSet;
 
-		std::shared_ptr<Texture2D> diffuse;
+		MaterialData mMaterialData;
+		VulkanBuffer mMaterialBuffer;
+		void* mMaterialBufferMapped;
+		std::shared_ptr<Texture2D> mDiffuse;
 	};
 }

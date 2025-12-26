@@ -7,7 +7,7 @@ namespace Ilargi
 {
 	struct TextureImporterOptions
 	{
-		bool normalMap = false;
+		bool normalMap{ false };
 	};
 
 	class UUID;
@@ -15,10 +15,10 @@ namespace Ilargi
 	class TextureImporter
 	{
 	public:
-		static void ImportTexture(UUID uuid, const ResourceMetadata& metadata);
+		static void ImportTexture(UUID aUUID, const ResourceMetadata& aMetadata);
 
-		static std::shared_ptr<Texture2D> LoadTexture(const ResourceMetadata& metadata);
+		static std::shared_ptr<Texture2D> LoadTexture(const ResourceMetadata& aMetadata);
 	private:
-		static TextureImporterOptions options;
+		static TextureImporterOptions sOptions;
 	};
 }

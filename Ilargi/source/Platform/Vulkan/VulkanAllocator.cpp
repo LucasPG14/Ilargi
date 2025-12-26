@@ -6,7 +6,7 @@
 
 namespace Ilargi
 {
-	VmaAllocator VulkanAllocator::allocator = VK_NULL_HANDLE;
+	VmaAllocator VulkanAllocator::sAllocator{ VK_NULL_HANDLE };
 
 	void VulkanAllocator::Init()
 	{
@@ -15,53 +15,56 @@ namespace Ilargi
 		allocatorInfo.device = VulkanContext::GetLogicalDevice();
 		allocatorInfo.instance = VulkanContext::GetInstance();
 
-		vmaCreateAllocator(&allocatorInfo, &allocator);
+		vmaCreateAllocator(&allocatorInfo, &sAllocator);
 	}
 	
 	void VulkanAllocator::Destroy()
 	{
-		vmaDestroyAllocator(allocator);
+		vmaDestroyAllocator(sAllocator);
 	}
 	
-	void VulkanAllocator::AllocateBuffer(VulkanBuffer& buffer, const VkBufferCreateInfo& bufferInfo, VmaMemoryUsage usage)
+	void VulkanAllocator::AllocateBuffer(VulkanBuffer& aBuffer, const VkBufferCreateInfo& aBufferInfo, VmaMemoryUsage aUsage)
 	{
 		VmaAllocationCreateInfo vmaAllocInfo = {};
-		vmaAllocInfo.usage = usage;
+		vmaAllocInfo.usage = aUsage;
 
 		// Allocate the buffer
-		vmaCreateBuffer(allocator, &bufferInfo, &vmaAllocInfo, &buffer.buffer, &buffer.allocation, nullptr);
+		vmaCreateBuffer(sAllocator, &aBufferInfo, &vmaAllocInfo, &aBuffer.buffer, &aBuffer.allocation, nullptr);
+		
+		aBuffer.allocation->SetName(sAllocator, "Buffer");
 	}
 	
-	void VulkanAllocator::DestroyBuffer(VulkanBuffer& buffer)
+	void VulkanAllocator::DestroyBuffer(VulkanBuffer& aBuffer)
 	{
-		vmaDestroyBuffer(allocator, buffer.buffer, buffer.allocation);
+		vmaDestroyBuffer(sAllocator, aBuffer.buffer, aBuffer.allocation);
 	}
 
-	void VulkanAllocator::AllocateImage(Image& image, const VkImageCreateInfo& imageInfo, VmaMemoryUsage usage)
+	void VulkanAllocator::AllocateImage(Image& aImage, const VkImageCreateInfo& aImageInfo, VmaMemoryUsage aUsage, const std::string& aDebugName)
 	{
-		VmaAllocationCreateInfo vmaallocInfo = {};
-		vmaallocInfo.usage = usage;
-		vmaallocInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
-		vmaallocInfo.priority = 1.0f;
+		VmaAllocationCreateInfo vmaAllocInfo = {};
+		vmaAllocInfo.usage = aUsage;
+		vmaAllocInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
+		vmaAllocInfo.priority = 1.0f;
 
-		vmaCreateImage(allocator, &imageInfo, &vmaallocInfo, &image.image, &image.allocation, nullptr);
+		vmaCreateImage(sAllocator, &aImageInfo, &vmaAllocInfo, &aImage.image, &aImage.allocation, nullptr);
+		aImage.allocation->SetName(sAllocator, aDebugName.c_str());
 	}
 
-	void VulkanAllocator::DestroyImage(Image& image)
+	void VulkanAllocator::DestroyImage(Image& aImage)
 	{
-		vmaDestroyImage(allocator, image.image, image.allocation);
+		vmaDestroyImage(sAllocator, aImage.image, aImage.allocation);
 	}
 	
-	void* VulkanAllocator::MapMemory(const VulkanBuffer& buffer)
+	void* VulkanAllocator::MapMemory(const VulkanBuffer& aBuffer)
 	{
 		void* data;
-		vmaMapMemory(allocator, buffer.allocation, &data);
+		vmaMapMemory(sAllocator, aBuffer.allocation, &data);
 
 		return data;
 	}
 	
-	void VulkanAllocator::UnmapMemory(VulkanBuffer& buffer)
+	void VulkanAllocator::UnmapMemory(VulkanBuffer& aBuffer)
 	{
-		vmaUnmapMemory(allocator, buffer.allocation);
+		vmaUnmapMemory(sAllocator, aBuffer.allocation);
 	}
 }

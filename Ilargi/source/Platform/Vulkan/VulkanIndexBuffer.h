@@ -8,17 +8,17 @@ namespace Ilargi
 	class VulkanIndexBuffer : public IndexBuffer
 	{
 	public:
-		VulkanIndexBuffer(void* data, uint32_t indicesCount);
+		VulkanIndexBuffer(void* aData, uint32_t aIndicesCount);
 		virtual ~VulkanIndexBuffer();
 
-		void Bind(std::shared_ptr<CommandBuffer> commandBuffer) const override;
+		void Bind(std::shared_ptr<CommandBuffer> aCommandBuffer) const override;
 
 		void Destroy() override;
 
-		const uint32_t GetCount() const override { return count; }
+		const uint32_t GetCount() const override { return mCount; }
 	private:
-		uint32_t count;
+		uint32_t mCount;
 
-		VulkanBuffer buffer;
+		VulkanBuffer mBuffer;
 	};
 }

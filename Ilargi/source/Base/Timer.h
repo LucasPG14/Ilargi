@@ -20,21 +20,21 @@ namespace Ilargi
 
 		void Reset()
 		{
-			start = std::chrono::high_resolution_clock::now();
+			mStart = std::chrono::high_resolution_clock::now();
 		}
 
 		void Stop()
 		{
-			auto end = std::chrono::high_resolution_clock::now();
+			auto end{ std::chrono::high_resolution_clock::now() };
 
-			auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+			auto duration{ std::chrono::duration_cast<std::chrono::milliseconds>(end - mStart) };
 
 			ILG_CORE_TRACE("The function took: {0}", duration);
 		}
 
 		float Elapsed()
 		{
-			return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now() - start).count() * 0.001f * 0.001f * 0.001f;
+			return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now() - mStart).count() * 0.001f * 0.001f * 0.001f;
 		}
 
 		float ElapsedMillis()
@@ -43,6 +43,6 @@ namespace Ilargi
 		}
 
 	private:
-		std::chrono::time_point<std::chrono::high_resolution_clock> start;
+		std::chrono::time_point<std::chrono::high_resolution_clock> mStart;
 	};
 }

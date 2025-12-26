@@ -9,11 +9,11 @@
 
 namespace Ilargi
 {
-	std::shared_ptr<Pipeline> Pipeline::Create(const PipelineProperties& props)
+	std::shared_ptr<Pipeline> Pipeline::Create(const PipelineProperties& aProperties)
 	{
 		switch (Renderer::GetGraphicsAPI())
 		{
-		case GraphicsAPI::VULKAN:	return std::make_shared<VulkanPipeline>(props);
+		case GraphicsAPI::VULKAN:	return std::make_shared<VulkanPipeline>(aProperties);
 		}
 
 		ILG_ASSERT(nullptr, "The platform specified is not supported");

@@ -26,6 +26,7 @@ namespace Ilargi
 		properties.height = 720;
 		properties.appName = "Ilargi Editor";
 		properties.fullscreen = true;
+		properties.iconPath = "Engine/Textures/Icon.png";
 
 		return new IlargiEditor(properties);
 	}

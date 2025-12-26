@@ -36,4 +36,4 @@
 #include "Utils/Importers/ModelImporter.h"
 #include "Utils/Importers/TextureImporter.h"
 #include "Utils/UI/IlargiUI.h"
-#include "Utils/Math/Math.h"
+#include <glm.hpp>

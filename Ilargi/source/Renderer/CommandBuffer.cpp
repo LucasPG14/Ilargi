@@ -9,11 +9,11 @@
 
 namespace Ilargi
 {
-	std::shared_ptr<CommandBuffer> CommandBuffer::Create(uint32_t framesInFlight)
+	std::shared_ptr<CommandBuffer> CommandBuffer::Create(uint32_t aFramesInFlight)
 	{
 		switch (Renderer::GetGraphicsAPI())
 		{
-		case GraphicsAPI::VULKAN:	return std::make_shared<VulkanCommandBuffer>(framesInFlight);
+		case GraphicsAPI::VULKAN:	return std::make_shared<VulkanCommandBuffer>(aFramesInFlight);
 		}
 
 		ILG_ASSERT(nullptr, "The platform specified is not supported");

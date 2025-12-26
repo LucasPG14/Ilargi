@@ -7,30 +7,71 @@
 
 namespace Ilargi
 {
+	class Model;
+	class UniformBuffer;
+
+	struct PointLightUniformBuffer
+	{
+		glm::vec3 radiance;
+		float radius;
+		alignas(16)glm::vec3 position;
+	};
+
+	struct SceneData
+	{
+		glm::mat4 viewProjMatrix;
+		glm::vec3 cameraPosition;
+		uint32_t pointLightsSize{ 0U };
+		std::array<PointLightUniformBuffer, 1024> pointLights;
+	};
+
 	class Scene : public Resource
 	{
 	public:
 		Scene();
 		~Scene();
 
-		const ResourceType GetType() const override { return ResourceType::SCENE; }
+		static ResourceType GetStaticType() { return ResourceType::SCENE; }
+		const ResourceType GetType() const { return GetStaticType(); }
 
 		void Destroy();
 
-		Entity CreateEntity(const std::string& name = "Entity");
-		Entity CreateChildrenEntity(Entity entity, const std::string& name = "Entity");
-		void DestroyEntity(Entity entity);
+		void LoadModel(const std::shared_ptr<Model>& model);
+
+		Entity CreateEntity(const std::string& aName = "Entity");
+		Entity CreateChildrenEntity(Entity aEntity, const std::string& aName = "Entity");
+		void DestroyEntity(Entity aEntity);
+
+		void UpdatePointLights(glm::mat4 aMatrix, glm::vec3 aPosition);
 
 		template<typename T, typename... Args>
-		T& CreateComponent(Entity entity, Args&& ...args)
+		T& CreateComponent(Entity aEntity, Args&& ...aArgs)
 		{
-			return world.emplace<T>(entity, std::forward<Args>(args)...);
+			return mWorld.emplace<T>(aEntity, std::forward<Args>(aArgs)...);
 		}
 
-		const entt::registry& GetWorld() const { return world; }
-		entt::registry& GetWorld() { return world; }
+		template<typename T>
+		bool HasComponent(Entity aEntity)
+		{
+			return mWorld.try_get<T>(aEntity);
+		}
+
+		template<typename T>
+		void DestroyComponent(Entity aEntity)
+		{
+			ILG_ASSERT(HasComponent<T>(aEntity), "This entity doesn't have this component");
+			mWorld.remove<T>(aEntity);
+		}
+
+		const entt::registry& GetWorld() const { return mWorld; }
+		entt::registry& GetWorld() { return mWorld; }
+
+		const std::shared_ptr<UniformBuffer> GetSceneDataUBO() const { return mSceneDataUBO; }
 
 	private:
-		entt::registry world;
+		entt::registry mWorld;
+
+		std::shared_ptr<UniformBuffer> mSceneDataUBO;
+		SceneData mSceneData;
 	};
 }

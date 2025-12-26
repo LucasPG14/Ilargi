@@ -14,6 +14,6 @@ namespace Ilargi
 
 		virtual void Destroy() const = 0;
 
-		static std::shared_ptr<ImGuiPanel> Create(GLFWwindow* win, const std::shared_ptr<Swapchain> swapchain);
+		static std::shared_ptr<ImGuiPanel> Create(GLFWwindow* aWindow, const std::shared_ptr<Swapchain> aSwapchain);
 	};
 }

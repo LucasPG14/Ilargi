@@ -8,7 +8,7 @@ namespace Ilargi
 	class VulkanCommandBuffer : public CommandBuffer
 	{
 	public:
-		VulkanCommandBuffer(uint32_t framesInFlight);
+		VulkanCommandBuffer(uint32_t aFramesInFlight);
 		virtual ~VulkanCommandBuffer();
 
 		void Destroy() const override;
@@ -18,14 +18,14 @@ namespace Ilargi
 
 		void Submit() const override;
 
-		const VkCommandBuffer GetCurrentCommand(uint32_t index) const { return commandBuffers[index]; }
+		const VkCommandBuffer GetCurrentCommand(uint32_t aIndex) const { return mCommandBuffers[aIndex]; }
 
 	private:
-		std::vector<VkCommandBuffer> commandBuffers;
-		VkFence fence;
+		std::vector<VkCommandBuffer> mCommandBuffers;
+		VkFence mFence;
 
-		std::vector<VkQueryPool> queryPools;
-		uint32_t queryPoolCount;
-		std::vector<uint64_t> timeQuery;
+		std::vector<VkQueryPool> mQueryPools;
+		uint32_t mQueryPoolCount;
+		std::vector<uint64_t> mTimeQuery;
 	};
 }

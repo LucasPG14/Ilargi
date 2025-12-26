@@ -13,7 +13,7 @@ namespace Ilargi
 	class VulkanImGuiPanel : public ImGuiPanel
 	{
 	public:
-		VulkanImGuiPanel(GLFWwindow* win, const std::shared_ptr<Swapchain> swapchain);
+		VulkanImGuiPanel(GLFWwindow* aWindow, const std::shared_ptr<Swapchain> aSwapchain);
 		virtual ~VulkanImGuiPanel();
 
 		void Destroy() const override;
@@ -22,8 +22,8 @@ namespace Ilargi
 		void End() const override;
 
 	private:
-		std::shared_ptr<VulkanSwapchain> vkSwapchain;
+		std::shared_ptr<VulkanSwapchain> mSwapchain;
 
-		VkDescriptorPool descriptorPool;
+		VkDescriptorPool mDescriptorPool;
 	};
 }

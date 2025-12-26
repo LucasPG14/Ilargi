@@ -8,29 +8,29 @@ namespace Ilargi
 	class VulkanTexture2D : public Texture2D
 	{
 	public:
-		VulkanTexture2D(std::filesystem::path filepath);
-		VulkanTexture2D(void* data, int w, int h, int channels);
+		VulkanTexture2D(std::filesystem::path aFilepath);
+		VulkanTexture2D(void* aData, int aWidth, int aHeight, int aChannels);
 		virtual ~VulkanTexture2D();
 
-		const uint32_t GetWidth() const override { return width; }
-		const uint32_t GetHeight() const override { return height; }
+		const uint32_t GetWidth() const override { return mWidth; }
+		const uint32_t GetHeight() const override { return mHeight; }
 
-		const void* GetID() const override { return descriptorSet; }
+		const void* GetID() const override { return mDescriptorSet; }
 
-		const VkImageView GetImageView() const { return imageView; }
-		const VkSampler GetSampler() const { return sampler; }
+		const VkImageView GetImageView() const { return mImageView; }
+		const VkSampler GetSampler() const { return mSampler; }
 
 	private:
-		void TransitionLayout(uint32_t mipLevels, VkImageLayout oldLayout, VkImageLayout newLayout);
+		void TransitionLayout(uint32_t aMipLevels, VkImageLayout aOldLayout, VkImageLayout aNewLayout);
 
-		void GenerateMipMaps(uint32_t mipLevels);
+		void GenerateMipMaps(uint32_t aMipLevels);
 	private:
-		uint32_t width;
-		uint32_t height;
+		uint32_t mWidth;
+		uint32_t mHeight;
 
-		Image image;
-		VkImageView imageView;
-		VkSampler sampler;
-		VkDescriptorSet descriptorSet;
+		Image mImage;
+		VkImageView mImageView;
+		VkSampler mSampler;
+		VkDescriptorSet mDescriptorSet;
 	};
 }

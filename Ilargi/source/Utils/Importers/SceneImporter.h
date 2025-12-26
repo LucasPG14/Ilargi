@@ -10,8 +10,8 @@ namespace Ilargi
 	class SceneImporter
 	{
 	public:
-		static void ImportScene(UUID uuid, const ResourceMetadata& metadata);
-		static std::shared_ptr<Resource> LoadScene(const ResourceMetadata& metadata);
-		static void SaveScene(std::shared_ptr<Scene> scene, const std::filesystem::path& path);
+		static void ImportScene(UUID aUUID, const ResourceMetadata& aMetadata);
+		static std::shared_ptr<Resource> LoadScene(const ResourceMetadata& aMetadata);
+		static void SaveScene(const std::shared_ptr<Scene>& aScene, const std::filesystem::path& aFilepath);
 	};
 }

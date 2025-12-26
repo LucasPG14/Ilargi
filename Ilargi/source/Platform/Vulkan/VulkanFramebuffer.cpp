@@ -8,18 +8,18 @@
 
 namespace Ilargi
 {
-	VulkanFramebuffer::VulkanFramebuffer(const FramebufferProperties& props) 
-		: properties(props), depthSpecification(ImageFormat::NONE), depthAttachment(), framebuffer(VK_NULL_HANDLE), 
-		sampler(VK_NULL_HANDLE), descriptorSetLayout(VK_NULL_HANDLE), descriptorSet(VK_NULL_HANDLE)
+	VulkanFramebuffer::VulkanFramebuffer(const FramebufferProperties& aProperties) 
+		: mProperties(aProperties), mDepthSpecification(ImageFormat::NONE), mDepthAttachment(), mFramebuffer(VK_NULL_HANDLE), 
+		mSampler(VK_NULL_HANDLE), mDescriptorSetLayout(VK_NULL_HANDLE), mDescriptorSet(VK_NULL_HANDLE)
 	{
-		for (ImageFormat format : props.formats)
+		for (ImageFormat format : aProperties.formats)
 		{
 			if (Utils::IsDepth(format))
 			{
-				depthSpecification = format; 
+				mDepthSpecification = format; 
 				continue;
 			}
-			colorSpecifications.push_back(format);
+			mColorSpecifications.push_back(format);
 		}
 	}
 	
@@ -27,56 +27,58 @@ namespace Ilargi
 	{
 	}
 
-	void VulkanFramebuffer::Init(VkRenderPass renderPass)
+	void VulkanFramebuffer::Init(VkRenderPass aRenderPass)
 	{
-		auto device = VulkanContext::GetLogicalDevice();
+		auto device{ VulkanContext::GetLogicalDevice() };
 		
 		std::vector<VkImageView> attachments;
 
-		uint32_t maxSamples = Renderer::GetConfig().maxAASamples;
+		uint32_t maxSamples{ Renderer::GetConfig().maxAASamples };
 
-		colorAttachments.resize(colorSpecifications.size());
-		int i = 0;
-		for (VulkanAttachment& attachment : colorAttachments)
+		mColorAttachments.resize(mColorSpecifications.size());
+		int i{ 0 };
+		for (VulkanAttachment& attachment : mColorAttachments)
 		{
-			VkFormat format = Utils::GetFormatFromImageFormat(colorSpecifications[i++]);
+			VkFormat format{ Utils::GetFormatFromImageFormat(mColorSpecifications[i++]) };
 
-			VkImageCreateInfo imageInfo{};
-			imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-			imageInfo.imageType = VK_IMAGE_TYPE_2D;
-			imageInfo.extent.width = properties.width;
-			imageInfo.extent.height = properties.height;
-			imageInfo.extent.depth = 1;
-			imageInfo.mipLevels = 1;
-			imageInfo.arrayLayers = 1;
-			imageInfo.format = format;
-			imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-			imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-			imageInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+			VkImageCreateInfo imageInfo
+			{
+				VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,								// sType
+				nullptr,															// pNext
+				0,																	// flags
+				VK_IMAGE_TYPE_2D,													// imageType
+				format,																// format
+				{mProperties.width, mProperties.height, 1},							// extent
+				1,																	// mipLevels
+				1,																	// arrayLayers
+				VK_SAMPLE_COUNT_1_BIT,												// samples
+				VK_IMAGE_TILING_OPTIMAL,											// tiling
+				VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,	// usage
+				VK_SHARING_MODE_EXCLUSIVE,											// sharingMode
+				0,																	// queueFamilyIndexCount
+				nullptr,															// pQueueFamilyIndices
+				VK_IMAGE_LAYOUT_UNDEFINED											// initialLayout
+			};
 
-			imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-			imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-			imageInfo.flags = 0;
+			VulkanAllocator::AllocateImage(attachment.image, imageInfo, VMA_MEMORY_USAGE_GPU_ONLY, "Framebuffer");
 
-			VulkanAllocator::AllocateImage(attachment.image, imageInfo, VMA_MEMORY_USAGE_GPU_ONLY);
-
-			VkImageViewCreateInfo imageViewInfo = {};
-			imageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-			imageViewInfo.image = attachment.image.image;
-
-			imageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-			imageViewInfo.format = format;
-
-			imageViewInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-			imageViewInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-			imageViewInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-			imageViewInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-
-			imageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			imageViewInfo.subresourceRange.baseMipLevel = 0;
-			imageViewInfo.subresourceRange.levelCount = 1;
-			imageViewInfo.subresourceRange.baseArrayLayer = 0;
-			imageViewInfo.subresourceRange.layerCount = 1;
+			VkImageViewCreateInfo imageViewInfo
+			{
+				VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,	// sType
+				nullptr,									// pNext
+				0,											// flags
+				attachment.image.image,						// image
+				VK_IMAGE_VIEW_TYPE_2D,						// viewType
+				format,										// format
+				{VK_COMPONENT_SWIZZLE_IDENTITY},			// components: RGBA
+				{											// subresourceRange:
+					VK_IMAGE_ASPECT_COLOR_BIT,					// aspectMask
+					0,											// baseMipLevel
+					1,											// levelCount
+					0,											// baseArrayLayer
+					1											// layerCount
+				}
+			};
 
 			VK_CHECK_RESULT(vkCreateImageView(device, &imageViewInfo, nullptr, &attachment.imageView));
 
@@ -84,178 +86,202 @@ namespace Ilargi
 		}
 
 		// Creating the depth image
-		if (depthSpecification != ImageFormat::NONE)
+		if (mDepthSpecification != ImageFormat::NONE)
 		{
-			VkFormat depthFormat = Utils::GetFormatFromImageFormat(depthSpecification);
+			VkFormat depthFormat{ Utils::GetFormatFromImageFormat(mDepthSpecification) };
 			
-			VkImageCreateInfo imageInfo{};
-			imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-			imageInfo.imageType = VK_IMAGE_TYPE_2D;
-			imageInfo.extent.width = properties.width;
-			imageInfo.extent.height = properties.height;
-			imageInfo.extent.depth = 1;
-			imageInfo.mipLevels = 1;
-			imageInfo.arrayLayers = 1;
-			imageInfo.format = depthFormat;
-			imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-			imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-			imageInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+			VkImageCreateInfo imageInfo
+			{
+				VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,					// sType
+				nullptr,												// pNext
+				0,														// flags
+				VK_IMAGE_TYPE_2D,										// imageType
+				depthFormat,											// format
+				{mProperties.width, mProperties.height, 1},				// extent
+				1,														// mipLevels
+				1,														// arrayLayers
+				VK_SAMPLE_COUNT_1_BIT,									// samples
+				VK_IMAGE_TILING_OPTIMAL,								// tiling
+				VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,			// usage
+				VK_SHARING_MODE_EXCLUSIVE,								// sharingMode
+				0,														// queueFamilyIndexCount
+				nullptr,												// pQueueFamilyIndices
+				VK_IMAGE_LAYOUT_UNDEFINED								// initialLayout
+			};
 
-			imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-			imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-			imageInfo.flags = 0;
-
-			VulkanAllocator::AllocateImage(depthAttachment.image, imageInfo, VMA_MEMORY_USAGE_GPU_ONLY);
+			VulkanAllocator::AllocateImage(mDepthAttachment.image, imageInfo, VMA_MEMORY_USAGE_GPU_ONLY, "Framebuffer");
 			
-			VkImageViewCreateInfo imageViewInfo = {};
-			imageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-			imageViewInfo.image = depthAttachment.image.image;
-
-			imageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-			imageViewInfo.format = depthFormat;
-
-			imageViewInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-			imageViewInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-			imageViewInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-			imageViewInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-
-			imageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-			imageViewInfo.subresourceRange.baseMipLevel = 0;
-			imageViewInfo.subresourceRange.levelCount = 1;
-			imageViewInfo.subresourceRange.baseArrayLayer = 0;
-			imageViewInfo.subresourceRange.layerCount = 1;
+			VkImageViewCreateInfo imageViewInfo
+			{
+				VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,	// sType
+				nullptr,									// pNext
+				0,											// flags
+				mDepthAttachment.image.image,				// image
+				VK_IMAGE_VIEW_TYPE_2D,						// viewType
+				depthFormat,								// format
+				{VK_COMPONENT_SWIZZLE_IDENTITY},			// components: RGBA
+				{											// subresourceRange:
+					VK_IMAGE_ASPECT_DEPTH_BIT,					// aspectMask
+					0,											// baseMipLevel
+					1,											// levelCount
+					0,											// baseArrayLayer
+					1											// layerCount
+				}
+			};
 			
-			VK_CHECK_RESULT(vkCreateImageView(device, &imageViewInfo, nullptr, &depthAttachment.imageView));
+			VK_CHECK_RESULT(vkCreateImageView(device, &imageViewInfo, nullptr, &mDepthAttachment.imageView));
 
-			attachments.push_back(depthAttachment.imageView);
+			attachments.push_back(mDepthAttachment.imageView);
 		}
 
 		// Creating the framebuffer
 		{
-			VkFramebufferCreateInfo framebufferInfo = {};
-			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-			framebufferInfo.renderPass = renderPass;
-			framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-			framebufferInfo.pAttachments = attachments.data();
-			framebufferInfo.width = properties.width;
-			framebufferInfo.height = properties.height;
-			framebufferInfo.layers = 1;
+			VkFramebufferCreateInfo framebufferInfo
+			{
+				VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,	// sType
+				nullptr,									// pNext
+				0,											// flags
+				aRenderPass,								// renderPass
+				static_cast<uint32_t>(attachments.size()),	// attachmentCount
+				attachments.data(),							// pAttachments
+				mProperties.width,							// width
+				mProperties.height,							// height
+				1											// layers
+			};
 
-			VK_CHECK_RESULT(vkCreateFramebuffer(device, &framebufferInfo, nullptr, &framebuffer));
+			VK_CHECK_RESULT(vkCreateFramebuffer(device, &framebufferInfo, nullptr, &mFramebuffer));
 		}
 
 		// Sampler
-		if (!sampler) 
+		if (!mSampler) 
 		{
-			VkSamplerCreateInfo samplerInfo{};
-			samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-			samplerInfo.magFilter = VK_FILTER_LINEAR;
-			samplerInfo.minFilter = VK_FILTER_LINEAR;
+			VkSamplerCreateInfo samplerInfo
+			{
+				VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,	// sType
+				nullptr,								// pNext
+				0,										// flags
+				VK_FILTER_LINEAR,						// magFilter
+				VK_FILTER_LINEAR,						// minFilter
+				VK_SAMPLER_MIPMAP_MODE_LINEAR,			// mipmapMode
+				VK_SAMPLER_ADDRESS_MODE_REPEAT,			// addressModeU
+				VK_SAMPLER_ADDRESS_MODE_REPEAT,			// addressModeV
+				VK_SAMPLER_ADDRESS_MODE_REPEAT,			// addressModeW
+				0.0f,									// mipLodBias
+				VK_FALSE,								// anisotropyEnable
+				Renderer::GetConfig().maxAnisotropy,	// maxAnisotropy
+				VK_FALSE,								// compareEnable
+				VK_COMPARE_OP_ALWAYS,					// compareOp
+				0.0f,									// minLod
+				0.0f,									// maxLod
+				VK_BORDER_COLOR_INT_OPAQUE_BLACK,		// borderColor
+				VK_FALSE								// unnormalizedCoordinates
+			};
 
-			samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-			samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-			samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-
-			samplerInfo.anisotropyEnable = VK_FALSE;
-			samplerInfo.maxAnisotropy = Renderer::GetConfig().maxAnisotropy;
-			samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-			samplerInfo.unnormalizedCoordinates = VK_FALSE;
-			samplerInfo.compareEnable = VK_FALSE;
-			samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-
-			samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-			samplerInfo.mipLodBias = 0.0f;
-			samplerInfo.minLod = 0.0f;
-			samplerInfo.maxLod = 0.0f;
-
-			VK_CHECK_RESULT(vkCreateSampler(device, &samplerInfo, nullptr, &sampler));
+			VK_CHECK_RESULT(vkCreateSampler(device, &samplerInfo, nullptr, &mSampler));
 		}
 
 		// 
 		{
-			VkDescriptorSetLayoutBinding binding[1] = {};
-			binding[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			binding[0].descriptorCount = 1;
-			binding[0].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+			VkDescriptorSetLayoutBinding binding[1]
+			{
+				0,											// binding
+				VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,	// descriptorType
+				1,											// descriptorCount
+				VK_SHADER_STAGE_FRAGMENT_BIT,				// stageFlags
+				nullptr										// pImmutableSamplers
+			};
 			
-			VkDescriptorSetLayoutCreateInfo info = {};
-			info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-			info.bindingCount = 1;
-			info.pBindings = binding;
-			VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &info, nullptr, &descriptorSetLayout));
+			VkDescriptorSetLayoutCreateInfo info
+			{
+				VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,	// sType
+				nullptr,												// pNext
+				0,														// flags
+				1,														// bindingCount
+				binding													// pBindings
+			};
+			VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &info, nullptr, &mDescriptorSetLayout));
 
-			VkDescriptorSetAllocateInfo allocInfo{};
-			allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-			allocInfo.descriptorPool = VulkanContext::GetDescriptorPool();
-			allocInfo.descriptorSetCount = 1;
-			allocInfo.pSetLayouts = &descriptorSetLayout;
+			VkDescriptorSetAllocateInfo allocInfo
+			{
+				VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,	// sType
+				nullptr,										// pNext
+				VulkanContext::GetDescriptorPool(),				// descriptorPool
+				1,												// descriptorSetCount
+				&mDescriptorSetLayout							// pSetLayouts
+			};
 
-			VK_CHECK_RESULT(vkAllocateDescriptorSets(device, &allocInfo, &descriptorSet));
+			VK_CHECK_RESULT(vkAllocateDescriptorSets(device, &allocInfo, &mDescriptorSet));
 
-			VkDescriptorImageInfo imageInfo = {};
-			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-			imageInfo.imageView = colorAttachments[0].imageView;
-			imageInfo.sampler = sampler;
+			VkDescriptorImageInfo imageInfo
+			{
+				mSampler,									// sampler
+				mColorAttachments[0].imageView,				// imageView
+				VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL	// imageLayout
+			};
 
-			std::array<VkWriteDescriptorSet, 1> descriptorWrites = {};
-
-			descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			descriptorWrites[0].dstSet = descriptorSet;
-			descriptorWrites[0].dstBinding = 0;
-			descriptorWrites[0].dstArrayElement = 0;
-			descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			descriptorWrites[0].descriptorCount = 1;
-			descriptorWrites[0].pImageInfo = &imageInfo;
+			std::array<VkWriteDescriptorSet, 1> descriptorWrites
+			{
+				VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,		// sType
+				nullptr,									// pNext
+				mDescriptorSet,								// dstSet
+				0,											// dstBinding
+				0,											// dstArrayElement
+				1,											// descriptorCount
+				VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,	// descriptorType
+				&imageInfo,									// pImageInfo
+				nullptr,									// pBufferInfo
+				nullptr										// pTexelBufferView
+			};
 
 			vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 		
-			vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
+			vkDestroyDescriptorSetLayout(device, mDescriptorSetLayout, nullptr);
 		}
 	}
 	
 	void VulkanFramebuffer::Destroy()
 	{
-		auto device = VulkanContext::GetLogicalDevice();
+		auto device{ VulkanContext::GetLogicalDevice() };
 
-		for (auto colorAttachment : colorAttachments)
+		for (auto colorAttachment : mColorAttachments)
 		{
 			VulkanAllocator::DestroyImage(colorAttachment.image);
 			vkDestroyImageView(device, colorAttachment.imageView, nullptr);
 		}
-		if (depthSpecification != ImageFormat::NONE)
+		if (mDepthSpecification != ImageFormat::NONE)
 		{
-			VulkanAllocator::DestroyImage(depthAttachment.image);
-			vkDestroyImageView(device, depthAttachment.imageView, nullptr);
+			VulkanAllocator::DestroyImage(mDepthAttachment.image);
+			vkDestroyImageView(device, mDepthAttachment.imageView, nullptr);
 		}
-		vkDestroyFramebuffer(device, framebuffer, nullptr);
-		vkDestroySampler(device, sampler, nullptr);
+		vkDestroyFramebuffer(device, mFramebuffer, nullptr);
+		vkDestroySampler(device, mSampler, nullptr);
 	}
 	
-	void VulkanFramebuffer::Resize(const std::shared_ptr<RenderPass>& renderPass, uint32_t width, uint32_t height)
+	void VulkanFramebuffer::Resize(const std::shared_ptr<RenderPass>& aRenderPass, uint32_t aWidth, uint32_t aHeight)
 	{
-		properties.width = width;
-		properties.height = height;
+		mProperties.width = aWidth;
+		mProperties.height = aHeight;
 
-		auto device = VulkanContext::GetLogicalDevice();
+		auto device{ VulkanContext::GetLogicalDevice() };
 		vkDeviceWaitIdle(device);
 
-		for (auto colorAttachment : colorAttachments)
+		vkDestroyFramebuffer(device, mFramebuffer, nullptr);
+		for (auto colorAttachment : mColorAttachments)
 		{
 			VulkanAllocator::DestroyImage(colorAttachment.image);
 			vkDestroyImageView(device, colorAttachment.imageView, nullptr);
 		}
-		if (depthSpecification != ImageFormat::NONE)
+		if (mDepthSpecification != ImageFormat::NONE)
 		{
-			VulkanAllocator::DestroyImage(depthAttachment.image);
-			vkDestroyImageView(device, depthAttachment.imageView, nullptr);
+			VulkanAllocator::DestroyImage(mDepthAttachment.image);
+			vkDestroyImageView(device, mDepthAttachment.imageView, nullptr);
 		}
-		vkDestroyFramebuffer(device, framebuffer, nullptr);
 
-		Init(std::static_pointer_cast<VulkanRenderPass>(renderPass)->GetRenderPass());
+		Init(aRenderPass->As<VulkanRenderPass>()->GetRenderPass());
 	}
 
 	void* VulkanFramebuffer::GetID() const
 	{
-		return descriptorSet;
+		return mDescriptorSet;
 	}
 }

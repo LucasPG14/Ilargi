@@ -7,11 +7,11 @@
 
 namespace Ilargi
 {
-	std::shared_ptr<Material> Material::Create(std::shared_ptr<Shader> shader)
+	std::shared_ptr<Material> Material::Create(std::shared_ptr<Shader> aShader, const MaterialData& aMaterialData)
 	{
 		switch (Renderer::GetGraphicsAPI())
 		{
-		case GraphicsAPI::VULKAN:	return std::make_shared<VulkanMaterial>(shader);
+		case GraphicsAPI::VULKAN:	return std::make_shared<VulkanMaterial>(aShader, aMaterialData);
 		}
 
 		ILG_ASSERT(nullptr, "The platform specified is not supported");

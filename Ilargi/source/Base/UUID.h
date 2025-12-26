@@ -8,12 +8,12 @@ namespace Ilargi
 	{
 	public:
 		UUID();
-		UUID(uint64_t id);
+		UUID(uint64_t aUUID);
 		UUID(const UUID&) = default;
 
-		operator uint64_t() const { return uuid; }
+		operator uint64_t() const { return mUUID; }
 	private:
-		uint64_t uuid;
+		uint64_t mUUID;
 	};
 }
 

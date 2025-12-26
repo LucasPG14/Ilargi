@@ -9,6 +9,6 @@ namespace Ilargi
 	public:
 		virtual void Destroy() const = 0;
 
-		static std::shared_ptr<GraphicsContext> Create(GLFWwindow* win, std::string_view appName);
+		static std::shared_ptr<GraphicsContext> Create(GLFWwindow* aWindow, std::string_view aAppName);
 	};
 }

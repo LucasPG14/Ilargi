@@ -7,14 +7,14 @@ namespace Ilargi
 	class MouseButtonPressedEvent : public Event
 	{
 	public:
-		MouseButtonPressedEvent(int btn) : button(btn) {}
+		MouseButtonPressedEvent(int aButton) : mButton(aButton) {}
 
-		inline const int GetButton() const { return button; }
+		inline const int GetButton() const { return mButton; }
 
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "MouseButtonPressedEvent: " << button;
+			ss << "MouseButtonPressedEvent: " << mButton;
 			return ss.str();
 		}
 
@@ -23,20 +23,20 @@ namespace Ilargi
 		virtual const char* GetName() const override { return "Mouse Button Pressed Event"; }
 
 	private:
-		int button;
+		int mButton;
 	};
 
 	class MouseButtonReleasedEvent : public Event
 	{
 	public:
-		MouseButtonReleasedEvent(int btn) : button(btn) {}
+		MouseButtonReleasedEvent(int aButton) : mButton(aButton) {}
 
-		inline int GetButton() const { return button; }
+		inline int GetButton() const { return mButton; }
 
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "MouseButtonReleasedEvent: " << button;
+			ss << "MouseButtonReleasedEvent: " << mButton;
 			return ss.str();
 		}
 
@@ -45,6 +45,6 @@ namespace Ilargi
 		virtual const char* GetName() const override { return "Mouse Button Released Event"; }
 
 	private:
-		int button;
+		int mButton;
 	};
 }

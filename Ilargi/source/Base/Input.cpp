@@ -8,26 +8,26 @@
 
 namespace Ilargi
 {
-	GLFWwindow* Input::window = nullptr;
+	GLFWwindow* Input::sWindow{ nullptr };
 
-	bool Input::IsKeyPressed(KeyCode::KeyCode key)
+	bool Input::IsKeyPressed(KeyCode::KeyCode aKey)
 	{
-		int k = glfwGetKey(window, key);
+		int k { glfwGetKey(sWindow, aKey) };
 
 		return k == GLFW_PRESS;
 	}
 	
-	bool Input::IsMouseButtonPressed(MouseCode::MouseCode key)
+	bool Input::IsMouseButtonPressed(MouseCode::MouseCode aKey)
 	{
-		int k = glfwGetMouseButton(window, key);
+		int k { glfwGetMouseButton(sWindow, aKey) };
 
 		return k == GLFW_PRESS;
 	}
 	
-	const vec2 Input::GetMousePos()
+	const glm::vec2 Input::GetMousePos()
 	{
 		double x, y;
-		glfwGetCursorPos(window, &x, &y);
-		return vec2((float)x, (float)y);
+		glfwGetCursorPos(sWindow, &x, &y);
+		return { (float)x, (float)y };
 	}
 }

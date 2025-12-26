@@ -19,7 +19,7 @@ namespace Ilargi
 			{
 			case 1: return VK_FORMAT_R8_SRGB;
 			case 2: return VK_FORMAT_R8G8_SRGB;
-			case 3: return VK_FORMAT_R8G8B8_SRGB;
+			case 3: return VK_FORMAT_R8G8B8A8_SRGB;
 			case 4: return VK_FORMAT_R8G8B8A8_SRGB;
 			}
 
@@ -28,38 +28,44 @@ namespace Ilargi
 		}
 	}
 
-	VulkanTexture2D::VulkanTexture2D(std::filesystem::path filepath) : width(0), height(0), image(), 
-		imageView(VK_NULL_HANDLE), sampler(VK_NULL_HANDLE), descriptorSet(VK_NULL_HANDLE)
+	VulkanTexture2D::VulkanTexture2D(std::filesystem::path aFilepath) : mWidth(0), mHeight(0), mImage(), 
+		mImageView(VK_NULL_HANDLE), mSampler(VK_NULL_HANDLE), mDescriptorSet(VK_NULL_HANDLE)
 	{
-		auto device = VulkanContext::GetLogicalDevice();
+		auto device{ VulkanContext::GetLogicalDevice() };
 
 		int w, h, channels;
 
 		stbi_set_flip_vertically_on_load(false);
 
-		void* data = stbi_load(filepath.string().c_str(), &w, &h, &channels, 4);
+		void* data{ stbi_load(aFilepath.string().c_str(), &w, &h, &channels, 4) };
 
 		if (!data)
 		{
-			ILG_CORE_ERROR("Unable to load the texture: {0}", filepath.string());
+			ILG_CORE_ERROR("Unable to load the texture: {0}", aFilepath.string());
 			return;
 		}
 
-		width = w;
-		height = h;
+		mWidth = w;
+		mHeight = h;
 
 		VulkanBuffer buffer;
 
-		VkDeviceSize imageSize = width * height * 4;
+		VkDeviceSize imageSize{ mWidth * mHeight * 4 };
 
-		VkBufferCreateInfo bufferInfo = {};
-		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-		bufferInfo.size = imageSize;
-		bufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		VkBufferCreateInfo bufferInfo
+		{
+			VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,	// sType
+			nullptr,								// pNext
+			0,										// flags
+			imageSize,								// size
+			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,		// usage
+			VK_SHARING_MODE_EXCLUSIVE,				// sharingMode
+			0,										// queueFamilyIndexCount
+			nullptr									// pQueueFamilyIndices
+		};
 
 		VulkanAllocator::AllocateBuffer(buffer, bufferInfo, VMA_MEMORY_USAGE_CPU_TO_GPU);
-		void* vkData = VulkanAllocator::MapMemory(buffer);
+		void* vkData{ VulkanAllocator::MapMemory(buffer) };
 
 		memcpy(vkData, data, imageSize);
 
@@ -67,47 +73,62 @@ namespace Ilargi
 
 		stbi_image_free(data);
 
-		uint32_t mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
+		uint32_t mipLevels{ static_cast<uint32_t>(std::floor(std::log2(std::max(mWidth, mHeight)))) + 1 };
 
-		VkImageCreateInfo imageInfo = {};
-		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-		imageInfo.imageType = VK_IMAGE_TYPE_2D;
-		imageInfo.extent.width = width;
-		imageInfo.extent.height = height;
-		imageInfo.extent.depth = 1;
-		imageInfo.mipLevels = mipLevels;
-		imageInfo.arrayLayers = 1;
+		VkImageCreateInfo imageInfo
+		{
+			VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,																// sType
+			nullptr,																							// pNext
+			0,																									// flags
+			VK_IMAGE_TYPE_2D,																					// imageType
+			VK_FORMAT_R8G8B8A8_SRGB,																			// format
+			{																									// extent
+				mWidth,																								// width
+				mHeight,																							// height
+				1																									// depth
+			},
+			mipLevels,																							// mipLevels
+			1,																									// arrayLayers
+			VK_SAMPLE_COUNT_1_BIT,																				// samples
+			VK_IMAGE_TILING_OPTIMAL,																			// tiling
+			VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,		// usage
+			VK_SHARING_MODE_EXCLUSIVE,																			// sharingMode
+			0,																									// queueFamilyIndexCount
+			nullptr,																							// pQueueFamilyIndices
+			VK_IMAGE_LAYOUT_UNDEFINED																			// initialLayout
+		};
 
-		imageInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
-		imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-		imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-
-		imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
-		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-		imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-		imageInfo.flags = 0;
-
-		VulkanAllocator::AllocateImage(image, imageInfo, VMA_MEMORY_USAGE_GPU_ONLY);
+		VulkanAllocator::AllocateImage(mImage, imageInfo, VMA_MEMORY_USAGE_GPU_ONLY, "Texture2D");
 
 		TransitionLayout(mipLevels, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
 		{
-			VkCommandBuffer commandBuffer = VulkanContext::BeginSingleCommandBuffer();
+			VkCommandBuffer commandBuffer{ VulkanContext::BeginSingleCommandBuffer() };
 
-			VkBufferImageCopy region{};
-			region.bufferOffset = 0;
-			region.bufferRowLength = 0;
-			region.bufferImageHeight = 0;
+			VkBufferImageCopy region
+			{
+				0,								// bufferOffset
+				0,								// bufferRowLength
+				0,								// bufferImageHeight
+				{								// imageSubresource
+					VK_IMAGE_ASPECT_COLOR_BIT,		// aspectMask
+					0,								// mipLevel
+					0,								// baseArrayLayer
+					1,								// layerCount
+				},
+				{								// imageOffset
+					0,								// x
+					0,								// y
+					0								// z
+				}, 
+				{								// imageExtent
+					mWidth,							// width
+					mHeight,						// height
+					1								// depth
+				} 
+			};
 
-			region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			region.imageSubresource.mipLevel = 0;
-			region.imageSubresource.baseArrayLayer = 0;
-			region.imageSubresource.layerCount = 1;
-
-			region.imageOffset = { 0, 0, 0 };
-			region.imageExtent = { width, height, 1 };
-
-			vkCmdCopyBufferToImage(commandBuffer, buffer.buffer, image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+			vkCmdCopyBufferToImage(commandBuffer, buffer.buffer, mImage.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
 			VulkanContext::EndSingleCommandBuffer(commandBuffer);
 		}
@@ -118,114 +139,143 @@ namespace Ilargi
 		// TODO: Check if the texture format is allowed to have MIPMAP_MODE_LINEAR
 		GenerateMipMaps(mipLevels);
 
-		VkImageViewCreateInfo viewInfo = {};
-		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		viewInfo.image = image.image;
-		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		viewInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
-		viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		viewInfo.subresourceRange.baseMipLevel = 0;
-		viewInfo.subresourceRange.levelCount = mipLevels;
-		viewInfo.subresourceRange.baseArrayLayer = 0;
-		viewInfo.subresourceRange.layerCount = 1;
+		VkImageViewCreateInfo viewInfo
+		{
+			VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,	// sType
+			nullptr,									// pNext
+			0,											// flags
+			mImage.image,								// image
+			VK_IMAGE_VIEW_TYPE_2D,						// viewType
+			VK_FORMAT_R8G8B8A8_SRGB,					// format
+			{											// components
 
-		VK_CHECK_RESULT(vkCreateImageView(device, &viewInfo, nullptr, &imageView));
+			},
+			{											// subresourceRange
+				VK_IMAGE_ASPECT_COLOR_BIT,					// aspectMask
+				0,											// baseMipLevel
+				mipLevels,									// levelCount
+				0,											// baseArrayLayer
+				1											// layerCount
+			}
+		};
+
+		VK_CHECK_RESULT(vkCreateImageView(device, &viewInfo, nullptr, &mImageView));
 
 		{
-			VkSamplerCreateInfo samplerInfo = {};
-			samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-			samplerInfo.magFilter = VK_FILTER_LINEAR;
-			samplerInfo.minFilter = VK_FILTER_LINEAR;
-			samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-			samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-			samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-			samplerInfo.anisotropyEnable = VK_FALSE;
-			samplerInfo.maxAnisotropy = 1.0f;
-			samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-			samplerInfo.unnormalizedCoordinates = VK_FALSE;
-			samplerInfo.compareEnable = VK_FALSE;
-			samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+			VkSamplerCreateInfo samplerInfo
+			{
+				VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,	// sType
+				nullptr,								// pNext
+				0,										// flags
+				VK_FILTER_LINEAR,						// magFilter
+				VK_FILTER_LINEAR,						// minFilter
+				VK_SAMPLER_MIPMAP_MODE_LINEAR,			// mipmapMode
+				VK_SAMPLER_ADDRESS_MODE_REPEAT,			// addressModeU
+				VK_SAMPLER_ADDRESS_MODE_REPEAT,			// addressModeV
+				VK_SAMPLER_ADDRESS_MODE_REPEAT,			// addressModeW
+				0.0f,									// mipLodBias
+				VK_FALSE,								// anisotropyEnable
+				1.0f,									// maxAnisotropy
+				VK_FALSE,								// compareEnable
+				VK_COMPARE_OP_ALWAYS,					// compareOp
+				0.0f,									// minLod
+				static_cast<float>(mipLevels),			// maxLod
+				VK_BORDER_COLOR_INT_OPAQUE_BLACK,		// borderColor
+				VK_FALSE								// unnormalizedCoordinates
+			};
 
-			samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-			samplerInfo.minLod = 0.0f;
-			samplerInfo.maxLod = static_cast<float>(mipLevels);
-			samplerInfo.mipLodBias = 0.0f;
-
-			VK_CHECK_RESULT(vkCreateSampler(device, &samplerInfo, nullptr, &sampler));
+			VK_CHECK_RESULT(vkCreateSampler(device, &samplerInfo, nullptr, &mSampler));
 		}
 
-		descriptorSet = ImGui_ImplVulkan_AddTexture(sampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		mDescriptorSet = ImGui_ImplVulkan_AddTexture(mSampler, mImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 	}
 
-	VulkanTexture2D::VulkanTexture2D(void* data, int w, int h, int channels) : width(w), height(h), image(),
-		imageView(VK_NULL_HANDLE), sampler(VK_NULL_HANDLE), descriptorSet(VK_NULL_HANDLE)
+	VulkanTexture2D::VulkanTexture2D(void* aData, int aWidth, int aHeight, int aChannels) : mWidth(aWidth), mHeight(aHeight), mImage(),
+		mImageView(VK_NULL_HANDLE), mSampler(VK_NULL_HANDLE), mDescriptorSet(VK_NULL_HANDLE)
 	{
-		auto device = VulkanContext::GetLogicalDevice();
+		auto device{ VulkanContext::GetLogicalDevice() };
 
 		VulkanBuffer buffer;
 
-		// TODO: Change this to allow more formats (metallic, roughness.... textures)
-		VkFormat format = VK_FORMAT_R8G8B8A8_SRGB;
+		VkFormat format{ Utils::GetFormatFromChannels(aChannels) };
 
-		// TODO: Change this to support channels
-		VkDeviceSize imageSize = width * height * 4;
+		VkDeviceSize imageSize{ mWidth * mHeight * aChannels };
 
-		VkBufferCreateInfo bufferInfo = {};
-		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-		bufferInfo.size = imageSize;
-		bufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		VkBufferCreateInfo bufferInfo
+		{
+			VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,	// sType
+			nullptr,								// pNext
+			0,										// flags
+			imageSize,								// size
+			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,		// usage
+			VK_SHARING_MODE_EXCLUSIVE,				// sharingMode
+			0,										// queueFamilyIndexCount
+			nullptr									// pQueueFamilyIndices
+		};
 
 		VulkanAllocator::AllocateBuffer(buffer, bufferInfo, VMA_MEMORY_USAGE_CPU_TO_GPU);
-		void* vkData = VulkanAllocator::MapMemory(buffer);
+		void* vkData{ VulkanAllocator::MapMemory(buffer) };
 
-		memcpy(vkData, data, imageSize);
+		memcpy(vkData, aData, imageSize);
 
 		VulkanAllocator::UnmapMemory(buffer);
 
-		stbi_image_free(data);
+		uint32_t mipLevels{ static_cast<uint32_t>(std::floor(std::log2(std::max(mWidth, mHeight)))) + 1 };
 
-		uint32_t mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
+		VkImageCreateInfo imageInfo
+		{
+			VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,																// sType
+			nullptr,																							// pNext
+			0,																									// flags
+			VK_IMAGE_TYPE_2D,																					// imageType
+			format,																								// format
+			{																									// extent
+				mWidth,																								// width
+				mHeight,																							// height
+				1																									// depth
+			},
+			mipLevels,																							// mipLevels
+			1,																									// arrayLayers
+			VK_SAMPLE_COUNT_1_BIT,																				// samples
+			VK_IMAGE_TILING_OPTIMAL,																			// tiling
+			VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,		// usage
+			VK_SHARING_MODE_EXCLUSIVE,																			// sharingMode
+			0,																									// queueFamilyIndexCount
+			nullptr,																							// pQueueFamilyIndices
+			VK_IMAGE_LAYOUT_UNDEFINED																			// initialLayout
+		};
 
-		VkImageCreateInfo imageInfo = {};
-		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-		imageInfo.imageType = VK_IMAGE_TYPE_2D;
-		imageInfo.extent.width = width;
-		imageInfo.extent.height = height;
-		imageInfo.extent.depth = 1;
-		imageInfo.mipLevels = mipLevels;
-		imageInfo.arrayLayers = 1;
-
-		imageInfo.format = format;
-		imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-		imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-
-		imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
-		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-		imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-		imageInfo.flags = 0;
-
-		VulkanAllocator::AllocateImage(image, imageInfo, VMA_MEMORY_USAGE_GPU_ONLY);
+		VulkanAllocator::AllocateImage(mImage, imageInfo, VMA_MEMORY_USAGE_GPU_ONLY, "Texture2D");
 
 		TransitionLayout(mipLevels, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
 		{
-			VkCommandBuffer commandBuffer = VulkanContext::BeginSingleCommandBuffer();
+			VkCommandBuffer commandBuffer{ VulkanContext::BeginSingleCommandBuffer() };
 
-			VkBufferImageCopy region{};
-			region.bufferOffset = 0;
-			region.bufferRowLength = 0;
-			region.bufferImageHeight = 0;
+			VkBufferImageCopy region
+			{
+				0,								// bufferOffset
+				0,								// bufferRowLength
+				0,								// bufferImageHeight
+				{								// imageSubresource
+					VK_IMAGE_ASPECT_COLOR_BIT,		// aspectMask
+					0,								// mipLevel
+					0,								// baseArrayLayer
+					1,								// layerCount
+				},
+				{								// imageOffset
+					0,								// x
+					0,								// y
+					0								// z
+				},
+				{								// imageExtent
+					mWidth,							// width
+					mHeight,						// height
+					1								// depth
+				}
+			};
 
-			region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			region.imageSubresource.mipLevel = 0;
-			region.imageSubresource.baseArrayLayer = 0;
-			region.imageSubresource.layerCount = 1;
-
-			region.imageOffset = { 0, 0, 0 };
-			region.imageExtent = { width, height, 1 };
-
-			vkCmdCopyBufferToImage(commandBuffer, buffer.buffer, image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+			vkCmdCopyBufferToImage(commandBuffer, buffer.buffer, mImage.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
 			VulkanContext::EndSingleCommandBuffer(commandBuffer);
 		}
@@ -236,77 +286,90 @@ namespace Ilargi
 		// TODO: Check if the texture format is allowed to have MIPMAP_MODE_LINEAR
 		GenerateMipMaps(mipLevels);
 
-		VkImageViewCreateInfo viewInfo = {};
-		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		viewInfo.image = image.image;
-		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		viewInfo.format = format;
-		viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		viewInfo.subresourceRange.baseMipLevel = 0;
-		viewInfo.subresourceRange.levelCount = mipLevels;
-		viewInfo.subresourceRange.baseArrayLayer = 0;
-		viewInfo.subresourceRange.layerCount = 1;
-
-		VK_CHECK_RESULT(vkCreateImageView(device, &viewInfo, nullptr, &imageView));
-
+		VkImageViewCreateInfo viewInfo
 		{
-			VkSamplerCreateInfo samplerInfo = {};
-			samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-			samplerInfo.magFilter = VK_FILTER_LINEAR;
-			samplerInfo.minFilter = VK_FILTER_LINEAR;
-			samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-			samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-			samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-			samplerInfo.anisotropyEnable = VK_FALSE;
-			samplerInfo.maxAnisotropy = 1.0f;
-			samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-			samplerInfo.unnormalizedCoordinates = VK_FALSE;
-			samplerInfo.compareEnable = VK_FALSE;
-			samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+			VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,	// sType
+			nullptr,									// pNext
+			0,											// flags
+			mImage.image,								// image
+			VK_IMAGE_VIEW_TYPE_2D,						// viewType
+			format,										// format
+			{											// components
 
-			samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-			samplerInfo.minLod = 0.0f;
-			samplerInfo.maxLod = static_cast<float>(mipLevels);
-			samplerInfo.mipLodBias = 0.0f;
+			},
+			{											// subresourceRange
+				VK_IMAGE_ASPECT_COLOR_BIT,					// aspectMask
+				0,											// baseMipLevel
+				mipLevels,									// levelCount
+				0,											// baseArrayLayer
+				1											// layerCount
+			}
+		};
 
-			VK_CHECK_RESULT(vkCreateSampler(device, &samplerInfo, nullptr, &sampler));
+		VK_CHECK_RESULT(vkCreateImageView(device, &viewInfo, nullptr, &mImageView));
+
+		// Creating sampler
+		{
+			VkSamplerCreateInfo samplerInfo
+			{
+				VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,	// sType
+				nullptr,								// pNext
+				0,										// flags
+				VK_FILTER_LINEAR,						// magFilter
+				VK_FILTER_LINEAR,						// minFilter
+				VK_SAMPLER_MIPMAP_MODE_LINEAR,			// mipmapMode
+				VK_SAMPLER_ADDRESS_MODE_REPEAT,			// addressModeU
+				VK_SAMPLER_ADDRESS_MODE_REPEAT,			// addressModeV
+				VK_SAMPLER_ADDRESS_MODE_REPEAT,			// addressModeW
+				0.0f,									// mipLodBias
+				VK_FALSE,								// anisotropyEnable
+				1.0f,									// maxAnisotropy
+				VK_FALSE,								// compareEnable
+				VK_COMPARE_OP_ALWAYS,					// compareOp
+				0.0f,									// minLod
+				static_cast<float>(mipLevels),			// maxLod
+				VK_BORDER_COLOR_INT_OPAQUE_BLACK,		// borderColor
+				VK_FALSE								// unnormalizedCoordinates
+			};
+
+			VK_CHECK_RESULT(vkCreateSampler(device, &samplerInfo, nullptr, &mSampler));
 		}
 
-		descriptorSet = ImGui_ImplVulkan_AddTexture(sampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		mDescriptorSet = ImGui_ImplVulkan_AddTexture(mSampler, mImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 	}
 	
 	VulkanTexture2D::~VulkanTexture2D()
 	{
-		auto device = VulkanContext::GetLogicalDevice();
+		auto device{ VulkanContext::GetLogicalDevice() };
 
-		VulkanAllocator::DestroyImage(image);
-		vkDestroySampler(device, sampler, nullptr);
-		vkDestroyImageView(device, imageView, nullptr);
+		VulkanAllocator::DestroyImage(mImage);
+		vkDestroySampler(device, mSampler, nullptr);
+		vkDestroyImageView(device, mImageView, nullptr);
 	}
 	
-	void VulkanTexture2D::TransitionLayout(uint32_t mipLevels, VkImageLayout oldLayout, VkImageLayout newLayout)
+	void VulkanTexture2D::TransitionLayout(uint32_t aMipLevels, VkImageLayout aOldLayout, VkImageLayout aNewLayout)
 	{
 		// Transitioning image
-		VkCommandBuffer commandBuffer = VulkanContext::BeginSingleCommandBuffer();
+		VkCommandBuffer commandBuffer{ VulkanContext::BeginSingleCommandBuffer() };
 
 		VkImageMemoryBarrier barrier = {};
 		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-		barrier.oldLayout = oldLayout;
-		barrier.newLayout = newLayout;
+		barrier.oldLayout = aOldLayout;
+		barrier.newLayout = aNewLayout;
 		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 
-		barrier.image = image.image;
+		barrier.image = mImage.image;
 		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 		barrier.subresourceRange.baseMipLevel = 0;
-		barrier.subresourceRange.levelCount = mipLevels;
+		barrier.subresourceRange.levelCount = aMipLevels;
 		barrier.subresourceRange.baseArrayLayer = 0;
 		barrier.subresourceRange.layerCount = 1;
 
-		VkPipelineStageFlags sourceStage = 0;
-		VkPipelineStageFlags destinationStage = 0;
+		VkPipelineStageFlags sourceStage{ 0 };
+		VkPipelineStageFlags destinationStage{ 0 };
 
-		if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) 
+		if (aOldLayout == VK_IMAGE_LAYOUT_UNDEFINED && aNewLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) 
 		{
 			barrier.srcAccessMask = 0;
 			barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
@@ -314,7 +377,7 @@ namespace Ilargi
 			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 			destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
 		}
-		else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) 
+		else if (aOldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && aNewLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) 
 		{
 			barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 			barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
@@ -328,13 +391,13 @@ namespace Ilargi
 		VulkanContext::EndSingleCommandBuffer(commandBuffer);
 	}
 	
-	void VulkanTexture2D::GenerateMipMaps(uint32_t mipLevels)
+	void VulkanTexture2D::GenerateMipMaps(uint32_t aMipLevels)
 	{
-		VkCommandBuffer commandBuffer = VulkanContext::BeginSingleCommandBuffer();
+		VkCommandBuffer commandBuffer{ VulkanContext::BeginSingleCommandBuffer() };
 
 		VkImageMemoryBarrier barrier{};
 		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-		barrier.image = image.image;
+		barrier.image = mImage.image;
 		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -342,10 +405,10 @@ namespace Ilargi
 		barrier.subresourceRange.layerCount = 1;
 		barrier.subresourceRange.levelCount = 1;
 
-		int32_t mipWidth = width;
-		int32_t mipHeight = height;
+		int32_t mipWidth{ static_cast<int32_t>(mWidth) };
+		int32_t mipHeight{ static_cast<int32_t>(mHeight) };
 
-		for (uint32_t i = 1; i < mipLevels; ++i) 
+		for (uint32_t i { 1 }; i < aMipLevels; ++i)
 		{
 			barrier.subresourceRange.baseMipLevel = i - 1;
 			barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
@@ -356,7 +419,7 @@ namespace Ilargi
 			vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, 
 				nullptr, 0, nullptr, 1, &barrier);
 		
-			VkImageBlit blit = {};
+			VkImageBlit blit {};
 			blit.srcOffsets[0] = { 0, 0, 0 };
 			blit.srcOffsets[1] = { mipWidth, mipHeight, 1 };
 			blit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -365,15 +428,15 @@ namespace Ilargi
 			blit.srcSubresource.layerCount = 1;
 			blit.dstOffsets[0] = { 0, 0, 0 };
 
-			mipWidth = mipWidth > 1 ? (int32_t)(mipWidth * 0.5f) : 1;
-			mipHeight = mipHeight > 1 ? (int32_t)(mipHeight * 0.5f) : 1;
+			mipWidth = mipWidth > 1 ? static_cast<int32_t>(mipWidth * 0.5f) : 1;
+			mipHeight = mipHeight > 1 ? static_cast<int32_t>(mipHeight * 0.5f) : 1;
 			blit.dstOffsets[1] = { mipWidth, mipHeight, 1 };
 			blit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 			blit.dstSubresource.mipLevel = i;
 			blit.dstSubresource.baseArrayLayer = 0;
 			blit.dstSubresource.layerCount = 1;
 
-			vkCmdBlitImage(commandBuffer, image.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, image.image, 
+			vkCmdBlitImage(commandBuffer, mImage.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, mImage.image, 
 				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_LINEAR);
 		
 			barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
@@ -385,7 +448,7 @@ namespace Ilargi
 				nullptr, 0, nullptr, 1, &barrier);
 		}
 
-		barrier.subresourceRange.baseMipLevel = mipLevels - 1;
+		barrier.subresourceRange.baseMipLevel = aMipLevels - 1;
 		barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
 		barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 		barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;

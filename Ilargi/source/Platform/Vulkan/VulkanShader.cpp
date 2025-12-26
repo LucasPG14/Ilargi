@@ -14,7 +14,9 @@ namespace Ilargi
 		const VkShaderStageFlagBits GetShaderStageFromString(const std::string& type)
 		{
 			if (type == "vertex")	return VK_SHADER_STAGE_VERTEX_BIT;
+			if (type == "vert") return VK_SHADER_STAGE_VERTEX_BIT;
 			if (type == "fragment") return VK_SHADER_STAGE_FRAGMENT_BIT;
+			if (type == "frag") return VK_SHADER_STAGE_FRAGMENT_BIT;
 
 			ILG_ASSERT(nullptr, "Shader stage type not supported");
 			return VK_SHADER_STAGE_VERTEX_BIT;
@@ -90,55 +92,70 @@ namespace Ilargi
 			return "";
 		}
 
-		const std::filesystem::path GetCacheDirectory()
+		const std::filesystem::path GetShaderCacheDirectory()
 		{
 			return "Cache/vulkan/shaders/";
 		}
+
+		void CreateShaderCacheDirectory()
+		{
+			const std::filesystem::path& cacheDirectory{ GetShaderCacheDirectory() };
+			if (!std::filesystem::exists(cacheDirectory))
+				std::filesystem::create_directories(cacheDirectory);
+		}
 	}
 
-	VulkanShader::VulkanShader(std::string_view path) : filePath(path), name(std::filesystem::path(path).stem().string())
+	VulkanShader::VulkanShader(std::string_view aFilepath) : mFilepath(aFilepath), mName(std::filesystem::path(aFilepath).stem().string())
 	{	
-		ILG_PROFILE_FUNC
+		ILG_PROFILE_FUNC;
 
-		auto device = VulkanContext::GetLogicalDevice();
+		Utils::CreateShaderCacheDirectory();
+		const auto& directory{ Utils::GetShaderCacheDirectory() };
 
-		auto directory = Utils::GetCacheDirectory() / std::filesystem::path(name);
-		
-		auto shaderCacheFile = directory;
-		shaderCacheFile += "_cache_vert.spv";
+		mSetBindingMap.fill({false, false, false, false, false, false, false, false});
 
-		// TODO: Find a way to do this cleaner
-		if (std::filesystem::directory_entry(shaderCacheFile).exists())
+		auto device{ VulkanContext::GetLogicalDevice() };
+
+		auto nonCacheFileTime{ std::filesystem::last_write_time(aFilepath) };
+		auto shaderCacheFile{ mName + "_cache_" };
+
+		for (const auto& file : std::filesystem::recursive_directory_iterator(directory))
 		{
-			auto result = Utils::ReadCacheFile(shaderCacheFile.string());
+			const auto& filename{ file.path().stem().string() };
+			std::regex pattern(shaderCacheFile, std::regex_constants::icase);
+			if (!std::regex_search(filename, pattern))
+				continue;
 
-			CreateShaderModule(VK_SHADER_STAGE_VERTEX_BIT, result);
-		}
-		shaderCacheFile = directory;
-		shaderCacheFile += "_cache_frag.spv";
-		if (std::filesystem::directory_entry(shaderCacheFile).exists())
-		{
-			auto result = Utils::ReadCacheFile(shaderCacheFile.string());
-			CreateShaderModule(VK_SHADER_STAGE_FRAGMENT_BIT, result);
+			if (std::filesystem::last_write_time(file.path()) < nonCacheFileTime)
+				break;
+
+			std::string typeStr{ filename.substr(filename.find_last_of("_") + 1) };
+
+			auto result{ Utils::ReadCacheFile(file.path().string()) };
+			CreateShaderModule(Utils::GetShaderStageFromString(typeStr), result);
 		}
 
-		if (shaders.empty())
+		if (mShaders.empty())
 			ProcessShader();
 
-		if (!descriptorSetBindings.empty())
+		if (!mDescriptorSetBindings.empty())
 		{
-			uint32_t size = (--descriptorSetBindings.end())->first + 1;
-			descriptorSetLayouts.resize(size);
-			for (int i = 0; i < size; ++i)
+			uint32_t size{ (--mDescriptorSetBindings.end())->first + 1U };
+			mDescriptorSetLayouts.resize(size);
+			for (uint32_t setBindingIndex { 0 }; setBindingIndex < size; ++setBindingIndex)
 			{
-				if (descriptorSetBindings.find(i) != descriptorSetBindings.end())
+				if (mDescriptorSetBindings.find(setBindingIndex) != mDescriptorSetBindings.end())
 				{
-					VkDescriptorSetLayoutCreateInfo layoutInfo = {};
-					layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-					layoutInfo.bindingCount = static_cast<uint32_t>(descriptorSetBindings[i].size());
-					layoutInfo.pBindings = descriptorSetBindings[i].data();
+					VkDescriptorSetLayoutCreateInfo layoutInfo
+					{
+						VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,					// sType
+						nullptr,																// pNext
+						0,																		// flags
+						static_cast<uint32_t>(mDescriptorSetBindings[setBindingIndex].size()),	// bindingCount
+						mDescriptorSetBindings[setBindingIndex].data()							// pBindings
+					};
 
-					VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayouts[i]));
+					VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &mDescriptorSetLayouts[setBindingIndex]));
 				}
 			}
 		}
@@ -150,63 +167,68 @@ namespace Ilargi
 	
 	void VulkanShader::Destroy()
 	{
-		auto device = VulkanContext::GetLogicalDevice();
+		auto device{ VulkanContext::GetLogicalDevice() };
 
-		for (auto& [stage, module] : shaders)
+		for (auto& [stage, module] : mShaders)
 		{
 			vkDestroyShaderModule(device, module, nullptr);
 		}
 
-		for (auto& descriptorSetLayout : descriptorSetLayouts)
+		for (auto& descriptorSetLayout : mDescriptorSetLayouts)
 		{
 			vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
 		}
 
-		shaders.clear();
+		mShaders.clear();
 	}
 
-	void VulkanShader::AllocateDescriptorSet(uint32_t index, VkDescriptorSet& dsctSet)
+	void VulkanShader::AllocateDescriptorSet(uint32_t aIndex, VkDescriptorSet& aDescriptorSet)
 	{
-		auto device = VulkanContext::GetLogicalDevice();
+		ILG_ASSERT(aIndex < mDescriptorSetLayouts.size(), "This descriptor set does not exist");
 
-		VkDescriptorSetAllocateInfo allocInfo = {};
-		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-		allocInfo.descriptorPool = VulkanContext::GetDescriptorPool();
-		allocInfo.descriptorSetCount = 1;
-		allocInfo.pSetLayouts = &descriptorSetLayouts[index];
+		auto device{ VulkanContext::GetLogicalDevice() };
 
-		VK_CHECK_RESULT(vkAllocateDescriptorSets(device, &allocInfo, &dsctSet));
+		VkDescriptorSetAllocateInfo allocInfo
+		{
+			VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,		// sType
+			nullptr,											// pNext
+			VulkanContext::GetDescriptorPool(),					// descriptorPool
+			1,													// descriptorSetCount
+			&mDescriptorSetLayouts[aIndex]						// pSetLayouts
+		};
+
+		VK_CHECK_RESULT(vkAllocateDescriptorSets(device, &allocInfo, &aDescriptorSet));
 	}
 	
 	void VulkanShader::ProcessShader()
 	{
-		auto device = VulkanContext::GetLogicalDevice();
+		auto device{ VulkanContext::GetLogicalDevice() };
 
-		std::string code = Utils::ReadFile(filePath.data());
+		std::string code{ Utils::ReadFile(mFilepath.data()) };
 
-		const char* type = "#type";
-		size_t typeLength = strlen(type);
-		size_t pos = code.find(type, 0);
+		const char* type{ "#type" };
+		size_t typeLength{ strlen(type) };
+		size_t pos{ code.find(type, 0) };
 
 		while (pos != std::string::npos)
 		{
-			size_t eol = code.find_first_of("\r\n", pos);
+			size_t eol{ code.find_first_of("\r\n", pos) };
 			ILG_ASSERT(eol != std::string::npos, "Syntax Error");
-			size_t begin = pos + typeLength + 1;
-			std::string shader = code.substr(begin, eol - begin);
+			size_t begin{ pos + typeLength + 1 };
+			std::string shader{ code.substr(begin, eol - begin) };
 
 			ILG_ASSERT(shader == "vertex" || shader == "fragment", "Invalid Shader Type");
 
-			size_t nextLinePosition = code.find_first_not_of("\r\n", eol);
+			size_t nextLinePosition{ code.find_first_not_of("\r\n", eol) };
 			pos = code.find(type, nextLinePosition);
 			
-			std::string finalShaderCode = code.substr(nextLinePosition, pos - (nextLinePosition == std::string::npos ? code.size() - 1 : nextLinePosition));
+			std::string finalShaderCode{ code.substr(nextLinePosition, pos - (nextLinePosition == std::string::npos ? code.size() - 1 : nextLinePosition)) };
 			
-			VkShaderStageFlagBits stage = Utils::GetShaderStageFromString(shader.data());
-			auto result = ConvertToSpirV(stage, finalShaderCode);
+			VkShaderStageFlagBits stage{ Utils::GetShaderStageFromString(shader.data()) };
+			auto result{ ConvertToSpirV(stage, finalShaderCode) };
 
-			std::filesystem::path filename = filePath;
-			std::filesystem::path cacheFile = Utils::GetCacheDirectory();
+			std::filesystem::path filename{ mFilepath };
+			std::filesystem::path cacheFile{ Utils::GetShaderCacheDirectory() };
 			cacheFile += filename.stem();
 			cacheFile += Utils::GetCacheExtension(stage);
 
@@ -222,39 +244,29 @@ namespace Ilargi
 
 			CreateShaderModule(stage, result);
 		}
-
-		// TODO: Change this and automatize with reflect function
-		//descriptorSetLayouts.resize(descriptorSetBindings.size());
-		//{
-		//	for (int i = 0; i < descriptorSetLayouts.size(); ++i)
-		//	{
-		//		VkDescriptorSetLayoutCreateInfo layoutInfo = {};
-		//		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		//		layoutInfo.bindingCount = static_cast<uint32_t>(descriptorSetBindings[i].size());
-		//		layoutInfo.pBindings = descriptorSetBindings[i].data();
-		//
-		//		VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayouts[i]));
-		//	}
-		//}
 	}
 
-	void VulkanShader::CreateShaderModule(VkShaderStageFlagBits stage, const std::vector<uint32_t>& code)
+	void VulkanShader::CreateShaderModule(VkShaderStageFlagBits aStage, const std::vector<uint32_t>& aCode)
 	{
-		auto device = VulkanContext::GetLogicalDevice();
+		auto device{ VulkanContext::GetLogicalDevice() };
 
-		VkShaderModuleCreateInfo createInfo = {};
-		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-		createInfo.codeSize = 4 * code.size();
-		createInfo.pCode = code.data();
+		VkShaderModuleCreateInfo createInfo
+		{
+			VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,	// sType
+			nullptr,										// pNext
+			0,												// flags
+			4 * aCode.size(),								// codeSize
+			aCode.data()									// pCode
+		};
 
-		VkShaderModule shaderModule = nullptr;
+		VkShaderModule shaderModule{ nullptr };
 		VK_CHECK_RESULT(vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule));
 
-		ILG_CORE_TRACE("VulkanShader::Reflect - {0} {1}", Utils::ShaderStageToString(stage), filePath);
+		ILG_CORE_TRACE("VulkanShader::Reflect - {0} {1}", Utils::ShaderStageToString(aStage), mFilepath);
 
-		ReflectShader(code, stage);
+		ReflectShader(aStage, aCode);
 
-		shaders.push_back({ stage, shaderModule });
+		mShaders.push_back({ aStage, shaderModule });
 	}
 	
 	const std::vector<uint32_t> VulkanShader::ConvertToSpirV(VkShaderStageFlagBits stage, const std::string_view& code) const
@@ -266,7 +278,7 @@ namespace Ilargi
 		options.SetGenerateDebugInfo();
 		options.SetOptimizationLevel(shaderc_optimization_level_performance);
 
-		shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv(code.data(), Utils::GLShaderStageToShaderC(stage), filePath.c_str(), options);
+		shaderc::SpvCompilationResult module{ compiler.CompileGlslToSpv(code.data(), Utils::GLShaderStageToShaderC(stage), mFilepath.c_str(), options) };
 		
 		if (module.GetCompilationStatus() != shaderc_compilation_status_success)
 		{
@@ -277,86 +289,95 @@ namespace Ilargi
 		return std::vector<uint32_t>(module.cbegin(), module.cend());
 	}
 	
-	void VulkanShader::ReflectShader(const std::vector<uint32_t>& code, VkShaderStageFlags stage)
+	void VulkanShader::ReflectShader(VkShaderStageFlags aStage, const std::vector<uint32_t>& aCode)
 	{
-		spirv_cross::Compiler compiler(code);
-		spirv_cross::ShaderResources resources = compiler.get_shader_resources();
+		spirv_cross::Compiler compiler(aCode);
+		spirv_cross::ShaderResources resources{ compiler.get_shader_resources() };
 
 		// Reflecting push constants
 		
-		const auto& constants = resources.push_constant_buffers;
+		const auto& constants{ resources.push_constant_buffers };
 		for (const auto& pushConstant : constants)
 		{
-			const auto& type = compiler.get_type(pushConstant.base_type_id);
-			uint32_t size = static_cast<uint32_t>(compiler.get_declared_struct_size(type));
-			uint32_t binding = compiler.get_decoration(pushConstant.id, spv::DecorationBinding);
-			uint32_t membersCount = static_cast<uint32_t>(type.member_types.size());
+			const auto& type{ compiler.get_type(pushConstant.base_type_id) };
+			uint32_t size{ static_cast<uint32_t>(compiler.get_declared_struct_size(type)) };
+			uint32_t binding{ compiler.get_decoration(pushConstant.id, spv::DecorationBinding) };
+			uint32_t membersCount{ static_cast<uint32_t>(type.member_types.size()) };
 
 			ILG_CORE_TRACE("Push Constant: {0}", compiler.get_name(pushConstant.base_type_id));
 			ILG_CORE_TRACE("	Size: {0}", size);
 			ILG_CORE_TRACE("	Binding: {0}", binding);
 			ILG_CORE_TRACE("	Members: {0}", membersCount);
 
-			VkPushConstantRange pushConstant = { stage, 0, size };
+			VkPushConstantRange pushConstant { aStage, 0, size };
 			
-			pushConstants.push_back(pushConstant);
+			mPushConstants.push_back(pushConstant);
 		}
 
 		// Reflecting uniform buffers
-		const auto& resUniformBuffers = resources.uniform_buffers;
+		const auto& resUniformBuffers{ resources.uniform_buffers };
 		for (const auto& uniformBuffer : resUniformBuffers)
 		{
-			const auto& type = compiler.get_type(uniformBuffer.base_type_id);
-			uint32_t size = static_cast<uint32_t>(compiler.get_declared_struct_size(type));
-			uint32_t binding = compiler.get_decoration(uniformBuffer.id, spv::DecorationBinding);
-			uint32_t set = compiler.get_decoration(uniformBuffer.id, spv::DecorationDescriptorSet);
-			uint32_t membersCount = static_cast<uint32_t>(type.member_types.size());
+			const auto& type{ compiler.get_type(uniformBuffer.base_type_id) };
+			uint32_t size{ static_cast<uint32_t>(compiler.get_declared_struct_size(type)) };
+			uint32_t binding{ compiler.get_decoration(uniformBuffer.id, spv::DecorationBinding) };
+			uint32_t set{ compiler.get_decoration(uniformBuffer.id, spv::DecorationDescriptorSet) };
+			uint32_t membersCount{ static_cast<uint32_t>(type.member_types.size()) };
 
 			ILG_CORE_TRACE("Uniform Buffer: {0}", uniformBuffer.name.c_str());
 			ILG_CORE_TRACE("	Size: {0}", size);
+			ILG_CORE_TRACE("	Set: {0}", set);
 			ILG_CORE_TRACE("	Binding: {0}", binding);
 			ILG_CORE_TRACE("	Members: {0}", membersCount);
 
-			VkDescriptorSetLayoutBinding layoutBinding = {};
-			layoutBinding.binding = binding;
-			layoutBinding.descriptorCount = 1;
-			layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			layoutBinding.pImmutableSamplers = nullptr;
-			layoutBinding.stageFlags = stage;
+			if (!mSetBindingMap[set][binding])
+			{
+				VkDescriptorSetLayoutBinding layoutBinding
+				{
+					binding,													// binding
+					VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,							// descriptorType
+					1,															// descriptorCount
+					VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,	// stageFlags
+					nullptr														// pImmutableSamplers
+				};
 
-			descriptorSetBindings[set].push_back(layoutBinding);
+				mSetBindingMap[set][binding] = true;
+				mDescriptorSetBindings[set].push_back(layoutBinding);
+			}
 		}
 
 		// Reflecting sampled images
-		const auto& sampledImages = resources.sampled_images;
+		const auto& sampledImages{ resources.sampled_images };
 		for (const auto& sampledImage : sampledImages)
 		{
-			const auto& type = compiler.get_type(sampledImage.base_type_id);
-			uint32_t binding = compiler.get_decoration(sampledImage.id, spv::DecorationBinding);
-			uint32_t set = compiler.get_decoration(sampledImage.id, spv::DecorationDescriptorSet);
+			const auto& type{ compiler.get_type(sampledImage.base_type_id) };
+			uint32_t binding{ compiler.get_decoration(sampledImage.id, spv::DecorationBinding) };
+			uint32_t set{ compiler.get_decoration(sampledImage.id, spv::DecorationDescriptorSet) };
 
 			ILG_CORE_TRACE("Sampler2D: {0}", sampledImage.name.c_str());
 			ILG_CORE_TRACE("	Binding: {0}", binding);
 			ILG_CORE_TRACE("	Descriptor Set: {0}", set);
 
-			VkDescriptorSetLayoutBinding layoutBinding = {};
-			layoutBinding.binding = binding;
-			layoutBinding.descriptorCount = 1;
-			layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			layoutBinding.pImmutableSamplers = nullptr;
-			layoutBinding.stageFlags = stage;
+			VkDescriptorSetLayoutBinding layoutBinding
+			{
+				binding,													// binding
+				VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,					// descriptorType
+				1,															// descriptorCount
+				aStage,														// stageFlags
+				nullptr														// pImmutableSamplers
+			};
 
-			descriptorSetBindings[set].push_back(layoutBinding);
+			mDescriptorSetBindings[set].push_back(layoutBinding);
 		}
 
 		// Reflecting separate images
-		const auto& sepImages = resources.separate_images;
+		const auto& sepImages{ resources.separate_images };
 		for (const auto& separateImage : sepImages)
 		{
-			const auto& type = compiler.get_type(separateImage.base_type_id);
-			uint32_t size = static_cast<uint32_t>(compiler.get_declared_struct_size(type));
-			uint32_t binding = compiler.get_decoration(separateImage.id, spv::DecorationBinding);
-			uint32_t membersCount = static_cast<uint32_t>(type.member_types.size());
+			const auto& type{ compiler.get_type(separateImage.base_type_id) };
+			uint32_t size{ static_cast<uint32_t>(compiler.get_declared_struct_size(type)) };
+			uint32_t binding{ compiler.get_decoration(separateImage.id, spv::DecorationBinding) };
+			uint32_t membersCount{ static_cast<uint32_t>(type.member_types.size()) };
 
 			ILG_CORE_TRACE("Uniform Buffer: {0}", separateImage.name.c_str());
 			ILG_CORE_TRACE("	Size: {0}", size);
@@ -365,13 +386,13 @@ namespace Ilargi
 		}
 
 		// Reflecting separate images
-		const auto& sepSamplers = resources.separate_samplers;
+		const auto& sepSamplers{ resources.separate_samplers };
 		for (const auto& separateSampler : sepSamplers)
 		{
-			const auto& type = compiler.get_type(separateSampler.base_type_id);
-			uint32_t size = static_cast<uint32_t>(compiler.get_declared_struct_size(type));
-			uint32_t binding = compiler.get_decoration(separateSampler.id, spv::DecorationBinding);
-			uint32_t membersCount = static_cast<uint32_t>(type.member_types.size());
+			const auto& type{ compiler.get_type(separateSampler.base_type_id) };
+			uint32_t size{ static_cast<uint32_t>(compiler.get_declared_struct_size(type)) };
+			uint32_t binding{ compiler.get_decoration(separateSampler.id, spv::DecorationBinding) };
+			uint32_t membersCount{ static_cast<uint32_t>(type.member_types.size()) };
 
 			ILG_CORE_TRACE("Uniform Buffer: {0}", separateSampler.name.c_str());
 			ILG_CORE_TRACE("	Size: {0}", size);

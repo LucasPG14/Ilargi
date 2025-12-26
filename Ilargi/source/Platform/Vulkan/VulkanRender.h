@@ -10,8 +10,8 @@ namespace Ilargi
 		VulkanRender();
 		virtual ~VulkanRender();
 
-		void SubmitGeometry(std::shared_ptr<CommandBuffer> commandBuffer, std::shared_ptr<VertexBuffer> vertexBuffer, std::shared_ptr<IndexBuffer> indexBuffer) const;
-		void DrawDefault(std::shared_ptr<CommandBuffer> commandBuffer) const;
+		void SubmitGeometry(std::shared_ptr<CommandBuffer> aCommandBuffer, std::shared_ptr<VertexBuffer> aVertexBuffer, std::shared_ptr<IndexBuffer> aIndexBuffer) const;
+		void DrawDefault(std::shared_ptr<CommandBuffer> aCommandBuffer) const;
 	
 	};
 }

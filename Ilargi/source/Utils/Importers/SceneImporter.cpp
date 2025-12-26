@@ -3,95 +3,122 @@
 #include "SceneImporter.h"
 #include "Scene/Scene.h"
 
+#include "Resources/ResourceManager.h"
 #include "Resources/Mesh.h"
-
-#include <ArduinoJson-v7.0.4.h>
+#include "Resources/Material.h"
+#include "Utils/JsonConverters.h"
 
 namespace Ilargi
 {
-	void SceneImporter::ImportScene(UUID uuid, const ResourceMetadata& metadata)
+	void SceneImporter::ImportScene(UUID aUUID, const ResourceMetadata& aMetadata)
 	{
-		if (metadata.sourceFile != metadata.filepath)
-			std::filesystem::copy(metadata.sourceFile, metadata.filepath);
+		if (aMetadata.sourceFile != aMetadata.filepath)
+			std::filesystem::copy(aMetadata.sourceFile, aMetadata.filepath);
 	}
 
-	std::shared_ptr<Resource> SceneImporter::LoadScene(const ResourceMetadata& metadata)
+	std::shared_ptr<Resource> SceneImporter::LoadScene(const ResourceMetadata& aMetadata)
 	{
-		std::shared_ptr<Scene> scene = std::make_shared<Scene>();
+		std::shared_ptr<Scene> scene{ std::make_shared<Scene>() };
 
 		JsonDocument document;
 
-		std::ifstream file(metadata.filepath, std::ios::in);
+		std::ifstream file(aMetadata.filepath, std::ios::in);
 
 		deserializeJson(document, file);
 
-		for (int index = 0; index < document.size(); ++index)
+		for (uint32_t index { 0U }; index < document.size(); ++index)
 		{
-			const auto& node = document[index];
-			const Entity entity = scene->CreateEntity(node["InfoComponent"]["Name"]);
+			const auto& node{ document[index] };
+			const Entity entity{ scene->CreateEntity(node["InfoComponent"]["Name"]) };
 
-			auto& transform = scene->GetWorld().get<TransformComponent>(entity);
-			transform.position.x = node["TransformComponent"]["Position"]["x"];
-			transform.position.y = node["TransformComponent"]["Position"]["y"];
-			transform.position.z = node["TransformComponent"]["Position"]["z"];
+			auto& transform{ scene->GetWorld().get<TransformComponent>(entity) };
+			transform.position = node["TransformComponent"]["Position"];
+			transform.rotation = node["TransformComponent"]["Rotation"];
+			transform.scale = node["TransformComponent"]["Scale"];
 
-			transform.rotation.x = node["TransformComponent"]["Rotation"]["x"];
-			transform.rotation.y = node["TransformComponent"]["Rotation"]["y"];
-			transform.rotation.z = node["TransformComponent"]["Rotation"]["z"];
-
-			transform.scale.x = node["TransformComponent"]["Scale"]["x"];
-			transform.scale.y = node["TransformComponent"]["Scale"]["y"];
-			transform.scale.z = node["TransformComponent"]["Scale"]["z"];
-
-			if (document[index].containsKey("StaticMeshComponent"))
+			if (node.containsKey("DirectionalLightComponent"))
 			{
-				const StaticMeshComponent& staticMesh = scene->CreateComponent<StaticMeshComponent>(entity);
+				DirectionalLightComponent& dirLight{ scene->CreateComponent<DirectionalLightComponent>(entity) };
+				dirLight.radiance = node["DirectionalLightComponent"]["Radiance"];
+			}
 
-				staticMesh.staticMesh->resourceUUID = static_cast<uint64_t>(document[index]["StaticMeshComponent"]["UUID"]);
+			if (node.containsKey("PointLightComponent"))
+			{
+				PointLightComponent& pointLight{ scene->CreateComponent<PointLightComponent>(entity) };
+
+				pointLight.radiance = node["PointLightComponent"]["Radiance"];
+				pointLight.radius = node["PointLightComponent"]["Radius"];
+			}
+
+			if (node.containsKey("StaticMeshComponent"))
+			{
+				StaticMeshComponent& staticMesh{ scene->CreateComponent<StaticMeshComponent>(entity) };
+
+				UUID uuid{ static_cast<uint64_t>(node["StaticMeshComponent"]["UUID"]) };
+				
+				staticMesh.staticMesh = std::static_pointer_cast<StaticMesh>(ResourceManager::GetResource(uuid));
 			}
 		}
 
 		return scene;
 	}
 	
-	void SceneImporter::SaveScene(std::shared_ptr<Scene> scene, const std::filesystem::path& path)
+	void SceneImporter::SaveScene(const std::shared_ptr<Scene>& aScene, const std::filesystem::path& aFilepath)
 	{
 		JsonDocument document;
 
-		auto& world = scene->GetWorld();
-		auto& entities = world.storage<Entity>();
+		auto& world{ aScene->GetWorld() };
+		auto& entities{ world.storage<Entity>() };
 
 		for (auto& entity : entities)
 		{
-			uint64_t index = static_cast<uint64_t>(entity);
+			uint64_t index{ static_cast<uint64_t>(entity) };
 
-			auto s = document[index]["TransformComponent"];
+			const auto& transform{ world.get<TransformComponent>(entity) };
+			document[index]["TransformComponent"]["Position"] = transform.position;
+			document[index]["TransformComponent"]["Rotation"] = transform.rotation;
+			document[index]["TransformComponent"]["Scale"] = transform.scale;
 
-			const auto& transform = world.get<TransformComponent>(entity);
-			document[index]["TransformComponent"]["Position"]["x"] = transform.position.x;
-			document[index]["TransformComponent"]["Position"]["y"] = transform.position.y;
-			document[index]["TransformComponent"]["Position"]["z"] = transform.position.z;
-
-			document[index]["TransformComponent"]["Rotation"]["x"] = transform.rotation.x;
-			document[index]["TransformComponent"]["Rotation"]["y"] = transform.rotation.y;
-			document[index]["TransformComponent"]["Rotation"]["z"] = transform.rotation.z;
-
-			document[index]["TransformComponent"]["Scale"]["x"] = transform.scale.x;
-			document[index]["TransformComponent"]["Scale"]["y"] = transform.scale.y;
-			document[index]["TransformComponent"]["Scale"]["z"] = transform.scale.z;
-
-			const auto& info = world.get<InfoComponent>(entity);
+			const auto& info{ world.get<InfoComponent>(entity) };
 			document[index]["InfoComponent"]["Name"] = info.name;
+
+			if (world.try_get<DirectionalLightComponent>(entity))
+			{
+				const DirectionalLightComponent& dirLight{ world.get<DirectionalLightComponent>(entity) };
+				document[index]["DirectionalLightComponent"]["Radiance"] = dirLight.radiance;
+			}
+
+			if (world.try_get<PointLightComponent>(entity))
+			{
+				const PointLightComponent& pointLight{ world.get<PointLightComponent>(entity) };
+
+				document[index]["PointLightComponent"]["Radiance"] = pointLight.radiance;
+				document[index]["PointLightComponent"]["Radius"] = pointLight.radius;
+			}
 
 			if (world.try_get<StaticMeshComponent>(entity))
 			{
-				const StaticMeshComponent& staticMesh = world.get<StaticMeshComponent>(entity);
+				const StaticMeshComponent& staticMesh{ world.get<StaticMeshComponent>(entity) };
 
-				document[index]["StaticMeshComponent"]["UUID"] = static_cast<uint64_t>(staticMesh.staticMesh->resourceUUID);
+				UUID uuid{ 0U };
+
+				if (auto mesh{ staticMesh.staticMesh.lock() })
+				{
+					uuid = mesh->mResourceUUID;
+				}
+
+				document[index]["StaticMeshComponent"]["UUID"] = static_cast<uint64_t>(uuid);
+
+				if (auto material{ staticMesh.material.lock() })
+				{
+					document[index]["StaticMeshComponent"]["Color"] = material->GetMaterialData().color;
+					document[index]["StaticMeshComponent"]["Metallic"] = material->GetMaterialData().metallic;
+					document[index]["StaticMeshComponent"]["Roughness"] = material->GetMaterialData().roughness;
+				}
 			}
 		}
 
-		std::ofstream file(path, std::ios::out);
+		std::ofstream file(aFilepath, std::ios::out);
 
 		serializeJsonPretty(document, file);
 

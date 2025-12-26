@@ -3,21 +3,19 @@
 #include "EditorCamera.h"
 #include "Base/Input.h"
 
+#include <glm/glm.hpp>
+#include <gtc/quaternion.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <gtx/orthonormalize.hpp>
+#include <gtc/matrix_transform.hpp>
 
 namespace Ilargi
 {
-	EditorCamera::EditorCamera() : viewMatrix(), projectionMatrix(), position(0.0f, 1.5f, -5.0f), up(0.0f, 1.0f, 0.0f), 
-		front(0.0f, 0.0f, -1.0f), hFov(radians(70.0f)), nearPlane(0.1f), farPlane(1000.0f), yaw(90.0f), pitch(0.0f), 
-		mousePosition(0.0f)
+	EditorCamera::EditorCamera() : mViewMatrix(), mProjectionMatrix(), mPosition(0.0f, 1.0f, 5.0f), mUp(0.0f, 1.0f, 0.0f),
+		mFront(0.0f, 0.0f, -1.0f), mHorizontalFov(glm::radians(70.0f)), mNearPlane(0.1f), mFarPlane(1000.0f), mMousePosition(0.0f)
 	{
-		float aspectRatio = 1080.0f / 720.0f;
-		projectionMatrix = perspective(2.0f * atan(tan(hFov * 0.5f) * aspectRatio), aspectRatio, nearPlane, farPlane);
-
-		vec3 direction;
-		direction.x = cos(radians(yaw)) * cos(radians(pitch));
-		direction.y = sin(radians(pitch));
-		direction.z = sin(radians(yaw)) * cos(radians(pitch));
-		front = normalize(direction);
+		float aspectRatio{ 1080.0f / 720.0f };
+		mProjectionMatrix = glm::perspective(glm::radians(60.0f), aspectRatio, mNearPlane, mFarPlane);
 
 		ComputeViewMatrix();
 	}
@@ -26,59 +24,92 @@ namespace Ilargi
 	{
 	}
 	
-	void EditorCamera::Update()
+	void EditorCamera::Update(float aDeltaTime)
 	{
-		constexpr float sensitivity = 0.1f;
-		float cameraSpeed = 0.05f;
+		constexpr float speed{ 5.0f };
 
-		const vec2& mousePos = Input::GetMousePos();
+		glm::vec3 newPos{ mPosition };
+		glm::vec3 newFront{ mFront };
+		glm::vec3 newUp{ mUp };
 
+		const glm::vec2& mouse{ Input::GetMousePos() };
+		glm::vec2 delta{ (mouse - mMousePosition) * 0.0001f };
+		mMousePosition = mouse;
+
+		delta.x = -delta.x * (0.016f * 1000.0f);
+		delta.y = -delta.y * (0.016f * 1000.0f);
 		if (Input::IsMouseButtonPressed(MouseCode::RIGHT))
 		{
 			if (Input::IsKeyPressed(KeyCode::W))
-				position += front * cameraSpeed;
+			{
+				newPos += mFront * speed * aDeltaTime;
+			}
 			if (Input::IsKeyPressed(KeyCode::S))
-				position -= front * cameraSpeed;
+			{
+				newPos -= mFront * speed * aDeltaTime;
+			}
 			if (Input::IsKeyPressed(KeyCode::A))
-				position -= normalize(cross(front, up)) * cameraSpeed;
+			{
+				newPos -= glm::normalize(glm::cross(mFront, mUp)) * speed * aDeltaTime;
+			}
 			if (Input::IsKeyPressed(KeyCode::D))
-				position += normalize(cross(front, up)) * cameraSpeed;
-
+			{
+				newPos += glm::normalize(glm::cross(mFront, mUp)) * speed * aDeltaTime;
+			}
 			if (Input::IsKeyPressed(KeyCode::Q))
-				position += up * cameraSpeed;
+			{
+				newPos += mUp * speed * aDeltaTime;
+			}
 			if (Input::IsKeyPressed(KeyCode::E))
-				position -= up * cameraSpeed;
+			{
+				newPos -= mUp * speed * aDeltaTime;
+			}
 
-			const vec2& delta = (mousePosition - mousePos) * sensitivity;
+			if (Input::IsKeyPressed(KeyCode::LEFT_ALT))
+			{
+				glm::quat orbit{ glm::quat(glm::vec3(mPosition.z >= 0.0f ? delta.y * 2.0f : -delta.y * 2.0f, delta.x * 2.0f, 0.0)) };
+				
+				newPos = glm::normalize(orbit) * newPos;
+				newFront = glm::normalize(glm::vec3(0.0) - newPos);
+			}
+			else
+			{
+				if (delta.y != 0)
+				{
+					const glm::quat& quaternion{ glm::quat(delta.y, glm::normalize(glm::cross(mFront, mUp))) };
+					const glm::quat& conjQuat{ glm::conjugate(quaternion) };
 
-			yaw += delta.x;
-			pitch += delta.y;
+					newFront = glm::normalize(quaternion * newFront * conjQuat);
+					newUp = glm::normalize(quaternion * newUp * conjQuat);
+					newFront = glm::orthonormalize(newFront, newUp);
+				}
+				if (delta.x != 0)
+				{
+					const glm::quat& quaternion{ glm::quat(delta.x, glm::vec3(0.0f, 1.0f, 0.0f)) };
+					const glm::quat& conjQuat{ glm::conjugate(quaternion) };
 
-			if (pitch > 89.0f)
-				pitch = 89.0f;
-			if (pitch < -89.0f)
-				pitch = -89.0f;
+					newFront = glm::normalize(quaternion * newFront * conjQuat);
+					newUp = glm::normalize(quaternion * newUp * conjQuat);
+					glm::orthonormalize(newFront, newUp);
+				}
+			}
 
-			vec3 direction;
-			direction.x = cos(radians(yaw)) * cos(radians(pitch));
-			direction.y = sin(radians(pitch));
-			direction.z = sin(radians(yaw)) * cos(radians(pitch));
-			front = normalize(direction);
-			
-			ComputeViewMatrix();
+			mPosition = newPos;
+			mUp = newUp;
+			mFront = newFront;
 		}
 
-		mousePosition = mousePos;
+		mViewMatrix = glm::lookAt(mPosition, mPosition + mFront, glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 
-	void EditorCamera::Resize(float width, float height)
+	void EditorCamera::Resize(float aWidth, float aHeight)
 	{
-		float aspectRatio = width / height;
-		projectionMatrix = perspective(2.0f * atan(tan(hFov * 0.5f) * aspectRatio), aspectRatio, nearPlane, farPlane);
+		float aspectRatio{ aWidth / aHeight };
+		mProjectionMatrix = glm::perspective(glm::radians(60.0f), aspectRatio, mNearPlane, mFarPlane);
 	}
 	
 	void EditorCamera::ComputeViewMatrix()
 	{
-		viewMatrix = lookAt(position, position + front, up);
+		mViewMatrix = glm::lookAt(mPosition, mPosition + mFront, mUp);
 	}
 }

@@ -16,38 +16,42 @@ namespace Ilargi
 		int width;
 		int height;
 		bool fullscreen;
+		std::string iconPath;
 	};
 
 	class Application
 	{
 	public:
-		Application(const ApplicationProperties& props);
+		Application(const ApplicationProperties& aProps);
 		~Application();
 
-		void Update() const;
+		void Update();
 
-		void AddPanel(Panel* panel);
+		void AddPanel(Panel* aPanel);
 
-		void OnEvent(Event& event);
+		void OnEvent(Event& aEvent);
 		void CloseApp();
 
-		static Application* Get() { return app; }
-		Window& GetWindow() { return *window; }
+		static Application* Get() { return sApp; }
+		Window& GetWindow() { return *mWindow; }
 	private:
 		bool OnCloseEvent(WindowCloseEvent& event);
 		bool OnResizeEvent(WindowResizeEvent& event);
 
 	private:
-		static Application* app;
+		static Application* sApp;
 
-		bool close;
-		bool minimized;
-		ApplicationProperties properties;
+		bool mClose;
+		bool mMinimized;
+		ApplicationProperties mProperties;
 
-		std::unique_ptr<Window> window;
-		std::shared_ptr<ImGuiPanel> imguiPanel;
+		std::unique_ptr<Window> mWindow;
+		std::shared_ptr<ImGuiPanel> mImguiPanel;
 
-		std::vector<Panel*> panels;
+		std::vector<Panel*> mPanels;
+
+		std::chrono::time_point<std::chrono::high_resolution_clock> mStart;
+		float mDeltaTime;
 	};
 
 	extern Application* CreateApp(int argc, char* argv[]);

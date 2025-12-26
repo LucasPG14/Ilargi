@@ -12,6 +12,7 @@ namespace Ilargi
 		TEXTURE2D,
 		MATERIAL,
 		SCENE,
+		SKYBOX
 	};
 
 	struct ResourceMetadata
@@ -19,6 +20,7 @@ namespace Ilargi
 		ResourceType type = ResourceType::NONE;
 		std::filesystem::path filepath;
 		std::filesystem::path sourceFile;
+		std::filesystem::file_time_type lastWriteTime;
 	};
 
 	class Resource
@@ -27,6 +29,6 @@ namespace Ilargi
 		virtual const ResourceType GetType() const = 0;
 
 	public:
-		UUID resourceUUID;
+		UUID mResourceUUID;
 	};
 }

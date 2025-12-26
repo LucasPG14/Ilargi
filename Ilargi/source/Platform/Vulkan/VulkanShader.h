@@ -10,38 +10,41 @@ namespace Ilargi
 	class VulkanShader : public Shader
 	{
 	public:
-		VulkanShader(std::string_view path);
+		VulkanShader(std::string_view aFilepath);
 		virtual ~VulkanShader();
 
 		void Destroy();
 
-		void AllocateDescriptorSet(uint32_t index, VkDescriptorSet& dsctSet);
+		void AllocateDescriptorSet(uint32_t aIndex, VkDescriptorSet& aDescriptorSet);
 
-		const ShadersMap& GetShaders() const { return shaders; }
+		const std::string& GetName() const override { return mName; }
+		const ShadersMap& GetShaders() const { return mShaders; }
 
-		const std::vector<VkPushConstantRange>& GetPushConstants() const { return pushConstants; }
+		const std::vector<VkPushConstantRange>& GetPushConstants() const { return mPushConstants; }
 
-		const std::vector<VkDescriptorSetLayout>& GetDescriptorSetLayout() const { return descriptorSetLayouts; }
+		const std::vector<VkDescriptorSetLayout>& GetDescriptorSetLayout() const { return mDescriptorSetLayouts; }
 
 	private:
 		const char* GetShaderCacheDirectory() const { return "cache/vulkan/"; }
 
 		void ProcessShader();
 
-		void CreateShaderModule(VkShaderStageFlagBits stage, const std::vector<uint32_t>& code);
+		void CreateShaderModule(VkShaderStageFlagBits aStage, const std::vector<uint32_t>& aCode);
 
-		const std::vector<uint32_t> ConvertToSpirV(VkShaderStageFlagBits stage, const std::string_view& code) const;
+		const std::vector<uint32_t> ConvertToSpirV(VkShaderStageFlagBits aStage, const std::string_view& aCode) const;
 
-		void ReflectShader(const std::vector<uint32_t>& code, VkShaderStageFlags stage);
+		void ReflectShader(VkShaderStageFlags aStage, const std::vector<uint32_t>& aCode);
+	
 	private:
-		std::string filePath;
-		std::string name;
+		std::string mFilepath;
+		std::string mName;
 
-		ShadersMap shaders;
+		ShadersMap mShaders;
 
-		std::vector<VkPushConstantRange> pushConstants;
-		std::vector<VkDescriptorSetLayout> descriptorSetLayouts;
+		std::vector<VkPushConstantRange> mPushConstants;
+		std::vector<VkDescriptorSetLayout> mDescriptorSetLayouts;
 
-		std::map<int, std::vector<VkDescriptorSetLayoutBinding>> descriptorSetBindings;
+		std::map<int, std::vector<VkDescriptorSetLayoutBinding>> mDescriptorSetBindings;
+		std::array<std::array<bool, 8>, 8> mSetBindingMap;
 	};
 }

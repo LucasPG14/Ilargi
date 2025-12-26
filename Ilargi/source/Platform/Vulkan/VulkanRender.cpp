@@ -16,28 +16,28 @@ namespace Ilargi
 	{
 	}
 	
-	void VulkanRender::SubmitGeometry(std::shared_ptr<CommandBuffer> commandBuffer, std::shared_ptr<VertexBuffer> vertexBuffer, std::shared_ptr<IndexBuffer> indexBuffer) const
+	void VulkanRender::SubmitGeometry(std::shared_ptr<CommandBuffer> aCommandBuffer, std::shared_ptr<VertexBuffer> aVertexBuffer, std::shared_ptr<IndexBuffer> aIndexBuffer) const
 	{
-		Renderer::Submit([commandBuffer, vertexBuffer, indexBuffer]()
+		Renderer::Submit([aCommandBuffer, aVertexBuffer, aIndexBuffer]()
 			{
-				uint32_t currentFrame = Renderer::GetCurrentFrame();
+				uint32_t currentFrame{ Renderer::GetCurrentFrame() };
 
-				auto cmdBuffer = std::static_pointer_cast<VulkanCommandBuffer>(commandBuffer)->GetCurrentCommand(currentFrame);
-				vertexBuffer->Bind(commandBuffer);
-				indexBuffer->Bind(commandBuffer);
+				auto cmdBuffer{ aCommandBuffer->As<VulkanCommandBuffer>()->GetCurrentCommand(currentFrame) };
+				aVertexBuffer->Bind(aCommandBuffer);
+				aIndexBuffer->Bind(aCommandBuffer);
 
-				vkCmdDrawIndexed(cmdBuffer, indexBuffer->GetCount(), 1, 0, 0, 0);
+				vkCmdDrawIndexed(cmdBuffer, aIndexBuffer->GetCount(), 1, 0, 0, 0);
 			});
 	}
 	
-	void VulkanRender::DrawDefault(std::shared_ptr<CommandBuffer> commandBuffer) const
+	void VulkanRender::DrawDefault(std::shared_ptr<CommandBuffer> aCommandBuffer) const
 	{
-		Renderer::Submit([commandBuffer]()
-			{
-				uint32_t currentFrame = Renderer::GetCurrentFrame();
+		Renderer::Submit([aCommandBuffer]()
+		{
+				uint32_t currentFrame{ Renderer::GetCurrentFrame() };
 
-				auto cmdBuffer = std::static_pointer_cast<VulkanCommandBuffer>(commandBuffer)->GetCurrentCommand(currentFrame);
+				auto cmdBuffer{ aCommandBuffer->As<VulkanCommandBuffer>()->GetCurrentCommand(currentFrame) };
 				vkCmdDraw(cmdBuffer, 6, 1, 0, 0);
-			});
+		});
 	}
 }

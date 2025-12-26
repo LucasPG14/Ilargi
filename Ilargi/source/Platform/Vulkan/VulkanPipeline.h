@@ -9,23 +9,24 @@ namespace Ilargi
 	class VulkanPipeline : public Pipeline
 	{
 	public:
-		VulkanPipeline(const PipelineProperties& props);
+		VulkanPipeline(const PipelineProperties& aProperties);
 		virtual ~VulkanPipeline();
 
-		void Init(VkRenderPass renderPass, const std::vector<ImageFormat>& formats);
+		void Init(VkRenderPass aRenderPass, const std::vector<ImageFormat>& aFormats);
 		void Destroy();
 
-		void PushConstants(const std::shared_ptr<CommandBuffer>& commandBuffer, uint32_t offset, uint32_t size, const void* data) const override;
+		void PushConstants(const std::shared_ptr<CommandBuffer>& aCommandBuffer, uint32_t aOffset, uint32_t aSize, const void* aData) const override;
 
-		void Bind(const std::shared_ptr<CommandBuffer>& commandBuffer) const override;
-		void BindDescriptorSet(const std::shared_ptr<CommandBuffer>& commandBuffer, std::shared_ptr<Material> material) const override;
+		void Bind(const std::shared_ptr<CommandBuffer>& aCommandBuffer) const override;
+		void BindDescriptorSet(const std::shared_ptr<CommandBuffer>& aCommandBuffer, std::shared_ptr<Material> aMaterial, uint32_t aSetIndex) const override;
+		void BindDescriptorSet(const std::shared_ptr<CommandBuffer>& aCommandBuffer, std::shared_ptr<UniformBuffer> aUniformBuffer, uint32_t aSetIndex) const override;
 
-		const PipelineProperties& GetProperties() const override { return properties; }
+		const PipelineProperties& GetProperties() const override { return mProperties; }
 	private:
-		PipelineProperties properties;
+		PipelineProperties mProperties;
 
-		VkPipeline pipeline;
-		VkPipelineLayout pipelineLayout;
-		VkDescriptorSetLayout descriptorSetLayout;
+		VkPipeline mPipeline;
+		VkPipelineLayout mPipelineLayout;
+		VkDescriptorSetLayout mDescriptorSetLayout;
 	};
 }

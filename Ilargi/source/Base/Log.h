@@ -5,7 +5,7 @@ namespace Ilargi
 	class Log
 	{
 	public:
-		static void SetClientName(std::string appName) { clientName = appName; }
+		static void SetClientName(std::string aClientName) { sClientName = aClientName; }
 
 		static void CoreTrace(std::string_view str);
 		static void CoreInfo(std::string_view str);
@@ -18,7 +18,7 @@ namespace Ilargi
 		static void Error(std::string_view str);
 
 	private:
-		static std::string clientName;
+		static std::string sClientName;
 	};
 }
 

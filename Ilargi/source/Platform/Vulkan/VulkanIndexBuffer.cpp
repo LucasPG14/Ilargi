@@ -6,36 +6,42 @@
 
 namespace Ilargi
 {
-	VulkanIndexBuffer::VulkanIndexBuffer(void* data, uint32_t indicesCount) : count(indicesCount)
+	VulkanIndexBuffer::VulkanIndexBuffer(void* data, uint32_t indicesCount) : mCount(indicesCount)
 	{
-		VkBufferCreateInfo indexBufferInfo = {};
-		indexBufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-		indexBufferInfo.size = count * sizeof(uint32_t);
-		indexBufferInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-		indexBufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		VkBufferCreateInfo indexBufferInfo
+		{
+			VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,	// sType
+			nullptr,								// pNext
+			0,										// flags
+			mCount * sizeof(uint32_t),				// size
+			VK_BUFFER_USAGE_INDEX_BUFFER_BIT,		// usage
+			VK_SHARING_MODE_EXCLUSIVE,				// sharingMode
+			0,										// queueFamilyIndexCount
+			nullptr									// pQueueFamilyIndices
+		};
 
 		// TODO: Should be only on the GPU using a staging buffer
-		VulkanAllocator::AllocateBuffer(buffer, indexBufferInfo, VMA_MEMORY_USAGE_CPU_TO_GPU);
-		void* bufferData = VulkanAllocator::MapMemory(buffer);
+		VulkanAllocator::AllocateBuffer(mBuffer, indexBufferInfo, VMA_MEMORY_USAGE_CPU_TO_GPU);
+		void* bufferData{ VulkanAllocator::MapMemory(mBuffer) };
 		memcpy(bufferData, data, indexBufferInfo.size);
-		VulkanAllocator::UnmapMemory(buffer);
+		VulkanAllocator::UnmapMemory(mBuffer);
 	}
 	
 	VulkanIndexBuffer::~VulkanIndexBuffer()
 	{
-		VulkanAllocator::DestroyBuffer(buffer);
+		VulkanAllocator::DestroyBuffer(mBuffer);
 	}
 
 	void VulkanIndexBuffer::Bind(std::shared_ptr<CommandBuffer> commandBuffer) const
 	{
-		uint32_t currentFrame = Renderer::GetCurrentFrame();
-		auto cmdBuffer = std::static_pointer_cast<VulkanCommandBuffer>(commandBuffer);
+		uint32_t currentFrame{ Renderer::GetCurrentFrame() };
+		auto cmdBuffer{ commandBuffer->As<VulkanCommandBuffer>() };
 		
-		vkCmdBindIndexBuffer(cmdBuffer->GetCurrentCommand(currentFrame), buffer.buffer, 0, VK_INDEX_TYPE_UINT32);
+		vkCmdBindIndexBuffer(cmdBuffer->GetCurrentCommand(currentFrame), mBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
 	}
 
 	void VulkanIndexBuffer::Destroy()
 	{
-		VulkanAllocator::DestroyBuffer(buffer);
+		VulkanAllocator::DestroyBuffer(mBuffer);
 	}
 }

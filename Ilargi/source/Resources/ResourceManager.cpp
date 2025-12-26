@@ -4,6 +4,7 @@
 #include "Utils/Importers/ModelImporter.h"
 #include "Utils/Importers/TextureImporter.h"
 #include "Utils/Importers/SceneImporter.h"
+#include "Utils/Importers/MaterialImporter.h"
 
 #include <ArduinoJson-v7.0.4.h>
 
@@ -19,10 +20,13 @@ namespace Ilargi
 			case ResourceType::MODEL: return ".imodel";
 			case ResourceType::SCENE: return ".ilargi";
 			}
+
+			ILG_ASSERT(false, "This resource type is not supported");
+			return "";
 		}
 	}
 
-	const std::map<std::string, ResourceType> extensionsMap = 
+	const std::map<std::string, ResourceType> extensionsMap
 	{
 		{ ".png",		ResourceType::TEXTURE2D },
 		{ ".jpg",		ResourceType::TEXTURE2D },
@@ -33,7 +37,7 @@ namespace Ilargi
 	};
 
 	using ImportFn = std::function<void(UUID, const ResourceMetadata&)>;
-	static std::map<ResourceType, ImportFn> importers =
+	static std::map<ResourceType, ImportFn> importers
 	{
 		{ ResourceType::MODEL, ModelImporter::ImportModel },
 		{ ResourceType::TEXTURE2D, TextureImporter::ImportTexture },
@@ -41,91 +45,121 @@ namespace Ilargi
 	};
 
 	using LoadFn = std::function<std::shared_ptr<Resource>(const ResourceMetadata&)>;
-	static std::map<ResourceType, LoadFn> loaders =
+	static std::map<ResourceType, LoadFn> loaders
 	{
 		{ ResourceType::TEXTURE2D, TextureImporter::LoadTexture },
 		{ ResourceType::MODEL, ModelImporter::LoadModel },
 		{ ResourceType::SCENE, SceneImporter::LoadScene },
+		{ ResourceType::MATERIAL, MaterialImporter::LoadMaterial },
 	};
 
-	std::unordered_map<UUID, ResourceMetadata> ResourceManager::resourcesMetadata;
-	std::unordered_map<UUID, std::shared_ptr<Resource>> ResourceManager::loadedResources;
+	using SaveFn = std::function<void(const ResourceMetadata&, const std::shared_ptr<Resource>&)>;
+	static std::map<ResourceType, SaveFn> savers
+	{
+		{ ResourceType::MATERIAL, MaterialImporter::SaveMaterial }
+	};
+
+	std::unordered_map<UUID, ResourceMetadata> ResourceManager::sResourcesMetadata;
+	std::unordered_map<UUID, std::shared_ptr<Resource>> ResourceManager::sLoadedResources;
 	
 	void ResourceManager::Clear()
 	{
-		resourcesMetadata.clear();
-		loadedResources.clear();
+		sResourcesMetadata.clear();
+		sLoadedResources.clear();
 	}
 
-	UUID ResourceManager::RegisterResource(const ResourceMetadata& metadata)
+	UUID ResourceManager::RegisterResource(const ResourceMetadata& aMetadata)
 	{
 		UUID resourceUUID;
 		
-		resourcesMetadata[resourceUUID] = metadata;
+		sResourcesMetadata[resourceUUID] = aMetadata;
 
 		return resourceUUID;
 	}
 
-	UUID ResourceManager::ImportResource(const std::filesystem::path& actualDir, const std::filesystem::path& path)
+	UUID ResourceManager::ImportResource(const std::filesystem::path& aActualDir, const std::filesystem::path& aPath)
 	{
 		UUID resourceUUID;
 		
 		ResourceMetadata metadata;
-		metadata.type = GetResourceType(path.extension().string());
+		metadata.type = GetResourceType(aPath.extension().string());
 		
-		std::string newPath = (actualDir / path.stem()).string() + Utils::GetExtensionFromResourceType(metadata.type);
+		std::string newPath{ (aActualDir / aPath.stem()).string() + Utils::GetExtensionFromResourceType(metadata.type) };
 		
-		metadata.sourceFile = path;
+		metadata.sourceFile = aPath;
 		metadata.filepath = newPath;
+		metadata.lastWriteTime = std::filesystem::last_write_time(aPath);
 
-		resourcesMetadata[resourceUUID] = metadata;
+		sResourcesMetadata[resourceUUID] = metadata;
 		importers[metadata.type](resourceUUID, metadata);
+
+		SaveResourceRegistry();
 
 		return resourceUUID;
 	}
 
-	bool ResourceManager::ExistsResource(UUID uuid)
+	void ResourceManager::SaveResource(const std::shared_ptr<Resource>& aResource)
 	{
-		return resourcesMetadata.find(uuid) != resourcesMetadata.end();
+		ResourceMetadata& resourceMetadata{ sResourcesMetadata[aResource->mResourceUUID] };
+
+		savers[resourceMetadata.type](resourceMetadata, aResource);
+
+		resourceMetadata.lastWriteTime = std::filesystem::last_write_time(resourceMetadata.filepath);
 	}
 
-	const ResourceMetadata& ResourceManager::GetMetadata(UUID uuid)
+	bool ResourceManager::ExistsResource(UUID aUUID)
 	{
-		if (ExistsResource(uuid))
-			return resourcesMetadata[uuid];
+		return sResourcesMetadata.find(aUUID) != sResourcesMetadata.end();
+	}
+
+	const ResourceMetadata& ResourceManager::GetMetadata(UUID aUUID)
+	{
+		if (ExistsResource(aUUID))
+			return sResourcesMetadata[aUUID];
 
 		return ResourceMetadata();
 	}
 
-	std::shared_ptr<Resource> ResourceManager::GetResource(UUID uuid)
+	void ResourceManager::RemoveResource(UUID aUUID)
 	{
-		if (!ExistsResource(uuid))
+		if (sLoadedResources.contains(aUUID))
+			sLoadedResources.erase(aUUID);
+
+		if (sResourcesMetadata.contains(aUUID))
+			sResourcesMetadata.erase(aUUID);
+
+		SaveResourceRegistry();
+	}
+
+	std::shared_ptr<Resource> ResourceManager::GetResource(UUID aUUID)
+	{
+		if (!ExistsResource(aUUID))
 			return nullptr;
 
-		std::shared_ptr<Resource> resource = nullptr;
-		if (IsResourceLoaded(uuid))
+		std::shared_ptr<Resource> resource{ nullptr };
+		if (IsResourceLoaded(aUUID))
 		{
-			resource = loadedResources.at(uuid);
+			resource = sLoadedResources.at(aUUID);
 			return resource;
 		}
 
-		const auto& metadata = resourcesMetadata.at(uuid);
+		const auto& metadata{ sResourcesMetadata.at(aUUID) };
 		resource = loaders[metadata.type](metadata);
-		resource->resourceUUID = uuid;
-		loadedResources[uuid] = resource;
+		resource->mResourceUUID = aUUID;
+		sLoadedResources[aUUID] = resource;
 
 		return resource;
 	}
 
-	bool ResourceManager::IsResourceLoaded(UUID uuid)
+	bool ResourceManager::IsResourceLoaded(UUID aUUID)
 	{
-		return loadedResources.find(uuid) != loadedResources.end();
+		return sLoadedResources.find(aUUID) != sLoadedResources.end();
 	}
 	
-	const ResourceType ResourceManager::GetResourceType(const std::string& str)
+	const ResourceType ResourceManager::GetResourceType(const std::string& mStringType)
 	{
-		if (extensionsMap.contains(str))
-			return extensionsMap.at(str);
+		if (extensionsMap.contains(mStringType))
+			return extensionsMap.at(mStringType);
 
 		return ResourceType::NONE;
 	}
@@ -137,10 +171,10 @@ namespace Ilargi
 		std::ofstream file("ResourceRegistry.json", std::ios::out | std::ios::binary);
 		file.clear();
 
-		for (auto it = resourcesMetadata.begin(); it != resourcesMetadata.end(); ++it)
+		for (auto it = sResourcesMetadata.begin(); it != sResourcesMetadata.end(); ++it)
 		{
-			const ResourceMetadata& metadata = it->second;
-			int index = document.size();
+			const ResourceMetadata& metadata{ it->second };
+			uint32_t index{ (uint32_t)document.size() };
 
 			document[index]["UUID"] = static_cast<uint64_t>(it->first);
 			document[index]["Type"] = static_cast<int>(metadata.type);
@@ -161,21 +195,41 @@ namespace Ilargi
 		
 		deserializeJson(document, file);
 		file.close();
+
+		std::vector<uint32_t> resourcesToRemove;
 		
-		for (int i = 0; i < document.size(); ++i)
+		for (uint32_t i { 0U }; i < document.size(); ++i)
 		{
-			UUID uuid = static_cast<uint64_t>(document[i]["UUID"]);
+			UUID uuid{ static_cast<uint64_t>(document[i]["UUID"]) };
 			ResourceMetadata metadata;
 
 			metadata.filepath = static_cast<const char*>(document[i]["Filepath"]);
 			
-			//if (!std::filesystem::exists(metadata.filepath))
-			//	continue;
-
+			if (!std::filesystem::exists(metadata.filepath))
+			{
+				resourcesToRemove.push_back(i);
+				continue;
+			}
 			metadata.type = static_cast<ResourceType>((int)document[i]["Type"]);
 			metadata.sourceFile = static_cast<const char*>(document[i]["SourceFile"]);
+			metadata.lastWriteTime = std::filesystem::last_write_time(metadata.sourceFile);
 
-			resourcesMetadata[uuid] = metadata;
+			sResourcesMetadata[uuid] = metadata;
+		}
+
+		if (!resourcesToRemove.empty())
+		{
+			for (int index{ static_cast<int>(resourcesToRemove.size() - 1) }; index >= 0; --index)
+			{
+				document.remove(resourcesToRemove[index]);
+			}
+
+			std::ofstream file("ResourceRegistry.json", std::ios::out | std::ios::binary);
+			file.clear();
+
+			serializeJsonPretty(document, file);
+
+			file.close();
 		}
 	}
 }

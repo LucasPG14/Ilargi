@@ -9,27 +9,31 @@ namespace Ilargi
 	public:
 		static void Clear();
 
-		static UUID RegisterResource(const ResourceMetadata& metadata);
-		static UUID ImportResource(const std::filesystem::path& actualDir, const std::filesystem::path& path);
-		static std::shared_ptr<Resource> LoadResource(const ResourceMetadata& metadata);
+		static UUID RegisterResource(const ResourceMetadata& aMetadata);
+		static UUID ImportResource(const std::filesystem::path& aActualDir, const std::filesystem::path& aPath);
+		static std::shared_ptr<Resource> LoadResource(const ResourceMetadata& aMetadata);
+		static void SaveResource(const std::shared_ptr<Resource>& aResource);
 
-		static bool ExistsResource(UUID uuid);
+		static bool ExistsResource(UUID aUUID);
 
-		static const ResourceMetadata& GetMetadata(UUID uuid);
-		static std::shared_ptr<Resource> GetResource(UUID uuid);
+		static const ResourceMetadata& GetMetadata(UUID aUUID);
 
-		static bool IsResourceLoaded(UUID uuid);
+		static std::shared_ptr<Resource> GetResource(UUID aUUID);
 
-		static std::unordered_map<UUID, ResourceMetadata> GetResourcesMetadata() { return resourcesMetadata; }
-		static std::unordered_map<UUID, std::shared_ptr<Resource>> GetLoadedResources() { return loadedResources; }
+		static bool IsResourceLoaded(UUID aUUID);
+
+		static std::unordered_map<UUID, ResourceMetadata> GetResourcesMetadata() { return sResourcesMetadata; }
+		static std::unordered_map<UUID, std::shared_ptr<Resource>> GetLoadedResources() { return sLoadedResources; }
+
+		static void RemoveResource(UUID aUUID);
 
 		static void SaveResourceRegistry();
 		static void LoadResourceRegistry();
 	private:
-		static const ResourceType GetResourceType(const std::string& str);
+		static const ResourceType GetResourceType(const std::string& mStringType);
 
 	private:
-		static std::unordered_map<UUID, ResourceMetadata> resourcesMetadata;
-		static std::unordered_map<UUID, std::shared_ptr<Resource>> loadedResources;
+		static std::unordered_map<UUID, ResourceMetadata> sResourcesMetadata;
+		static std::unordered_map<UUID, std::shared_ptr<Resource>> sLoadedResources;
 	};
 }

@@ -4,37 +4,53 @@
 #include "Render.h"
 #include "CommandBuffer.h"
 #include "Resources/Mesh.h"
+#include "Resources/Texture.h"
 
 namespace Ilargi
 {
-	GraphicsAPI Renderer::graphicsAPI = GraphicsAPI::VULKAN;
-	std::unique_ptr<Render> Renderer::render = Render::Create();
-	std::shared_ptr<ShaderLibrary> Renderer::shaderLibrary = std::make_shared<ShaderLibrary>();
-	RendererConfig Renderer::config = {};
-	int Renderer::currentFrame = 0;
-	std::vector<std::function<void()>> Renderer::queue = {};
+	GraphicsAPI Renderer::sGraphicsAPI{ GraphicsAPI::VULKAN };
+	std::unique_ptr<Render> Renderer::sRender{ Render::Create() };
+	std::shared_ptr<ShaderLibrary> Renderer::sShaderLibrary{ std::make_shared<ShaderLibrary>() };
+	std::shared_ptr<Texture2D> Renderer::sDefaultTexture{ nullptr };
+	RendererConfig Renderer::sConfig {};
+	RendererStatistics Renderer::sStats {};
+	uint32_t Renderer::sCurrentFrame{ 0U };
+	std::vector<std::function<void()>> Renderer::sQueue {};
 
 	void Renderer::Init()
 	{
-		shaderLibrary->Add("Shaders/PBR_Static.shader");
-		//shaderLibrary->Add("Shaders/Grid.shader");
+		uint32_t data{ 0xffffffff };
+		sDefaultTexture = Texture2D::Create(&data, 1, 1, 4);
+
+		sShaderLibrary->Init();
+	}
+
+	void Renderer::Destroy()
+	{
+		sDefaultTexture.reset();
 	}
 
 	void Renderer::SubmitGeometry(std::shared_ptr<CommandBuffer> commandBuffer, std::shared_ptr<StaticMesh> mesh)
 	{
-		render->SubmitGeometry(commandBuffer, mesh->GetVertexBuffer(), mesh->GetIndexBuffer());
+		sStats.drawCalls++;
+		sStats.numMeshes++;
+		sRender->SubmitGeometry(commandBuffer, mesh->GetVertexBuffer(), mesh->GetIndexBuffer());
 	}
 
 	void Renderer::DrawDefault(std::shared_ptr<CommandBuffer> commandBuffer)
 	{
-		render->DrawDefault(commandBuffer);
+		sStats.drawCalls++;
+		sRender->DrawDefault(commandBuffer);
 	}
 
 	void Renderer::RenderQueue()
 	{
-		for (int i = 0; i < queue.size(); ++i)
-			queue[i]();
+		for (uint32_t i { 0U }; i < sQueue.size(); ++i)
+			sQueue[i]();
 		
-		queue.clear();
+		sQueue.clear();
+
+		sStats.drawCalls = 0;
+		sStats.numMeshes = 0;
 	}
 }
