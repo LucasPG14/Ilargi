@@ -16,8 +16,8 @@ namespace Ilargi
 		static ResourceType GetStaticType() { return ResourceType::MODEL; }
 		const ResourceType GetType() const { return GetStaticType(); }
 
-		const std::vector<std::shared_ptr<StaticMesh>> GetMeshes() const { return mMeshes; }
-		const std::vector<std::shared_ptr<Material>> GetMaterials() const { return mMaterials; }
+		const std::vector<std::shared_ptr<StaticMesh>>& GetMeshes() const { return mMeshes; }
+		const std::vector<std::shared_ptr<Material>>& GetMaterials() const { return mMaterials; }
 
 	private:
 		std::vector<std::shared_ptr<StaticMesh>> mMeshes;

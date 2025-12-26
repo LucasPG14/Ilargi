@@ -15,7 +15,6 @@
 #include <arduinojson/ArduinoJson-v7.0.4.h>
 #include <gtc/type_ptr.hpp>
 
-
 namespace Ilargi
 {
 	bool operator==(const glm::vec2& v, const ImVec2& v2)
@@ -30,7 +29,7 @@ namespace Ilargi
 
 	static std::unordered_map<Texts, std::string> menuNames = {};
 
-	EditorPanel::EditorPanel() : Panel("Editor Panel"), mHierarchyInspector(nullptr), mResourcesPanel(nullptr), 
+	EditorPanel::EditorPanel() : Panel("Editor Panel"), mHierarchyInspector(nullptr), mResourcesPanel(nullptr),
 		mViewportSize({ 1080, 720 }), mNeedToUpdateFramebuffer(false), mConstants(), mOperation(ImGuizmo::TRANSLATE)
 	{
 	}
@@ -53,8 +52,8 @@ namespace Ilargi
 			PipelineProperties pipelineProperties
 			{
 				"Geometry",											// name
-				true,										// testDepth
-				true,										// writeDepth
+				true,												// testDepth
+				true,												// writeDepth
 				Renderer::GetShaderLibrary()->Get("PBR_Static"),	// shader
 				{													// layout
 					{ ShaderDataType::FLOAT3, "position" },
@@ -104,7 +103,7 @@ namespace Ilargi
 		mCommandBuffer->Destroy();
 	}
 
-	void EditorPanel::Update()
+	void EditorPanel::Update(float aDeltaTime)
 	{
 		if (mNeedToUpdateFramebuffer)
 		{
@@ -113,7 +112,7 @@ namespace Ilargi
 			mNeedToUpdateFramebuffer = false;
 		}
 
-		mCamera.Update();
+		mCamera.Update(aDeltaTime);
 
 		mScene->UpdatePointLights(mCamera.GetViewProjectionMatrix(), mCamera.GetPosition());
 
@@ -378,8 +377,6 @@ namespace Ilargi
 					std::shared_ptr<Model> resource{ std::static_pointer_cast<Model>(ResourceManager::GetResource(uuid)) };
 
 					mScene->LoadModel(resource);
-					//Entity entity = mScene->CreateEntity();
-					//mScene->CreateComponent<StaticMeshComponent>(entity, std::static_pointer_cast<StaticMesh>(resource));
 					break;
 				}
 				case ResourceType::SCENE:

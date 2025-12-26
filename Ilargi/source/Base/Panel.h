@@ -15,7 +15,7 @@ namespace Ilargi
 		virtual void OnInit() = 0;
 		virtual void OnDestroy() = 0;
 
-		virtual void Update() = 0;
+		virtual void Update(float aDeltaTime) = 0;
 		virtual void RenderImGui() = 0;
 		
 		virtual void OnEvent(Event& aEvent) = 0;

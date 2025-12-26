@@ -32,7 +32,7 @@ namespace Ilargi
 			mUniformBuffersMapped[i] = VulkanAllocator::MapMemory(mUbos[i]);
 		}
 
-		auto vulkanShader{ std::static_pointer_cast<VulkanShader>(Renderer::GetShaderLibrary()->Get("PBR_Static")) };
+		auto vulkanShader{ Renderer::GetShaderLibrary()->Get("PBR_Static")->As<VulkanShader>() };
 
 		mDescriptorSets.resize(Renderer::GetConfig().maxFrames, VK_NULL_HANDLE);
 		for (uint32_t setIndex { 0U }; setIndex < Renderer::GetConfig().maxFrames; ++setIndex)

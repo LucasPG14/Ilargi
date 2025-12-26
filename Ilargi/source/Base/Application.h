@@ -25,7 +25,7 @@ namespace Ilargi
 		Application(const ApplicationProperties& aProps);
 		~Application();
 
-		void Update() const;
+		void Update();
 
 		void AddPanel(Panel* aPanel);
 
@@ -49,6 +49,9 @@ namespace Ilargi
 		std::shared_ptr<ImGuiPanel> mImguiPanel;
 
 		std::vector<Panel*> mPanels;
+
+		std::chrono::time_point<std::chrono::high_resolution_clock> mStart;
+		float mDeltaTime;
 	};
 
 	extern Application* CreateApp(int argc, char* argv[]);

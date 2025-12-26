@@ -38,7 +38,7 @@ namespace Ilargi
 	void VulkanVertexBuffer::Bind(std::shared_ptr<CommandBuffer> aCommandBuffer) const
 	{
 		uint32_t currentFrame{ Renderer::GetCurrentFrame() };
-		auto cmdBuffer{ std::static_pointer_cast<VulkanCommandBuffer>(aCommandBuffer) };
+		auto cmdBuffer{ aCommandBuffer->As<VulkanCommandBuffer>() };
 
 		VkDeviceSize offset{ 0 };
 		vkCmdBindVertexBuffers(cmdBuffer->GetCurrentCommand(currentFrame), 0, 1, &mBuffer.buffer, &offset);

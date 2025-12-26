@@ -1,10 +1,13 @@
 #include "ilargipch.h"
 #include "ResourcesPanel.h"
 
+#include "MaterialPanel.h"
+
 #include "Base/UUID.h"
 #include "Base/Input.h"
 #include "Resources/ResourceManager.h"
 #include "Resources/Texture.h"
+#include "Resources/Material.h"
 
 #include "Utils/FileSystem.h"
 
@@ -49,6 +52,8 @@ namespace Ilargi
 
 		mFolderIcon = Texture2D::Create("Engine/Textures/Folder.png");
 		mFileIcon = Texture2D::Create("Engine/Textures/File2.png");
+
+		mMaterialPanel = new MaterialPanel();
 
 		ResourceManager::LoadResourceRegistry();
 
@@ -119,6 +124,8 @@ namespace Ilargi
 
 			ImGui::End();
 		}
+
+		mMaterialPanel->Render();
 	}
 	
 	void ResourcesPanel::OnEvent(Event& aEvent)
@@ -175,7 +182,7 @@ namespace Ilargi
 	
 	void ResourcesPanel::NormalDirectory()
 	{
-		constexpr float cellX { 128.0f };
+		constexpr float cellX { 132.0f };
 		constexpr float cellY { 190.0f };
 
 		int columns{ int(ImGui::GetContentRegionAvail().x / cellX) };
@@ -226,9 +233,17 @@ namespace Ilargi
 				{
 					if (ImGui::IsWindowHovered())
 					{
-						if (ImGui::IsMouseDown(ImGuiMouseButton_Left))
+						if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+						{
+							if (ResourceManager::GetMetadata(mResources[path]).type == ResourceType::MATERIAL)
+							{
+								mMaterialPanel->SetMaterial(std::static_pointer_cast<Material>(ResourceManager::GetResource(mResources[path])));
+							}
+						}
+						else if (ImGui::IsMouseDown(ImGuiMouseButton_Left))
+						{
 							mSelectedFile = path;
-
+						}
 						else if (ImGui::IsMouseDown(ImGuiMouseButton_Right))
 						{
 							mSelectedFile = path;
@@ -236,19 +251,26 @@ namespace Ilargi
 						}
 					}
 
-					ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 8.0f, 8.0f });
+					//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 8.0f, 8.0f });
 					if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 					{	
 						ImGui::SetDragDropPayload("RESOURCE", &mResources[path], sizeof(mResources[path]));
 						ImGui::Text(path.filename().string().c_str());
 						ImGui::EndDragDropSource();
 					}
-					ImGui::PopStyleVar();
+					//ImGui::PopStyleVar();
 					
-					ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 6.0f);
+					//ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 6.0f);
 					//ImGui::Button(filename.c_str(), {cellX, cellX});
-					ImGui::Image((ImTextureID)mFileIcon->GetID(), { cellX, cellX });
-					ImGui::PopStyleVar();
+					if (ResourceManager::GetMetadata(mResources[path]).type == ResourceType::TEXTURE2D)
+					{
+						ImGui::Image((ImTextureID)std::static_pointer_cast<Texture2D>(ResourceManager::GetResource(mResources[path]))->GetID(), { 132, cellX });
+					}
+					else
+					{
+						ImGui::Image((ImTextureID)mFileIcon->GetID(), { cellX, cellX });
+					}
+					//ImGui::PopStyleVar();
 
 					ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 5.0f);
 					ImGui::Text(filename.c_str());

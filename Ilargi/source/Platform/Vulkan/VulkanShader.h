@@ -17,6 +17,7 @@ namespace Ilargi
 
 		void AllocateDescriptorSet(uint32_t aIndex, VkDescriptorSet& aDescriptorSet);
 
+		const std::string& GetName() const override { return mName; }
 		const ShadersMap& GetShaders() const { return mShaders; }
 
 		const std::vector<VkPushConstantRange>& GetPushConstants() const { return mPushConstants; }

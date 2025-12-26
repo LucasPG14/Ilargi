@@ -25,7 +25,7 @@ namespace Ilargi
 		static void AllocateBuffer(VulkanBuffer& aBuffer, const VkBufferCreateInfo& aBufferInfo, VmaMemoryUsage aUsage);
 		static void DestroyBuffer(VulkanBuffer& aBuffer);
 
-		static void AllocateImage(Image& aImage, const VkImageCreateInfo& aImageInfo, VmaMemoryUsage aUsage);
+		static void AllocateImage(Image& aImage, const VkImageCreateInfo& aImageInfo, VmaMemoryUsage aUsage, const std::string& aDebugName = "Image");
 		static void DestroyImage(Image& aImage);
 
 		static void* MapMemory(const VulkanBuffer& aBuffer);

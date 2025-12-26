@@ -14,6 +14,8 @@ namespace Ilargi
 		VulkanMaterial(std::shared_ptr<Shader> aShader, const MaterialData& aMaterialData);
 		virtual ~VulkanMaterial();
 
+		const std::shared_ptr<Shader>& GetShader() const override { return mShader; }
+
 		const void* GetDescriptorSet() const override { return mDescriptorSet; }
 		const MaterialData& GetMaterialData() const override { return mMaterialData; }
 		MaterialData& GetMaterialData() override { return mMaterialData; }
@@ -26,6 +28,7 @@ namespace Ilargi
 		void UpdateDescriptor();
 
 	private:
+		std::shared_ptr<Shader> mShader;
 		VkDescriptorSet mDescriptorSet;
 
 		MaterialData mMaterialData;

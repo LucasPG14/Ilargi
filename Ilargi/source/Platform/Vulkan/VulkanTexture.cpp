@@ -28,7 +28,7 @@ namespace Ilargi
 		}
 	}
 
-	VulkanTexture2D::VulkanTexture2D(std::filesystem::path aFilepath) : mWidth(0), mHeight(0), image(), 
+	VulkanTexture2D::VulkanTexture2D(std::filesystem::path aFilepath) : mWidth(0), mHeight(0), mImage(), 
 		mImageView(VK_NULL_HANDLE), mSampler(VK_NULL_HANDLE), mDescriptorSet(VK_NULL_HANDLE)
 	{
 		auto device{ VulkanContext::GetLogicalDevice() };
@@ -98,7 +98,7 @@ namespace Ilargi
 			VK_IMAGE_LAYOUT_UNDEFINED																			// initialLayout
 		};
 
-		VulkanAllocator::AllocateImage(image, imageInfo, VMA_MEMORY_USAGE_GPU_ONLY);
+		VulkanAllocator::AllocateImage(mImage, imageInfo, VMA_MEMORY_USAGE_GPU_ONLY, "Texture2D");
 
 		TransitionLayout(mipLevels, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
@@ -128,7 +128,7 @@ namespace Ilargi
 				} 
 			};
 
-			vkCmdCopyBufferToImage(commandBuffer, buffer.buffer, image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+			vkCmdCopyBufferToImage(commandBuffer, buffer.buffer, mImage.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
 			VulkanContext::EndSingleCommandBuffer(commandBuffer);
 		}
@@ -144,7 +144,7 @@ namespace Ilargi
 			VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,	// sType
 			nullptr,									// pNext
 			0,											// flags
-			image.image,								// image
+			mImage.image,								// image
 			VK_IMAGE_VIEW_TYPE_2D,						// viewType
 			VK_FORMAT_R8G8B8A8_SRGB,					// format
 			{											// components
@@ -190,7 +190,7 @@ namespace Ilargi
 		mDescriptorSet = ImGui_ImplVulkan_AddTexture(mSampler, mImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 	}
 
-	VulkanTexture2D::VulkanTexture2D(void* aData, int aWidth, int aHeight, int aChannels) : mWidth(aWidth), mHeight(aHeight), image(),
+	VulkanTexture2D::VulkanTexture2D(void* aData, int aWidth, int aHeight, int aChannels) : mWidth(aWidth), mHeight(aHeight), mImage(),
 		mImageView(VK_NULL_HANDLE), mSampler(VK_NULL_HANDLE), mDescriptorSet(VK_NULL_HANDLE)
 	{
 		auto device{ VulkanContext::GetLogicalDevice() };
@@ -245,7 +245,7 @@ namespace Ilargi
 			VK_IMAGE_LAYOUT_UNDEFINED																			// initialLayout
 		};
 
-		VulkanAllocator::AllocateImage(image, imageInfo, VMA_MEMORY_USAGE_GPU_ONLY);
+		VulkanAllocator::AllocateImage(mImage, imageInfo, VMA_MEMORY_USAGE_GPU_ONLY, "Texture2D");
 
 		TransitionLayout(mipLevels, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
@@ -275,7 +275,7 @@ namespace Ilargi
 				}
 			};
 
-			vkCmdCopyBufferToImage(commandBuffer, buffer.buffer, image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+			vkCmdCopyBufferToImage(commandBuffer, buffer.buffer, mImage.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
 			VulkanContext::EndSingleCommandBuffer(commandBuffer);
 		}
@@ -291,7 +291,7 @@ namespace Ilargi
 			VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,	// sType
 			nullptr,									// pNext
 			0,											// flags
-			image.image,								// image
+			mImage.image,								// image
 			VK_IMAGE_VIEW_TYPE_2D,						// viewType
 			format,										// format
 			{											// components
@@ -342,7 +342,7 @@ namespace Ilargi
 	{
 		auto device{ VulkanContext::GetLogicalDevice() };
 
-		VulkanAllocator::DestroyImage(image);
+		VulkanAllocator::DestroyImage(mImage);
 		vkDestroySampler(device, mSampler, nullptr);
 		vkDestroyImageView(device, mImageView, nullptr);
 	}
@@ -359,7 +359,7 @@ namespace Ilargi
 		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 
-		barrier.image = image.image;
+		barrier.image = mImage.image;
 		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 		barrier.subresourceRange.baseMipLevel = 0;
 		barrier.subresourceRange.levelCount = aMipLevels;
@@ -397,7 +397,7 @@ namespace Ilargi
 
 		VkImageMemoryBarrier barrier{};
 		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-		barrier.image = image.image;
+		barrier.image = mImage.image;
 		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -436,7 +436,7 @@ namespace Ilargi
 			blit.dstSubresource.baseArrayLayer = 0;
 			blit.dstSubresource.layerCount = 1;
 
-			vkCmdBlitImage(commandBuffer, image.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, image.image, 
+			vkCmdBlitImage(commandBuffer, mImage.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, mImage.image, 
 				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_LINEAR);
 		
 			barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;

@@ -22,7 +22,7 @@ namespace Ilargi
 
 	VulkanImGuiPanel::VulkanImGuiPanel(GLFWwindow* win, const std::shared_ptr<Swapchain> swapchain)
 	{
-		mSwapchain = std::static_pointer_cast<VulkanSwapchain>(swapchain);
+		mSwapchain = swapchain->As<VulkanSwapchain>();
 
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -30,7 +30,8 @@ namespace Ilargi
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+		// TODO: If viewports are enabled, it crash while resizing
+		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 		
 		ImGui::StyleColorsDark();
 		//UI::IlargiStyle2();

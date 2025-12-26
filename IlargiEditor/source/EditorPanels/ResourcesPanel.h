@@ -8,6 +8,7 @@ namespace Ilargi
 {
 	class UUID;
 	class Texture2D;
+	class MaterialPanel;
 
 	class ResourcesPanel
 	{
@@ -28,7 +29,6 @@ namespace Ilargi
 		void RecursiveDirectory();
 	private:
 		std::filesystem::path mActualDir;
-		
 		std::filesystem::path mSelectedFile;
 
 		std::string mSearch;
@@ -37,6 +37,8 @@ namespace Ilargi
 
 		std::shared_ptr<Texture2D> mFolderIcon;
 		std::shared_ptr<Texture2D> mFileIcon;
+
+		MaterialPanel* mMaterialPanel;
 
 		bool mResourcesPanelFocused;
 	};

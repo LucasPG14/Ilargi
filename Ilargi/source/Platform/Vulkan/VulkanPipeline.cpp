@@ -78,7 +78,7 @@ namespace Ilargi
 
 		VkGraphicsPipelineCreateInfo pipelineInfo {};
 
-		auto shader{ std::static_pointer_cast<VulkanShader>(mProperties.shader) };
+		auto shader{ mProperties.shader->As<VulkanShader>() };
 
 		// Creating the pipeline layout
 		{
@@ -334,7 +334,7 @@ namespace Ilargi
 			{
 				uint32_t currentFrame{ Renderer::GetCurrentFrame() };
 
-				auto cmdBuffer{ std::static_pointer_cast<VulkanCommandBuffer>(aCommandBuffer)->GetCurrentCommand(currentFrame) };
+				auto cmdBuffer{ aCommandBuffer->As<VulkanCommandBuffer>()->GetCurrentCommand(currentFrame) };
 				vkCmdPushConstants(cmdBuffer, mPipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, aOffset, aSize, aData);
 			});
 	}
@@ -345,7 +345,7 @@ namespace Ilargi
 			{
 				uint32_t currentFrame{ Renderer::GetCurrentFrame() };
 
-				auto cmdBuffer{ std::static_pointer_cast<VulkanCommandBuffer>(aCommandBuffer)->GetCurrentCommand(currentFrame) };
+				auto cmdBuffer{ aCommandBuffer->As<VulkanCommandBuffer>()->GetCurrentCommand(currentFrame) };
 				vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mPipeline);
 			});
 	}
@@ -356,7 +356,7 @@ namespace Ilargi
 			{
 				uint32_t currentFrame { Renderer::GetCurrentFrame() };
 
-				auto cmdBuffer { std::static_pointer_cast<VulkanCommandBuffer>(aCommandBuffer)->GetCurrentCommand(currentFrame) };
+				auto cmdBuffer { aCommandBuffer->As<VulkanCommandBuffer>()->GetCurrentCommand(currentFrame) };
 				std::vector<VkDescriptorSet> descriptorSets { (VkDescriptorSet)aMaterial->GetDescriptorSet() };
 				vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mPipelineLayout, 0, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
 			});
@@ -368,7 +368,7 @@ namespace Ilargi
 			{
 				uint32_t currentFrame { Renderer::GetCurrentFrame() };
 
-				auto cmdBuffer { std::static_pointer_cast<VulkanCommandBuffer>(aCommandBuffer)->GetCurrentCommand(currentFrame) };
+				auto cmdBuffer { aCommandBuffer->As<VulkanCommandBuffer>()->GetCurrentCommand(currentFrame) };
 				std::vector<VkDescriptorSet> descriptorSets { (VkDescriptorSet)aUniformBuffer->GetDescriptorSet() };
 				vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mPipelineLayout, aSetIndex, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
 			});

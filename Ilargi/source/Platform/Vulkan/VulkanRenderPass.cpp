@@ -93,8 +93,8 @@ namespace Ilargi
 
 		VK_CHECK_RESULT(vkCreateRenderPass(device, &renderPassInfo, nullptr, &mRenderPass));
 
-		std::static_pointer_cast<VulkanFramebuffer>(props.framebuffer)->Init(mRenderPass);
-		std::static_pointer_cast<VulkanPipeline>(props.pipeline)->Init(mRenderPass, formats);
+		props.framebuffer->As<VulkanFramebuffer>()->Init(mRenderPass);
+		props.pipeline->As<VulkanPipeline>()->Init(mRenderPass, formats);
 	}
 	
 	VulkanRenderPass::~VulkanRenderPass()
@@ -113,8 +113,8 @@ namespace Ilargi
 	{
 		Renderer::Submit([this, commandBuffer]()
 			{
-				auto framebuffer{ std::static_pointer_cast<VulkanFramebuffer>(mProperties.framebuffer) };
-				auto cmdBuffer{ std::static_pointer_cast<VulkanCommandBuffer>(commandBuffer)->GetCurrentCommand(Renderer::GetCurrentFrame()) };
+				auto framebuffer{ mProperties.framebuffer->As<VulkanFramebuffer>() };
+				auto cmdBuffer{ commandBuffer->As<VulkanCommandBuffer>()->GetCurrentCommand(Renderer::GetCurrentFrame())};
 
 				uint32_t width{ framebuffer->GetWidth() };
 				uint32_t height{ framebuffer->GetHeight() };
@@ -131,7 +131,6 @@ namespace Ilargi
 					},
 					mProperties.clearValues ? static_cast<uint32_t>(mClearValues.size()) : 0,	// clearValueCount 
 					mClearValues.data()							// pClearValues 
-
 				};
 
 				VkViewport viewport
@@ -156,11 +155,11 @@ namespace Ilargi
 			});
 	}
 
-	void VulkanRenderPass::EndRenderPass(const std::shared_ptr<CommandBuffer>& commandBuffer) const
+	void VulkanRenderPass::EndRenderPass(const std::shared_ptr<CommandBuffer>& aCommandBuffer) const
 	{
-		Renderer::Submit([commandBuffer]()
+		Renderer::Submit([aCommandBuffer]()
 			{
-				auto cmdBuffer{ std::static_pointer_cast<VulkanCommandBuffer>(commandBuffer)->GetCurrentCommand(Renderer::GetCurrentFrame()) };
+				auto cmdBuffer{ aCommandBuffer->As<VulkanCommandBuffer>()->GetCurrentCommand(Renderer::GetCurrentFrame()) };
 				vkCmdEndRenderPass(cmdBuffer);
 			});
 	}

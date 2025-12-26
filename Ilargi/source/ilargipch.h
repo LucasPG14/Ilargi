@@ -12,6 +12,7 @@
 
 #include <chrono>
 #include <regex>
+#include <type_traits>
 
 // Data structures
 #include <vector>

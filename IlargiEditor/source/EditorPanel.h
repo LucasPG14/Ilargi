@@ -21,7 +21,7 @@ namespace Ilargi
 		void OnInit() override;
 		void OnDestroy() override;
 
-		void Update() override;
+		void Update(float aDeltaTime) override;
 		void RenderImGui() override;
 
 		void OnEvent(Event& aEvent) override;

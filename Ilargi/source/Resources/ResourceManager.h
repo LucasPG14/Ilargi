@@ -12,6 +12,7 @@ namespace Ilargi
 		static UUID RegisterResource(const ResourceMetadata& aMetadata);
 		static UUID ImportResource(const std::filesystem::path& aActualDir, const std::filesystem::path& aPath);
 		static std::shared_ptr<Resource> LoadResource(const ResourceMetadata& aMetadata);
+		static void SaveResource(const std::shared_ptr<Resource>& aResource);
 
 		static bool ExistsResource(UUID aUUID);
 

@@ -35,7 +35,7 @@ namespace Ilargi
 	void VulkanIndexBuffer::Bind(std::shared_ptr<CommandBuffer> commandBuffer) const
 	{
 		uint32_t currentFrame{ Renderer::GetCurrentFrame() };
-		auto cmdBuffer{ std::static_pointer_cast<VulkanCommandBuffer>(commandBuffer) };
+		auto cmdBuffer{ commandBuffer->As<VulkanCommandBuffer>() };
 		
 		vkCmdBindIndexBuffer(cmdBuffer->GetCurrentCommand(currentFrame), mBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
 	}

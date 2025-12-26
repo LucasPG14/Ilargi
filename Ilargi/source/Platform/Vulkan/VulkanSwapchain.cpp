@@ -311,7 +311,7 @@ namespace Ilargi
 				VK_IMAGE_LAYOUT_UNDEFINED						// initialLayout
 			};
 
-			VulkanAllocator::AllocateImage(mDepthImage, imageInfo, VMA_MEMORY_USAGE_GPU_ONLY);
+			VulkanAllocator::AllocateImage(mDepthImage, imageInfo, VMA_MEMORY_USAGE_GPU_ONLY, "Swapchain");
 
 			VkImageViewCreateInfo createInfo
 			{

@@ -60,7 +60,7 @@ namespace Ilargi
 				VK_IMAGE_LAYOUT_UNDEFINED											// initialLayout
 			};
 
-			VulkanAllocator::AllocateImage(attachment.image, imageInfo, VMA_MEMORY_USAGE_GPU_ONLY);
+			VulkanAllocator::AllocateImage(attachment.image, imageInfo, VMA_MEMORY_USAGE_GPU_ONLY, "Framebuffer");
 
 			VkImageViewCreateInfo imageViewInfo
 			{
@@ -109,7 +109,7 @@ namespace Ilargi
 				VK_IMAGE_LAYOUT_UNDEFINED								// initialLayout
 			};
 
-			VulkanAllocator::AllocateImage(mDepthAttachment.image, imageInfo, VMA_MEMORY_USAGE_GPU_ONLY);
+			VulkanAllocator::AllocateImage(mDepthAttachment.image, imageInfo, VMA_MEMORY_USAGE_GPU_ONLY, "Framebuffer");
 			
 			VkImageViewCreateInfo imageViewInfo
 			{
@@ -265,6 +265,7 @@ namespace Ilargi
 		auto device{ VulkanContext::GetLogicalDevice() };
 		vkDeviceWaitIdle(device);
 
+		vkDestroyFramebuffer(device, mFramebuffer, nullptr);
 		for (auto colorAttachment : mColorAttachments)
 		{
 			VulkanAllocator::DestroyImage(colorAttachment.image);
@@ -275,9 +276,8 @@ namespace Ilargi
 			VulkanAllocator::DestroyImage(mDepthAttachment.image);
 			vkDestroyImageView(device, mDepthAttachment.imageView, nullptr);
 		}
-		vkDestroyFramebuffer(device, mFramebuffer, nullptr);
 
-		Init(std::static_pointer_cast<VulkanRenderPass>(aRenderPass)->GetRenderPass());
+		Init(aRenderPass->As<VulkanRenderPass>()->GetRenderPass());
 	}
 
 	void* VulkanFramebuffer::GetID() const

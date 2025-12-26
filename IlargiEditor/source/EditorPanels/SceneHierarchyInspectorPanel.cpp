@@ -48,55 +48,8 @@ namespace Ilargi
 		{
 			if (world.get<FamilyComponent>(entity).parent != entt::null)
 				continue;
-
-			stack.push(entity);
-
-			while (!stack.empty())
-			{
-				Entity childEntity{ stack.top() };
-				auto [info, family] { world.get<InfoComponent, FamilyComponent>(childEntity)};
-				bool select{ mSelected == childEntity };
-
-				ImGuiTreeNodeFlags flags{ ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth };
-				if (select)
-					flags |= ImGuiTreeNodeFlags_Selected;
-				
-				bool open{ UI::BeginTreeNode((void*)childEntity, info.name, flags) };
-				stack.pop();
-				if (open && !family.children.empty())
-				{
-					for (uint64_t i { family.children.size() - 1U }; i >= 0U; --i)
-					{
-						stack.push(family.children[i]);
-					}
-					continue;
-				}
-				else if (family.parent != entt::null)
-					UI::EndTreeNode((void*)childEntity, open);
-
-				if (ImGui::IsItemClicked(0) || ImGui::IsItemClicked(1))
-					mSelected = childEntity;
-
-				UI::EndTreeNode((void*)childEntity, open);
-			}
-			
-			//bool select = selected == entity;
-			//
-			//ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
-			//if (select)
-			//	flags |= ImGuiTreeNodeFlags_Selected;
-			//bool open = UI::BeginTreeNode((void*)entity, world.get<InfoComponent>(entity).name, flags);
-			//
-			//if (open && !family.children.empty())
-			//{
-			//	bool childOpen = UI::BeginTreeNode((void*)entity, world.get<InfoComponent>(family.children[0]).name, flags);
-			//	UI::EndTreeNode((void*)entity, childOpen);
-			//}
-			//
-			//if (ImGui::IsItemClicked(0) || ImGui::IsItemClicked(1))
-			//	selected = entity;
-			//
-			//UI::EndTreeNode((void*)entity, open);
+		
+			DrawNode(entity, world);
 		}
 
 		if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0) && !ImGui::IsAnyItemHovered())
@@ -233,7 +186,7 @@ namespace Ilargi
 									UUID uuid{ *(UUID*)payload->Data };
 									const auto& metadata{ ResourceManager::GetResourcesMetadata()[uuid] };
 
-									material->UpdateDiffuse(std::static_pointer_cast<Texture2D>(ResourceManager::GetResource(uuid)));
+									staticMesh.material = std::static_pointer_cast<Material>(ResourceManager::GetResource(uuid));
 								}
 							}
 							ImGui::EndChild();
@@ -252,6 +205,8 @@ namespace Ilargi
 						}
 						ImGui::PopStyleColor(2);
 						ImGui::PopStyleVar(1);
+
+						ResourceManager::SaveResource(material);
 					}
 				}
 				ImGui::Separator();
@@ -287,5 +242,29 @@ namespace Ilargi
 		}
 
 		ImGui::PopStyleColor(3);
+	}
+	
+	void SceneHierarchyInspectorPanel::DrawNode(const Entity aEntity, const entt::registry& aWorld)
+	{
+		const auto&& [info, family] { aWorld.get<InfoComponent, FamilyComponent>(aEntity)};
+		bool select{ mSelected == aEntity };
+
+		ImGuiTreeNodeFlags flags{ ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth };
+		if (select)
+			flags |= ImGuiTreeNodeFlags_Selected;
+
+		bool open{ UI::BeginTreeNode((void*)aEntity, info.name, flags) };
+		if (ImGui::IsItemClicked(0) || ImGui::IsItemClicked(1))
+			mSelected = aEntity;
+
+		if (open)
+		{
+			for (const auto& entityChild : family.children)
+			{
+				DrawNode(entityChild, aWorld);
+			}
+		}
+
+		UI::EndTreeNode((void*)aEntity, open);
 	}
 }

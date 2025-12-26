@@ -53,6 +53,12 @@ namespace Ilargi
 		{ ResourceType::MATERIAL, MaterialImporter::LoadMaterial },
 	};
 
+	using SaveFn = std::function<void(const ResourceMetadata&, const std::shared_ptr<Resource>&)>;
+	static std::map<ResourceType, SaveFn> savers
+	{
+		{ ResourceType::MATERIAL, MaterialImporter::SaveMaterial }
+	};
+
 	std::unordered_map<UUID, ResourceMetadata> ResourceManager::sResourcesMetadata;
 	std::unordered_map<UUID, std::shared_ptr<Resource>> ResourceManager::sLoadedResources;
 	
@@ -90,6 +96,15 @@ namespace Ilargi
 		SaveResourceRegistry();
 
 		return resourceUUID;
+	}
+
+	void ResourceManager::SaveResource(const std::shared_ptr<Resource>& aResource)
+	{
+		ResourceMetadata& resourceMetadata{ sResourcesMetadata[aResource->mResourceUUID] };
+
+		savers[resourceMetadata.type](resourceMetadata, aResource);
+
+		resourceMetadata.lastWriteTime = std::filesystem::last_write_time(resourceMetadata.filepath);
 	}
 
 	bool ResourceManager::ExistsResource(UUID aUUID)
@@ -180,6 +195,8 @@ namespace Ilargi
 		
 		deserializeJson(document, file);
 		file.close();
+
+		std::vector<uint32_t> resourcesToRemove;
 		
 		for (uint32_t i { 0U }; i < document.size(); ++i)
 		{
@@ -189,12 +206,30 @@ namespace Ilargi
 			metadata.filepath = static_cast<const char*>(document[i]["Filepath"]);
 			
 			if (!std::filesystem::exists(metadata.filepath))
+			{
+				resourcesToRemove.push_back(i);
 				continue;
-
+			}
 			metadata.type = static_cast<ResourceType>((int)document[i]["Type"]);
 			metadata.sourceFile = static_cast<const char*>(document[i]["SourceFile"]);
+			metadata.lastWriteTime = std::filesystem::last_write_time(metadata.sourceFile);
 
 			sResourcesMetadata[uuid] = metadata;
+		}
+
+		if (!resourcesToRemove.empty())
+		{
+			for (int index{ static_cast<int>(resourcesToRemove.size() - 1) }; index >= 0; --index)
+			{
+				document.remove(resourcesToRemove[index]);
+			}
+
+			std::ofstream file("ResourceRegistry.json", std::ios::out | std::ios::binary);
+			file.clear();
+
+			serializeJsonPretty(document, file);
+
+			file.close();
 		}
 	}
 }

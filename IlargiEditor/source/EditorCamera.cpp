@@ -11,7 +11,7 @@
 
 namespace Ilargi
 {
-	EditorCamera::EditorCamera() : mViewMatrix(), mProjectionMatrix(), mPosition(0.0f, 0.0f, 5.0f), mUp(0.0f, 1.0f, 0.0f),
+	EditorCamera::EditorCamera() : mViewMatrix(), mProjectionMatrix(), mPosition(0.0f, 1.0f, 5.0f), mUp(0.0f, 1.0f, 0.0f),
 		mFront(0.0f, 0.0f, -1.0f), mHorizontalFov(glm::radians(70.0f)), mNearPlane(0.1f), mFarPlane(1000.0f), mMousePosition(0.0f)
 	{
 		float aspectRatio{ 1080.0f / 720.0f };
@@ -24,7 +24,7 @@ namespace Ilargi
 	{
 	}
 	
-	void EditorCamera::Update()
+	void EditorCamera::Update(float aDeltaTime)
 	{
 		constexpr float speed{ 5.0f };
 
@@ -42,27 +42,27 @@ namespace Ilargi
 		{
 			if (Input::IsKeyPressed(KeyCode::W))
 			{
-				newPos += mFront * speed * 0.016f;
+				newPos += mFront * speed * aDeltaTime;
 			}
 			if (Input::IsKeyPressed(KeyCode::S))
 			{
-				newPos -= mFront * speed * 0.016f;
+				newPos -= mFront * speed * aDeltaTime;
 			}
 			if (Input::IsKeyPressed(KeyCode::A))
 			{
-				newPos -= glm::normalize(glm::cross(mFront, mUp)) * speed * 0.016f;
+				newPos -= glm::normalize(glm::cross(mFront, mUp)) * speed * aDeltaTime;
 			}
 			if (Input::IsKeyPressed(KeyCode::D))
 			{
-				newPos += glm::normalize(glm::cross(mFront, mUp)) * speed * 0.016f;
+				newPos += glm::normalize(glm::cross(mFront, mUp)) * speed * aDeltaTime;
 			}
 			if (Input::IsKeyPressed(KeyCode::Q))
 			{
-				newPos += mUp * 0.025f;
+				newPos += mUp * speed * aDeltaTime;
 			}
 			if (Input::IsKeyPressed(KeyCode::E))
 			{
-				newPos -= mUp * 0.025f;
+				newPos -= mUp * speed * aDeltaTime;
 			}
 
 			if (Input::IsKeyPressed(KeyCode::LEFT_ALT))

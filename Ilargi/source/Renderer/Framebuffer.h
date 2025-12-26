@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 namespace Ilargi
 {
 	enum class ImageFormat
@@ -30,7 +32,7 @@ namespace Ilargi
 
 	class RenderPass;
 
-	class Framebuffer
+	class Framebuffer : public std::enable_shared_from_this<Framebuffer>
 	{
 	public:
 		virtual const FramebufferProperties& GetProperties() const = 0;
@@ -46,6 +48,14 @@ namespace Ilargi
 
 		virtual const std::vector<ImageFormat>& GetColorSpecifications() const = 0;
 		virtual const ImageFormat GetDepthSpecification() const = 0;
+
+		template <typename T>
+		std::shared_ptr<T> As()
+		{
+			ILG_STATIC_ASSERT(std::is_base_of<Framebuffer, T>::value, "T must be a derived class of Framebuffer");
+
+			return std::static_pointer_cast<T>(shared_from_this());
+		}
 
 		static std::shared_ptr<Framebuffer> Create(const FramebufferProperties& aProperties);
 	};

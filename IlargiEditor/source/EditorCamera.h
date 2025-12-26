@@ -17,7 +17,7 @@ namespace Ilargi
 
 		glm::vec3 GetPosition() { return mPosition; }
 
-		void Update();
+		void Update(float aDeltaTime);
 
 		void Resize(float aWidth, float aHeight);
 

@@ -39,7 +39,7 @@ namespace Ilargi
 		vmaDestroyBuffer(sAllocator, aBuffer.buffer, aBuffer.allocation);
 	}
 
-	void VulkanAllocator::AllocateImage(Image& aImage, const VkImageCreateInfo& aImageInfo, VmaMemoryUsage aUsage)
+	void VulkanAllocator::AllocateImage(Image& aImage, const VkImageCreateInfo& aImageInfo, VmaMemoryUsage aUsage, const std::string& aDebugName)
 	{
 		VmaAllocationCreateInfo vmaAllocInfo = {};
 		vmaAllocInfo.usage = aUsage;
@@ -47,7 +47,7 @@ namespace Ilargi
 		vmaAllocInfo.priority = 1.0f;
 
 		vmaCreateImage(sAllocator, &aImageInfo, &vmaAllocInfo, &aImage.image, &aImage.allocation, nullptr);
-		aImage.allocation->SetName(sAllocator, "Image");
+		aImage.allocation->SetName(sAllocator, aDebugName.c_str());
 	}
 
 	void VulkanAllocator::DestroyImage(Image& aImage)

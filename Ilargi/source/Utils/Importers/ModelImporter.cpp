@@ -43,13 +43,17 @@ namespace Ilargi
 			aiMaterial->Get(AI_MATKEY_NAME, name);
 			std::filesystem::path filepath{ aMetadata.filepath.parent_path() / name.C_Str() += ".imat"};
 
+			MaterialData materialData;
+			aiMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, materialData.color);
+			aiMaterial->Get(AI_MATKEY_SHININESS, materialData.metallic);
+
 			ResourceMetadata materialMetadata;
 			materialMetadata.type = ResourceType::MATERIAL;
 			materialMetadata.sourceFile = aMetadata.sourceFile;
 			materialMetadata.filepath = filepath;
 			
 			Buffer buffer;
-			buffer.size = sizeof(uint32_t) + shaderName.length();
+			buffer.size = sizeof(uint32_t) + shaderName.length() + sizeof(materialData);
 			buffer.data = new char[buffer.size];
 
 			uint32_t shaderNameSize { (uint32_t)shaderName.length() };
@@ -59,6 +63,14 @@ namespace Ilargi
 			buf += sizeof(uint32_t);
 
 			memcpy(buf, shaderName.data(), shaderNameSize * sizeof(char));
+			buf += shaderNameSize * sizeof(char);
+
+			memcpy(buf, &materialData, sizeof(materialData));
+			buf += sizeof(materialData);
+
+			bool hasDiffuseTexture{ false };
+			memcpy(buf, &hasDiffuseTexture, sizeof(bool));
+			buf += sizeof(bool);
 
 			FileSystem::WriteBinaryFile(materialMetadata.filepath, buffer);
 

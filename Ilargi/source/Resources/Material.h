@@ -20,6 +20,8 @@ namespace Ilargi
 		static ResourceType GetStaticType() { return ResourceType::MATERIAL; }
 		const ResourceType GetType() const { return GetStaticType(); }
 
+		virtual const std::shared_ptr<Shader>& GetShader() const = 0;
+		
 		virtual const void* GetDescriptorSet() const = 0;
 		virtual const MaterialData& GetMaterialData() const = 0;
 		virtual MaterialData& GetMaterialData() = 0;

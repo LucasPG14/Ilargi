@@ -3,6 +3,7 @@
 // Main headers
 #include "Application.h"
 #include "Panel.h"
+#include "Timer.h"
 #include "Renderer/Renderer.h"
 #include "ImGUI/ImGuiPanel.h"
 
@@ -43,16 +44,19 @@ namespace Ilargi
 		mWindow->Destroy();
 	}
 	
-	void Application::Update() const
+	void Application::Update()
 	{
 		while (!mClose)
 		{
+			mDeltaTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - mStart).count() / 1000.0f;
+			mStart = std::chrono::high_resolution_clock::now();
+
 			mWindow->PollEvents();
 			if (mMinimized)
 				continue;
 
 			for (Panel* panel : mPanels)
-				panel->Update();
+				panel->Update(mDeltaTime);
 
 			Renderer::Submit([this]() { mImguiPanel->Begin(); });
 			Renderer::Submit([this]() 
@@ -65,6 +69,8 @@ namespace Ilargi
 			mWindow->StartFrame();
 			Renderer::RenderQueue();
 			mWindow->EndFrame();
+
+			//mTimer.Stop();
 		}
 	}
 

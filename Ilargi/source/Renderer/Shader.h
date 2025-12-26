@@ -2,10 +2,19 @@
 
 namespace Ilargi
 {
-	class Shader
+	class Shader : public std::enable_shared_from_this<Shader>
 	{
 	public:
 		virtual void Destroy() = 0;
+		virtual const std::string& GetName() const = 0;
+
+		template <typename T>
+		std::shared_ptr<T> As()
+		{
+			ILG_STATIC_ASSERT(std::is_base_of<Shader, T>::value, "T must be a derived class of Shader");
+
+			return std::static_pointer_cast<T>(shared_from_this());
+		}
 
 		static std::shared_ptr<Shader> Create(std::string_view aCode);
 	};

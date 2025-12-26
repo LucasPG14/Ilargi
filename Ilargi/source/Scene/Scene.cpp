@@ -17,6 +17,7 @@ namespace Ilargi
 	
 	Scene::~Scene()
 	{
+		mWorld.clear();
 	}
 	
 	void Scene::Destroy()
@@ -34,13 +35,13 @@ namespace Ilargi
 	void Scene::LoadModel(const std::shared_ptr<Model>& model)
 	{
 		// TODO: Refactor this
-		const std::vector<std::shared_ptr<StaticMesh>> meshes{ model->GetMeshes() };
-		const std::vector<std::shared_ptr<Material>> materials{ model->GetMaterials() };
+		const std::vector<std::shared_ptr<StaticMesh>>& meshes{ model->GetMeshes() };
+		const std::vector<std::shared_ptr<Material>>& materials{ model->GetMaterials() };
 
 		for (uint32_t i { 0U }; i < meshes.size(); ++i)
 		{
 			Entity entity{ CreateEntity() };
-			CreateComponent<StaticMeshComponent>(entity, meshes[i], materials[i +1]);
+			CreateComponent<StaticMeshComponent>(entity, meshes[i], materials[i + 1]);
 		}
 	}
 	
@@ -70,6 +71,12 @@ namespace Ilargi
 
 	void Scene::DestroyEntity(Entity aEntity)
 	{
+		const auto& parentEntity{ mWorld.get<FamilyComponent>(aEntity).parent };
+		if (parentEntity != entt::null)
+		{
+			auto& childrens{ mWorld.get<FamilyComponent>(parentEntity).children };
+			std::remove(childrens.begin(), childrens.end(), aEntity);
+		}
 		mWorld.destroy(aEntity);
 	}
 	

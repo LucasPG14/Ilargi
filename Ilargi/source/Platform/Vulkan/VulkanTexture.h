@@ -28,7 +28,7 @@ namespace Ilargi
 		uint32_t mWidth;
 		uint32_t mHeight;
 
-		Image image;
+		Image mImage;
 		VkImageView mImageView;
 		VkSampler mSampler;
 		VkDescriptorSet mDescriptorSet;

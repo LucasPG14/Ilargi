@@ -10,9 +10,9 @@
 namespace Ilargi
 {
 	VulkanMaterial::VulkanMaterial(std::shared_ptr<Shader> aShader, const MaterialData& aMaterialData) 
-		: mDescriptorSet(VK_NULL_HANDLE), mMaterialData(aMaterialData)
+		: mShader(aShader), mDescriptorSet(VK_NULL_HANDLE), mMaterialData(aMaterialData)
 	{
-		auto vulkanShader{ std::static_pointer_cast<VulkanShader>(aShader) };
+		auto vulkanShader{ aShader->As<VulkanShader>() };
 		vulkanShader->AllocateDescriptorSet(0, mDescriptorSet);
 
 		mDiffuse = Renderer::GetDefaultTexture();

@@ -100,7 +100,7 @@ namespace Ilargi
 		Layout layout;
 	};
 
-	class Pipeline
+	class Pipeline : public std::enable_shared_from_this<Pipeline>
 	{
 	public:
 		virtual void Destroy() = 0;
@@ -112,6 +112,14 @@ namespace Ilargi
 		virtual void BindDescriptorSet(const std::shared_ptr<CommandBuffer>& aCommandBuffer, std::shared_ptr<UniformBuffer> aUniformBuffer, uint32_t aSetIndex) const = 0;
 
 		virtual const PipelineProperties& GetProperties() const = 0;
+
+		template <typename T>
+		std::shared_ptr<T> As()
+		{
+			ILG_STATIC_ASSERT(std::is_base_of<Pipeline, T>::value, "T must be a derived class of Pipeline");
+
+			return std::static_pointer_cast<T>(shared_from_this());
+		}
 
 		static std::shared_ptr<Pipeline> Create(const PipelineProperties& aProperties);
 	};

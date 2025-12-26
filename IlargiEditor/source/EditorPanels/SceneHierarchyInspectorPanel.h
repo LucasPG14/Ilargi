@@ -20,6 +20,7 @@ namespace Ilargi
 	private:
 		void DrawInspector();
 
+		void DrawNode(const Entity aEntity, const entt::registry& aWorld);
 	private:
 		std::shared_ptr<Scene> mScene;
 
