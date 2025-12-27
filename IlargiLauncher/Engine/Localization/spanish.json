@@ -1,0 +1,21 @@
+{
+  "File": "Archivo",
+  "New Scene": "Nueva Escena",
+  "Open Scene": "Abrir Escena",
+  "Save Scene": "Guardar Escena",
+  "Save Scene As": "Guardar Escena Como...",
+  "Exit": "Salir",
+
+
+  "Edit": "Editar",
+  "Undo": "Deshacer",
+  "Redo": "Rehacer",
+  "Copy": "Copiar",
+  "Paste": "Pegar",
+  "Delete": "Eliminar",
+  "Duplicate": "Duplicar",
+
+  "Localization": "Localización",
+  "English": "Inglés",
+  "Spanish": "Español",
+}

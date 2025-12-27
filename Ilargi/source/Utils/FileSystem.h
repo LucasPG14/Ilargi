@@ -16,5 +16,7 @@ namespace Ilargi
 
 		static std::string OpenFile(const char* aFilter);
 		static std::string SaveFile(const char* aFilter);
+
+		static void OpenApp();
 	};
 }

@@ -3,7 +3,7 @@
 #include "FileSystem.h"
 #include "Base/Application.h"
 
-#include <Windows.h>
+#include <windows.h>
 #include <GLFW/glfw3.h>
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
@@ -81,5 +81,39 @@ namespace Ilargi
 		}
 
 		return std::string();
+	}
+
+	void FileSystem::OpenApp()
+	{
+		STARTUPINFOW si;
+		PROCESS_INFORMATION pi;
+
+		ZeroMemory(&si, sizeof(si));
+		si.cb = sizeof(si);
+		ZeroMemory(&pi, sizeof(pi));
+
+		wchar_t comando[] = L"C:/Users/lucas/Documents/GitHub/Ilargi/IlargiEditor/IlargiEditor.exe -project Hola";
+
+		BOOL ok = CreateProcessW(
+			NULL,
+			comando,
+			NULL,
+			NULL,
+			FALSE,
+			0,
+			NULL,
+			NULL,
+			&si,
+			&pi
+		);
+
+		if (!ok)
+		{
+			MessageBoxW(NULL, L"No se pudo abrir la calculadora", L"Error", MB_OK);
+			return;
+		}
+
+		CloseHandle(pi.hProcess);
+		CloseHandle(pi.hThread);
 	}
 }

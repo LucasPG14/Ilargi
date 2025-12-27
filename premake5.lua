@@ -1,6 +1,6 @@
 workspace "Ilargi"
 	architecture "x86_64"
-	startproject "IlargiEditor"
+	startproject "IlargiLauncher"
 
 	configurations
 	{
@@ -166,6 +166,68 @@ project "IlargiEditor"
 		"Ilargi/dependencies/glm",
 		"Ilargi/dependencies/imguizmo",
 		"Ilargi/dependencies/stb"
+	}
+
+	links
+	{
+		"Ilargi"
+	}
+
+	defines
+	{
+		"_CRT_SECURE_NO_WARNINGS",
+	}
+
+	filter "system:windows"
+		systemversion "latest"
+
+		defines
+		{
+			"ILG_PLATFORM_WINDOWS"
+		}
+
+	filter "configurations:Debug"
+		defines "ILG_DEBUG"
+		runtime "Debug"
+		symbols "on"
+
+	filter "configurations:Release"
+		defines "ILG_RELEASE"
+		runtime "Release"
+		optimize "on"
+
+	filter "configurations:Dist"
+		defines "ILG_DIST"
+		runtime "Release"
+		optimize "on"
+
+
+-- Creating Ilargi Launcher project
+
+project "IlargiLauncher"
+	location "IlargiLauncher"
+	kind "ConsoleApp"
+	language "C++"
+	cppdialect "C++20"
+	staticruntime "off"
+
+	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+
+	files
+	{
+		"%{prj.name}/source/**.h",
+		"%{prj.name}/source/**.cpp"
+	}
+
+	includedirs
+	{
+		"Ilargi/source",
+		"Ilargi/dependencies",
+		"Ilargi/dependencies/entt",
+		"Ilargi/dependencies/glm",
+		-- "Ilargi/dependencies/imguizmo",
+		-- "Ilargi/dependencies/stb"
 	}
 
 	links
