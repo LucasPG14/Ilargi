@@ -10,8 +10,8 @@ namespace Ilargi
 
 	struct RenderPassProperties
 	{
-		std::shared_ptr<Framebuffer> framebuffer;
-		std::shared_ptr<Pipeline> pipeline;
+		std::vector<ImageFormat> formats;
+
 		bool clearValues;
 	};
 
@@ -20,7 +20,7 @@ namespace Ilargi
 	public:
 		virtual void Destroy() = 0;
 
-		virtual void BeginRenderPass(const std::shared_ptr<CommandBuffer>& aCommandBuffer) const = 0;
+		virtual void BeginRenderPass(const std::shared_ptr<CommandBuffer>& aCommandBufferaCommandBuffer, const std::shared_ptr<Framebuffer>& aFramebuffer) const = 0;
 		virtual void EndRenderPass(const std::shared_ptr<CommandBuffer>& aCommandBuffer) const = 0;
 
 		virtual const RenderPassProperties& GetProperties() const = 0;

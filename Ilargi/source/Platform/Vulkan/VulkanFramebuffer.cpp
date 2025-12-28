@@ -21,6 +21,9 @@ namespace Ilargi
 			}
 			mColorSpecifications.push_back(format);
 		}
+
+		const auto& renderPass{ mProperties.renderPass->As<VulkanRenderPass>() };
+		Init(renderPass->GetRenderPass());
 	}
 	
 	VulkanFramebuffer::~VulkanFramebuffer()

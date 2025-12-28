@@ -32,6 +32,7 @@ namespace Ilargi
 	{
 		Add("Shaders/PBR_Static.shader");
 		Add("Shaders/Grid.shader");
+		Add("Shaders/Outline.shader");
 	}
 	
 	void ShaderLibrary::Add(std::string aName, std::shared_ptr<Shader> aShader)

@@ -4,6 +4,8 @@
 
 namespace Ilargi
 {
+	class RenderPass;
+
 	enum class ImageFormat
 	{
 		NONE = 0,
@@ -25,12 +27,11 @@ namespace Ilargi
 		uint32_t width;
 		uint32_t height;
 		std::vector<ImageFormat> formats;
+		std::shared_ptr<RenderPass> renderPass;
 
 		bool swapchainTarget;
 		bool multisampling;
 	};
-
-	class RenderPass;
 
 	class Framebuffer : public std::enable_shared_from_this<Framebuffer>
 	{

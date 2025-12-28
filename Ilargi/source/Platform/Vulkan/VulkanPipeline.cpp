@@ -51,6 +51,8 @@ namespace Ilargi
 		: mProperties(aProperties), mPipeline(VK_NULL_HANDLE), mPipelineLayout(VK_NULL_HANDLE), mDescriptorSetLayout(VK_NULL_HANDLE)
 	{
 		Utils::CreatePipelineCacheDirectory();
+		const auto& renderPass{ mProperties.renderPass->As<VulkanRenderPass>() };
+		Init(renderPass->GetRenderPass(), renderPass->GetProperties().formats);
 	}
 	
 	VulkanPipeline::~VulkanPipeline()
@@ -272,12 +274,29 @@ namespace Ilargi
 				mProperties.writeDepth,										// depthWriteEnable
 				VK_COMPARE_OP_LESS,											// depthCompareOp
 				VK_FALSE,													// depthBoundsTestEnable
-				VK_FALSE,													// stencilTestEnable
+				mProperties.hasStencil,										// stencilTestEnable
 				{},															// front
 				{},															// back
 				0.0f,														// minDepthBounds
 				1.0f														// maxDepthBounds
 			};
+
+			if (mProperties.hasStencil)
+			{
+				VkStencilOpState stencilWrite
+				{
+					VK_STENCIL_OP_KEEP,															//failOp
+					mProperties.writeStencil ? VK_STENCIL_OP_REPLACE : VK_STENCIL_OP_KEEP,		//passOp
+					VK_STENCIL_OP_KEEP,															//depthFailOp
+					mProperties.writeStencil ? VK_COMPARE_OP_ALWAYS : VK_COMPARE_OP_NOT_EQUAL,	//compareOp
+					0xFF,																		//compareMask
+					mProperties.writeStencil ? 0xFF : 0x00,										//writeMask
+					1																			//reference
+				};
+
+				depthStencil.front = stencilWrite;
+				depthStencil.back = stencilWrite;
+			}
 			pipelineInfo.pDepthStencilState = &depthStencil;
 		}
 		

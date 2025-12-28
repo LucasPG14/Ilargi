@@ -50,6 +50,8 @@ namespace Ilargi
 		std::shared_ptr<Framebuffer> mFramebuffer;
 		std::shared_ptr<RenderPass> mRenderPass;
 		std::shared_ptr<Pipeline> mPipeline;
+		std::shared_ptr<Pipeline> mGridPipeline;
+		std::shared_ptr<Pipeline> mOutlinePipeline;
 
 		std::shared_ptr<UniformBuffer> mUBOCamera;
 
@@ -58,13 +60,10 @@ namespace Ilargi
 		ResourcesPanel* mResourcesPanel;
 
 		glm::vec2 mViewportSize;
+		int mOperation;
 		bool mNeedToUpdateFramebuffer;
 
 		glm::mat4 mConstants[2];
-		int mOperation;
-
-		// Grid
-		std::shared_ptr<RenderPass> mGridRenderPass;
-		std::shared_ptr<Pipeline> mGridPipeline;
+		glm::mat4 mStencilMatrix;
 	};
 }

@@ -96,6 +96,9 @@ namespace Ilargi
 		std::string name;
 		bool testDepth = true;
 		bool writeDepth = true;
+		bool hasStencil = true;
+		bool writeStencil = true;
+		std::shared_ptr<RenderPass> renderPass;
 		std::shared_ptr<Shader> shader;
 		Layout layout;
 	};

@@ -1,0 +1,58 @@
+#type vertex
+#version 450
+
+layout(location = 0) in vec3 inPosition;
+layout(location = 1) in vec3 inNormal;
+layout(location = 2) in vec3 inTangent;
+layout(location = 3) in vec3 inBitangent;
+layout(location = 4) in vec2 inTexCoord;
+
+layout(push_constant) uniform Constants
+{
+    mat4 modelMatrix;
+    vec3 radiance;
+    vec3 direction;
+} pushConstants;
+
+struct PointLight
+{
+    vec3 radiance;
+    float radius;
+    vec3 position;
+};
+
+// Descriptor sets
+layout(set = 1, binding = 0) uniform SceneData
+{
+    mat4 viewProjMatrix;
+    vec3 cameraPos;
+    uint pointLightsSize;
+    PointLight pointLights[1024];
+} sceneData;
+
+void main() 
+{
+    gl_Position = sceneData.viewProjMatrix * pushConstants.modelMatrix * vec4(inPosition, 1.0);
+}
+
+#type fragment
+#version 450
+
+layout(location = 0) out vec4 outColor;
+
+// Material Descriptor Sets
+layout(set = 0, binding = 0) uniform sampler2D diffuseTex;
+layout(set = 0, binding = 1) uniform sampler2D normalTex;
+layout(set = 0, binding = 2) uniform sampler2D metallicTex;
+layout(set = 0, binding = 3) uniform sampler2D roughnessTex;
+layout(set = 0, binding = 4) uniform MaterialData
+{
+    vec4 color;
+    float metallic;
+    float roughness;
+} material;
+
+void main() 
+{
+    outColor = vec4(0.04, 0.28, 0.26, 1.0);
+}

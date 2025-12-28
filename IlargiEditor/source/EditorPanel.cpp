@@ -47,13 +47,17 @@ namespace Ilargi
 
 		mCommandBuffer = CommandBuffer::Create(Renderer::GetConfig().maxFrames);
 		
-		mFramebuffer = Framebuffer::Create({ 1080, 720, { ImageFormat::RGBA8, ImageFormat::DEPTH32 }, false, true });
+		mRenderPass = RenderPass::Create({ { ImageFormat::RGBA8, ImageFormat::DEPTH24_STENCIL8 }, true });
+		mFramebuffer = Framebuffer::Create({ 1080, 720, { ImageFormat::RGBA8, ImageFormat::DEPTH24_STENCIL8 }, mRenderPass, false, true });
 		{
 			PipelineProperties pipelineProperties
 			{
 				"Geometry",											// name
 				true,												// testDepth
 				true,												// writeDepth
+				true,												// hasStencil
+				true,												// writeStencil
+				mRenderPass,										// renderPass
 				Renderer::GetShaderLibrary()->Get("PBR_Static"),	// shader
 				{													// layout
 					{ ShaderDataType::FLOAT3, "position" },
@@ -64,7 +68,7 @@ namespace Ilargi
 				}
 			};
 
-			mRenderPass = RenderPass::Create({ mFramebuffer, Pipeline::Create(pipelineProperties), false });
+			mPipeline = Pipeline::Create(pipelineProperties);
 		}
 
 		{
@@ -73,11 +77,36 @@ namespace Ilargi
 				"Grid",										// name
 				true,										// testDepth
 				false,										// writeDepth
+				false,										// hasStencil
+				false,										// writeStencil
+				mRenderPass,								// renderPass
 				Renderer::GetShaderLibrary()->Get("Grid"),	// shader
 				{}											// layout
 			};
 
-			mGridRenderPass = RenderPass::Create({ mFramebuffer, Pipeline::Create(pipelineProperties), true });
+			mGridPipeline = Pipeline::Create(pipelineProperties);
+		}
+
+		{
+			PipelineProperties pipelineProperties
+			{
+				"Outline",											// name
+				true,												// testDepth
+				false,												// writeDepth
+				true,												// hasStencil
+				false,												// writeStencil
+				mRenderPass,										// renderPass
+				Renderer::GetShaderLibrary()->Get("Outline"),	// shader
+				{													// layout
+					{ ShaderDataType::FLOAT3, "position" },
+					{ ShaderDataType::FLOAT3, "normal" },
+					{ ShaderDataType::FLOAT3, "tangent" },
+					{ ShaderDataType::FLOAT3, "bitangent" },
+					{ ShaderDataType::FLOAT2, "texCoord" },
+				}											
+			};
+
+			mOutlinePipeline = Pipeline::Create(pipelineProperties);
 		}
 
 		mUBOCamera = UniformBuffer::Create(sizeof(glm::mat4), Renderer::GetConfig().maxFrames);
@@ -97,8 +126,11 @@ namespace Ilargi
 		mScene->Destroy();
 
 		mFramebuffer->Destroy();
-		mGridRenderPass->Destroy();
 		mRenderPass->Destroy();
+
+		mOutlinePipeline->Destroy();
+		mPipeline->Destroy();
+		mGridPipeline->Destroy();
 
 		mCommandBuffer->Destroy();
 	}
@@ -176,22 +208,18 @@ namespace Ilargi
 
 	void EditorPanel::DrawGrid()
 	{
-		mGridRenderPass->BeginRenderPass(mCommandBuffer);
+		mRenderPass->BeginRenderPass(mCommandBuffer, mFramebuffer);
 
-		mGridRenderPass->GetProperties().pipeline->Bind(mCommandBuffer);
-		mGridRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 0, 64, glm::value_ptr(mCamera.GetViewMatrix()));
-		mGridRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 64, 64, glm::value_ptr(mCamera.GetProjectionMatrix()));
-		//mGridRenderPass->GetProperties().pipeline->BindDescriptorSet(mCommandBuffer, mScene->GetSceneDataUBO(), 1);
+		mGridPipeline->Bind(mCommandBuffer);
+		mGridPipeline->PushConstants(mCommandBuffer, 0, 64, glm::value_ptr(mCamera.GetViewMatrix()));
+		mGridPipeline->PushConstants(mCommandBuffer, 64, 64, glm::value_ptr(mCamera.GetProjectionMatrix()));
+		//mGridPipeline->BindDescriptorSet(mCommandBuffer, mScene->GetSceneDataUBO(), 1);
 
 		Renderer::DrawDefault(mCommandBuffer);
-
-		mGridRenderPass->EndRenderPass(mCommandBuffer);
 	}
 
 	void EditorPanel::DrawGeometry()
 	{
-		mRenderPass->BeginRenderPass(mCommandBuffer);
-
 		auto ent{ *mScene->GetWorld().view<TransformComponent, DirectionalLightComponent>().begin() };
 
 		auto [trans, light] { mScene->GetWorld().view<TransformComponent, DirectionalLightComponent>().get<>(ent)};
@@ -206,12 +234,30 @@ namespace Ilargi
 			if (!mesh)
 				continue;
 
-			mRenderPass->GetProperties().pipeline->Bind(mCommandBuffer);
-			mRenderPass->GetProperties().pipeline->BindDescriptorSet(mCommandBuffer, material, 0);
-			mRenderPass->GetProperties().pipeline->BindDescriptorSet(mCommandBuffer, mScene->GetSceneDataUBO(), 1);
-			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 0, 64, glm::value_ptr(transform.transform));
-			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 64, 12, glm::value_ptr(light.radiance));
-			mRenderPass->GetProperties().pipeline->PushConstants(mCommandBuffer, 76, 12, glm::value_ptr(glm::radians(trans.rotation)));
+			mPipeline->Bind(mCommandBuffer);
+			mPipeline->BindDescriptorSet(mCommandBuffer, material, 0);
+			mPipeline->BindDescriptorSet(mCommandBuffer, mScene->GetSceneDataUBO(), 1);
+			mPipeline->PushConstants(mCommandBuffer, 0, 64, glm::value_ptr(transform.transform));
+			mPipeline->PushConstants(mCommandBuffer, 64, 12, glm::value_ptr(light.radiance));
+			mPipeline->PushConstants(mCommandBuffer, 76, 12, glm::value_ptr(glm::radians(trans.rotation)));
+			Renderer::SubmitGeometry(mCommandBuffer, mesh);
+		}
+
+		Entity selectedEntity{ mHierarchyInspector->GetSelected() };
+		if (selectedEntity != entt::null && mScene->GetWorld().try_get<StaticMeshComponent>(selectedEntity))
+		{
+			mOutlinePipeline->Bind(mCommandBuffer);
+
+			auto [transform, meshComponent] { mScene->GetWorld().get<TransformComponent, StaticMeshComponent>(selectedEntity)};
+			auto mesh{ meshComponent.staticMesh.lock() };
+
+			mStencilMatrix = glm::translate(glm::mat4(1.0), transform.position) * glm::eulerAngleXYZ(glm::radians(transform.rotation.x), glm::radians(transform.rotation.y), glm::radians(transform.rotation.z));
+			mStencilMatrix = glm::scale(mStencilMatrix, transform.scale * 1.05f);
+			mOutlinePipeline->BindDescriptorSet(mCommandBuffer, mScene->GetSceneDataUBO(), 1);
+			mOutlinePipeline->PushConstants(mCommandBuffer, 0, 64, glm::value_ptr(mStencilMatrix));
+			mOutlinePipeline->PushConstants(mCommandBuffer, 64, 12, glm::value_ptr(light.radiance));
+			mOutlinePipeline->PushConstants(mCommandBuffer, 76, 12, glm::value_ptr(glm::radians(trans.rotation)));
+
 			Renderer::SubmitGeometry(mCommandBuffer, mesh);
 		}
 

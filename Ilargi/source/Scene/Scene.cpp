@@ -41,7 +41,7 @@ namespace Ilargi
 		for (uint32_t i { 0U }; i < meshes.size(); ++i)
 		{
 			Entity entity{ CreateEntity() };
-			CreateComponent<StaticMeshComponent>(entity, meshes[i], materials[i + 1]);
+			CreateComponent<StaticMeshComponent>(entity, meshes[i], materials[i]);
 		}
 	}
 	

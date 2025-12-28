@@ -283,7 +283,7 @@ namespace Ilargi
 		if (module.GetCompilationStatus() != shaderc_compilation_status_success)
 		{
 			ILG_CORE_ERROR("{0}", module.GetErrorMessage().c_str());
-			ILG_ASSERT(false, "");
+			ILG_ASSERT(true, "");
 		}
 
 		return std::vector<uint32_t>(module.cbegin(), module.cend());
