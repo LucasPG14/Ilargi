@@ -12,13 +12,13 @@ namespace Ilargi
 		VulkanTexture2D(void* aData, int aWidth, int aHeight, int aChannels);
 		virtual ~VulkanTexture2D();
 
-		const uint32_t GetWidth() const override { return mWidth; }
-		const uint32_t GetHeight() const override { return mHeight; }
+		[[nodiscard]] const uint32_t GetWidth() const override { return mWidth; }
+		[[nodiscard]] const uint32_t GetHeight() const override { return mHeight; }
 
-		const void* GetID() const override { return mDescriptorSet; }
+		[[nodiscard]] const void* GetID() const override { return mDescriptorSet; }
 
-		const VkImageView GetImageView() const { return mImageView; }
-		const VkSampler GetSampler() const { return mSampler; }
+		[[nodiscard]] const VkImageView GetImageView() const { return mImageView; }
+		[[nodiscard]] const VkSampler GetSampler() const { return mSampler; }
 
 	private:
 		void TransitionLayout(uint32_t aMipLevels, VkImageLayout aOldLayout, VkImageLayout aNewLayout);

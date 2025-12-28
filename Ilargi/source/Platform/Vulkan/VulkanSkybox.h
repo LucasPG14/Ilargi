@@ -12,7 +12,7 @@ namespace Ilargi
 		VulkanSkybox(std::shared_ptr<Shader> aShader);
 		~VulkanSkybox();
 
-		const void* GetDescriptorSet() const override { return mDescriptorSet; }
+		[[nodiscard]] const void* GetDescriptorSet() const override { return mDescriptorSet; }
 
 	private:
 		VkDescriptorSet mDescriptorSet;

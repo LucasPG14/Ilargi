@@ -29,25 +29,25 @@ namespace Ilargi
 
 		void Destroy() const override;
 
-		static VkInstance GetInstance() { return sInstance; }
+		[[nodiscard]] static VkInstance GetInstance() { return sInstance; }
 
-		static VkSurfaceKHR GetSurface() { return sSurface; }
-		static VkPhysicalDevice GetPhysicalDevice() { return sPhysicalDevice; }
-		static VkDevice GetLogicalDevice() { return sLogicalDevice; }
+		[[nodiscard]] static VkSurfaceKHR GetSurface() { return sSurface; }
+		[[nodiscard]] static VkPhysicalDevice GetPhysicalDevice() { return sPhysicalDevice; }
+		[[nodiscard]] static VkDevice GetLogicalDevice() { return sLogicalDevice; }
 
-		static QueueFamilyIndices GetQueueIndices() { return sIndices; }
-		static SwapchainSupportDetails GetSwapchainSupport() { return sSwapchainSupport; }
+		[[nodiscard]] static QueueFamilyIndices GetQueueIndices() { return sIndices; }
+		[[nodiscard]] static SwapchainSupportDetails GetSwapchainSupport() { return sSwapchainSupport; }
 		
-		static VkCommandPool GetCommandPool() { return sCommandPool; }
-		static VkDescriptorPool GetDescriptorPool() { return sDescriptorPool; }
+		[[nodiscard]] static VkCommandPool GetCommandPool() { return sCommandPool; }
+		[[nodiscard]] static VkDescriptorPool GetDescriptorPool() { return sDescriptorPool; }
 		
-		static VkQueue GetGraphicsQueue() { return sGraphicsQueue; }
+		[[nodiscard]] static VkQueue GetGraphicsQueue() { return sGraphicsQueue; }
 
 		static const VkCommandBuffer BeginSingleCommandBuffer();
 		static void EndSingleCommandBuffer(const VkCommandBuffer commandBuffer);
 
 	private:
-		const std::vector<const char*> GetRequiredExtensions() const;
+		[[nodiscard]] const std::vector<const char*> GetRequiredExtensions() const;
 
 		bool IsDeviceSuitable(VkPhysicalDevice aDevice) const;
 		

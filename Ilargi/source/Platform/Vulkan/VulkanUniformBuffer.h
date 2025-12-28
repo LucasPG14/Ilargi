@@ -15,7 +15,7 @@ namespace Ilargi
 
 		void SetData(void* data) override;
 
-		const void* GetDescriptorSet() const override;
+		[[nodiscard]] const void* GetDescriptorSet() const override;
 
 	private:
 		uint32_t mSize;

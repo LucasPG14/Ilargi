@@ -15,7 +15,7 @@ namespace Ilargi
 
 		void Destroy() override;
 
-		const uint32_t GetCount() const override { return mCount; }
+		[[nodiscard]] const uint32_t GetCount() const override { return mCount; }
 	private:
 		uint32_t mCount;
 

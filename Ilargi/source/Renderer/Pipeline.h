@@ -64,8 +64,8 @@ namespace Ilargi
 			CalculateOffset();
 		}
 
-		inline uint32_t GetStride() const { return mStride; }
-		inline const std::vector<Element>& GetElements() const { return mElements; }
+		[[nodiscard]] inline uint32_t GetStride() const { return mStride; }
+		[[nodiscard]] inline const std::vector<Element>& GetElements() const { return mElements; }
 
 		constexpr std::vector<Element>::iterator begin() { return mElements.begin(); }
 		constexpr std::vector<Element>::iterator end() { return mElements.end(); }
@@ -114,7 +114,7 @@ namespace Ilargi
 		virtual void BindDescriptorSet(const std::shared_ptr<CommandBuffer>& aCommandBuffer, std::shared_ptr<Material> aMaterial, uint32_t aSetIndex) const = 0;
 		virtual void BindDescriptorSet(const std::shared_ptr<CommandBuffer>& aCommandBuffer, std::shared_ptr<UniformBuffer> aUniformBuffer, uint32_t aSetIndex) const = 0;
 
-		virtual const PipelineProperties& GetProperties() const = 0;
+		[[nodiscard]] virtual const PipelineProperties& GetProperties() const = 0;
 
 		template <typename T>
 		std::shared_ptr<T> As()

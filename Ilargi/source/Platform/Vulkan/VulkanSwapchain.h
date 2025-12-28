@@ -18,14 +18,14 @@ namespace Ilargi
 		void StartFrame() override;
 		void EndFrame() override;
 
-		const VkRenderPass GetRenderPass() const { return mRenderPass; }
+		[[nodiscard]] const VkRenderPass GetRenderPass() const { return mRenderPass; }
 
-		const VkCommandBuffer GetCurrentCommand() const { return mCommandBuffers[mCurrentFrame]; }
+		[[nodiscard]] const VkCommandBuffer GetCurrentCommand() const { return mCommandBuffers[mCurrentFrame]; }
 
-		const VkFramebuffer GetFramebuffer() const { return mFramebuffers[mCurrentImageIndex]; }
+		[[nodiscard]] const VkFramebuffer GetFramebuffer() const { return mFramebuffers[mCurrentImageIndex]; }
 
-		const uint32_t GetWidth() const { return mExtent.width; }
-		const uint32_t GetHeight() const { return mExtent.height; }
+		[[nodiscard]] const uint32_t GetWidth() const { return mExtent.width; }
+		[[nodiscard]] const uint32_t GetHeight() const { return mExtent.height; }
 
 	private:
 		void Present(VkDevice aDevice, VkSemaphore aRenderFinish);

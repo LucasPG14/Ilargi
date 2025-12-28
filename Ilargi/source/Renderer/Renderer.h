@@ -44,15 +44,15 @@ namespace Ilargi
 		static void SubmitGeometry(std::shared_ptr<CommandBuffer> commandBuffer, std::shared_ptr<StaticMesh> mesh);
 		static void DrawDefault(std::shared_ptr<CommandBuffer> commandBuffer);
 		
-		static std::shared_ptr<Texture2D> GetDefaultTexture() { return sDefaultTexture; }
+		[[nodiscard]] static std::shared_ptr<Texture2D> GetDefaultTexture() { return sDefaultTexture; }
 
-		static const RendererConfig& GetConfig() { return sConfig; }
-		static const RendererStatistics& GetStatistics() { return sStats; }
-		static const uint32_t GetCurrentFrame() { return sCurrentFrame; }
+		[[nodiscard]] static const RendererConfig& GetConfig() { return sConfig; }
+		[[nodiscard]] static const RendererStatistics& GetStatistics() { return sStats; }
+		[[nodiscard]] static const uint32_t GetCurrentFrame() { return sCurrentFrame; }
 
-		static GraphicsAPI GetGraphicsAPI() { return sGraphicsAPI; }
+		[[nodiscard]] static GraphicsAPI GetGraphicsAPI() { return sGraphicsAPI; }
 		
-		static std::shared_ptr<ShaderLibrary> GetShaderLibrary() { return sShaderLibrary; }
+		[[nodiscard]] static std::shared_ptr<ShaderLibrary> GetShaderLibrary() { return sShaderLibrary; }
 
 		static void Submit(RenderFn func) { sQueue.push_back(func); }
 

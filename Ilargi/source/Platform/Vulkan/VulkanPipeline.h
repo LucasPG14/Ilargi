@@ -21,7 +21,7 @@ namespace Ilargi
 		void BindDescriptorSet(const std::shared_ptr<CommandBuffer>& aCommandBuffer, std::shared_ptr<Material> aMaterial, uint32_t aSetIndex) const override;
 		void BindDescriptorSet(const std::shared_ptr<CommandBuffer>& aCommandBuffer, std::shared_ptr<UniformBuffer> aUniformBuffer, uint32_t aSetIndex) const override;
 
-		const PipelineProperties& GetProperties() const override { return mProperties; }
+		[[nodiscard]] const PipelineProperties& GetProperties() const override { return mProperties; }
 	private:
 		PipelineProperties mProperties;
 

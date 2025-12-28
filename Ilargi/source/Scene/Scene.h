@@ -19,8 +19,8 @@ namespace Ilargi
 
 	struct SceneData
 	{
-		glm::mat4 viewProjMatrix;
-		glm::vec3 cameraPosition;
+		glm::mat4 viewProjMatrix {};
+		glm::vec3 cameraPosition {};
 		uint32_t pointLightsSize{ 0U };
 		std::array<PointLightUniformBuffer, 1024> pointLights;
 	};
@@ -63,10 +63,10 @@ namespace Ilargi
 			mWorld.remove<T>(aEntity);
 		}
 
-		const entt::registry& GetWorld() const { return mWorld; }
-		entt::registry& GetWorld() { return mWorld; }
+		[[nodiscard]] const entt::registry& GetWorld() const { return mWorld; }
+		[[nodiscard]] entt::registry& GetWorld() { return mWorld; }
 
-		const std::shared_ptr<UniformBuffer> GetSceneDataUBO() const { return mSceneDataUBO; }
+		[[nodiscard]] const std::shared_ptr<UniformBuffer> GetSceneDataUBO() const { return mSceneDataUBO; }
 
 	private:
 		entt::registry mWorld;

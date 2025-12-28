@@ -30,7 +30,7 @@ namespace Ilargi
 		void Add(std::string aName, std::shared_ptr<Shader> aShader);
 		void Add(std::string aFilepath);
 
-		std::shared_ptr<Shader> Get(std::string aName);
+		[[nodiscard]] std::shared_ptr<Shader> Get(std::string aName);
 
 	private:
 		std::unordered_map<std::string, std::shared_ptr<Shader>> mShaders;

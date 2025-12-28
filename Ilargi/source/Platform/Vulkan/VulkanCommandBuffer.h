@@ -18,7 +18,7 @@ namespace Ilargi
 
 		void Submit() const override;
 
-		const VkCommandBuffer GetCurrentCommand(uint32_t aIndex) const { return mCommandBuffers[aIndex]; }
+		[[nodiscard]] const VkCommandBuffer GetCurrentCommand(uint32_t aIndex) const { return mCommandBuffers[aIndex]; }
 
 	private:
 		std::vector<VkCommandBuffer> mCommandBuffers;

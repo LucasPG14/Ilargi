@@ -12,7 +12,7 @@ namespace Ilargi
 
 		void Render();
 		
-		Entity GetSelected() { return mSelected; }
+		[[nodiscard]] Entity GetSelected() { return mSelected; }
 		void ResetSelected() { mSelected = entt::null; }
 
 		void SetScene(std::shared_ptr<Scene> aScene) { mScene = aScene; }

@@ -17,9 +17,9 @@ namespace Ilargi
 		void BeginRenderPass(const std::shared_ptr<CommandBuffer>& aCommandBuffer, const std::shared_ptr<Framebuffer>& aFramebuffer) const override;
 		void EndRenderPass(const std::shared_ptr<CommandBuffer>& aCommandBuffer) const override;
 
-		const RenderPassProperties& GetProperties() const override { return mProperties; }
+		[[nodiscard]] const RenderPassProperties& GetProperties() const override { return mProperties; }
 
-		const VkRenderPass GetRenderPass() const { return mRenderPass; }
+		[[nodiscard]] const VkRenderPass GetRenderPass() const { return mRenderPass; }
 	private:
 		RenderPassProperties mProperties;
 

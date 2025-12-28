@@ -16,10 +16,10 @@ namespace Ilargi
 
 		const std::shared_ptr<Shader>& GetShader() const override { return mShader; }
 
-		const void* GetDescriptorSet() const override { return mDescriptorSet; }
-		const MaterialData& GetMaterialData() const override { return mMaterialData; }
-		MaterialData& GetMaterialData() override { return mMaterialData; }
-		std::shared_ptr<Texture2D> GetDiffuse() override { return mDiffuse; }
+		[[nodiscard]] const void* GetDescriptorSet() const override { return mDescriptorSet; }
+		[[nodiscard]] const MaterialData& GetMaterialData() const override { return mMaterialData; }
+		[[nodiscard]] MaterialData& GetMaterialData() override { return mMaterialData; }
+		[[nodiscard]] std::shared_ptr<Texture2D> GetDiffuse() override { return mDiffuse; }
 
 		void UpdateDiffuse(std::shared_ptr<Texture2D> aTexture) override;
 		void UpdateMaterialData() override;

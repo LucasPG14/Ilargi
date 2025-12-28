@@ -17,15 +17,15 @@ namespace Ilargi
 
 		void AllocateDescriptorSet(uint32_t aIndex, VkDescriptorSet& aDescriptorSet);
 
-		const std::string& GetName() const override { return mName; }
-		const ShadersMap& GetShaders() const { return mShaders; }
+		[[nodiscard]] const std::string& GetName() const override { return mName; }
+		[[nodiscard]] const ShadersMap& GetShaders() const { return mShaders; }
 
-		const std::vector<VkPushConstantRange>& GetPushConstants() const { return mPushConstants; }
+		[[nodiscard]] const std::vector<VkPushConstantRange>& GetPushConstants() const { return mPushConstants; }
 
-		const std::vector<VkDescriptorSetLayout>& GetDescriptorSetLayout() const { return mDescriptorSetLayouts; }
+		[[nodiscard]] const std::vector<VkDescriptorSetLayout>& GetDescriptorSetLayout() const { return mDescriptorSetLayouts; }
 
 	private:
-		const char* GetShaderCacheDirectory() const { return "cache/vulkan/"; }
+		[[nodiscard]] const char* GetShaderCacheDirectory() const { return "cache/vulkan/"; }
 
 		void ProcessShader();
 

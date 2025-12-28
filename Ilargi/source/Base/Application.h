@@ -32,8 +32,9 @@ namespace Ilargi
 		void OnEvent(Event& aEvent);
 		void CloseApp();
 
-		static Application* Get() { return sApp; }
-		Window& GetWindow() { return *mWindow; }
+		[[nodiscard]] static Application* Get() { return sApp; }
+		[[nodiscard]] Window& GetWindow() { return *mWindow; }
+	
 	private:
 		bool OnCloseEvent(WindowCloseEvent& event);
 		bool OnResizeEvent(WindowResizeEvent& event);

@@ -9,10 +9,10 @@ namespace Ilargi
 	class Skybox : public Resource
 	{
 	public:
-		static ResourceType GetStaticType() { return ResourceType::SKYBOX; }
-		const ResourceType GetType() const { return GetStaticType(); }
+		[[nodiscard]] static ResourceType GetStaticType() { return ResourceType::SKYBOX; }
+		[[nodiscard]] const ResourceType GetType() const { return GetStaticType(); }
 
-		virtual const void* GetDescriptorSet() const = 0;
+		[[nodiscard]] virtual const void* GetDescriptorSet() const = 0;
 
 		static std::shared_ptr<Skybox> Create(std::shared_ptr<Shader> aShader);
 	};

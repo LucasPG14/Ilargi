@@ -24,16 +24,16 @@ namespace Ilargi
 
 		void Resize(const std::shared_ptr<RenderPass>& aRenderPass, uint32_t aWidth, uint32_t aHeight) override;
 
-		const FramebufferProperties& GetProperties() const override { return mProperties; }
-		const VkFramebuffer GetFramebuffer() const { return mFramebuffer; }
+		[[nodiscard]] const FramebufferProperties& GetProperties() const override { return mProperties; }
+		[[nodiscard]] const VkFramebuffer GetFramebuffer() const { return mFramebuffer; }
 
-		const std::vector<ImageFormat>& GetColorSpecifications() const override { return mColorSpecifications; }
-		const ImageFormat GetDepthSpecification() const override { return mDepthSpecification; }
+		[[nodiscard]] const std::vector<ImageFormat>& GetColorSpecifications() const override { return mColorSpecifications; }
+		[[nodiscard]] const ImageFormat GetDepthSpecification() const override { return mDepthSpecification; }
 
-		const uint32_t GetWidth() const override { return mProperties.width; }
-		const uint32_t GetHeight() const override { return mProperties.height; }
+		[[nodiscard]] const uint32_t GetWidth() const override { return mProperties.width; }
+		[[nodiscard]] const uint32_t GetHeight() const override { return mProperties.height; }
 
-		void* GetID() const override;
+		[[nodiscard]] void* GetID() const override;
 
 	private:
 		FramebufferProperties mProperties;

@@ -23,7 +23,7 @@ namespace Ilargi
 		virtual void BeginRenderPass(const std::shared_ptr<CommandBuffer>& aCommandBufferaCommandBuffer, const std::shared_ptr<Framebuffer>& aFramebuffer) const = 0;
 		virtual void EndRenderPass(const std::shared_ptr<CommandBuffer>& aCommandBuffer) const = 0;
 
-		virtual const RenderPassProperties& GetProperties() const = 0;
+		[[nodiscard]] virtual const RenderPassProperties& GetProperties() const = 0;
 
 		template <typename T>
 		std::shared_ptr<T> As()

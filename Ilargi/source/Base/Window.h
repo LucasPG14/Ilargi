@@ -32,8 +32,8 @@ namespace Ilargi
 
 		void PollEvents() const;
 
-		GLFWwindow* GetWindow() const { return mWindow; }
-		const std::shared_ptr<Swapchain> GetSwapchain() const { return mSwapchain; }
+		[[nodiscard]] GLFWwindow* GetWindow() const { return mWindow; }
+		[[nodiscard]] const std::shared_ptr<Swapchain> GetSwapchain() const { return mSwapchain; }
 
 	private:
 
