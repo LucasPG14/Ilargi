@@ -38,7 +38,7 @@ namespace Ilargi
 				}
 				if (ImGui::BeginDragDropTarget())
 				{
-					auto payload{ ImGui::AcceptDragDropPayload("RESOURCE") };
+					auto payload{ ImGui::AcceptDragDropPayload("TEXTURE2D") };
 
 					if (payload)
 					{

@@ -54,9 +54,11 @@ namespace Ilargi
 			{
 				StaticMeshComponent& staticMesh{ scene->CreateComponent<StaticMeshComponent>(entity) };
 
-				UUID uuid{ static_cast<uint64_t>(node["StaticMeshComponent"]["UUID"]) };
+				UUID meshUUID{ static_cast<uint64_t>(node["StaticMeshComponent"]["Mesh"]) };
+				UUID materialUUID{ static_cast<uint64_t>(node["StaticMeshComponent"]["Material"]) };
 				
-				staticMesh.staticMesh = std::static_pointer_cast<StaticMesh>(ResourceManager::GetResource(uuid));
+				staticMesh.staticMesh = std::static_pointer_cast<StaticMesh>(ResourceManager::GetResource(meshUUID));
+				staticMesh.material = std::static_pointer_cast<Material>(ResourceManager::GetResource(materialUUID));
 			}
 		}
 
@@ -105,15 +107,13 @@ namespace Ilargi
 				if (auto mesh{ staticMesh.staticMesh.lock() })
 				{
 					uuid = mesh->mResourceUUID;
+					document[index]["StaticMeshComponent"]["Mesh"] = static_cast<uint64_t>(uuid);
 				}
-
-				document[index]["StaticMeshComponent"]["UUID"] = static_cast<uint64_t>(uuid);
 
 				if (auto material{ staticMesh.material.lock() })
 				{
-					document[index]["StaticMeshComponent"]["Color"] = material->GetMaterialData().color;
-					document[index]["StaticMeshComponent"]["Metallic"] = material->GetMaterialData().metallic;
-					document[index]["StaticMeshComponent"]["Roughness"] = material->GetMaterialData().roughness;
+					uuid = material->mResourceUUID;
+					document[index]["StaticMeshComponent"]["Material"] = static_cast<uint64_t>(uuid);
 				}
 			}
 		}

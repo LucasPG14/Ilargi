@@ -22,5 +22,11 @@
     "Type": 4,
     "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\Resources\\models\\viking_room.obj",
     "Filepath": "Resources\\Texture1.imat"
+  },
+  {
+    "UUID": 18225208067603159755,
+    "Type": 5,
+    "SourceFile": "Resources\\demo.ilargi",
+    "Filepath": "Resources\\demo.ilargi"
   }
 ]

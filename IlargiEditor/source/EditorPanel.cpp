@@ -362,32 +362,25 @@ namespace Ilargi
 
 		if (ImGui::BeginDragDropTarget())
 		{
-			auto payload{ ImGui::AcceptDragDropPayload("RESOURCE") };
+			auto payload{ ImGui::AcceptDragDropPayload("MODEL") };
 
-			if (payload)
+			if (auto payload{ ImGui::AcceptDragDropPayload("MODEL") }; payload)
 			{
-				// TODO: Drag and drop from resource panel to viewport
 				UUID uuid{ *(UUID*)payload->Data };
 				auto metadata{ ResourceManager::GetResourcesMetadata()[uuid] };
 
-				switch (metadata.type)
-				{
-				case ResourceType::MODEL:
-				{
-					std::shared_ptr<Model> resource{ std::static_pointer_cast<Model>(ResourceManager::GetResource(uuid)) };
+				std::shared_ptr<Model> resource{ std::static_pointer_cast<Model>(ResourceManager::GetResource(uuid)) };
 
-					mScene->LoadModel(resource);
-					break;
-				}
-				case ResourceType::SCENE:
-				{
-					std::shared_ptr<Scene> resource{ std::static_pointer_cast<Scene>(ResourceManager::GetResource(uuid)) };
-
-					mScene = resource;
-					mHierarchyInspector->SetScene(mScene);
-					break;
-				}
-				}
+				mScene->LoadModel(resource);
+			}
+			else if (auto payload{ ImGui::AcceptDragDropPayload("SCENE") }; payload)
+			{
+				UUID uuid{ *(UUID*)payload->Data };
+				auto metadata{ ResourceManager::GetResourcesMetadata()[uuid] };
+				std::shared_ptr<Scene> resource{ std::static_pointer_cast<Scene>(ResourceManager::GetResource(uuid)) };
+				
+				mScene = resource;
+				mHierarchyInspector->SetScene(mScene);
 			}
 
 			ImGui::EndDragDropTarget();

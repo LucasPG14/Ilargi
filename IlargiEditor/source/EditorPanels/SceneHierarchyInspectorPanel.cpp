@@ -179,7 +179,7 @@ namespace Ilargi
 							}
 							if (ImGui::BeginDragDropTarget())
 							{
-								auto payload{ ImGui::AcceptDragDropPayload("RESOURCE") };
+								auto payload{ ImGui::AcceptDragDropPayload("MATERIAL") };
 
 								if (payload)
 								{

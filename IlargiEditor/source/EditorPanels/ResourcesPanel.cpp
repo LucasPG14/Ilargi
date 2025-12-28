@@ -251,14 +251,15 @@ namespace Ilargi
 						}
 					}
 
-					//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 8.0f, 8.0f });
+					ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 8.0f, 8.0f });
 					if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 					{	
-						ImGui::SetDragDropPayload("RESOURCE", &mResources[path], sizeof(mResources[path]));
+						const auto& resourceMetadata{ ResourceManager::GetMetadata(mResources[path]) };
+						ImGui::SetDragDropPayload(Utils::GetStringFromResourceType(resourceMetadata.type).c_str(), &mResources[path], sizeof(UUID));
 						ImGui::Text(path.filename().string().c_str());
 						ImGui::EndDragDropSource();
 					}
-					//ImGui::PopStyleVar();
+					ImGui::PopStyleVar();
 					
 					//ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 6.0f);
 					//ImGui::Button(filename.c_str(), {cellX, cellX});
@@ -325,7 +326,8 @@ namespace Ilargi
 				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 8.0f, 8.0f });
 				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 				{
-					ImGui::SetDragDropPayload("RESOURCE", &mResources[path], sizeof(mResources[path]));
+					const auto& resourceMetadata{ ResourceManager::GetMetadata(mResources[path]) };
+					ImGui::SetDragDropPayload(Utils::GetStringFromResourceType(resourceMetadata.type).c_str(), &mResources[path], sizeof(UUID));
 					ImGui::Text(filename.c_str());
 					ImGui::EndDragDropSource();
 				}
