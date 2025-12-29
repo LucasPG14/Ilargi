@@ -1,6 +1,7 @@
 #include "ilargipch.h"
 
 #include "ModelImporter.h"
+#include "MaterialImporter.h"
 #include "Utils/FileSystem.h"
 
 #include "Scene/Scene.h"
@@ -17,6 +18,16 @@
 
 namespace Ilargi
 {
+	inline glm::mat4 ConvertToGlm(const aiMatrix4x4& aMatrix)
+	{
+		return {
+			aMatrix.a1, aMatrix.b1, aMatrix.c1, aMatrix.d1,
+			aMatrix.a2, aMatrix.b2, aMatrix.c2, aMatrix.d2,
+			aMatrix.a3, aMatrix.b3, aMatrix.c3, aMatrix.d3,
+			aMatrix.a4, aMatrix.b4, aMatrix.c4, aMatrix.d4
+		};
+	}
+
 	void ModelImporter::ImportModel(UUID aUUID, const ResourceMetadata& aMetadata)
 	{
 		Assimp::Importer importer;
@@ -30,262 +41,179 @@ namespace Ilargi
 			return;
 		}
 
-		std::string shaderName { importScene->HasAnimations() ? "" : "PBR_Static" };
+		std::vector<UUID> meshesUUIDs;
+		std::vector<UUID> materialsUUIDs;
 
-		std::vector<UUID> materialsInfo;
-		materialsInfo.reserve(importScene->mNumMaterials);
+		meshesUUIDs.reserve(importScene->mNumMeshes);
+		materialsUUIDs.reserve(importScene->mNumMaterials);
 
-		for (uint32_t materialIndex { 0U }; materialIndex < importScene->mNumMaterials; ++materialIndex)
+		for (uint32_t meshIndex{ 0U }; meshIndex < importScene->mNumMeshes; ++meshIndex)
 		{
-			const aiMaterial* aiMaterial{ importScene->mMaterials[materialIndex] };
+			const aiMesh* aiMesh{ importScene->mMeshes[meshIndex] };
 
-			aiString name;
-			aiMaterial->Get(AI_MATKEY_NAME, name);
-			std::filesystem::path filepath{ aMetadata.filepath.parent_path() / name.C_Str() += ".imat"};
+			meshesUUIDs.emplace_back(ImportMesh(aiMesh, aMetadata));
+		}
 
-			MaterialData materialData;
-			aiMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, materialData.color);
-			aiMaterial->Get(AI_MATKEY_SHININESS, materialData.metallic);
-
-			ResourceMetadata materialMetadata;
-			materialMetadata.type = ResourceType::MATERIAL;
-			materialMetadata.sourceFile = aMetadata.sourceFile;
-			materialMetadata.filepath = filepath;
+		for (uint32_t materialIndex{ 0U }; materialIndex < importScene->mNumMaterials; ++materialIndex)
+		{
+			aiMaterial* material{ importScene->mMaterials[materialIndex] };
 			
-			Buffer buffer;
-			buffer.size = sizeof(uint32_t) + shaderName.length() + sizeof(materialData);
-			buffer.data = new char[buffer.size];
-
-			uint32_t shaderNameSize { (uint32_t)shaderName.length() };
-
-			char* buf{ buffer.data };
-			memcpy(buf, &shaderNameSize, sizeof(uint32_t));
-			buf += sizeof(uint32_t);
-
-			memcpy(buf, shaderName.data(), shaderNameSize * sizeof(char));
-			buf += shaderNameSize * sizeof(char);
-
-			memcpy(buf, &materialData, sizeof(materialData));
-			buf += sizeof(materialData);
-
-			bool hasDiffuseTexture{ false };
-			memcpy(buf, &hasDiffuseTexture, sizeof(bool));
-			buf += sizeof(bool);
-
-			FileSystem::WriteBinaryFile(materialMetadata.filepath, buffer);
-
-			materialMetadata.lastWriteTime = std::filesystem::last_write_time(materialMetadata.filepath);
-
-			materialsInfo.push_back(ResourceManager::RegisterResource(materialMetadata));
+			materialsUUIDs.emplace_back(ImportMaterial(material, aMetadata));
 		}
 
-		std::vector<MeshInfo> meshesInfo;
-		meshesInfo.reserve(importScene->mNumMeshes);
+		std::vector<ModelNode> modelNodes;
+		ProcessNode(importScene, importScene->mRootNode, meshesUUIDs, materialsUUIDs, modelNodes);
 
-		std::vector<StaticVertex> vertices;
-		std::vector<uint32_t> indices;
+		ModelHeader modelHeader{};
+		modelHeader.childrens = modelNodes.size();
 
-		for (uint32_t meshIndex { 0U }; meshIndex < importScene->mNumMeshes; ++meshIndex)
+		BinaryWriter writer(aMetadata.filepath);
+		writer.Write(modelHeader);
+
+		for (const auto& modelNode : modelNodes)
 		{
-			const aiMesh* aiMesh { importScene->mMeshes[meshIndex] };
-
-			bool hasNormals { aiMesh->HasNormals() };
-			bool hasTexCoords { aiMesh->HasTextureCoords(0) };
-			bool hasTangentsAndBitangents { aiMesh->HasTangentsAndBitangents() };
-
-			uint32_t verticesCount { aiMesh->mNumVertices };
-			uint32_t numFaces { aiMesh->mNumFaces };
-			uint32_t indicesCount { numFaces * 3 };
-
-			vertices.reserve(vertices.size() + verticesCount);
-			indices.reserve(indices.size() + indicesCount);
-
-			for (uint32_t vertexIndex { 0U }; vertexIndex < verticesCount; ++vertexIndex)
-			{
-				StaticVertex& vertex{ vertices.emplace_back() };
-				vertex.position = { aiMesh->mVertices[vertexIndex].x, aiMesh->mVertices[vertexIndex].y, aiMesh->mVertices[vertexIndex].z };
-
-				if (hasNormals)
-					vertex.normal = { aiMesh->mNormals[vertexIndex].x, aiMesh->mNormals[vertexIndex].y, aiMesh->mNormals[vertexIndex].z };
-
-				if (hasTexCoords)
-					vertex.texCoord = { aiMesh->mTextureCoords[0][vertexIndex].x, aiMesh->mTextureCoords[0][vertexIndex].y };
-
-				if (hasTangentsAndBitangents)
-				{
-					vertex.tangent = { aiMesh->mTangents[vertexIndex].x, aiMesh->mTangents[vertexIndex].y, aiMesh->mTangents[vertexIndex].z };
-					vertex.bitangent = { aiMesh->mBitangents[vertexIndex].x, aiMesh->mBitangents[vertexIndex].y, aiMesh->mBitangents[vertexIndex].z };
-				}
-			}
-
-			for (uint32_t faceIndex { 0U }; faceIndex < numFaces; ++faceIndex)
-			{
-				aiFace face{ aiMesh->mFaces[faceIndex] };
-
-				for (uint32_t index { 0U }; index < face.mNumIndices; ++index)
-					indices.push_back(face.mIndices[index]);
-			}
-
-			MeshInfo& meshInfo{ meshesInfo.emplace_back() };
-			meshInfo.vertices = verticesCount;
-			meshInfo.indices = numFaces * 3;
-			meshInfo.materialIndex = aiMesh->mMaterialIndex;
+			writer.Write(modelNode.mesh);
+			writer.Write(modelNode.material);
+			writer.WriteString(modelNode.name);
+			writer.WriteVector(modelNode.childrens);
 		}
-
-		std::vector<EntityNode> hierarchy;
-		ReturnModelHierarchy(importScene, importScene->mRootNode, hierarchy);
-
-		uint32_t totalSizeMeshes{ static_cast<uint32_t>(vertices.size() * sizeof(StaticVertex) + indices.size() * sizeof(uint32_t)) };
-		uint32_t totalMeshesInfo{ static_cast<uint32_t>(meshesInfo.size() * sizeof(MeshInfo)) };
-		uint32_t indicesOffset{ static_cast<uint32_t>(vertices.size() * sizeof(StaticVertex)) };
-
-		uint32_t header[3] { totalMeshesInfo, totalSizeMeshes, indicesOffset };
-		uint32_t totalBufferSize { sizeof(header) + totalMeshesInfo + totalSizeMeshes + indicesOffset };
-
-		uint64_t totalMaterialsInfo{ static_cast<UUID>(materialsInfo.size() * sizeof(UUID)) };
-		
-		Buffer buffer;
-		buffer.size = totalBufferSize + totalMaterialsInfo;
-		buffer.data = new char[buffer.size];
-
-		char* buf{ buffer.data };
-		memcpy(buf, header, sizeof(header));
-		buf += sizeof(header);
-
-		memcpy(buf, &totalMaterialsInfo, sizeof(UUID));
-		buf += sizeof(UUID);
-
-		memcpy(buf, materialsInfo.data(), materialsInfo.size() * sizeof(UUID));
-		buf += materialsInfo.size() * sizeof(UUID);
-
-		memcpy(buf, meshesInfo.data(), meshesInfo.size() * sizeof(MeshInfo));
-		buf += meshesInfo.size() * sizeof(MeshInfo);
-
-		memcpy(buf, vertices.data(), vertices.size() * sizeof(StaticVertex));
-		buf += vertices.size() * sizeof(StaticVertex);
-
-		memcpy(buf, indices.data(), indices.size() * sizeof(uint32_t));
-
-		FileSystem::WriteBinaryFile(aMetadata.filepath, buffer);
 	}
 
 	std::shared_ptr<Resource> ModelImporter::LoadModel(const ResourceMetadata& aMetadata)
 	{
-		const Buffer& buffer{ FileSystem::ReadBinaryFile(aMetadata.filepath) };
+		BinaryReader reader(aMetadata.filepath);
 
-		char* data{ buffer.data };
-
-		uint32_t totalMeshesInfo, totalSizeMeshes, indicesOffset;
-		memcpy(&totalMeshesInfo, data, sizeof(uint32_t));
-		data += sizeof(uint32_t);
-		memcpy(&totalSizeMeshes, data, sizeof(uint32_t));
-		data += sizeof(uint32_t);
-		memcpy(&indicesOffset, data, sizeof(uint32_t));
-		data += sizeof(uint32_t);
-
-		UUID totalMaterialsInfo;
-		memcpy(&totalMaterialsInfo, data, sizeof(UUID));
-		data += sizeof(UUID);
-
-		std::vector<UUID> materialsInfo;
-		materialsInfo.resize(totalMaterialsInfo / sizeof(UUID));
-
-		memcpy(materialsInfo.data(), data, totalMaterialsInfo);
-		data += totalMaterialsInfo;
-
-		std::vector<MeshInfo> meshesInfo;
-		meshesInfo.resize(totalMeshesInfo / sizeof(MeshInfo));
-
-		memcpy(meshesInfo.data(), data, totalMeshesInfo);
-		data += totalMeshesInfo;
-
-		std::vector<std::shared_ptr<Material>> materials;
-		std::vector<std::shared_ptr<StaticMesh>> meshes;
-
-		for (uint32_t index{ 0U }; index < materialsInfo.size(); ++index)
+		ModelHeader modelHeader;
+		reader.Read(modelHeader);
+		
+		std::vector<ModelNode> modelNodes(modelHeader.childrens);
+		
+		for (auto& node : modelNodes)
 		{
-			materials.push_back(std::static_pointer_cast<Material>(ResourceManager::GetResource(materialsInfo[index])));
+			reader.Read(node.mesh);
+			reader.Read(node.material);
+			reader.ReadString(node.name);
+			reader.ReadVector(node.childrens);
 		}
 
-		char* verticesPtr{ data };
-		char* indicesPtr{ data + indicesOffset };
-
-		for (uint32_t i { 0U }; i < meshesInfo.size(); ++i)
-		{
-			const MeshInfo& meshInfo{ meshesInfo[i] };
-
-			std::vector<StaticVertex> vertices;
-			std::vector<uint32_t> indices;
-
-			vertices.resize(meshInfo.vertices);
-			indices.resize(meshInfo.indices);
-
-			memcpy(vertices.data(), verticesPtr, sizeof(StaticVertex) * meshInfo.vertices);
-			verticesPtr += sizeof(StaticVertex) * meshInfo.vertices;
-
-			memcpy(indices.data(), indicesPtr, sizeof(uint32_t) * meshInfo.indices);
-			indicesPtr += sizeof(uint32_t) * meshInfo.indices;
-
-			std::shared_ptr<StaticMesh> staticMesh{ std::make_shared<StaticMesh>(vertices, indices) };
-			meshes.push_back(staticMesh);
-		}
-
-		std::shared_ptr<Model> model{ std::make_shared<Model>(meshes, materials) };
+		std::shared_ptr<Model> model{ std::make_shared<Model>(modelNodes) };
 
 		return model;
 	}
-	
-	void ModelImporter::ReturnModelHierarchy(const aiScene* aScene, const aiNode* aNode, std::vector<EntityNode>& hierarchy)
+
+	std::shared_ptr<Resource> ModelImporter::LoadMesh(const ResourceMetadata& aMetadata)
 	{
-		//EntityNode& entityNode = hierarchy.emplace_back();
+		BinaryReader reader(aMetadata.filepath);
 
-		//aiVector3D position, rotation, scale;
-		//aNode->mTransformation.Decompose(scale, rotation, position);
+		std::vector<StaticVertex> vertices;
+		std::vector<uint32_t> indices;
 
-		//entityNode.name = aNode->mName.C_Str();
-		//entityNode.position = { position.x, position.y, position.z };
-		//entityNode.rotation = { rotation.x, rotation.y, rotation.z };
-		//entityNode.scale = { scale.x, scale.y, scale.z };
-		//entityNode.numChildren = aNode->mNumChildren;
-		//if (aNode->mNumMeshes > 0)
-		//{
-		//	entityNode.meshNode.meshID = aNode->mMeshes[0];
-		//	entityNode.meshNode.materialID = aScene->mMeshes[aNode->mMeshes[0]]->mMaterialIndex;
-		//}
+		MeshHeader meshHeader;
+		reader.Read(meshHeader);
 
-		//for (uint32_t index { 0U }; index < entityNode.numChildren; ++index)
-		//{
-		//	ReturnModelHierarchy(aScene, aNode->mChildren[index], hierarchy);
-		//}
+		vertices.resize(meshHeader.verticesCount);
+		indices.resize(meshHeader.indicesCount);
 
-		std::stack<aiNode*> nodes;
-		nodes.push(aScene->mRootNode);
+		reader.Read(vertices.data(), vertices.size() * sizeof(StaticVertex));
+		reader.Read(indices.data(), indices.size() * sizeof(uint32_t));
 
-		while (!nodes.empty())
+		return std::make_shared<StaticMesh>(vertices, indices);
+	}
+
+	UUID ModelImporter::ImportMesh(const aiMesh* aMesh, const ResourceMetadata& aMetadata)
+	{
+		std::vector<StaticVertex> vertices;
+		std::vector<uint32_t> indices;
+
+		MeshHeader meshHeader;
+		meshHeader.verticesCount = aMesh->mNumVertices;
+		meshHeader.indicesCount = aMesh->mNumFaces * 3;
+		vertices.reserve(meshHeader.verticesCount);
+		vertices.reserve(meshHeader.indicesCount);
+
+		for (uint32_t vertexIndex{ 0U }; vertexIndex < meshHeader.verticesCount; ++vertexIndex)
 		{
-			EntityNode& entityNode{ hierarchy.emplace_back() };
-			const aiNode* node{ nodes.top() };
+			StaticVertex& vertex{ vertices.emplace_back() };
+			vertex.position = glm::vec3(aMesh->mVertices[vertexIndex].x, aMesh->mVertices[vertexIndex].y, aMesh->mVertices[vertexIndex].z);
+			vertex.normal = glm::vec3(aMesh->mNormals[vertexIndex].x, aMesh->mNormals[vertexIndex].y, aMesh->mNormals[vertexIndex].z);
+			vertex.tangent = glm::vec3(aMesh->mTangents[vertexIndex].x, aMesh->mTangents[vertexIndex].y, aMesh->mTangents[vertexIndex].z);
+			vertex.bitangent = glm::vec3(aMesh->mBitangents[vertexIndex].x, aMesh->mBitangents[vertexIndex].y, aMesh->mBitangents[vertexIndex].z);
+			vertex.texCoord = glm::vec2(aMesh->mTextureCoords[0][vertexIndex].x, aMesh->mTextureCoords[0][vertexIndex].y);
+		}
 
-			aiVector3D position, rotation, scale;
-			node->mTransformation.Decompose(scale, rotation, position);
-
-			entityNode.position = { position.x, position.y, position.z };
-			entityNode.rotation = { rotation.x, rotation.y, rotation.z };
-			entityNode.scale = { scale.x, scale.y, scale.z };
-			
-			entityNode.name = node->mName.C_Str();
-			entityNode.numChildren = node->mNumChildren;
-			if (node->mNumMeshes > 0)
+		for (uint32_t facesIndex{ 0U }; facesIndex < aMesh->mNumFaces; ++facesIndex)
+		{
+			const aiFace aiFace{ aMesh->mFaces[facesIndex] };
+			for (uint32_t index{ 0U }; index < aiFace.mNumIndices; ++index)
 			{
-				entityNode.meshNode.meshID = node->mMeshes[0];
-				entityNode.meshNode.materialID = aScene->mMeshes[node->mMeshes[0]]->mMaterialIndex;
-			}
-
-			nodes.pop();
-			for (int index { entityNode.numChildren - 1 }; index >= 0; --index)
-			{
-				nodes.push(node->mChildren[index]);
+				indices.push_back(aiFace.mIndices[index]);
 			}
 		}
+
+		std::filesystem::path meshFilepath{ aMetadata.filepath.parent_path() / std::string(aMesh->mName.C_Str() + std::string(".imesh")) };
+
+		BinaryWriter writer(meshFilepath);
+		writer.Write(meshHeader);
+		writer.Write(vertices);
+		writer.Write(indices);
+
+		ResourceMetadata meshMetadata;
+		meshMetadata.type = ResourceType::MESH;
+		meshMetadata.sourceFile = aMetadata.sourceFile;
+		meshMetadata.filepath = meshFilepath;
+		meshMetadata.lastWriteTime = std::filesystem::last_write_time(meshMetadata.filepath);
+		
+		return ResourceManager::RegisterResource(meshMetadata);
+	}
+
+	UUID ModelImporter::ImportMaterial(const aiMaterial* aMaterial, const ResourceMetadata& aMetadata)
+	{
+		MaterialHeader materialHeader{};
+
+		glm::vec4 materialColor{};
+		aiColor4D color;
+		if (aiGetMaterialColor(aMaterial, AI_MATKEY_COLOR_DIFFUSE, &color) == AI_SUCCESS)
+		{
+			materialColor = { color.r, color.g, color.b, color.a };
+		}
+		aiString materialName;
+		if (aMaterial->Get(AI_MATKEY_NAME, materialName) != AI_SUCCESS)
+		{
+			ILG_CORE_ERROR("Unable to find the name of the material");
+		}
+
+		std::filesystem::path materialFilepath { aMetadata.filepath.parent_path() / std::string(materialName.C_Str() + std::string(".imat")) };
+
+		BinaryWriter writer(materialFilepath.string());
+		writer.Write(materialHeader);
+		writer.WriteString(std::string("PBR_Static"));
+		writer.Write(materialColor);
+
+		ResourceMetadata materialMetadata;
+		materialMetadata.type = ResourceType::MATERIAL;
+		materialMetadata.sourceFile = aMetadata.sourceFile;
+		materialMetadata.filepath = materialFilepath;
+		materialMetadata.lastWriteTime = std::filesystem::last_write_time(materialMetadata.filepath);
+
+		return ResourceManager::RegisterResource(materialMetadata);
+	}
+
+	uint32_t ModelImporter::ProcessNode(const aiScene* aScene, const aiNode* aNode, const std::vector<UUID>& aMeshesUUIDs, const std::vector<UUID>& aMaterialsUUIDs, std::vector<ModelNode>& aModelNodes)
+	{
+		size_t nodeIndex{ aModelNodes.size() };
+
+		ModelNode& modelNode { aModelNodes.emplace_back() };
+		modelNode.name = aNode->mName.C_Str();
+		modelNode.mesh = aNode->mNumMeshes ? aMeshesUUIDs[aNode->mMeshes[0]] : UUID(UINT64_MAX);
+		modelNode.material = aNode->mNumMeshes ? aMaterialsUUIDs[aScene->mMeshes[aNode->mMeshes[0]]->mMaterialIndex] : UUID(UINT64_MAX);
+		modelNode.localTransform = ConvertToGlm(aNode->mTransformation);
+
+		for (uint32_t index{ 0U }; index < aNode->mNumChildren; ++index)
+		{
+			uint32_t childrenIndex{ ProcessNode(aScene, aNode->mChildren[index], aMeshesUUIDs, aMaterialsUUIDs, aModelNodes) };
+			aModelNodes[nodeIndex].childrens.push_back(childrenIndex);
+		}
+
+		return nodeIndex;
 	}
 }

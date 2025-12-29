@@ -18,8 +18,8 @@ namespace Ilargi
 		void PushConstants(const std::shared_ptr<CommandBuffer>& aCommandBuffer, uint32_t aOffset, uint32_t aSize, const void* aData) const override;
 
 		void Bind(const std::shared_ptr<CommandBuffer>& aCommandBuffer) const override;
-		void BindDescriptorSet(const std::shared_ptr<CommandBuffer>& aCommandBuffer, std::shared_ptr<Material> aMaterial, uint32_t aSetIndex) const override;
-		void BindDescriptorSet(const std::shared_ptr<CommandBuffer>& aCommandBuffer, std::shared_ptr<UniformBuffer> aUniformBuffer, uint32_t aSetIndex) const override;
+		void BindDescriptorSet(const std::shared_ptr<CommandBuffer>& aCommandBuffer, const std::shared_ptr<Material>& aMaterial, uint32_t aSetIndex) const override;
+		void BindDescriptorSet(const std::shared_ptr<CommandBuffer>& aCommandBuffer, const std::shared_ptr<UniformBuffer>& aUniformBuffer, uint32_t aSetIndex) const override;
 
 		[[nodiscard]] const PipelineProperties& GetProperties() const override { return mProperties; }
 	private:

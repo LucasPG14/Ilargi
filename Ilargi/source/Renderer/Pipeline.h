@@ -111,8 +111,8 @@ namespace Ilargi
 		virtual void PushConstants(const std::shared_ptr<CommandBuffer>& aCommandBuffer, uint32_t aOffset, uint32_t aSize, const void* aData) const = 0;
 
 		virtual void Bind(const std::shared_ptr<CommandBuffer>& aCommandBuffer) const = 0;
-		virtual void BindDescriptorSet(const std::shared_ptr<CommandBuffer>& aCommandBuffer, std::shared_ptr<Material> aMaterial, uint32_t aSetIndex) const = 0;
-		virtual void BindDescriptorSet(const std::shared_ptr<CommandBuffer>& aCommandBuffer, std::shared_ptr<UniformBuffer> aUniformBuffer, uint32_t aSetIndex) const = 0;
+		virtual void BindDescriptorSet(const std::shared_ptr<CommandBuffer>& aCommandBuffer, const std::shared_ptr<Material>& aMaterial, uint32_t aSetIndex) const = 0;
+		virtual void BindDescriptorSet(const std::shared_ptr<CommandBuffer>& aCommandBuffer, const std::shared_ptr<UniformBuffer>& aUniformBuffer, uint32_t aSetIndex) const = 0;
 
 		[[nodiscard]] virtual const PipelineProperties& GetProperties() const = 0;
 

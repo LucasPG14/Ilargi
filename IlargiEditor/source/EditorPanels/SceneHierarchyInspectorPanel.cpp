@@ -99,7 +99,7 @@ namespace Ilargi
 
 		if (world.try_get<InfoComponent>(mSelected))
 		{
-			InfoComponent& infoComponent{ mScene->GetWorld().get<InfoComponent>(mSelected) };
+			InfoComponent& infoComponent{ mScene->GetComponent<InfoComponent>(mSelected) };
 			char* buf{ infoComponent.name.data() };
 			ImGui::InputText("##Name", buf, infoComponent.name.size() + 2);
 		}
@@ -125,7 +125,7 @@ namespace Ilargi
 
 		if (world.try_get<TransformComponent>(mSelected))
 		{
-			TransformComponent& transformComponent{ mScene->GetWorld().get<TransformComponent>(mSelected) };
+			TransformComponent& transformComponent{ mScene->GetComponent<TransformComponent>(mSelected) };
 			if (ImGui::CollapsingHeader("Transform Component"))
 			{
 				ImVec2 size{ ImGui::CalcTextSize("Rotation") };
@@ -145,14 +145,27 @@ namespace Ilargi
 				hasChanged |= ImGui::DragFloat3("##Scale", glm::value_ptr(transformComponent.scale));
 
 				if (hasChanged)
+				{
 					transformComponent.CalculateTransform();
+					FamilyComponent& familyComponent{ mScene->GetComponent<FamilyComponent>(mSelected) };
+					if (familyComponent.parent != entt::null)
+					{
+						TransformComponent& parentTransformComponent{ mScene->GetComponent<TransformComponent>(familyComponent.parent) };
+						transformComponent.CalculateWorldTransform(parentTransformComponent.worldTransform);
+					}
+					else
+					{
+						transformComponent.CalculateWorldTransform(glm::mat4(1.0));
+					}
+					mScene->CalculateChildrenTransforms(mSelected, transformComponent.worldTransform);
+				}
 			}
 			ImGui::Separator();
 		}
 
 		if (world.try_get<StaticMeshComponent>(mSelected))
 		{
-			StaticMeshComponent& staticMesh{ mScene->GetWorld().get<StaticMeshComponent>(mSelected) };
+			StaticMeshComponent& staticMesh{ mScene->GetComponent<StaticMeshComponent>(mSelected) };
 			if (ImGui::CollapsingHeader("Static Mesh Component"))
 			{
 				if (auto mesh{ staticMesh.staticMesh.lock() })
@@ -215,7 +228,7 @@ namespace Ilargi
 
 		if (world.try_get<DirectionalLightComponent>(mSelected))
 		{
-			DirectionalLightComponent& dirLight{ mScene->GetWorld().get<DirectionalLightComponent>(mSelected) };
+			DirectionalLightComponent& dirLight{ mScene->GetComponent<DirectionalLightComponent>(mSelected) };
 			if (ImGui::CollapsingHeader("Directional Light Component"))
 			{
 				ImGui::Text("Radiance");
@@ -227,7 +240,7 @@ namespace Ilargi
 
 		if (world.try_get<PointLightComponent>(mSelected))
 		{
-			PointLightComponent& pointLight{ mScene->GetWorld().get<PointLightComponent>(mSelected) };
+			PointLightComponent& pointLight{ mScene->GetComponent<PointLightComponent>(mSelected) };
 			if (ImGui::CollapsingHeader("Point Light Component"))
 			{
 				ImGui::Text("Radiance");

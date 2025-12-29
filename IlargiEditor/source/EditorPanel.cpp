@@ -214,7 +214,7 @@ namespace Ilargi
 		mGridPipeline->PushConstants(mCommandBuffer, 0, 64, glm::value_ptr(mCamera.GetViewMatrix()));
 		mGridPipeline->PushConstants(mCommandBuffer, 64, 64, glm::value_ptr(mCamera.GetProjectionMatrix()));
 		//mGridPipeline->BindDescriptorSet(mCommandBuffer, mScene->GetSceneDataUBO(), 1);
-
+		
 		Renderer::DrawDefault(mCommandBuffer);
 	}
 
@@ -235,9 +235,9 @@ namespace Ilargi
 				continue;
 
 			mPipeline->Bind(mCommandBuffer);
-			mPipeline->BindDescriptorSet(mCommandBuffer, material, 0);
+			mPipeline->BindDescriptorSet(mCommandBuffer, material ? material : Renderer::GetDefaultMaterial(), 0);
 			mPipeline->BindDescriptorSet(mCommandBuffer, mScene->GetSceneDataUBO(), 1);
-			mPipeline->PushConstants(mCommandBuffer, 0, 64, glm::value_ptr(transform.transform));
+			mPipeline->PushConstants(mCommandBuffer, 0, 64, glm::value_ptr(transform.worldTransform));
 			mPipeline->PushConstants(mCommandBuffer, 64, 12, glm::value_ptr(light.radiance));
 			mPipeline->PushConstants(mCommandBuffer, 76, 12, glm::value_ptr(glm::radians(trans.rotation)));
 			Renderer::SubmitGeometry(mCommandBuffer, mesh);
@@ -251,8 +251,10 @@ namespace Ilargi
 			auto [transform, meshComponent] { mScene->GetWorld().get<TransformComponent, StaticMeshComponent>(selectedEntity)};
 			auto mesh{ meshComponent.staticMesh.lock() };
 
-			mStencilMatrix = glm::translate(glm::mat4(1.0), transform.position) * glm::eulerAngleXYZ(glm::radians(transform.rotation.x), glm::radians(transform.rotation.y), glm::radians(transform.rotation.z));
-			mStencilMatrix = glm::scale(mStencilMatrix, transform.scale * 1.05f);
+			glm::vec3 position, rotation, scale;
+			ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(transform.worldTransform), glm::value_ptr(position), glm::value_ptr(rotation), glm::value_ptr(scale));
+			mStencilMatrix = glm::translate(glm::mat4(1.0), position) * glm::eulerAngleXYZ(glm::radians(rotation.x), glm::radians(rotation.y), glm::radians(rotation.z));
+			mStencilMatrix = glm::scale(mStencilMatrix, scale * 1.05f);
 			mOutlinePipeline->BindDescriptorSet(mCommandBuffer, mScene->GetSceneDataUBO(), 1);
 			mOutlinePipeline->PushConstants(mCommandBuffer, 0, 64, glm::value_ptr(mStencilMatrix));
 			mOutlinePipeline->PushConstants(mCommandBuffer, 64, 12, glm::value_ptr(light.radiance));
@@ -396,13 +398,25 @@ namespace Ilargi
 			const glm::mat4& projMatrix{ mCamera.GetProjectionMatrix() };
 
 			TransformComponent& transformComp{ mScene->GetWorld().get<TransformComponent>(entity) };
-			glm::mat4& transform{ transformComp.transform };
+			glm::mat4& transform{ transformComp.localTransform };
 
 			ImGuizmo::Manipulate(glm::value_ptr(viewMatrix), glm::value_ptr(projMatrix), (ImGuizmo::OPERATION)mOperation, ImGuizmo::WORLD, glm::value_ptr(transform));
 
 			if (ImGuizmo::IsUsingAny())
 			{
 				ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(transform), glm::value_ptr(transformComp.position), glm::value_ptr(transformComp.rotation), glm::value_ptr(transformComp.scale));
+				TransformComponent& transformComponent{ mScene->GetComponent<TransformComponent>(entity) };
+				FamilyComponent& familyComponent{ mScene->GetComponent<FamilyComponent>(entity) };
+				if (familyComponent.parent != entt::null)
+				{
+					TransformComponent& parentTransformComponent{ mScene->GetComponent<TransformComponent>(familyComponent.parent) };
+					transformComponent.CalculateWorldTransform(parentTransformComponent.worldTransform);
+				}
+				else
+				{
+					transformComponent.CalculateWorldTransform(glm::mat4(1.0));
+				}
+				mScene->CalculateChildrenTransforms(entity, transformComponent.worldTransform);
 			}
 		}
 

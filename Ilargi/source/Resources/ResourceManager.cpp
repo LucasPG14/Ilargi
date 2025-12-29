@@ -49,6 +49,7 @@ namespace Ilargi
 	{
 		{ ResourceType::TEXTURE2D, TextureImporter::LoadTexture },
 		{ ResourceType::MODEL, ModelImporter::LoadModel },
+		{ ResourceType::MESH, ModelImporter::LoadMesh },
 		{ ResourceType::SCENE, SceneImporter::LoadScene },
 		{ ResourceType::MATERIAL, MaterialImporter::LoadMaterial },
 	};
@@ -75,6 +76,12 @@ namespace Ilargi
 		sResourcesMetadata[resourceUUID] = aMetadata;
 
 		return resourceUUID;
+	}
+
+	ResourceMetadata& ResourceManager::RegisterResource2()
+	{
+		UUID resourceUUID;
+		return sResourcesMetadata[resourceUUID];
 	}
 
 	UUID ResourceManager::ImportResource(const std::filesystem::path& aActualDir, const std::filesystem::path& aPath)

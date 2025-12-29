@@ -38,8 +38,8 @@ namespace Ilargi
 
 		void LoadModel(const std::shared_ptr<Model>& model);
 
-		Entity CreateEntity(const std::string& aName = "Entity");
-		Entity CreateChildrenEntity(Entity aEntity, const std::string& aName = "Entity");
+		Entity CreateEntity(const std::string& aName = "Entity", const glm::mat4& aTransform = glm::mat4(1.0));
+		Entity CreateChildrenEntity(Entity aEntity, const std::string& aName = "Entity", const glm::mat4& aTransform = glm::mat4(1.0));
 		void DestroyEntity(Entity aEntity);
 
 		void UpdatePointLights(glm::mat4 aMatrix, glm::vec3 aPosition);
@@ -62,6 +62,15 @@ namespace Ilargi
 			ILG_ASSERT(HasComponent<T>(aEntity), "This entity doesn't have this component");
 			mWorld.remove<T>(aEntity);
 		}
+
+		template<typename T>
+		T& GetComponent(Entity aEntity)
+		{
+			ILG_ASSERT(HasComponent<T>(aEntity), "This entity doesn't have this component");
+			return mWorld.get<T>(aEntity);
+		}
+
+		void CalculateChildrenTransforms(Entity entity, const glm::mat4& aMatrix);
 
 		[[nodiscard]] const entt::registry& GetWorld() const { return mWorld; }
 		[[nodiscard]] entt::registry& GetWorld() { return mWorld; }

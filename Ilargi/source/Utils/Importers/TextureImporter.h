@@ -10,6 +10,15 @@ namespace Ilargi
 		bool normalMap{ false };
 	};
 
+	struct TextureHeader
+	{
+		uint32_t magic = 0x54585452;
+		uint32_t version = 1;
+		int width;
+		int height;
+		uint8_t channels;
+	};
+
 	class UUID;
 
 	class TextureImporter

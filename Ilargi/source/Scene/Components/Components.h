@@ -26,15 +26,21 @@ namespace Ilargi
 
 	struct TransformComponent
 	{
-		glm::mat4 transform{ glm::mat4(1.0f) };
+		glm::mat4 localTransform{ glm::mat4(1.0f) };
+		glm::mat4 worldTransform{ glm::mat4(1.0f) };
 		glm::vec3 position{ glm::vec3(0.0f) };
 		glm::vec3 rotation{ glm::vec3(0.0f) };
 		glm::vec3 scale{ glm::vec3(1.0f) };
 
 		void CalculateTransform()
 		{
-			transform = glm::translate(glm::mat4(1.0), position) * glm::eulerAngleXYZ(glm::radians(rotation.x), glm::radians(rotation.y), glm::radians(rotation.z));
-			transform = glm::scale(transform, scale);
+			localTransform = glm::translate(glm::mat4(1.0), position) * glm::eulerAngleXYZ(glm::radians(rotation.x), glm::radians(rotation.y), glm::radians(rotation.z));
+			localTransform = glm::scale(localTransform, scale);
+		}
+
+		void CalculateWorldTransform(const glm::mat4& aMatrix)
+		{
+			worldTransform = aMatrix * localTransform;
 		}
 	};
 

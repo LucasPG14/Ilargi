@@ -5,6 +5,9 @@
 #include "Renderer/UniformBuffer.h"
 
 #include "Resources/Model.h"
+#include "Resources/Mesh.h"
+#include "Resources/Material.h"
+#include "Resources/ResourceManager.h"
 
 #include "Utils/Importers/ModelImporter.h"
 
@@ -35,30 +38,51 @@ namespace Ilargi
 	void Scene::LoadModel(const std::shared_ptr<Model>& model)
 	{
 		// TODO: Refactor this
-		const std::vector<std::shared_ptr<StaticMesh>>& meshes{ model->GetMeshes() };
-		const std::vector<std::shared_ptr<Material>>& materials{ model->GetMaterials() };
+		const std::vector<ModelNode>& modelNodes{ model->GetModelNodes() };
 
-		for (uint32_t i { 0U }; i < meshes.size(); ++i)
+		std::vector<Entity> entities;
+		for (uint32_t index{ 0U }; index < modelNodes.size(); ++index)
 		{
-			Entity entity{ CreateEntity() };
-			CreateComponent<StaticMeshComponent>(entity, meshes[i], materials[i]);
+			ModelNode modelNode{ modelNodes[index] };
+			entities.push_back(CreateEntity(modelNode.name));
+			if (modelNode.mesh != UINT64_MAX)
+			{
+				std::shared_ptr<Material> material{ modelNode.material != UINT64_MAX ? std::static_pointer_cast<Material>(ResourceManager::GetResource(modelNode.material)) : Renderer::GetDefaultMaterial() };
+				CreateComponent<StaticMeshComponent>(entities[index], std::static_pointer_cast<StaticMesh>(ResourceManager::GetResource(modelNode.mesh)), material);
+			}
+		}
+
+		for (uint32_t index{ 0U }; index < modelNodes.size(); ++index)
+		{
+			const ModelNode& modelNode{ modelNodes[index] };
+			Entity& entity{ entities[index] };
+			FamilyComponent& familyComponent{ mWorld.get<FamilyComponent>(entity) };
+
+			for (uint32_t childrenIndex{ 0U }; childrenIndex < modelNode.childrens.size(); ++childrenIndex)
+			{
+				Entity& childrenEntity{ entities[modelNode.childrens[childrenIndex]] };
+				familyComponent.children.push_back(childrenEntity);
+
+				FamilyComponent& familyChildrenComponent{ mWorld.get<FamilyComponent>(childrenEntity) };
+				familyChildrenComponent.parent = entity;
+			}
 		}
 	}
 	
-	Entity Scene::CreateEntity(const std::string& aName)
+	Entity Scene::CreateEntity(const std::string& aName, const glm::mat4& aTransform)
 	{
 		Entity entity{ mWorld.create() };
 
-		CreateComponent<TransformComponent>(entity, glm::mat4(1.0f));
+		CreateComponent<TransformComponent>(entity, aTransform);
 		CreateComponent<InfoComponent>(entity, aName.c_str());
 		CreateComponent<FamilyComponent>(entity);
 
 		return entity;
 	}
 
-	Entity Scene::CreateChildrenEntity(Entity aEntity, const std::string& aName)
+	Entity Scene::CreateChildrenEntity(Entity aEntity, const std::string& aName, const glm::mat4& aTransform)
 	{
-		Entity childEntity{ CreateEntity(aName) };
+		Entity childEntity{ CreateEntity(aName, aTransform) };
 
 		auto& family{ mWorld.get<FamilyComponent>(aEntity) };
 		family.children.push_back(childEntity);
@@ -101,5 +125,18 @@ namespace Ilargi
 		}
 
 		mSceneDataUBO->SetData(&mSceneData);
+	}
+	
+	void Scene::CalculateChildrenTransforms(Entity entity, const glm::mat4& aMatrix)
+	{
+		TransformComponent& transformComponent{ GetComponent<TransformComponent>(entity) };
+		FamilyComponent& familyComponent{ GetComponent<FamilyComponent>(entity) };
+		for (uint32_t index{ 0U }; index < familyComponent.children.size(); ++index)
+		{
+			Entity children{ familyComponent.children[index] };
+			TransformComponent& childrenTransform{ GetComponent<TransformComponent>(children) };
+			childrenTransform.CalculateWorldTransform(transformComponent.worldTransform);
+			CalculateChildrenTransforms(children, childrenTransform.worldTransform);
+		}
 	}
 }

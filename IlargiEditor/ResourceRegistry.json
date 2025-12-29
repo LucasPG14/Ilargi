@@ -1,32 +1,32 @@
 [
   {
-    "UUID": 8688994297886322498,
-    "Type": 1,
-    "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\Resources\\models\\viking_room.obj",
-    "Filepath": "Resources\\viking_room.imodel"
-  },
-  {
-    "UUID": 17850319852641065491,
-    "Type": 4,
-    "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\Resources\\models\\viking_room.obj",
-    "Filepath": "Resources\\DefaultMaterial.imat"
-  },
-  {
-    "UUID": 40732656065932760,
+    "UUID": 13443187900968579038,
     "Type": 3,
     "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\Resources\\textures\\viking_room.png",
     "Filepath": "Resources\\viking_room.itex"
   },
   {
-    "UUID": 788305802520550426,
+    "UUID": 13126397879856297481,
+    "Type": 4,
+    "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\Resources\\models\\viking_room.obj",
+    "Filepath": "Resources\\DefaultMaterial.imat"
+  },
+  {
+    "UUID": 12100709711359552121,
+    "Type": 1,
+    "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\Resources\\models\\viking_room.obj",
+    "Filepath": "Resources\\viking_room.imodel"
+  },
+  {
+    "UUID": 1763941638319005730,
     "Type": 4,
     "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\Resources\\models\\viking_room.obj",
     "Filepath": "Resources\\Texture1.imat"
   },
   {
-    "UUID": 18225208067603159755,
-    "Type": 5,
-    "SourceFile": "Resources\\demo.ilargi",
-    "Filepath": "Resources\\demo.ilargi"
+    "UUID": 5521048521227170064,
+    "Type": 2,
+    "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\Resources\\models\\viking_room.obj",
+    "Filepath": "Resources\\mesh_all1_Texture1_0.imesh"
   }
 ]

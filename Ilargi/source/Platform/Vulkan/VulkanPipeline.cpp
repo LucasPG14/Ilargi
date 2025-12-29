@@ -69,12 +69,18 @@ namespace Ilargi
 		VkPipelineCacheCreateInfo pipelineCacheInfo {};
 		pipelineCacheInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
 
-		Buffer buffer{ FileSystem::ReadBinaryFile(std::filesystem::path("cache/vulkan/pipelines/" + mProperties.name + ".pipe")) };
+		std::filesystem::path pipelineCacheFilepath{ (std::filesystem::path("cache/vulkan/pipelines/" + mProperties.name + ".pipe")) };
+		BinaryReader reader(pipelineCacheFilepath);
 
-		if (buffer.size > 0)
+		if (std::filesystem::exists(pipelineCacheFilepath))
 		{
-			pipelineCacheInfo.initialDataSize = buffer.size;
-			pipelineCacheInfo.pInitialData = buffer.data;
+			pipelineCacheInfo.initialDataSize = reader.GetSize();
+			
+			char* cacheData = new char[pipelineCacheInfo.initialDataSize];
+			reader.Read(cacheData, pipelineCacheInfo.initialDataSize);
+			
+			pipelineCacheInfo.pInitialData = cacheData;
+			delete cacheData;
 		}
 		VK_CHECK_RESULT(vkCreatePipelineCache(device, &pipelineCacheInfo, nullptr, &pipelineCache));
 
@@ -322,17 +328,19 @@ namespace Ilargi
 
 		VK_CHECK_RESULT(vkCreateGraphicsPipelines(device, pipelineCache, 1, &pipelineInfo, nullptr, &mPipeline));
 
-		if (buffer.size == 0)
+		if (!std::filesystem::exists(pipelineCacheFilepath))
 		{
-			VK_CHECK_RESULT(vkGetPipelineCacheData(device, pipelineCache, &buffer.size, nullptr));
+			size_t pipelineSize;
+			VK_CHECK_RESULT(vkGetPipelineCacheData(device, pipelineCache, &pipelineSize, nullptr));
 
-			buffer.data = new char[buffer.size];
-			VK_CHECK_RESULT(vkGetPipelineCacheData(device, pipelineCache, &buffer.size, buffer.data));
+			char* data = new char[pipelineSize];
+			VK_CHECK_RESULT(vkGetPipelineCacheData(device, pipelineCache, &pipelineSize, data));
 
-			FileSystem::WriteBinaryFile(std::filesystem::path("cache/vulkan/pipelines/" + mProperties.name + ".pipe"), buffer);
+			BinaryWriter writer(pipelineCacheFilepath);
+			writer.Write(data, pipelineSize);
+
+			delete data;
 		}
-		
-		delete buffer.data;
 
 		vkDestroyPipelineCache(device, pipelineCache, nullptr);
 	}
@@ -369,7 +377,7 @@ namespace Ilargi
 			});
 	}
 	
-	void VulkanPipeline::BindDescriptorSet(const std::shared_ptr<CommandBuffer>& aCommandBuffer, std::shared_ptr<Material> aMaterial, uint32_t aSetIndex) const
+	void VulkanPipeline::BindDescriptorSet(const std::shared_ptr<CommandBuffer>& aCommandBuffer, const std::shared_ptr<Material>& aMaterial, uint32_t aSetIndex) const
 	{
 		Renderer::Submit([this, aCommandBuffer, aMaterial, aSetIndex]()
 			{
@@ -381,7 +389,7 @@ namespace Ilargi
 			});
 	}
 
-	void VulkanPipeline::BindDescriptorSet(const std::shared_ptr<CommandBuffer>& aCommandBuffer, std::shared_ptr<UniformBuffer> aUniformBuffer, uint32_t aSetIndex) const
+	void VulkanPipeline::BindDescriptorSet(const std::shared_ptr<CommandBuffer>& aCommandBuffer, const std::shared_ptr<UniformBuffer>& aUniformBuffer, uint32_t aSetIndex) const
 	{
 		Renderer::Submit([this, aCommandBuffer, aUniformBuffer, aSetIndex]()
 			{

@@ -5,6 +5,7 @@
 #include "CommandBuffer.h"
 #include "Resources/Mesh.h"
 #include "Resources/Texture.h"
+#include "Resources/Material.h"
 
 namespace Ilargi
 {
@@ -12,6 +13,7 @@ namespace Ilargi
 	std::unique_ptr<Render> Renderer::sRender{ Render::Create() };
 	std::shared_ptr<ShaderLibrary> Renderer::sShaderLibrary{ std::make_shared<ShaderLibrary>() };
 	std::shared_ptr<Texture2D> Renderer::sDefaultTexture{ nullptr };
+	std::shared_ptr<Material> Renderer::sDefaultMaterial{ nullptr };
 	RendererConfig Renderer::sConfig {};
 	RendererStatistics Renderer::sStats {};
 	uint32_t Renderer::sCurrentFrame{ 0U };
@@ -23,24 +25,27 @@ namespace Ilargi
 		sDefaultTexture = Texture2D::Create(&data, 1, 1, 4);
 
 		sShaderLibrary->Init();
+
+		sDefaultMaterial = Material::Create(sShaderLibrary->Get("PBR_Static"), {});
 	}
 
 	void Renderer::Destroy()
 	{
 		sDefaultTexture.reset();
+		sDefaultMaterial.reset();
 	}
 
-	void Renderer::SubmitGeometry(std::shared_ptr<CommandBuffer> commandBuffer, std::shared_ptr<StaticMesh> mesh)
+	void Renderer::SubmitGeometry(const std::shared_ptr<CommandBuffer>& aCommandBuffer, const std::shared_ptr<StaticMesh>& aMesh)
 	{
 		sStats.drawCalls++;
 		sStats.numMeshes++;
-		sRender->SubmitGeometry(commandBuffer, mesh->GetVertexBuffer(), mesh->GetIndexBuffer());
+		sRender->SubmitGeometry(aCommandBuffer, aMesh->GetVertexBuffer(), aMesh->GetIndexBuffer());
 	}
 
-	void Renderer::DrawDefault(std::shared_ptr<CommandBuffer> commandBuffer)
+	void Renderer::DrawDefault(const std::shared_ptr<CommandBuffer>& aCommandBuffer)
 	{
 		sStats.drawCalls++;
-		sRender->DrawDefault(commandBuffer);
+		sRender->DrawDefault(aCommandBuffer);
 	}
 
 	void Renderer::RenderQueue()
