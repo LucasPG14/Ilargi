@@ -9,27 +9,26 @@ namespace Ilargi
 	public:
 		static void Clear();
 
-		static UUID RegisterResource(const ResourceMetadata& aMetadata);
-		static ResourceMetadata& RegisterResource2();
-		static UUID ImportResource(const std::filesystem::path& aActualDir, const std::filesystem::path& aPath);
-		static std::shared_ptr<Resource> LoadResource(const ResourceMetadata& aMetadata);
+		[[nodiscard]] static UUID RegisterResource(const ResourceMetadata& aMetadata);
+		[[nodiscard]] static UUID ImportResource(const std::filesystem::path& aActualDir, const std::filesystem::path& aPath);
+		
+		[[nodiscard]] static std::shared_ptr<Resource> ReloadResource(UUID aUUID);
 		static void SaveResource(const std::shared_ptr<Resource>& aResource);
 
-		static bool ExistsResource(UUID aUUID);
+		[[nodiscard]] static bool ExistsResource(UUID aUUID);
+		[[nodiscard]] static bool IsResourceLoaded(UUID aUUID);
 
 		[[nodiscard]] static const ResourceMetadata& GetMetadata(UUID aUUID);
-
 		[[nodiscard]] static std::shared_ptr<Resource> GetResource(UUID aUUID);
 
-		static bool IsResourceLoaded(UUID aUUID);
+		static void RemoveResource(UUID aUUID);
+
+		static void LoadResourceRegistry();
+		static void SaveResourceRegistry();
 
 		[[nodiscard]] static std::unordered_map<UUID, ResourceMetadata> GetResourcesMetadata() { return sResourcesMetadata; }
 		[[nodiscard]] static std::unordered_map<UUID, std::shared_ptr<Resource>> GetLoadedResources() { return sLoadedResources; }
 
-		static void RemoveResource(UUID aUUID);
-
-		static void SaveResourceRegistry();
-		static void LoadResourceRegistry();
 	private:
 		[[nodiscard]] static const ResourceType GetResourceType(const std::string& mStringType);
 

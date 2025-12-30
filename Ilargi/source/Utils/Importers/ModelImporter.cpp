@@ -2,6 +2,7 @@
 
 #include "ModelImporter.h"
 #include "MaterialImporter.h"
+#include "TextureImporter.h"
 #include "Utils/FileSystem.h"
 
 #include "Scene/Scene.h"
@@ -181,6 +182,29 @@ namespace Ilargi
 		{
 			ILG_CORE_ERROR("Unable to find the name of the material");
 		}
+		
+		aiString materialDiffuseTexture;
+		if (aiGetMaterialTexture(aMaterial, aiTextureType_DIFFUSE, 0, &materialDiffuseTexture) == AI_SUCCESS)
+		{
+			ResourceMetadata textureMetadata;
+			textureMetadata.type = ResourceType::TEXTURE2D;
+			textureMetadata.sourceFile = aMetadata.sourceFile.parent_path() / materialDiffuseTexture.C_Str();
+			textureMetadata.filepath = aMetadata.filepath.parent_path() / std::filesystem::path(materialDiffuseTexture.C_Str()).filename();
+			UUID diffuseUUID{ ResourceManager::RegisterResource(textureMetadata) };
+			TextureImporter::ImportTexture(diffuseUUID, textureMetadata);
+		}
+
+		aiString materialNormalTexture;
+		if (aiGetMaterialTexture(aMaterial, aiTextureType_NORMALS, 0, &materialNormalTexture) == AI_SUCCESS)
+		{
+			ResourceMetadata textureMetadata;
+			textureMetadata.type = ResourceType::TEXTURE2D;
+			textureMetadata.sourceFile = aMetadata.sourceFile.parent_path() / materialNormalTexture.C_Str();
+			textureMetadata.filepath = aMetadata.filepath.parent_path() / (std::filesystem::path(materialNormalTexture.C_Str()).stem().string() + ".itex");
+			UUID diffuseUUID{ ResourceManager::RegisterResource(textureMetadata) };
+			TextureImporter::ImportTexture(diffuseUUID, textureMetadata);
+		}
+
 
 		std::filesystem::path materialFilepath { aMetadata.filepath.parent_path() / std::string(materialName.C_Str() + std::string(".imat")) };
 

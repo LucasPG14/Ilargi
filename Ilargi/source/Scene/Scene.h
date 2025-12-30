@@ -38,7 +38,7 @@ namespace Ilargi
 
 		void LoadModel(const std::shared_ptr<Model>& model);
 
-		Entity CreateEntity(const std::string& aName = "Entity", const glm::mat4& aTransform = glm::mat4(1.0));
+		Entity CreateEntity(const std::string& aName = "Entity", const glm::mat4& aTransform = glm::mat4(1.0), const entt::entity aEntityId = entt::null);
 		Entity CreateChildrenEntity(Entity aEntity, const std::string& aName = "Entity", const glm::mat4& aTransform = glm::mat4(1.0));
 		void DestroyEntity(Entity aEntity);
 
@@ -64,7 +64,7 @@ namespace Ilargi
 		}
 
 		template<typename T>
-		T& GetComponent(Entity aEntity)
+		[[nodiscard]] T& GetComponent(Entity aEntity)
 		{
 			ILG_ASSERT(HasComponent<T>(aEntity), "This entity doesn't have this component");
 			return mWorld.get<T>(aEntity);

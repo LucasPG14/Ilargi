@@ -29,7 +29,8 @@ namespace Ilargi
 		for (uint32_t index { 0U }; index < document.size(); ++index)
 		{
 			const auto& node{ document[index] };
-			const Entity entity{ scene->CreateEntity(node["InfoComponent"]["Name"]) };
+
+			const Entity entity{ scene->CreateEntity(node["InfoComponent"]["Name"], glm::mat4(1.0), static_cast<entt::entity>(node["EntityID"].as<uint64_t>()))};
 
 			auto& transform{ scene->GetWorld().get<TransformComponent>(entity) };
 			transform.position = node["TransformComponent"]["Position"];
@@ -60,6 +61,22 @@ namespace Ilargi
 				staticMesh.staticMesh = std::static_pointer_cast<StaticMesh>(ResourceManager::GetResource(meshUUID));
 				staticMesh.material = std::static_pointer_cast<Material>(ResourceManager::GetResource(materialUUID));
 			}
+
+			if (node.containsKey("ParentComponent"))
+			{
+				ParentComponent& parentComponent{ scene->CreateComponent<ParentComponent>(entity) };
+				parentComponent.parent = static_cast<entt::entity>(node["ParentComponent"]["Parent"].as<uint64_t>());
+			}
+
+			if (node.containsKey("ChildComponent"))
+			{
+				ChildComponent& childComponent{ scene->CreateComponent<ChildComponent>(entity) };
+				JsonArray childrenList{ document[index]["ChildComponent"]["Childrens"] };
+				for (auto child : childrenList)
+				{
+					childComponent.childrens.push_back(static_cast<entt::entity>(child.as<uint64_t>()));
+				}
+			}
 		}
 
 		return scene;
@@ -76,6 +93,7 @@ namespace Ilargi
 		{
 			uint64_t index{ static_cast<uint64_t>(entity) };
 
+			document[index]["EntityID"] = index;
 			const auto& transform{ world.get<TransformComponent>(entity) };
 			document[index]["TransformComponent"]["Position"] = transform.position;
 			document[index]["TransformComponent"]["Rotation"] = transform.rotation;
@@ -114,6 +132,22 @@ namespace Ilargi
 				{
 					uuid = material->mResourceUUID;
 					document[index]["StaticMeshComponent"]["Material"] = static_cast<uint64_t>(uuid);
+				}
+			}
+
+			if (world.try_get<ParentComponent>(entity))
+			{
+				const ParentComponent& parentComponent{ world.get<ParentComponent>(entity) };
+				document[index]["ParentComponent"]["Parent"] = static_cast<uint64_t>(parentComponent.parent);
+			}
+
+			if (world.try_get<ChildComponent>(entity))
+			{
+				const ChildComponent& childComponent{ world.get<ChildComponent>(entity) };
+				JsonArray childrenArray{ document[index]["ChildComponent"].createNestedArray("Childrens") };
+				for (auto child : childComponent.childrens)
+				{
+					childrenArray.add(static_cast<uint64_t>(child));
 				}
 			}
 		}

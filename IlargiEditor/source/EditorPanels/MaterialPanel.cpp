@@ -43,7 +43,7 @@ namespace Ilargi
 					if (payload)
 					{
 						UUID uuid{ *(UUID*)payload->Data };
-						const auto& metadata{ ResourceManager::GetResourcesMetadata()[uuid] };
+						const auto& metadata{ ResourceManager::GetMetadata(uuid) };
 
 						mMaterial->UpdateDiffuse(std::static_pointer_cast<Texture2D>(ResourceManager::GetResource(uuid)));
 					}
@@ -57,7 +57,6 @@ namespace Ilargi
 				if (ImGui::Button("Save"))
 				{
 					ResourceManager::SaveResource(mMaterial);
-					//MaterialImporter::SaveMaterial(ResourceManager::GetMetadata(mMaterial->mResourceUUID), );
 				}
 
 				ImGui::End();

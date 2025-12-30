@@ -68,7 +68,7 @@ namespace Ilargi
 	{
 		if (ImGui::Begin("Resources Panel"))
 		{
-			mResourcesPanelFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows);
+			//mResourcesPanelFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows);
 
 			if (ImGui::ArrowButton("Arrow", ImGuiDir_Left))
 			{
@@ -113,14 +113,14 @@ namespace Ilargi
 			if (!mSelectedFile.empty() && mResourcesPanelFocused && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 				mSelectedFile.clear();
 
-			if (ImGui::BeginPopupContextWindow("##HierarchyPopup"))
-			{
-				if (ImGui::MenuItem("Create Folder"))
-				{
-					std::filesystem::create_directory(mActualDir / "New Folder");
-				}
-				ImGui::EndPopup();
-			}
+			//if (ImGui::BeginPopupContextWindow("##HierarchyPopup"))
+			//{
+			//	if (ImGui::MenuItem("Create Folder"))
+			//	{
+			//		std::filesystem::create_directory(mActualDir / "New Folder");
+			//	}
+			//	ImGui::EndPopup();
+			//}
 
 			ImGui::End();
 		}
@@ -287,9 +287,8 @@ namespace Ilargi
 						ImGui::SetCursorPosY(cellY - textSize.y - 5.0f);
 						ImGui::Text(resType.c_str());
 					}
-
-					ImGui::EndChild();
 				}
+				ImGui::EndChild();
 				ImGui::PopStyleColor(2);
 				ImGui::PopStyleVar(2);
 			}

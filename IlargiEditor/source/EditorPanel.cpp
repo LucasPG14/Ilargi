@@ -30,7 +30,7 @@ namespace Ilargi
 	static std::unordered_map<Texts, std::string> menuNames = {};
 
 	EditorPanel::EditorPanel() : Panel("Editor Panel"), mHierarchyInspector(nullptr), mResourcesPanel(nullptr),
-		mViewportSize({ 1080, 720 }), mNeedToUpdateFramebuffer(false), mConstants(), mOperation(ImGuizmo::TRANSLATE)
+		mViewportSize({ 1080, 720 }), mOperation(ImGuizmo::TRANSLATE), mNeedToUpdateFramebuffer(false), mEditorMode(EditorMode::EDITOR), mStencilMatrix(1.0)
 	{
 	}
 
@@ -68,7 +68,7 @@ namespace Ilargi
 				}
 			};
 
-			mPipeline = Pipeline::Create(pipelineProperties);
+			mGeometryPipeline = Pipeline::Create(pipelineProperties);
 		}
 
 		{
@@ -109,7 +109,7 @@ namespace Ilargi
 			mOutlinePipeline = Pipeline::Create(pipelineProperties);
 		}
 
-		mUBOCamera = UniformBuffer::Create(sizeof(glm::mat4), Renderer::GetConfig().maxFrames);
+		//mUBOCamera = UniformBuffer::Create(sizeof(glm::mat4), Renderer::GetConfig().maxFrames);
 
 		LoadLanguage("Engine/Localization/english.json");
 	}
@@ -121,7 +121,7 @@ namespace Ilargi
 
 		ResourceManager::Clear();
 
-		mUBOCamera->Destroy();
+		//mUBOCamera->Destroy();
 		
 		mScene->Destroy();
 
@@ -129,7 +129,7 @@ namespace Ilargi
 		mRenderPass->Destroy();
 
 		mOutlinePipeline->Destroy();
-		mPipeline->Destroy();
+		mGeometryPipeline->Destroy();
 		mGridPipeline->Destroy();
 
 		mCommandBuffer->Destroy();
@@ -137,24 +137,53 @@ namespace Ilargi
 
 	void EditorPanel::Update(float aDeltaTime)
 	{
-		if (mNeedToUpdateFramebuffer)
+		switch (mEditorMode)
 		{
-			mFramebuffer->Resize(mRenderPass, (uint32_t)mViewportSize.x, (uint32_t)mViewportSize.y);
-			mCamera.Resize(mViewportSize.x, mViewportSize.y);
-			mNeedToUpdateFramebuffer = false;
+		case EditorMode::EDITOR:
+		{
+			if (mNeedToUpdateFramebuffer)
+			{
+				mFramebuffer->Resize(mRenderPass, (uint32_t)mViewportSize.x, (uint32_t)mViewportSize.y);
+				mCamera.Resize(mViewportSize.x, mViewportSize.y);
+				mNeedToUpdateFramebuffer = false;
+			}
+
+			mCamera.Update(aDeltaTime);
+
+			mScene->UpdatePointLights(mCamera.GetViewProjectionMatrix(), mCamera.GetPosition());
+
+			mCommandBuffer->BeginCommand();
+
+			DrawGrid();
+			DrawGeometry();
+
+			mCommandBuffer->EndCommand();
+			mCommandBuffer->Submit();
+			break;
 		}
+		case EditorMode::PLAY:
+		{
+			if (mNeedToUpdateFramebuffer)
+			{
+				mFramebuffer->Resize(mRenderPass, (uint32_t)mViewportSize.x, (uint32_t)mViewportSize.y);
+				mCamera.Resize(mViewportSize.x, mViewportSize.y);
+				mNeedToUpdateFramebuffer = false;
+			}
 
-		mCamera.Update(aDeltaTime);
+			mCamera.Update(aDeltaTime);
 
-		mScene->UpdatePointLights(mCamera.GetViewProjectionMatrix(), mCamera.GetPosition());
+			mScene->UpdatePointLights(mCamera.GetViewProjectionMatrix(), mCamera.GetPosition());
 
-		mCommandBuffer->BeginCommand();
+			mCommandBuffer->BeginCommand();
 
-		DrawGrid();
-		DrawGeometry();
+			DrawGrid();
+			DrawGeometry();
 
-		mCommandBuffer->EndCommand();
-		mCommandBuffer->Submit();
+			mCommandBuffer->EndCommand();
+			mCommandBuffer->Submit();
+			break;
+		}
+		}
 	}
 
 	void EditorPanel::RenderImGui()
@@ -234,34 +263,34 @@ namespace Ilargi
 			if (!mesh)
 				continue;
 
-			mPipeline->Bind(mCommandBuffer);
-			mPipeline->BindDescriptorSet(mCommandBuffer, material ? material : Renderer::GetDefaultMaterial(), 0);
-			mPipeline->BindDescriptorSet(mCommandBuffer, mScene->GetSceneDataUBO(), 1);
-			mPipeline->PushConstants(mCommandBuffer, 0, 64, glm::value_ptr(transform.worldTransform));
-			mPipeline->PushConstants(mCommandBuffer, 64, 12, glm::value_ptr(light.radiance));
-			mPipeline->PushConstants(mCommandBuffer, 76, 12, glm::value_ptr(glm::radians(trans.rotation)));
+			mGeometryPipeline->Bind(mCommandBuffer);
+			mGeometryPipeline->BindDescriptorSet(mCommandBuffer, material ? material : Renderer::GetDefaultMaterial(), 0);
+			mGeometryPipeline->BindDescriptorSet(mCommandBuffer, mScene->GetSceneDataUBO(), 1);
+			mGeometryPipeline->PushConstants(mCommandBuffer, 0, 64, glm::value_ptr(transform.worldTransform));
+			mGeometryPipeline->PushConstants(mCommandBuffer, 64, 12, glm::value_ptr(light.radiance));
+			mGeometryPipeline->PushConstants(mCommandBuffer, 76, 12, glm::value_ptr(glm::radians(trans.rotation)));
 			Renderer::SubmitGeometry(mCommandBuffer, mesh);
 		}
 
-		Entity selectedEntity{ mHierarchyInspector->GetSelected() };
-		if (selectedEntity != entt::null && mScene->GetWorld().try_get<StaticMeshComponent>(selectedEntity))
-		{
-			mOutlinePipeline->Bind(mCommandBuffer);
+		//Entity selectedEntity{ mHierarchyInspector->GetSelected() };
+		//if (selectedEntity != entt::null && mScene->GetWorld().try_get<StaticMeshComponent>(selectedEntity))
+		//{
+		//	mOutlinePipeline->Bind(mCommandBuffer);
 
-			auto [transform, meshComponent] { mScene->GetWorld().get<TransformComponent, StaticMeshComponent>(selectedEntity)};
-			auto mesh{ meshComponent.staticMesh.lock() };
+		//	auto [transform, meshComponent] { mScene->GetWorld().get<TransformComponent, StaticMeshComponent>(selectedEntity)};
+		//	auto mesh{ meshComponent.staticMesh.lock() };
 
-			glm::vec3 position, rotation, scale;
-			ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(transform.worldTransform), glm::value_ptr(position), glm::value_ptr(rotation), glm::value_ptr(scale));
-			mStencilMatrix = glm::translate(glm::mat4(1.0), position) * glm::eulerAngleXYZ(glm::radians(rotation.x), glm::radians(rotation.y), glm::radians(rotation.z));
-			mStencilMatrix = glm::scale(mStencilMatrix, scale * 1.05f);
-			mOutlinePipeline->BindDescriptorSet(mCommandBuffer, mScene->GetSceneDataUBO(), 1);
-			mOutlinePipeline->PushConstants(mCommandBuffer, 0, 64, glm::value_ptr(mStencilMatrix));
-			mOutlinePipeline->PushConstants(mCommandBuffer, 64, 12, glm::value_ptr(light.radiance));
-			mOutlinePipeline->PushConstants(mCommandBuffer, 76, 12, glm::value_ptr(glm::radians(trans.rotation)));
+		//	glm::vec3 position, rotation, scale;
+		//	ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(transform.worldTransform), glm::value_ptr(position), glm::value_ptr(rotation), glm::value_ptr(scale));
+		//	mStencilMatrix = glm::translate(glm::mat4(1.0), position) * glm::eulerAngleXYZ(glm::radians(rotation.x), glm::radians(rotation.y), glm::radians(rotation.z));
+		//	mStencilMatrix = glm::scale(mStencilMatrix, scale * 1.05f);
+		//	mOutlinePipeline->BindDescriptorSet(mCommandBuffer, mScene->GetSceneDataUBO(), 1);
+		//	mOutlinePipeline->PushConstants(mCommandBuffer, 0, 64, glm::value_ptr(mStencilMatrix));
+		//	mOutlinePipeline->PushConstants(mCommandBuffer, 64, 12, glm::value_ptr(light.radiance));
+		//	mOutlinePipeline->PushConstants(mCommandBuffer, 76, 12, glm::value_ptr(glm::radians(trans.rotation)));
 
-			Renderer::SubmitGeometry(mCommandBuffer, mesh);
-		}
+		//	Renderer::SubmitGeometry(mCommandBuffer, mesh);
+		//}
 
 		mRenderPass->EndRenderPass(mCommandBuffer);
 	}
@@ -344,6 +373,20 @@ namespace Ilargi
 			{
 				// TODO: Paste
 			}
+			if (ImGui::MenuItem("Play", "Ctrl + V"))
+			{
+				SaveScene("Resources/Demo.ilargi");
+				mEditorMode = EditorMode::PLAY;
+			}
+			if (ImGui::MenuItem("Pause", "Ctrl + V"))
+			{
+				mEditorMode = EditorMode::PAUSE;
+			}
+			if (ImGui::MenuItem("Stop", "Ctrl + V"))
+			{
+				OpenScene(mScene->mResourceUUID);
+				mEditorMode = EditorMode::EDITOR;
+			}
 			if (ImGui::MenuItem(menuNames[Texts::DELETE].c_str(), "Del", (bool*)0, enabled))
 			{
 				mScene->DestroyEntity(mHierarchyInspector->GetSelected());
@@ -406,10 +449,10 @@ namespace Ilargi
 			{
 				ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(transform), glm::value_ptr(transformComp.position), glm::value_ptr(transformComp.rotation), glm::value_ptr(transformComp.scale));
 				TransformComponent& transformComponent{ mScene->GetComponent<TransformComponent>(entity) };
-				FamilyComponent& familyComponent{ mScene->GetComponent<FamilyComponent>(entity) };
-				if (familyComponent.parent != entt::null)
+				if (mScene->HasComponent<ParentComponent>(entity))
 				{
-					TransformComponent& parentTransformComponent{ mScene->GetComponent<TransformComponent>(familyComponent.parent) };
+					const ParentComponent& parentComponent{ mScene->GetComponent<ParentComponent>(entity) };
+					TransformComponent& parentTransformComponent{ mScene->GetComponent<TransformComponent>(parentComponent.parent) };
 					transformComponent.CalculateWorldTransform(parentTransformComponent.worldTransform);
 				}
 				else
@@ -439,6 +482,7 @@ namespace Ilargi
 				auto metadata{ ResourceManager::GetResourcesMetadata()[uuid] };
 				std::shared_ptr<Scene> resource{ std::static_pointer_cast<Scene>(ResourceManager::GetResource(uuid)) };
 				
+				mScene->Destroy();
 				mScene = resource;
 				mHierarchyInspector->SetScene(mScene);
 			}
@@ -466,9 +510,9 @@ namespace Ilargi
 		//	OpenScene(filepath);
 	}
 
-	void EditorPanel::OpenScene(std::string aFilepath)
+	void EditorPanel::OpenScene(UUID aUUID)
 	{
-		//std::shared_ptr<Scene> newScene = std::make_shared<Scene>();
+		mScene = std::static_pointer_cast<Scene>(ResourceManager::ReloadResource(aUUID));
 	}
 
 	void EditorPanel::SaveSceneAs()
@@ -487,9 +531,7 @@ namespace Ilargi
 
 		// TODO: Think a better way of handle this if possible
 		auto start{ aFilepath.find("Resources") };
-		ResourceManager::ImportResource(std::filesystem::path(aFilepath.substr(start)).remove_filename(), std::filesystem::path(aFilepath.substr(start)));
-
-		ResourceManager::SaveResourceRegistry();
+		mScene->mResourceUUID = ResourceManager::ImportResource(std::filesystem::path(aFilepath.substr(start)).remove_filename(), std::filesystem::path(aFilepath.substr(start)));
 	}
 	
 	bool EditorPanel::OnKeyEvent(KeyPressedEvent& aEvent)

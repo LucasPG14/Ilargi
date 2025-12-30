@@ -41,12 +41,12 @@ namespace Ilargi
 		}
 
 		const auto& world{ mScene->GetWorld() };
-		const auto& view{ world.view<InfoComponent, FamilyComponent>() };
+		const auto& view{ world.view<TransformComponent, InfoComponent>() };
 
 		std::stack<Entity> stack;
 		for (const auto& entity : view)
 		{
-			if (world.get<FamilyComponent>(entity).parent != entt::null)
+			if (mScene->HasComponent<ParentComponent>(entity))
 				continue;
 		
 			DrawNode(entity, world);
@@ -147,17 +147,21 @@ namespace Ilargi
 				if (hasChanged)
 				{
 					transformComponent.CalculateTransform();
-					FamilyComponent& familyComponent{ mScene->GetComponent<FamilyComponent>(mSelected) };
-					if (familyComponent.parent != entt::null)
+					if (mScene->HasComponent<ParentComponent>(mSelected))
 					{
-						TransformComponent& parentTransformComponent{ mScene->GetComponent<TransformComponent>(familyComponent.parent) };
+						const ParentComponent& parentComponent{ mScene->GetComponent<ParentComponent>(mSelected) };
+						TransformComponent& parentTransformComponent{ mScene->GetComponent<TransformComponent>(parentComponent.parent) };
 						transformComponent.CalculateWorldTransform(parentTransformComponent.worldTransform);
 					}
 					else
 					{
 						transformComponent.CalculateWorldTransform(glm::mat4(1.0));
 					}
-					mScene->CalculateChildrenTransforms(mSelected, transformComponent.worldTransform);
+
+					if (mScene->HasComponent<ChildComponent>(mSelected))
+					{
+						mScene->CalculateChildrenTransforms(mSelected, transformComponent.worldTransform);
+					}
 				}
 			}
 			ImGui::Separator();
@@ -259,20 +263,21 @@ namespace Ilargi
 	
 	void SceneHierarchyInspectorPanel::DrawNode(const Entity aEntity, const entt::registry& aWorld)
 	{
-		const auto&& [info, family] { aWorld.get<InfoComponent, FamilyComponent>(aEntity)};
+		const InfoComponent& infoComponent { aWorld.get<InfoComponent>(aEntity)};
 		bool select{ mSelected == aEntity };
 
 		ImGuiTreeNodeFlags flags{ ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth };
 		if (select)
 			flags |= ImGuiTreeNodeFlags_Selected;
 
-		bool open{ UI::BeginTreeNode((void*)aEntity, info.name, flags) };
+		bool open{ UI::BeginTreeNode((void*)aEntity, infoComponent.name, flags) };
 		if (ImGui::IsItemClicked(0) || ImGui::IsItemClicked(1))
 			mSelected = aEntity;
 
-		if (open)
+		if (open && mScene->HasComponent<ChildComponent>(aEntity))
 		{
-			for (const auto& entityChild : family.children)
+			const ChildComponent& childComponent{ mScene->GetComponent<ChildComponent>(aEntity) };
+			for (const auto& entityChild : childComponent.childrens)
 			{
 				DrawNode(entityChild, aWorld);
 			}

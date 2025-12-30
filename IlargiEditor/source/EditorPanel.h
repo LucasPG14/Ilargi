@@ -12,6 +12,13 @@ namespace Ilargi
 	class VertexBuffer;
 	class IndexBuffer;
 
+	enum class EditorMode
+	{
+		EDITOR = 0,
+		PLAY = 1,
+		PAUSE = 2
+	};
+
 	class EditorPanel : public Panel
 	{
 	public:
@@ -37,7 +44,7 @@ namespace Ilargi
 
 		void NewScene();
 		void OpenScene();
-		void OpenScene(std::string aFilepath);
+		void OpenScene(UUID aUUID);
 		void SaveSceneAs();
 		void SaveScene(std::string aFilepath);
 
@@ -49,11 +56,11 @@ namespace Ilargi
 
 		std::shared_ptr<Framebuffer> mFramebuffer;
 		std::shared_ptr<RenderPass> mRenderPass;
-		std::shared_ptr<Pipeline> mPipeline;
+		std::shared_ptr<Pipeline> mGeometryPipeline;
 		std::shared_ptr<Pipeline> mGridPipeline;
 		std::shared_ptr<Pipeline> mOutlinePipeline;
 
-		std::shared_ptr<UniformBuffer> mUBOCamera;
+		//std::shared_ptr<UniformBuffer> mUBOCamera;
 
 		EditorCamera mCamera;
 		SceneHierarchyInspectorPanel* mHierarchyInspector;
@@ -63,7 +70,8 @@ namespace Ilargi
 		int mOperation;
 		bool mNeedToUpdateFramebuffer;
 
-		glm::mat4 mConstants[2];
+		EditorMode mEditorMode;
+
 		glm::mat4 mStencilMatrix;
 	};
 }

@@ -25,11 +25,6 @@ namespace Ilargi
 	
 	void Scene::Destroy()
 	{
-		auto meshStorage{ mWorld.view<StaticMeshComponent>() };
-		for (auto entity : meshStorage)
-		{
-			mWorld.destroy(entity);
-		}
 		mWorld.clear();
 
 		mSceneDataUBO->Destroy();
@@ -56,26 +51,25 @@ namespace Ilargi
 		{
 			const ModelNode& modelNode{ modelNodes[index] };
 			Entity& entity{ entities[index] };
-			FamilyComponent& familyComponent{ mWorld.get<FamilyComponent>(entity) };
+			ChildComponent& childComponent{ mWorld.get_or_emplace<ChildComponent>(entity) };
 
 			for (uint32_t childrenIndex{ 0U }; childrenIndex < modelNode.childrens.size(); ++childrenIndex)
 			{
 				Entity& childrenEntity{ entities[modelNode.childrens[childrenIndex]] };
-				familyComponent.children.push_back(childrenEntity);
+				childComponent.childrens.push_back(childrenEntity);
 
-				FamilyComponent& familyChildrenComponent{ mWorld.get<FamilyComponent>(childrenEntity) };
-				familyChildrenComponent.parent = entity;
+				ParentComponent& parentComponent{ mWorld.get_or_emplace<ParentComponent>(childrenEntity) };
+				parentComponent.parent = entity;
 			}
 		}
 	}
 	
-	Entity Scene::CreateEntity(const std::string& aName, const glm::mat4& aTransform)
+	Entity Scene::CreateEntity(const std::string& aName, const glm::mat4& aTransform, const entt::entity aEntityId)
 	{
-		Entity entity{ mWorld.create() };
+		Entity entity{ mWorld.create(aEntityId) };
 
 		CreateComponent<TransformComponent>(entity, aTransform);
 		CreateComponent<InfoComponent>(entity, aName.c_str());
-		CreateComponent<FamilyComponent>(entity);
 
 		return entity;
 	}
@@ -84,21 +78,28 @@ namespace Ilargi
 	{
 		Entity childEntity{ CreateEntity(aName, aTransform) };
 
-		auto& family{ mWorld.get<FamilyComponent>(aEntity) };
-		family.children.push_back(childEntity);
-
-		auto& familyChildren{ mWorld.get<FamilyComponent>(childEntity) };
-		familyChildren.parent = aEntity;
+		if (HasComponent<ChildComponent>(aEntity))
+		{
+			ChildComponent& childComponent{ GetComponent<ChildComponent>(aEntity) };
+			childComponent.childrens.push_back(childEntity);
+		}
+		else
+		{
+			ChildComponent& childComponent{ CreateComponent<ChildComponent>(aEntity) };
+			childComponent.childrens.push_back(childEntity);
+		}
+		
+		CreateComponent<ParentComponent>(childEntity, aEntity);
 
 		return childEntity;
 	}
 
 	void Scene::DestroyEntity(Entity aEntity)
 	{
-		const auto& parentEntity{ mWorld.get<FamilyComponent>(aEntity).parent };
+		const auto& parentEntity{ mWorld.get<ParentComponent>(aEntity).parent };
 		if (parentEntity != entt::null)
 		{
-			auto& childrens{ mWorld.get<FamilyComponent>(parentEntity).children };
+			auto& childrens{ mWorld.get<ChildComponent>(parentEntity).childrens };
 			std::remove(childrens.begin(), childrens.end(), aEntity);
 		}
 		mWorld.destroy(aEntity);
@@ -130,10 +131,9 @@ namespace Ilargi
 	void Scene::CalculateChildrenTransforms(Entity entity, const glm::mat4& aMatrix)
 	{
 		TransformComponent& transformComponent{ GetComponent<TransformComponent>(entity) };
-		FamilyComponent& familyComponent{ GetComponent<FamilyComponent>(entity) };
-		for (uint32_t index{ 0U }; index < familyComponent.children.size(); ++index)
+		ChildComponent& childComponent{ GetComponent<ChildComponent>(entity) };
+		for (Entity children : childComponent.childrens)
 		{
-			Entity children{ familyComponent.children[index] };
 			TransformComponent& childrenTransform{ GetComponent<TransformComponent>(children) };
 			childrenTransform.CalculateWorldTransform(transformComponent.worldTransform);
 			CalculateChildrenTransforms(children, childrenTransform.worldTransform);

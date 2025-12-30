@@ -18,10 +18,14 @@ namespace Ilargi
 
 	using Entity = entt::entity;
 
-	struct FamilyComponent
+	struct ParentComponent
 	{
 		Entity parent{ entt::null };
-		std::vector<Entity> children;
+	};
+
+	struct ChildComponent
+	{
+		std::vector<Entity> childrens;
 	};
 
 	struct TransformComponent

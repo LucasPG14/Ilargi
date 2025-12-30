@@ -3,6 +3,7 @@
 #include "EditorCamera.h"
 #include "Base/Input.h"
 
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 #include <gtc/quaternion.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -15,7 +16,8 @@ namespace Ilargi
 		mFront(0.0f, 0.0f, -1.0f), mHorizontalFov(glm::radians(70.0f)), mNearPlane(0.1f), mFarPlane(1000.0f), mMousePosition(0.0f)
 	{
 		float aspectRatio{ 1080.0f / 720.0f };
-		mProjectionMatrix = glm::perspective(glm::radians(60.0f), aspectRatio, mNearPlane, mFarPlane);
+		mProjectionMatrix = glm::perspective(mHorizontalFov, aspectRatio, mNearPlane, mFarPlane);
+		//mProjectionMatrix[1][1] *= -1;
 
 		ComputeViewMatrix();
 	}
@@ -105,7 +107,8 @@ namespace Ilargi
 	void EditorCamera::Resize(float aWidth, float aHeight)
 	{
 		float aspectRatio{ aWidth / aHeight };
-		mProjectionMatrix = glm::perspective(glm::radians(60.0f), aspectRatio, mNearPlane, mFarPlane);
+		mProjectionMatrix = glm::perspective(mHorizontalFov, aspectRatio, mNearPlane, mFarPlane);
+		//mProjectionMatrix[1][1] *= -1;
 	}
 	
 	void EditorCamera::ComputeViewMatrix()
