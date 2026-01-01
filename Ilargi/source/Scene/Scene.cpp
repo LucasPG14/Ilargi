@@ -78,16 +78,8 @@ namespace Ilargi
 	{
 		Entity childEntity{ CreateEntity(aName, aTransform) };
 
-		if (HasComponent<ChildComponent>(aEntity))
-		{
-			ChildComponent& childComponent{ GetComponent<ChildComponent>(aEntity) };
-			childComponent.childrens.push_back(childEntity);
-		}
-		else
-		{
-			ChildComponent& childComponent{ CreateComponent<ChildComponent>(aEntity) };
-			childComponent.childrens.push_back(childEntity);
-		}
+		ChildComponent& childComponent{ GetOrCreateComponent<ChildComponent>(aEntity) };
+		childComponent.childrens.push_back(childEntity);
 		
 		CreateComponent<ParentComponent>(childEntity, aEntity);
 
@@ -96,10 +88,18 @@ namespace Ilargi
 
 	void Scene::DestroyEntity(Entity aEntity)
 	{
-		const auto& parentEntity{ mWorld.get<ParentComponent>(aEntity).parent };
-		if (parentEntity != entt::null)
+		if (HasComponent<ChildComponent>(aEntity))
 		{
-			auto& childrens{ mWorld.get<ChildComponent>(parentEntity).childrens };
+			auto& childrens{ GetComponent<ChildComponent>(aEntity).childrens };
+			for (const auto& children : childrens)
+			{
+				DestroyEntity(children);
+			}
+		}
+		if (HasComponent<ParentComponent>(aEntity))
+		{
+			const Entity& parentEntity{ GetComponent<ParentComponent>(aEntity).parent };
+			auto& childrens{ GetComponent<ChildComponent>(parentEntity).childrens };
 			std::remove(childrens.begin(), childrens.end(), aEntity);
 		}
 		mWorld.destroy(aEntity);
@@ -128,15 +128,17 @@ namespace Ilargi
 		mSceneDataUBO->SetData(&mSceneData);
 	}
 	
-	void Scene::CalculateChildrenTransforms(Entity entity, const glm::mat4& aMatrix)
+	void Scene::CalculateChildrenTransforms(Entity aEntity, const glm::mat4& aMatrix)
 	{
-		TransformComponent& transformComponent{ GetComponent<TransformComponent>(entity) };
-		ChildComponent& childComponent{ GetComponent<ChildComponent>(entity) };
-		for (Entity children : childComponent.childrens)
+		if (HasComponent<ChildComponent>(aEntity))
 		{
-			TransformComponent& childrenTransform{ GetComponent<TransformComponent>(children) };
-			childrenTransform.CalculateWorldTransform(transformComponent.worldTransform);
-			CalculateChildrenTransforms(children, childrenTransform.worldTransform);
+			ChildComponent& childComponent{ GetComponent<ChildComponent>(aEntity) };
+			for (Entity children : childComponent.childrens)
+			{
+				TransformComponent& childrenTransform{ GetComponent<TransformComponent>(children) };
+				childrenTransform.CalculateWorldTransform(aMatrix);
+				CalculateChildrenTransforms(children, childrenTransform.worldTransform);
+			}
 		}
 	}
 }

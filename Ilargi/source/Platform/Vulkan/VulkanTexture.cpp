@@ -20,7 +20,7 @@ namespace Ilargi
 			case 1: return VK_FORMAT_R8_SRGB;
 			case 2: return VK_FORMAT_R8G8_SRGB;
 			case 3: return VK_FORMAT_R8G8B8A8_SRGB;
-			case 4: return VK_FORMAT_R8G8B8A8_SRGB;
+			case 4: return VK_FORMAT_R8G8B8A8_UNORM;
 			}
 
 			ILG_ASSERT(nullptr, "VkFormat not found for desired channels");

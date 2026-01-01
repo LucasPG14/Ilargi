@@ -34,7 +34,7 @@ namespace Ilargi
 		//	reader.Read(diffuse);
 		//}
 
-		auto material{ Material::Create(Renderer::GetShaderLibrary()->Get(shaderName), materialData) };
+		const std::shared_ptr<Resource>& material{ Material::Create(Renderer::GetShader(shaderName), materialData) };
 
 		return material;
 	}

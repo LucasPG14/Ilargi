@@ -9,8 +9,18 @@ namespace Ilargi
 {
 	namespace Utils
 	{
-		[[nodiscard]] const VkFormat GetFormatFromImageFormat(ImageFormat format);
+		/*
+		* @brief Gets the vulkan format from the Ilargi::ImageFormat.
+		* @param aFormat The format of the image.
+		* @return The vulkan format.
+		*/
+		[[nodiscard]] const VkFormat GetFormatFromImageFormat(ImageFormat aFormat);
 
-		bool IsDepth(ImageFormat format);
+		/*
+		* @brief Returns if the format passed is depth or not.
+		* @param aFormat The format of the image.
+		* @return True if is depth, false otherwise.
+		*/
+		bool IsDepth(ImageFormat aFormat);
 	}
 }

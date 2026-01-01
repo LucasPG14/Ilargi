@@ -94,28 +94,65 @@ namespace Ilargi
 	struct PipelineProperties
 	{
 		std::string name;
+		std::shared_ptr<RenderPass> renderPass;
+		std::shared_ptr<Shader> shader;
+		Layout layout;
 		bool testDepth = true;
 		bool writeDepth = true;
 		bool hasStencil = true;
 		bool writeStencil = true;
-		std::shared_ptr<RenderPass> renderPass;
-		std::shared_ptr<Shader> shader;
-		Layout layout;
 	};
 
 	class Pipeline : public std::enable_shared_from_this<Pipeline>
 	{
 	public:
+		/*
+		* @brief Destroys the pipeline data.
+		*/
 		virtual void Destroy() = 0;
 
+		/*
+		* @brief Push a constant value to the shader.
+		* @param aCommandBuffer The command buffer that will execute the push action.
+		* @param aOffset The offset of the data.
+		* @param aSize The size of the data.
+		* @param aData A pointer to the data pushed to the shader.
+		*/
 		virtual void PushConstants(const std::shared_ptr<CommandBuffer>& aCommandBuffer, uint32_t aOffset, uint32_t aSize, const void* aData) const = 0;
 
+		/*
+		* @brief Binds the pipeline.
+		* @param aCommandBuffer The command buffer that will execute the bind of the pipeline.
+		*/
 		virtual void Bind(const std::shared_ptr<CommandBuffer>& aCommandBuffer) const = 0;
-		virtual void BindDescriptorSet(const std::shared_ptr<CommandBuffer>& aCommandBuffer, const std::shared_ptr<Material>& aMaterial, uint32_t aSetIndex) const = 0;
-		virtual void BindDescriptorSet(const std::shared_ptr<CommandBuffer>& aCommandBuffer, const std::shared_ptr<UniformBuffer>& aUniformBuffer, uint32_t aSetIndex) const = 0;
 
+		/*
+		* @brief Binds the material.
+		* @param aCommandBuffer The command buffer that will execute the bind of the pipeline.
+		* @param aMaterial The material to bind.
+		* @param aSetIndex The index set to bind the material.
+		*/
+		virtual void BindMaterial(const std::shared_ptr<CommandBuffer>& aCommandBuffer, const std::shared_ptr<Material>& aMaterial, uint32_t aSetIndex) const = 0;
+		
+		/*
+		* @brief Binds the uniform buffer.
+		* @param aCommandBuffer The command buffer that will execute the bind of the uniform buffer.
+		* @param aUniformBuffer The uniform buffer to bind.
+		* @param aSetIndex The index set to bind the uniform buffer.
+		*/
+		virtual void BindUniformBuffer(const std::shared_ptr<CommandBuffer>& aCommandBuffer, const std::shared_ptr<UniformBuffer>& aUniformBuffer, uint32_t aSetIndex) const = 0;
+
+		/*
+		* @brief Returns the properties of the pipeline.
+		* @return The properties of the pipeline.
+		*/
 		[[nodiscard]] virtual const PipelineProperties& GetProperties() const = 0;
 
+		/*
+		* @brief Casts the pipeline to the specified template class.
+		* @tparam The destination type to which the pipeline will be cast.
+		* @return An instance of type 'T' created from the pipeline.
+		*/
 		template <typename T>
 		std::shared_ptr<T> As()
 		{
@@ -124,6 +161,11 @@ namespace Ilargi
 			return std::static_pointer_cast<T>(shared_from_this());
 		}
 
+		/*
+		* @brief Creates the pipeline.
+		* @param aProperties The properties of the pipeline that will be created.
+		* @return An instance of the pipeline created.
+		*/
 		static std::shared_ptr<Pipeline> Create(const PipelineProperties& aProperties);
 	};
 }

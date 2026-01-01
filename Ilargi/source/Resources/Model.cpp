@@ -8,9 +8,8 @@
 namespace Ilargi
 {
 	Model::Model(const std::vector<ModelNode>& aModelNodes)
-		: nodes(aModelNodes)
+		: mModelNodes(aModelNodes)
 	{
-		
 	}
 
 	Model::~Model()

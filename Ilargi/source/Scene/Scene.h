@@ -28,20 +28,63 @@ namespace Ilargi
 	class Scene : public Resource
 	{
 	public:
+		/*
+		* @brief Constructor.
+		*/
 		Scene();
+
+		/*
+		* @brief Destructor.
+		*/
 		~Scene();
 
 		static ResourceType GetStaticType() { return ResourceType::SCENE; }
+		
+		/*
+		* @copydoc Resource::GetType().
+		*/
 		const ResourceType GetType() const { return GetStaticType(); }
 
+		/*
+		* @brief Destroys the scene data.
+		*/
 		void Destroy();
 
-		void LoadModel(const std::shared_ptr<Model>& model);
+		/*
+		* @brief Loads the given model into the scene.
+		* @param aModel The model to add in the scene.
+		*/
+		void LoadModel(const std::shared_ptr<Model>& aModel);
 
+		/*
+		* @brief Creates an entity and return its identifier.
+		* @param aName The name of the entity. By default is "Entity".
+		* @param aTransform The local transform of the entity. By default is glm::mat4(1.0).
+		* @param aEntityId The identifier of the entity to create. By default is null.
+		* @return The entity identifier.
+		*/
 		Entity CreateEntity(const std::string& aName = "Entity", const glm::mat4& aTransform = glm::mat4(1.0), const entt::entity aEntityId = entt::null);
+		
+		/*
+		* @brief Creates an entity child and return its identifier.
+		* @param aEntity The parent of the entity.
+		* @param aName The name of the entity. By default is "Entity".
+		* @param aTransform The local transform of the entity. By default is glm::mat4(1.0).
+		* @return The entity identifier.
+		*/
 		Entity CreateChildrenEntity(Entity aEntity, const std::string& aName = "Entity", const glm::mat4& aTransform = glm::mat4(1.0));
+		
+		/*
+		* @brief Destroys the specified entity.
+		* @param aEntity The entity to destroy.
+		*/
 		void DestroyEntity(Entity aEntity);
 
+		/*
+		* @brief Updates the point lights.
+		* @param aMatrix The view projection matrix.
+		* @param aPosition The camera position.
+		*/
 		void UpdatePointLights(glm::mat4 aMatrix, glm::vec3 aPosition);
 
 		template<typename T, typename... Args>
@@ -70,17 +113,41 @@ namespace Ilargi
 			return mWorld.get<T>(aEntity);
 		}
 
+		template<typename T>
+		[[nodiscard]] T& GetOrCreateComponent(Entity aEntity)
+		{
+			return mWorld.get_or_emplace<T>(aEntity);
+		}
+
+		/*
+		* @brief Calculates the children transforms.
+		* @param aEntity The parent entity.
+		* @param aMatrix The parent world transform.
+		*/
 		void CalculateChildrenTransforms(Entity entity, const glm::mat4& aMatrix);
 
+		/*
+		* @brief Returns the world of entities.
+		* @return The world of entities.
+		*/
 		[[nodiscard]] const entt::registry& GetWorld() const { return mWorld; }
+		
+		/*
+		* @brief Returns the world of entities.
+		* @return The world of entities.
+		*/
 		[[nodiscard]] entt::registry& GetWorld() { return mWorld; }
 
+		/*
+		* @brief Returns the uniform buffer of the scene data.
+		* @return The scene data uniform buffer.
+		*/
 		[[nodiscard]] const std::shared_ptr<UniformBuffer> GetSceneDataUBO() const { return mSceneDataUBO; }
 
 	private:
-		entt::registry mWorld;
+		SceneData mSceneData; // Instance of the scene data.
+		entt::registry mWorld; // Instance of the entity world.
 
-		std::shared_ptr<UniformBuffer> mSceneDataUBO;
-		SceneData mSceneData;
+		std::shared_ptr<UniformBuffer> mSceneDataUBO; // Instance of the scene data uniform buffer.
 	};
 }

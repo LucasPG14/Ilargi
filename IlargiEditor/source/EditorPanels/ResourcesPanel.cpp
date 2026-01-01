@@ -185,7 +185,7 @@ namespace Ilargi
 		constexpr float cellX { 132.0f };
 		constexpr float cellY { 190.0f };
 
-		int columns{ int(ImGui::GetContentRegionAvail().x / cellX) };
+		int columns{ int(ImGui::GetContentRegionAvail().x / cellX) - 1 };
 
 		ImGui::Columns(columns, (const char*)0, false);
 
@@ -302,7 +302,7 @@ namespace Ilargi
 		constexpr float cellX { 128.0f };
 		constexpr float cellY { 190.0f };
 
-		int columns{ int(ImGui::GetContentRegionAvail().x / cellX) };
+		int columns{ int(ImGui::GetContentRegionAvail().x / cellX) - 1 };
 
 		ImGui::Columns(columns, (const char*)0, false);
 		std::regex pattern(mSearch, std::regex_constants::icase);

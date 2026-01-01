@@ -11,13 +11,13 @@ namespace Ilargi
 {
 	GraphicsAPI Renderer::sGraphicsAPI{ GraphicsAPI::VULKAN };
 	std::unique_ptr<Render> Renderer::sRender{ Render::Create() };
-	std::shared_ptr<ShaderLibrary> Renderer::sShaderLibrary{ std::make_shared<ShaderLibrary>() };
+	std::unique_ptr<ShaderLibrary> Renderer::sShaderLibrary{ std::make_unique<ShaderLibrary>() };
 	std::shared_ptr<Texture2D> Renderer::sDefaultTexture{ nullptr };
 	std::shared_ptr<Material> Renderer::sDefaultMaterial{ nullptr };
 	RendererConfig Renderer::sConfig {};
 	RendererStatistics Renderer::sStats {};
 	uint32_t Renderer::sCurrentFrame{ 0U };
-	std::vector<std::function<void()>> Renderer::sQueue {};
+	std::vector<std::function<void()>> Renderer::sRenderQueue {};
 
 	void Renderer::Init()
 	{
@@ -50,10 +50,10 @@ namespace Ilargi
 
 	void Renderer::RenderQueue()
 	{
-		for (uint32_t i { 0U }; i < sQueue.size(); ++i)
-			sQueue[i]();
+		for (uint32_t i { 0U }; i < sRenderQueue.size(); ++i)
+			sRenderQueue[i]();
 		
-		sQueue.clear();
+		sRenderQueue.clear();
 
 		sStats.drawCalls = 0;
 		sStats.numMeshes = 0;

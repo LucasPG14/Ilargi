@@ -35,7 +35,7 @@ namespace Ilargi
 		Add("Shaders/Outline.shader");
 	}
 	
-	void ShaderLibrary::Add(std::string aName, std::shared_ptr<Shader> aShader)
+	void ShaderLibrary::Add(std::string aName, const std::shared_ptr<Shader>& aShader)
 	{
 		ILG_ASSERT(mShaders.find(aName) == mShaders.end(), "This shader already exists!")
 		mShaders[aName] = aShader;
@@ -49,7 +49,7 @@ namespace Ilargi
 		Add(name, shader);
 	}
 	
-	std::shared_ptr<Shader> ShaderLibrary::Get(std::string aName)
+	const std::shared_ptr<Shader>& ShaderLibrary::Get(std::string aName)
 	{
 		ILG_ASSERT(mShaders.find(aName) != mShaders.end(), "This shader doesn't exists!");
 		return mShaders[aName];

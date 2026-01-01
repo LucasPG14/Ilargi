@@ -9,7 +9,7 @@
 
 namespace Ilargi
 {
-	VulkanMaterial::VulkanMaterial(std::shared_ptr<Shader> aShader, const MaterialData& aMaterialData) 
+	VulkanMaterial::VulkanMaterial(const std::shared_ptr<Shader>& aShader, const MaterialData& aMaterialData) 
 		: mShader(aShader), mDescriptorSet(VK_NULL_HANDLE), mMaterialData(aMaterialData)
 	{
 		auto vulkanShader{ aShader->As<VulkanShader>() };

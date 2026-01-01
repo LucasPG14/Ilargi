@@ -13,7 +13,7 @@ namespace Ilargi
 
 		operator uint64_t() const { return mUUID; }
 	private:
-		uint64_t mUUID;
+		uint64_t mUUID; // Identifier.
 	};
 }
 

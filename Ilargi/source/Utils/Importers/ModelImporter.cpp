@@ -66,7 +66,7 @@ namespace Ilargi
 		ProcessNode(importScene, importScene->mRootNode, meshesUUIDs, materialsUUIDs, modelNodes);
 
 		ModelHeader modelHeader{};
-		modelHeader.childrens = modelNodes.size();
+		modelHeader.childrens = static_cast<uint32_t>(modelNodes.size());
 
 		BinaryWriter writer(aMetadata.filepath);
 		writer.Write(modelHeader);
@@ -189,7 +189,7 @@ namespace Ilargi
 			ResourceMetadata textureMetadata;
 			textureMetadata.type = ResourceType::TEXTURE2D;
 			textureMetadata.sourceFile = aMetadata.sourceFile.parent_path() / materialDiffuseTexture.C_Str();
-			textureMetadata.filepath = aMetadata.filepath.parent_path() / std::filesystem::path(materialDiffuseTexture.C_Str()).filename();
+			textureMetadata.filepath = aMetadata.filepath.parent_path() / (std::filesystem::path(materialDiffuseTexture.C_Str()).stem().string() + ".itex");
 			UUID diffuseUUID{ ResourceManager::RegisterResource(textureMetadata) };
 			TextureImporter::ImportTexture(diffuseUUID, textureMetadata);
 		}
@@ -204,7 +204,6 @@ namespace Ilargi
 			UUID diffuseUUID{ ResourceManager::RegisterResource(textureMetadata) };
 			TextureImporter::ImportTexture(diffuseUUID, textureMetadata);
 		}
-
 
 		std::filesystem::path materialFilepath { aMetadata.filepath.parent_path() / std::string(materialName.C_Str() + std::string(".imat")) };
 
@@ -238,6 +237,6 @@ namespace Ilargi
 			aModelNodes[nodeIndex].childrens.push_back(childrenIndex);
 		}
 
-		return nodeIndex;
+		return static_cast<uint32_t>(nodeIndex);
 	}
 }

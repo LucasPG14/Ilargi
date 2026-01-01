@@ -17,9 +17,9 @@ namespace Ilargi
 		return k == GLFW_PRESS;
 	}
 	
-	bool Input::IsMouseButtonPressed(MouseCode::MouseCode aKey)
+	bool Input::IsMouseButtonPressed(MouseCode::MouseCode aButton)
 	{
-		int k { glfwGetMouseButton(sWindow, aKey) };
+		int k { glfwGetMouseButton(sWindow, aButton) };
 
 		return k == GLFW_PRESS;
 	}

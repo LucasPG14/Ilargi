@@ -13,6 +13,7 @@ namespace Ilargi
 	class Material;
 	class Shader;
 
+	// TODO: Check half floats for normal, tangent and bitangent
 	struct StaticVertex
 	{
 		glm::vec3 position;
@@ -22,35 +23,49 @@ namespace Ilargi
 		glm::vec2 texCoord;
 	};
 
-	struct StaticSubmesh
-	{
-		std::vector<StaticVertex> vertices;
-		std::vector<uint32_t> indices;
-
-		std::shared_ptr<VertexBuffer> vertexBuffer;
-		std::shared_ptr<IndexBuffer> indexBuffer;
-	};
-
 	class StaticMesh : public Resource
 	{
 	public:
+		/*
+		* @brief Constructor.
+		* @param aVertices The vertices of the mesh.
+		* @param aIndices The indices of the mesh.
+		*/
 		StaticMesh(const std::vector<StaticVertex>& aVertices, const std::vector<uint32_t>& aIndices);
+		
+		/*
+		* @brief Destructor.
+		*/
 		virtual ~StaticMesh();
 
-		[[nodiscard]] static ResourceType GetStaticType() { return ResourceType::MODEL; }
+		/*
+		* @brief Returns the resource type.
+		* @return The resource type.
+		*/
+		[[nodiscard]] static ResourceType GetStaticType() { return ResourceType::MESH; }
+
+		/*
+		* @copydoc Resource::GetType()
+		*/
 		[[nodiscard]] const ResourceType GetType() const { return GetStaticType(); }
 
-		[[nodiscard]] const std::shared_ptr<Material> GetMaterial() const { return mMaterial; }
+		/*
+		* @brief Returns the vertex buffer.
+		* @return Instance of the vertex buffer.
+		*/
 		[[nodiscard]] const std::shared_ptr<VertexBuffer>& GetVertexBuffer() const { return mVertexBuffer; }
+		
+		/*
+		* @brief Returns the index buffer.
+		* @return Instance of the index buffer.
+		*/
 		[[nodiscard]] const std::shared_ptr<IndexBuffer>& GetIndexBuffer() const { return mIndexBuffer; }
 
 	private:
-		std::vector<StaticVertex> mVertices;
-		std::vector<uint32_t> indices;
+		std::vector<StaticVertex> mVertices; // Container of the vertices.
+		std::vector<uint32_t> indices; // Container of the indices.
 
-		std::shared_ptr<VertexBuffer> mVertexBuffer;
-		std::shared_ptr<IndexBuffer> mIndexBuffer;
-
-		std::shared_ptr<Material> mMaterial;
+		std::shared_ptr<VertexBuffer> mVertexBuffer; // Instance of the vertex buffer.
+		std::shared_ptr<IndexBuffer> mIndexBuffer; // Instance of the index buffer.
 	};
 }

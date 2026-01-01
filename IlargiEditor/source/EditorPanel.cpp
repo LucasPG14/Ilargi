@@ -48,24 +48,24 @@ namespace Ilargi
 		mCommandBuffer = CommandBuffer::Create(Renderer::GetConfig().maxFrames);
 		
 		mRenderPass = RenderPass::Create({ { ImageFormat::RGBA8, ImageFormat::DEPTH24_STENCIL8 }, true });
-		mFramebuffer = Framebuffer::Create({ 1080, 720, { ImageFormat::RGBA8, ImageFormat::DEPTH24_STENCIL8 }, mRenderPass, false, true });
+		mFramebuffer = Framebuffer::Create({ { ImageFormat::RGBA8, ImageFormat::DEPTH24_STENCIL8 }, mRenderPass, 1080U, 720U, false, true });
 		{
 			PipelineProperties pipelineProperties
 			{
 				"Geometry",											// name
-				true,												// testDepth
-				true,												// writeDepth
-				true,												// hasStencil
-				true,												// writeStencil
 				mRenderPass,										// renderPass
-				Renderer::GetShaderLibrary()->Get("PBR_Static"),	// shader
+				Renderer::GetShader("PBR_Static"),	// shader
 				{													// layout
 					{ ShaderDataType::FLOAT3, "position" },
 					{ ShaderDataType::FLOAT3, "normal" },
 					{ ShaderDataType::FLOAT3, "tangent" },
 					{ ShaderDataType::FLOAT3, "bitangent" },
 					{ ShaderDataType::FLOAT2, "texCoord" },
-				}
+				},
+				true,												// testDepth
+				true,												// writeDepth
+				true,												// hasStencil
+				true,												// writeStencil
 			};
 
 			mGeometryPipeline = Pipeline::Create(pipelineProperties);
@@ -75,13 +75,13 @@ namespace Ilargi
 			PipelineProperties pipelineProperties
 			{
 				"Grid",										// name
+				mRenderPass,								// renderPass
+				Renderer::GetShader("Grid"),	// shader
+				{},											// layout
 				true,										// testDepth
 				false,										// writeDepth
 				false,										// hasStencil
 				false,										// writeStencil
-				mRenderPass,								// renderPass
-				Renderer::GetShaderLibrary()->Get("Grid"),	// shader
-				{}											// layout
 			};
 
 			mGridPipeline = Pipeline::Create(pipelineProperties);
@@ -91,19 +91,19 @@ namespace Ilargi
 			PipelineProperties pipelineProperties
 			{
 				"Outline",											// name
-				true,												// testDepth
-				false,												// writeDepth
-				true,												// hasStencil
-				false,												// writeStencil
 				mRenderPass,										// renderPass
-				Renderer::GetShaderLibrary()->Get("Outline"),	// shader
+				Renderer::GetShader("Outline"),	// shader
 				{													// layout
 					{ ShaderDataType::FLOAT3, "position" },
 					{ ShaderDataType::FLOAT3, "normal" },
 					{ ShaderDataType::FLOAT3, "tangent" },
 					{ ShaderDataType::FLOAT3, "bitangent" },
 					{ ShaderDataType::FLOAT2, "texCoord" },
-				}											
+				},
+				true,												// testDepth
+				false,												// writeDepth
+				true,												// hasStencil
+				false,												// writeStencil
 			};
 
 			mOutlinePipeline = Pipeline::Create(pipelineProperties);
@@ -264,8 +264,8 @@ namespace Ilargi
 				continue;
 
 			mGeometryPipeline->Bind(mCommandBuffer);
-			mGeometryPipeline->BindDescriptorSet(mCommandBuffer, material ? material : Renderer::GetDefaultMaterial(), 0);
-			mGeometryPipeline->BindDescriptorSet(mCommandBuffer, mScene->GetSceneDataUBO(), 1);
+			mGeometryPipeline->BindMaterial(mCommandBuffer, material ? material : Renderer::GetDefaultMaterial(), 0);
+			mGeometryPipeline->BindUniformBuffer(mCommandBuffer, mScene->GetSceneDataUBO(), 1);
 			mGeometryPipeline->PushConstants(mCommandBuffer, 0, 64, glm::value_ptr(transform.worldTransform));
 			mGeometryPipeline->PushConstants(mCommandBuffer, 64, 12, glm::value_ptr(light.radiance));
 			mGeometryPipeline->PushConstants(mCommandBuffer, 76, 12, glm::value_ptr(glm::radians(trans.rotation)));
@@ -284,7 +284,7 @@ namespace Ilargi
 		//	ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(transform.worldTransform), glm::value_ptr(position), glm::value_ptr(rotation), glm::value_ptr(scale));
 		//	mStencilMatrix = glm::translate(glm::mat4(1.0), position) * glm::eulerAngleXYZ(glm::radians(rotation.x), glm::radians(rotation.y), glm::radians(rotation.z));
 		//	mStencilMatrix = glm::scale(mStencilMatrix, scale * 1.05f);
-		//	mOutlinePipeline->BindDescriptorSet(mCommandBuffer, mScene->GetSceneDataUBO(), 1);
+		//	mOutlinePipeline->BindUniformBuffer(mCommandBuffer, mScene->GetSceneDataUBO(), 1);
 		//	mOutlinePipeline->PushConstants(mCommandBuffer, 0, 64, glm::value_ptr(mStencilMatrix));
 		//	mOutlinePipeline->PushConstants(mCommandBuffer, 64, 12, glm::value_ptr(light.radiance));
 		//	mOutlinePipeline->PushConstants(mCommandBuffer, 76, 12, glm::value_ptr(glm::radians(trans.rotation)));
@@ -470,7 +470,7 @@ namespace Ilargi
 			if (auto payload{ ImGui::AcceptDragDropPayload("MODEL") }; payload)
 			{
 				UUID uuid{ *(UUID*)payload->Data };
-				auto metadata{ ResourceManager::GetResourcesMetadata()[uuid] };
+				const ResourceMetadata& metadata{ ResourceManager::GetMetadata(uuid) };
 
 				std::shared_ptr<Model> resource{ std::static_pointer_cast<Model>(ResourceManager::GetResource(uuid)) };
 
@@ -479,7 +479,7 @@ namespace Ilargi
 			else if (auto payload{ ImGui::AcceptDragDropPayload("SCENE") }; payload)
 			{
 				UUID uuid{ *(UUID*)payload->Data };
-				auto metadata{ ResourceManager::GetResourcesMetadata()[uuid] };
+				const ResourceMetadata& metadata{ ResourceManager::GetMetadata(uuid) };
 				std::shared_ptr<Scene> resource{ std::static_pointer_cast<Scene>(ResourceManager::GetResource(uuid)) };
 				
 				mScene->Destroy();

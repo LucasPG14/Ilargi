@@ -72,7 +72,7 @@ namespace Ilargi
 			{
 				ChildComponent& childComponent{ scene->CreateComponent<ChildComponent>(entity) };
 				JsonArray childrenList{ document[index]["ChildComponent"]["Childrens"] };
-				for (auto child : childrenList)
+				for (const auto& child : childrenList)
 				{
 					childComponent.childrens.push_back(static_cast<entt::entity>(child.as<uint64_t>()));
 				}
@@ -144,7 +144,7 @@ namespace Ilargi
 			if (world.try_get<ChildComponent>(entity))
 			{
 				const ChildComponent& childComponent{ world.get<ChildComponent>(entity) };
-				JsonArray childrenArray{ document[index]["ChildComponent"].createNestedArray("Childrens") };
+				JsonArray childrenArray{ document[index]["ChildComponent"]["Childrens"].to<JsonArray>()};
 				for (auto child : childComponent.childrens)
 				{
 					childrenArray.add(static_cast<uint64_t>(child));

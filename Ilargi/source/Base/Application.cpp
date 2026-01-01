@@ -15,10 +15,10 @@ namespace Ilargi
 {
 	Application* Application::sApp { nullptr };
 
-	Application::Application(const ApplicationProperties& aProps) : mClose{ false }, mMinimized{ false }, mProperties{ aProps }
+	Application::Application(const ApplicationProperties& aProps) : mProperties{ aProps }, mClose{ false }, mMinimized{ false }
 	{
 		sApp = this;
-
+		
 		Log::SetClientName(aProps.appName);
 
 		WindowProperties windowProps;
@@ -28,7 +28,7 @@ namespace Ilargi
 		windowProps.fullscreen = aProps.fullscreen;
 		windowProps.iconPath = aProps.iconPath;
 		mWindow = std::make_unique<Window>(windowProps, ILG_BIND_FN(Application::OnEvent));
-		mImguiPanel = ImGuiPanel::Create(mWindow->GetWindow(), mWindow->GetSwapchain());
+		mImGuiPanel = ImGuiPanel::Create(mWindow->GetWindow(), mWindow->GetSwapchain());
 
 		Renderer::Init();
 	}
@@ -40,7 +40,7 @@ namespace Ilargi
 
 		Renderer::Destroy();
 
-		mImguiPanel->Destroy();
+		mImGuiPanel->Destroy();
 		mWindow->Destroy();
 	}
 	
@@ -58,13 +58,13 @@ namespace Ilargi
 			for (Panel* panel : mPanels)
 				panel->Update(mDeltaTime);
 
-			Renderer::Submit([this]() { mImguiPanel->Begin(); });
+			Renderer::Submit([this]() { mImGuiPanel->Begin(); });
 			Renderer::Submit([this]() 
 				{
 					for (Panel* panel : mPanels)
 						panel->RenderImGui();
 				});
-			Renderer::Submit([this]() { mImguiPanel->End(); });
+			Renderer::Submit([this]() { mImGuiPanel->End(); });
 			
 			mWindow->StartFrame();
 			Renderer::RenderQueue();

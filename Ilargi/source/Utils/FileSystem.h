@@ -57,7 +57,7 @@ namespace Ilargi
 
 		BinaryReader(const std::filesystem::path& aPath) : data(aPath, std::ios::binary)
 		{
-			ILG_ASSERT(!data.is_open(), "The file doesn't exist or couldn't be open");
+			ILG_ASSERT(data.is_open(), "The file doesn't exist or couldn't be open");
 			data.seekg(0, std::ios::end);
 			size = data.tellg();
 			data.seekg(0, std::ios::beg);
@@ -110,10 +110,18 @@ namespace Ilargi
 	class FileSystem
 	{
 	public:
-		//static BinaryWriter ReadBinaryFile(const std::filesystem::path& aFilepath);
-		//static void WriteBinaryFile(const std::filesystem::path& aFilepath, const Buffer& aBuffer);
-
+		/*
+		* @brief Opens a open file menu.
+		* @param aFilter Filter of files to show.
+		* @return The name of the file to open.
+		*/
 		static std::string OpenFile(const char* aFilter);
+		
+		/*
+		* @brief Opens a save file menu.
+		* @param aFilter Filter of files to show.
+		* @return The name of the file to save.
+		*/
 		static std::string SaveFile(const char* aFilter);
 	};
 }

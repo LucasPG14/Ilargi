@@ -7,7 +7,7 @@
 
 namespace Ilargi
 {
-	std::shared_ptr<Skybox> Skybox::Create(std::shared_ptr<Shader> aShader)
+	std::shared_ptr<Skybox> Skybox::Create(const std::shared_ptr<Shader>& aShader)
 	{
 		switch (Renderer::GetGraphicsAPI())
 		{

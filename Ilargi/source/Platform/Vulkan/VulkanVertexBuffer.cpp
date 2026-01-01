@@ -69,7 +69,7 @@ namespace Ilargi
 		VulkanAllocator::DestroyBuffer(mBuffer);
 	}
 
-	void VulkanVertexBuffer::Bind(std::shared_ptr<CommandBuffer> aCommandBuffer) const
+	void VulkanVertexBuffer::Bind(const std::shared_ptr<CommandBuffer>& aCommandBuffer) const
 	{
 		uint32_t currentFrame{ Renderer::GetCurrentFrame() };
 		auto cmdBuffer{ aCommandBuffer->As<VulkanCommandBuffer>() };

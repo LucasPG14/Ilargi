@@ -67,9 +67,4 @@ namespace Ilargi
 	{
 		vmaUnmapMemory(sAllocator, aBuffer.allocation);
 	}
-	
-	void VulkanAllocator::FlushAllocation(VmaAllocation aAllocation, uint32_t aSize)
-	{
-		vmaFlushAllocation(sAllocator, aAllocation, 0, aSize);
-	}
 }

@@ -6,9 +6,9 @@ namespace Ilargi
 {
 	namespace Utils
 	{
-		const VkFormat GetFormatFromImageFormat(ImageFormat format)
+		const VkFormat GetFormatFromImageFormat(ImageFormat aFormat)
 		{
-			switch (format)
+			switch (aFormat)
 			{
 			case ImageFormat::RED8:					return VK_FORMAT_R8_SRGB;
 			case ImageFormat::RED16:				return VK_FORMAT_R16_SFLOAT;
@@ -24,9 +24,9 @@ namespace Ilargi
 			return VkFormat();
 		}
 
-		bool IsDepth(ImageFormat format)
+		bool IsDepth(ImageFormat aFormat)
 		{
-			if (format == ImageFormat::DEPTH32 || format == ImageFormat::DEPTH24_STENCIL8)
+			if (aFormat == ImageFormat::DEPTH32 || aFormat == ImageFormat::DEPTH24_STENCIL8)
 				return true;
 
 			return false;

@@ -80,7 +80,7 @@ namespace Ilargi
 			reader.Read(cacheData, pipelineCacheInfo.initialDataSize);
 			
 			pipelineCacheInfo.pInitialData = cacheData;
-			delete cacheData;
+			delete[] cacheData;
 		}
 		VK_CHECK_RESULT(vkCreatePipelineCache(device, &pipelineCacheInfo, nullptr, &pipelineCache));
 
@@ -295,9 +295,9 @@ namespace Ilargi
 					mProperties.writeStencil ? VK_STENCIL_OP_REPLACE : VK_STENCIL_OP_KEEP,		//passOp
 					VK_STENCIL_OP_KEEP,															//depthFailOp
 					mProperties.writeStencil ? VK_COMPARE_OP_ALWAYS : VK_COMPARE_OP_NOT_EQUAL,	//compareOp
-					0xFF,																		//compareMask
-					mProperties.writeStencil ? 0xFF : 0x00,										//writeMask
-					1																			//reference
+					0xFFU,																		//compareMask
+					mProperties.writeStencil ? 0xFFU : 0x00U,									//writeMask
+					1U																			//reference
 				};
 
 				depthStencil.front = stencilWrite;
@@ -339,7 +339,7 @@ namespace Ilargi
 			BinaryWriter writer(pipelineCacheFilepath);
 			writer.Write(data, pipelineSize);
 
-			delete data;
+			delete[] data;
 		}
 
 		vkDestroyPipelineCache(device, pipelineCache, nullptr);
@@ -377,7 +377,7 @@ namespace Ilargi
 			});
 	}
 	
-	void VulkanPipeline::BindDescriptorSet(const std::shared_ptr<CommandBuffer>& aCommandBuffer, const std::shared_ptr<Material>& aMaterial, uint32_t aSetIndex) const
+	void VulkanPipeline::BindMaterial(const std::shared_ptr<CommandBuffer>& aCommandBuffer, const std::shared_ptr<Material>& aMaterial, uint32_t aSetIndex) const
 	{
 		Renderer::Submit([this, aCommandBuffer, aMaterial, aSetIndex]()
 			{
@@ -389,7 +389,7 @@ namespace Ilargi
 			});
 	}
 
-	void VulkanPipeline::BindDescriptorSet(const std::shared_ptr<CommandBuffer>& aCommandBuffer, const std::shared_ptr<UniformBuffer>& aUniformBuffer, uint32_t aSetIndex) const
+	void VulkanPipeline::BindUniformBuffer(const std::shared_ptr<CommandBuffer>& aCommandBuffer, const std::shared_ptr<UniformBuffer>& aUniformBuffer, uint32_t aSetIndex) const
 	{
 		Renderer::Submit([this, aCommandBuffer, aUniformBuffer, aSetIndex]()
 			{

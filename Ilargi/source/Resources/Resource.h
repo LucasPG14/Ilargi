@@ -26,9 +26,13 @@ namespace Ilargi
 	class Resource
 	{
 	public:
+		/*
+		* @brief Returns the resource type.
+		* @return The resource type.
+		*/
 		[[nodiscard]] virtual const ResourceType GetType() const = 0;
 
 	public:
-		UUID mResourceUUID;
+		UUID mResourceUUID; // The resource identifier.
 	};
 }

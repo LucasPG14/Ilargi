@@ -9,11 +9,11 @@
 
 namespace Ilargi
 {
-	std::shared_ptr<ImGuiPanel> ImGuiPanel::Create(GLFWwindow* aWindow, const std::shared_ptr<Swapchain> aSwapchain)
+	std::unique_ptr<ImGuiPanel> ImGuiPanel::Create(GLFWwindow* aWindow, const std::shared_ptr<Swapchain>& aSwapchain)
 	{
 		switch (Renderer::GetGraphicsAPI())
 		{
-		case GraphicsAPI::VULKAN:	return std::make_shared<VulkanImGuiPanel>(aWindow, aSwapchain);
+		case GraphicsAPI::VULKAN:	return std::make_unique<VulkanImGuiPanel>(aWindow, aSwapchain);
 		}
 
 		ILG_ASSERT(nullptr, "The platform specified is not supported");

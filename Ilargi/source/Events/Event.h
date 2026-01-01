@@ -18,12 +18,26 @@ namespace Ilargi
 	{
 		friend class EventDispatcher;
 	public:
+		/*
+		* @brief Returns the event type.
+		* @return The event type.
+		*/
 		virtual EventType GetEventType() const = 0;
+
+		/*
+		* @brief Returns the name of the event.
+		* @return The name of the event.
+		*/
 		virtual const char* GetName() const = 0;
+
+		/*
+		* @brief Returns the name of the event as a string.
+		* @return The name of the event.
+		*/
 		virtual std::string ToString() const { return GetName(); }
 
 	public:
-		bool mHandled{ false };
+		bool mHandled{ false }; // Indicates if the event has been consumed.
 	};
 
 	class EventDispatcher
@@ -31,20 +45,29 @@ namespace Ilargi
 		template<typename T>
 		using EventFn = std::function<bool(T&)>;
 	public:
+		/*
+		* @brief Constructor.
+		* @param aEvent Reference to the event that has to be executed.
+		*/
 		EventDispatcher(Event& aEvent) : mEvent(aEvent) {}
 
+		/*
+		* @brief Executes the event.
+		* @param aFunc The function that has to execute the event.
+		* @return True if the event has been consumed, false otherwise.
+		*/
 		template<typename T>
-		bool Dispatch(EventFn<T> func)
+		bool Dispatch(EventFn<T> aFunc)
 		{
 			if (mEvent.GetEventType() == T::GetStaticType())
 			{
-				mEvent.mHandled = func(*(T*)&mEvent);
+				mEvent.mHandled = aFunc(*(T*)&mEvent);
 				return true;
 			}
 			return false;
 		}
 	private:
-		Event& mEvent;
+		Event& mEvent; // The event to execute.
 	};
 
 	inline std::ostream& operator<<(std::ostream& os, const Event& e)
