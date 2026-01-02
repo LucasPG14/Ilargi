@@ -24,7 +24,8 @@ struct PointLight
 // Descriptor sets
 layout(set = 1, binding = 0) uniform SceneData
 {
-    mat4 viewProjMatrix;
+    mat4 proj;
+    mat4 view;
     vec3 cameraPos;
     uint pointLightsSize;
     PointLight pointLights[1024];
@@ -39,7 +40,7 @@ layout(location = 5) out vec3 vViewPos;
 
 void main() 
 {
-    gl_Position = sceneData.viewProjMatrix * pushConstants.modelMatrix * vec4(inPosition, 1.0);
+    gl_Position = sceneData.proj * sceneData.view * pushConstants.modelMatrix * vec4(inPosition, 1.0);
     vTexCoord = inTexCoord;
     vLightColor = pushConstants.radiance.rgb;
     vNormal = mat3(transpose(inverse(pushConstants.modelMatrix))) * inNormal;

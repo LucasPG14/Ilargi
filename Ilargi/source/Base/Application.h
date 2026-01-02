@@ -1,5 +1,6 @@
 #pragma once
 
+#include "TimeSystem.h"
 #include "Window.h"
 
 namespace Ilargi
@@ -88,9 +89,8 @@ namespace Ilargi
 		std::unique_ptr<ImGuiPanel> mImGuiPanel; // Pointer of the ImGuiPanel(used for the editor).
 		static Application* sApp; // Pointer of the application.
 
-		std::chrono::time_point<std::chrono::high_resolution_clock> mStart; // Indicates the start of the frame.
+		TimeSystem mTimer; // The timer of the application.
 
-		float mDeltaTime; // Indicates the delta time of the application.
 		bool mClose; // Used to check if the app has to close.
 		bool mMinimized; // Used to know if the app is minimized.
 	};

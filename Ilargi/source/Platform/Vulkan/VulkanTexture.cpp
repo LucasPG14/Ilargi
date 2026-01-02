@@ -342,6 +342,8 @@ namespace Ilargi
 	{
 		auto device{ VulkanContext::GetLogicalDevice() };
 
+		ImGui_ImplVulkan_RemoveTexture(mDescriptorSet);
+
 		VulkanAllocator::DestroyImage(mImage);
 		vkDestroySampler(device, mSampler, nullptr);
 		vkDestroyImageView(device, mImageView, nullptr);

@@ -77,6 +77,15 @@ namespace Ilargi
 					childComponent.childrens.push_back(static_cast<entt::entity>(child.as<uint64_t>()));
 				}
 			}
+
+			if (node.containsKey("CameraComponent"))
+			{
+				CameraComponent& cameraComponent{ scene->CreateComponent<CameraComponent>(entity) };
+				cameraComponent.fov = node["CameraComponent"]["Fov"];
+				cameraComponent.aspectRatio = node["CameraComponent"]["AspectRatio"];
+				cameraComponent.nearPlane = node["CameraComponent"]["NearPlane"];
+				cameraComponent.farPlane = node["CameraComponent"]["FarPlane"];
+			}
 		}
 
 		return scene;
@@ -149,6 +158,15 @@ namespace Ilargi
 				{
 					childrenArray.add(static_cast<uint64_t>(child));
 				}
+			}
+
+			if (world.try_get<CameraComponent>(entity))
+			{
+				const CameraComponent& cameraComponent{ world.get<CameraComponent>(entity) };
+				document[index]["CameraComponent"]["Fov"] = cameraComponent.fov;
+				document[index]["CameraComponent"]["AspectRatio"] = cameraComponent.aspectRatio;
+				document[index]["CameraComponent"]["NearPlane"] = cameraComponent.nearPlane;
+				document[index]["CameraComponent"]["FarPlane"] = cameraComponent.farPlane;
 			}
 		}
 

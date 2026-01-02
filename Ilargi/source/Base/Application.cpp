@@ -48,15 +48,14 @@ namespace Ilargi
 	{
 		while (!mClose)
 		{
-			mDeltaTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - mStart).count() / 1000.0f;
-			mStart = std::chrono::high_resolution_clock::now();
+			mTimer.Update();
 
 			mWindow->PollEvents();
 			if (mMinimized)
 				continue;
 
 			for (Panel* panel : mPanels)
-				panel->Update(mDeltaTime);
+				panel->Update(mTimer.GetRealTime());
 
 			Renderer::Submit([this]() { mImGuiPanel->Begin(); });
 			Renderer::Submit([this]() 
@@ -69,8 +68,6 @@ namespace Ilargi
 			mWindow->StartFrame();
 			Renderer::RenderQueue();
 			mWindow->EndFrame();
-
-			//mTimer.Stop();
 		}
 	}
 

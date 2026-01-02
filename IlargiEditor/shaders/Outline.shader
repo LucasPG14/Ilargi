@@ -20,7 +20,8 @@ struct PointLight
 // Descriptor sets
 layout(set = 1, binding = 0) uniform SceneData
 {
-    mat4 viewProjMatrix;
+    mat4 proj;
+    mat4 view;
     vec3 cameraPos;
     uint pointLightsSize;
     PointLight pointLights[1024];
@@ -28,25 +29,13 @@ layout(set = 1, binding = 0) uniform SceneData
 
 void main() 
 {
-    gl_Position = sceneData.viewProjMatrix * pushConstants.modelMatrix * vec4(inPosition, 1.0);
+    gl_Position = sceneData.proj * sceneData.view * pushConstants.modelMatrix * vec4(inPosition, 1.0);
 }
 
 #type fragment
 #version 450
 
 layout(location = 0) out vec4 outColor;
-
-// Material Descriptor Sets
-layout(set = 0, binding = 0) uniform sampler2D diffuseTex;
-layout(set = 0, binding = 1) uniform sampler2D normalTex;
-layout(set = 0, binding = 2) uniform sampler2D metallicTex;
-layout(set = 0, binding = 3) uniform sampler2D roughnessTex;
-layout(set = 0, binding = 4) uniform MaterialData
-{
-    vec4 color;
-    float metallic;
-    float roughness;
-} material;
 
 void main() 
 {

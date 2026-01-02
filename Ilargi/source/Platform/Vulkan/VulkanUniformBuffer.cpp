@@ -87,7 +87,7 @@ namespace Ilargi
 		vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}
 	
-	const void* VulkanUniformBuffer::GetDescriptorSet() const
+	const VkDescriptorSet VulkanUniformBuffer::GetDescriptorSet() const
 	{
 		return mDescriptorSets[Renderer::GetCurrentFrame()];
 	}

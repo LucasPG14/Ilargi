@@ -105,9 +105,10 @@ namespace Ilargi
 		mWorld.destroy(aEntity);
 	}
 	
-	void Scene::UpdatePointLights(glm::mat4 aMatrix, glm::vec3 aPosition)
+	void Scene::UpdatePointLights(const glm::mat4 aProj, const glm::mat4 aView, const glm::vec3 aPosition)
 	{
-		mSceneData.viewProjMatrix = aMatrix;
+		mSceneData.projMatrix = aProj;
+		mSceneData.viewMatrix = aView;
 		mSceneData.cameraPosition = aPosition;
 
 		const auto& view{ mWorld.view<TransformComponent, PointLightComponent>() };

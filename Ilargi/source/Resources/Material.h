@@ -33,12 +33,6 @@ namespace Ilargi
 		* @return An instance of the shader used by the material.
 		*/
 		[[nodiscard]] virtual const std::shared_ptr<Shader>& GetShader() const = 0;
-		
-		/*
-		* @brief Returns the id of the material.
-		* @return The material id.
-		*/
-		[[nodiscard]] virtual const void* GetDescriptorSet() const = 0;
 
 		/*
 		* @brief Returns the material data.

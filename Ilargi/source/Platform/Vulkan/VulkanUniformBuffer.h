@@ -33,9 +33,10 @@ namespace Ilargi
 		void SetData(void* data) override;
 
 		/*
-		* @copydoc UniformBuffer::GetDescriptorSet()
+		* Returns the vulkan descriptor set.
+		* @return The vulkan descriptor set.
 		*/
-		[[nodiscard]] const void* GetDescriptorSet() const override;
+		[[nodiscard]] const VkDescriptorSet GetDescriptorSet() const;
 
 	private:
 		std::vector<VulkanBuffer> mUbos; // Container of the vulkan buffers and allocations

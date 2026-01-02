@@ -6,6 +6,7 @@
 #include "VulkanContext.h"
 #include "VulkanRenderPass.h"
 #include "VulkanCommandBuffer.h"
+#include "VulkanMaterial.h"
 #include "VulkanUniformBuffer.h"
 #include "VulkanFramebuffer.h"
 #include "VulkanShader.h"
@@ -20,14 +21,25 @@ namespace Ilargi
 		{
 			switch (type)
 			{
-			case ShaderDataType::FLOAT:		return VK_FORMAT_R32_SFLOAT;
-			case ShaderDataType::FLOAT2:	return VK_FORMAT_R32G32_SFLOAT;
-			case ShaderDataType::FLOAT3:	return VK_FORMAT_R32G32B32_SFLOAT;
-			case ShaderDataType::FLOAT4:	return VK_FORMAT_R32G32B32A32_SFLOAT;
-			case ShaderDataType::INT:		return VK_FORMAT_R32_SINT;
-			case ShaderDataType::INT2:		return VK_FORMAT_R32G32_SINT;
-			case ShaderDataType::INT3:		return VK_FORMAT_R32G32B32_SINT;
-			case ShaderDataType::INT4:		return VK_FORMAT_R32G32B32A32_SINT;
+			case ShaderDataType::FLOAT_16:		return VK_FORMAT_R16_SFLOAT;
+			case ShaderDataType::FLOAT2_16:		return VK_FORMAT_R16G16_SFLOAT;
+			case ShaderDataType::FLOAT3_16:		return VK_FORMAT_R16G16B16_SFLOAT;
+			case ShaderDataType::FLOAT4_16:		return VK_FORMAT_R16G16B16A16_SFLOAT;
+
+			case ShaderDataType::FLOAT_32:		return VK_FORMAT_R32_SFLOAT;
+			case ShaderDataType::FLOAT2_32:		return VK_FORMAT_R32G32_SFLOAT;
+			case ShaderDataType::FLOAT3_32:		return VK_FORMAT_R32G32B32_SFLOAT;
+			case ShaderDataType::FLOAT4_32:		return VK_FORMAT_R32G32B32A32_SFLOAT;
+
+			case ShaderDataType::INT_16:		return VK_FORMAT_R16_SINT;
+			case ShaderDataType::INT2_16:		return VK_FORMAT_R16G16_SINT;
+			case ShaderDataType::INT3_16:		return VK_FORMAT_R16G16B16_SINT;
+			case ShaderDataType::INT4_16:		return VK_FORMAT_R16G16B16A16_SINT;
+
+			case ShaderDataType::INT_32:		return VK_FORMAT_R32_SINT;
+			case ShaderDataType::INT2_32:		return VK_FORMAT_R32G32_SINT;
+			case ShaderDataType::INT3_32:		return VK_FORMAT_R32G32B32_SINT;
+			case ShaderDataType::INT4_32:		return VK_FORMAT_R32G32B32A32_SINT;
 			}
 
 			ILG_ASSERT(nullptr, "Vk format not found for Shader Data Type")
@@ -384,7 +396,7 @@ namespace Ilargi
 				uint32_t currentFrame { Renderer::GetCurrentFrame() };
 
 				auto cmdBuffer { aCommandBuffer->As<VulkanCommandBuffer>()->GetCurrentCommand(currentFrame) };
-				std::vector<VkDescriptorSet> descriptorSets { (VkDescriptorSet)aMaterial->GetDescriptorSet() };
+				std::vector<VkDescriptorSet> descriptorSets { aMaterial->As<VulkanMaterial>()->GetDescriptorSet()};
 				vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mPipelineLayout, 0, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
 			});
 	}
@@ -396,7 +408,7 @@ namespace Ilargi
 				uint32_t currentFrame { Renderer::GetCurrentFrame() };
 
 				auto cmdBuffer { aCommandBuffer->As<VulkanCommandBuffer>()->GetCurrentCommand(currentFrame) };
-				std::vector<VkDescriptorSet> descriptorSets { (VkDescriptorSet)aUniformBuffer->GetDescriptorSet() };
+				std::vector<VkDescriptorSet> descriptorSets { aUniformBuffer->As<VulkanUniformBuffer>()->GetDescriptorSet() };
 				vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mPipelineLayout, aSetIndex, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
 			});
 	}

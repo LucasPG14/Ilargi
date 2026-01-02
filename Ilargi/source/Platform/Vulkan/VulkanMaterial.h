@@ -29,9 +29,9 @@ namespace Ilargi
 		const std::shared_ptr<Shader>& GetShader() const override { return mShader; }
 
 		/*
-		* @copydoc Material::GetDescriptorSet().
+		* @brief Returns the material descriptor set.
 		*/
-		[[nodiscard]] const void* GetDescriptorSet() const override { return &mDescriptorSet; }
+		[[nodiscard]] const VkDescriptorSet GetDescriptorSet() const { return mDescriptorSet; }
 
 		/*
 		* @copydoc Material::GetMaterialData().

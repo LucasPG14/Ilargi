@@ -19,7 +19,8 @@ namespace Ilargi
 
 	struct SceneData
 	{
-		glm::mat4 viewProjMatrix {};
+		glm::mat4 projMatrix {};
+		glm::mat4 viewMatrix {};
 		glm::vec3 cameraPosition {};
 		uint32_t pointLightsSize{ 0U };
 		std::array<PointLightUniformBuffer, 1024> pointLights;
@@ -82,10 +83,11 @@ namespace Ilargi
 
 		/*
 		* @brief Updates the point lights.
-		* @param aMatrix The view projection matrix.
+		* @param aProj The projection matrix.
+		* @param aView The view matrix.
 		* @param aPosition The camera position.
 		*/
-		void UpdatePointLights(glm::mat4 aMatrix, glm::vec3 aPosition);
+		void UpdatePointLights(const glm::mat4 aProj, const glm::mat4 aView, const glm::vec3 aPosition);
 
 		template<typename T, typename... Args>
 		T& CreateComponent(Entity aEntity, Args&& ...aArgs)

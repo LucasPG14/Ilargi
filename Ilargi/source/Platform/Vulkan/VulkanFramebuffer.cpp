@@ -28,6 +28,10 @@ namespace Ilargi
 	
 	VulkanFramebuffer::~VulkanFramebuffer()
 	{
+		const auto device{ VulkanContext::GetLogicalDevice() };
+		
+		vkFreeDescriptorSets(device, VulkanContext::GetDescriptorPool(), 1, &mDescriptorSet);
+		vkDestroyDescriptorSetLayout(device, mDescriptorSetLayout, nullptr);
 	}
 
 	void VulkanFramebuffer::Init(VkRenderPass aRenderPass)
@@ -194,26 +198,29 @@ namespace Ilargi
 				nullptr										// pImmutableSamplers
 			};
 			
-			VkDescriptorSetLayoutCreateInfo info
+			if (mDescriptorSet == nullptr)
 			{
-				VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,	// sType
-				nullptr,												// pNext
-				0,														// flags
-				1,														// bindingCount
-				binding													// pBindings
-			};
-			VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &info, nullptr, &mDescriptorSetLayout));
+				VkDescriptorSetLayoutCreateInfo info
+				{
+					VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,	// sType
+					nullptr,												// pNext
+					0,														// flags
+					1,														// bindingCount
+					binding													// pBindings
+				};
+				VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &info, nullptr, &mDescriptorSetLayout));
 
-			VkDescriptorSetAllocateInfo allocInfo
-			{
-				VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,	// sType
-				nullptr,										// pNext
-				VulkanContext::GetDescriptorPool(),				// descriptorPool
-				1,												// descriptorSetCount
-				&mDescriptorSetLayout							// pSetLayouts
-			};
+				VkDescriptorSetAllocateInfo allocInfo
+				{
+					VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,	// sType
+					nullptr,										// pNext
+					VulkanContext::GetDescriptorPool(),				// descriptorPool
+					1,												// descriptorSetCount
+					&mDescriptorSetLayout							// pSetLayouts
+				};
 
-			VK_CHECK_RESULT(vkAllocateDescriptorSets(device, &allocInfo, &mDescriptorSet));
+				VK_CHECK_RESULT(vkAllocateDescriptorSets(device, &allocInfo, &mDescriptorSet));
+			}
 
 			VkDescriptorImageInfo imageInfo
 			{
@@ -237,8 +244,6 @@ namespace Ilargi
 			};
 
 			vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
-		
-			vkDestroyDescriptorSetLayout(device, mDescriptorSetLayout, nullptr);
 		}
 	}
 	

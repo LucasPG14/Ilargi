@@ -69,6 +69,11 @@ namespace Ilargi
 		void DrawGeometry();
 
 		/*
+		* @brief Draws outline of the selected entity.
+		*/
+		void DrawOutline();
+
+		/*
 		* @brief Loads the language of the editor.
 		* @param aFilepath The filepath of the languages.
 		*/

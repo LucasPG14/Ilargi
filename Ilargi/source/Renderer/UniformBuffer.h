@@ -2,7 +2,7 @@
 
 namespace Ilargi
 {
-	class UniformBuffer
+	class UniformBuffer : public std::enable_shared_from_this<UniformBuffer>
 	{
 	public:
 		/*
@@ -17,10 +17,17 @@ namespace Ilargi
 		virtual void SetData(void* aData) = 0;
 
 		/*
-		* @brief Gets the ID of the uniform buffer.
-		* @return The ID of the uniform buffer.
+		* @brief Casts the uniform buffer to the specified template class.
+		* @tparam The destination type to which the uniform buffer will be cast.
+		* @return An instance of type 'T' created from the uniform buffer.
 		*/
-		[[nodiscard]] virtual const void* GetDescriptorSet() const = 0;
+		template <typename T>
+		std::shared_ptr<T> As()
+		{
+			ILG_STATIC_ASSERT(std::is_base_of<UniformBuffer, T>::value, "T must be a derived class of UniformBuffer");
+
+			return std::static_pointer_cast<T>(shared_from_this());
+		}
 
 		/*
 		* @brief Creates the uniform buffer.

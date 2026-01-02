@@ -13,28 +13,47 @@ namespace Ilargi
 	enum class ShaderDataType
 	{
 		NONE = 0,
-		FLOAT,
-		FLOAT2,
-		FLOAT3,
-		FLOAT4,
-		INT,
-		INT2,
-		INT3,
-		INT4
+		FLOAT_16,
+		FLOAT2_16,
+		FLOAT3_16,
+		FLOAT4_16,
+		FLOAT_32,
+		FLOAT2_32,
+		FLOAT3_32,
+		FLOAT4_32,
+		INT_16,
+		INT2_16,
+		INT3_16,
+		INT4_16,
+		INT_32,
+		INT2_32,
+		INT3_32,
+		INT4_32
 	};
 
 	static uint32_t ShaderDataTypeSize(ShaderDataType type)
 	{
 		switch (type)
 		{
-		case ShaderDataType::FLOAT:		return 4;
-		case ShaderDataType::FLOAT2:	return 8;
-		case ShaderDataType::FLOAT3:	return 12;
-		case ShaderDataType::FLOAT4:	return 16;
-		case ShaderDataType::INT:		return 4;
-		case ShaderDataType::INT2:		return 8;
-		case ShaderDataType::INT3:		return 12;
-		case ShaderDataType::INT4:		return 16;
+		case ShaderDataType::FLOAT_16:		return 2;
+		case ShaderDataType::FLOAT2_16:		return 4;
+		case ShaderDataType::FLOAT3_16:		return 6;
+		case ShaderDataType::FLOAT4_16:		return 8;
+
+		case ShaderDataType::FLOAT_32:		return 4;
+		case ShaderDataType::FLOAT2_32:		return 8;
+		case ShaderDataType::FLOAT3_32:		return 12;
+		case ShaderDataType::FLOAT4_32:		return 16;
+
+		case ShaderDataType::INT_16:		return 2;
+		case ShaderDataType::INT2_16:		return 4;
+		case ShaderDataType::INT3_16:		return 6;
+		case ShaderDataType::INT4_16:		return 8;
+
+		case ShaderDataType::INT_32:		return 4;
+		case ShaderDataType::INT2_32:		return 8;
+		case ShaderDataType::INT3_32:		return 12;
+		case ShaderDataType::INT4_32:		return 16;
 		}
 
 		ILG_ASSERT(nullptr, "Shader data type not supported");

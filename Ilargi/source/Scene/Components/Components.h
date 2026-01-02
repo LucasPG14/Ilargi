@@ -75,4 +75,12 @@ namespace Ilargi
 		glm::vec3 radiance{ 1.0f, 1.0f, 1.0f }; // Color of the light.
 		float radius{ 1.0f }; // Radius of the point light.
 	};
+
+	struct CameraComponent
+	{
+		float fov{ glm::radians(60.0f) };
+		float aspectRatio{ 16.0f / 9.0f }; // Aspect ratio.
+		float nearPlane{ 0.1f }; // The minimum distance of the camera.
+		float farPlane{ 1000.0f }; // The maximum distance of the camera.
+	};
 }
