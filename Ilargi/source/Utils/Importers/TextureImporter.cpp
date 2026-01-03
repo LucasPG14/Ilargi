@@ -22,7 +22,8 @@ namespace Ilargi
 		stbi_set_flip_vertically_on_load(true);
 
 		void* data{ stbi_load(aMetadata.sourceFile.string().c_str(), &textureHeader.width, &textureHeader.height, &channels, STBI_rgb_alpha) };
-		textureHeader.channels = channels;
+		
+		textureHeader.channels = channels == 3 ? 4 : channels;
 		if (!data)
 		{
 			ILG_CORE_ERROR("Unable to load the texture: {0}", aMetadata.sourceFile.string());

@@ -4,7 +4,6 @@
 #include "Base/Input.h"
 
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <glm/glm.hpp>
 #include <gtc/quaternion.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <gtx/orthonormalize.hpp>

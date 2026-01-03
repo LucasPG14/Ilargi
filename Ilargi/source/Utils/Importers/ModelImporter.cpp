@@ -77,6 +77,7 @@ namespace Ilargi
 			writer.Write(modelNode.material);
 			writer.WriteString(modelNode.name);
 			writer.WriteVector(modelNode.childrens);
+			writer.Write(modelNode.localTransform);
 		}
 	}
 
@@ -95,6 +96,7 @@ namespace Ilargi
 			reader.Read(node.material);
 			reader.ReadString(node.name);
 			reader.ReadVector(node.childrens);
+			reader.Read(node.localTransform);
 		}
 
 		std::shared_ptr<Model> model{ std::make_shared<Model>(modelNodes) };

@@ -32,9 +32,14 @@ namespace Ilargi
 	{
 		glm::mat4 localTransform{ 1.0f }; // Local transform of the entity.
 		glm::mat4 worldTransform{ 1.0f }; // World transform of the entity.
-		glm::vec3 position{ 0.0f }; // The position of the entity.
-		glm::vec3 rotation{ 0.0f }; // The rotation of the entity.
-		glm::vec3 scale{ 1.0f }; // The scale of the entity.
+		glm::vec3 position; // The position of the entity.
+		glm::vec3 rotation; // The rotation of the entity.
+		glm::vec3 scale; // The scale of the entity.
+
+		TransformComponent(const glm::mat4& aLocalTransform) : localTransform(aLocalTransform)
+		{
+			DecomposeMatrix(localTransform, position, rotation, scale);
+		}
 
 		/*
 		* @brief Calculates the local transform of the entity.

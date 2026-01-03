@@ -22,6 +22,25 @@ namespace Ilargi
 	{
 		mWorld.clear();
 	}
+
+	void Scene::Update()
+	{
+		const auto& transformView{ mWorld.view<TransformComponent>() };
+		for (auto entity : transformView)
+		{
+			TransformComponent& transform{ transformView.get<TransformComponent>(entity) };
+			transform.CalculateTransform();
+			if (HasComponent<ParentComponent>(entity))
+			{
+				const TransformComponent& parentTransform{GetComponent<TransformComponent>(GetComponent<ParentComponent>(entity).parent)};
+				transform.CalculateWorldTransform(parentTransform.worldTransform);
+			}
+			else
+			{
+				transform.CalculateWorldTransform(glm::mat4(1.0f));
+			}
+		}
+	}
 	
 	void Scene::Destroy()
 	{
@@ -39,7 +58,7 @@ namespace Ilargi
 		for (uint32_t index{ 0U }; index < modelNodes.size(); ++index)
 		{
 			ModelNode modelNode{ modelNodes[index] };
-			entities.push_back(CreateEntity(modelNode.name));
+			entities.push_back(CreateEntity(modelNode.name, modelNode.localTransform));
 			if (modelNode.mesh != UINT64_MAX)
 			{
 				std::shared_ptr<Material> material{ modelNode.material != UINT64_MAX ? std::static_pointer_cast<Material>(ResourceManager::GetResource(modelNode.material)) : Renderer::GetDefaultMaterial() };

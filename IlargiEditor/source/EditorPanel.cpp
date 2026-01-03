@@ -149,6 +149,8 @@ namespace Ilargi
 
 			mCamera.Update(aDeltaTime);
 
+			mScene->Update();
+
 			mScene->UpdatePointLights(mCamera.GetProjectionMatrix(), mCamera.GetViewMatrix(), mCamera.GetPosition());
 
 			DrawGrid();
@@ -245,6 +247,7 @@ namespace Ilargi
 
 	void EditorPanel::DrawGeometry()
 	{
+		mGeometryPipeline->Bind(mCommandBuffer);
 		auto ent{ *mScene->GetWorld().view<TransformComponent, DirectionalLightComponent>().begin() };
 
 		auto [trans, light] { mScene->GetWorld().view<TransformComponent, DirectionalLightComponent>().get<>(ent)};
@@ -259,7 +262,7 @@ namespace Ilargi
 			if (!mesh)
 				continue;
 
-			mGeometryPipeline->Bind(mCommandBuffer);
+			
 			mGeometryPipeline->BindMaterial(mCommandBuffer, material ? material : Renderer::GetDefaultMaterial(), 0);
 			mGeometryPipeline->BindUniformBuffer(mCommandBuffer, mScene->GetSceneDataUBO(), 1);
 			mGeometryPipeline->PushConstants(mCommandBuffer, 0, 64, glm::value_ptr(transform.worldTransform));

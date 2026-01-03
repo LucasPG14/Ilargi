@@ -39,6 +39,15 @@ namespace Ilargi
 		*/
 		~Scene();
 
+		/*
+		* @brief Updates the entities.
+		*/
+		void Update();
+
+		/*
+		* @brief Returns the resource type.
+		* @return The resource type.
+		*/
 		static ResourceType GetStaticType() { return ResourceType::SCENE; }
 		
 		/*

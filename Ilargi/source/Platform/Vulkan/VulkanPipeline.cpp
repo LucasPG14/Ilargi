@@ -98,7 +98,7 @@ namespace Ilargi
 
 		VkGraphicsPipelineCreateInfo pipelineInfo {};
 
-		auto shader{ mProperties.shader->As<VulkanShader>() };
+		const auto& shader{ mProperties.shader->As<VulkanShader>() };
 
 		// Creating the pipeline layout
 		{
@@ -371,9 +371,9 @@ namespace Ilargi
 	{
 		Renderer::Submit([this, aCommandBuffer, aOffset, aSize, aData]()
 			{
-				uint32_t currentFrame{ Renderer::GetCurrentFrame() };
+				const uint32_t currentFrame{ Renderer::GetCurrentFrame() };
 
-				auto cmdBuffer{ aCommandBuffer->As<VulkanCommandBuffer>()->GetCurrentCommand(currentFrame) };
+				const VkCommandBuffer cmdBuffer{ aCommandBuffer->As<VulkanCommandBuffer>()->GetCurrentCommand(currentFrame) };
 				vkCmdPushConstants(cmdBuffer, mPipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, aOffset, aSize, aData);
 			});
 	}
@@ -382,9 +382,9 @@ namespace Ilargi
 	{
 		Renderer::Submit([this, aCommandBuffer]()
 			{
-				uint32_t currentFrame{ Renderer::GetCurrentFrame() };
+				const uint32_t currentFrame{ Renderer::GetCurrentFrame() };
 
-				auto cmdBuffer{ aCommandBuffer->As<VulkanCommandBuffer>()->GetCurrentCommand(currentFrame) };
+				const VkCommandBuffer cmdBuffer{ aCommandBuffer->As<VulkanCommandBuffer>()->GetCurrentCommand(currentFrame) };
 				vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mPipeline);
 			});
 	}
@@ -395,7 +395,7 @@ namespace Ilargi
 			{
 				uint32_t currentFrame { Renderer::GetCurrentFrame() };
 
-				auto cmdBuffer { aCommandBuffer->As<VulkanCommandBuffer>()->GetCurrentCommand(currentFrame) };
+				const VkCommandBuffer cmdBuffer { aCommandBuffer->As<VulkanCommandBuffer>()->GetCurrentCommand(currentFrame) };
 				std::vector<VkDescriptorSet> descriptorSets { aMaterial->As<VulkanMaterial>()->GetDescriptorSet()};
 				vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mPipelineLayout, 0, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
 			});
@@ -407,7 +407,7 @@ namespace Ilargi
 			{
 				uint32_t currentFrame { Renderer::GetCurrentFrame() };
 
-				auto cmdBuffer { aCommandBuffer->As<VulkanCommandBuffer>()->GetCurrentCommand(currentFrame) };
+				const VkCommandBuffer cmdBuffer { aCommandBuffer->As<VulkanCommandBuffer>()->GetCurrentCommand(currentFrame) };
 				std::vector<VkDescriptorSet> descriptorSets { aUniformBuffer->As<VulkanUniformBuffer>()->GetDescriptorSet() };
 				vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mPipelineLayout, aSetIndex, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
 			});
