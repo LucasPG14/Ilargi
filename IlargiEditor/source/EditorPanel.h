@@ -74,12 +74,6 @@ namespace Ilargi
 		void DrawOutline();
 
 		/*
-		* @brief Loads the language of the editor.
-		* @param aFilepath The filepath of the languages.
-		*/
-		void LoadLanguage(std::filesystem::path aFilepath);
-
-		/*
 		* @brief Renders the ImGui main menu bar.
 		*/
 		void RenderMainMenuBar();
@@ -131,11 +125,16 @@ namespace Ilargi
 		std::shared_ptr<Pipeline> mGridPipeline; // Instance of the grid pipeline.
 		std::shared_ptr<Pipeline> mOutlinePipeline; // Instance of the outline pipeline.
 
+		std::shared_ptr<RenderPass> mMousePickingRenderPass; // Instance of the render pass for mouse picking.
+		std::shared_ptr<Framebuffer> mMousePickingFramebuffer; // Instance of the framebuffer for mouse picking.
+		std::shared_ptr<Pipeline> mMousePickingPipeline; // Instance of the pipeline for mouse picking.
+
 		EditorCamera mCamera; // Instance of the editor camera.
 		SceneHierarchyInspectorPanel* mHierarchyInspector; // Instance of the hierarchy/inspector panel.
 		ResourcesPanel* mResourcesPanel; // Instance of the resources panel.
 
 		glm::vec2 mViewportSize; // The size of the viewport.
+		glm::vec2 mViewportPosition; // The position of the viewport.
 		int mOperation; // The mode of the ImGuizmo.
 		bool mNeedToUpdateFramebuffer; // Indicates if the framebuffer has to be updated.
 

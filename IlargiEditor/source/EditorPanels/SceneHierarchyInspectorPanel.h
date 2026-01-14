@@ -39,6 +39,12 @@ namespace Ilargi
 		*/
 		void SetScene(std::shared_ptr<Scene> aScene) { mScene = aScene; }
 
+		/*
+		* @brief Set the current scene.
+		* @param aScene The new scene.
+		*/
+		void SetSelected(uint32_t aEntityID) { mSelected = static_cast<Entity>(aEntityID); }
+
 	private:
 		/*
 		* @brief Draws the ImGui inspector.

@@ -64,6 +64,7 @@ layout(location = 2) in vec3 nearPoint;
 layout(location = 3) in vec3 farPoint;
 layout(location = 4) in mat4 fragView;
 layout(location = 8) in mat4 fragProj;
+
 layout(location = 0) out vec4 outColor;
 
 vec4 grid(vec3 fragPos3D, float scale, bool drawAxis) 
@@ -110,5 +111,3 @@ void main()
 
     outColor = (grid(fragPos3D, 10, true) + grid(fragPos3D, 1, true)) * float(t > 0); // adding multiple resolution for the grid
 }
-
-

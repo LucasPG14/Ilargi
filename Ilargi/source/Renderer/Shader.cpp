@@ -33,6 +33,7 @@ namespace Ilargi
 		Add("Shaders/PBR_Static.shader");
 		Add("Shaders/Grid.shader");
 		Add("Shaders/Outline.shader");
+		Add("Shaders/MousePicking.shader");
 	}
 	
 	void ShaderLibrary::Add(std::string aName, const std::shared_ptr<Shader>& aShader)

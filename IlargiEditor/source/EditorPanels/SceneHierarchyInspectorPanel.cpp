@@ -11,6 +11,7 @@
 
 #include <imgui/imgui.h>
 #include <gtc/type_ptr.hpp>
+#include "../LocalizationManager.h"
 
 namespace Ilargi
 {
@@ -26,16 +27,16 @@ namespace Ilargi
 	void SceneHierarchyInspectorPanel::Render()
 	{
 		// --------------------------------------Hierarchy window----------------------------------------------
-		ImGui::Begin("Scene Hierarchy", (bool*)0, ImGuiWindowFlags_NoCollapse);
+		ImGui::Begin(LOC("editor.scenehierarchy"), (bool*)0, ImGuiWindowFlags_NoCollapse);
 
 		mIsWindowFocused = ImGui::IsWindowFocused();
 
-		if (ImGui::Button("Add"))
+		if (ImGui::Button(LOC("editor.scenehierarchy.add")))
 		{
 			mScene->CreateEntity();
 		}
 
-		if (ImGui::Button("CreateChild"))
+		if (ImGui::Button(LOC("editor.scenehierarchy.createchild")))
 		{
 			mScene->CreateChildrenEntity(mSelected);
 		}
@@ -57,11 +58,11 @@ namespace Ilargi
 
 		if (ImGui::BeginPopupContextWindow("##HierarchyPopUp"))
 		{
-			if (ImGui::MenuItem("Create Entity"))
+			if (ImGui::MenuItem(LOC("editor.scenehierarchy.createentity")))
 			{
 				mScene->CreateEntity();
 			}
-			if (mSelected != entt::null && ImGui::MenuItem("Delete Entity"))
+			if (mSelected != entt::null && ImGui::MenuItem(LOC("editor.scenehierarchy.deleteentity")))
 			{
 				mScene->DestroyEntity(mSelected);
 				mSelected = entt::null;
@@ -73,7 +74,7 @@ namespace Ilargi
 		// ----------------------------------------------------------------------------------------------------
 
 		// --------------------------------------Inspector window----------------------------------------------
-		ImGui::Begin("Inspector", (bool*)0);
+		ImGui::Begin(LOC("editor.inspector"), (bool*)0);
 
 		if (mSelected != entt::null)
 			DrawInspector();
@@ -106,13 +107,13 @@ namespace Ilargi
 
 		ImGui::SameLine();
 
-		if (ImGui::BeginCombo("##Add Component", "Add Component"))
+		if (ImGui::BeginCombo("##Add Component", LOC("editor.inspector.addcomponent")))
 		{
-			if (ImGui::Selectable("Directional Light Component") && !mScene->HasComponent<DirectionalLightComponent>(mSelected))
+			if (ImGui::Selectable(LOC("editor.inspector.directionallight")) && !mScene->HasComponent<DirectionalLightComponent>(mSelected))
 			{
 				mScene->CreateComponent<DirectionalLightComponent>(mSelected);
 			}
-			if (ImGui::Selectable("Point Light Component") && !mScene->HasComponent<PointLightComponent>(mSelected))
+			if (ImGui::Selectable(LOC("editor.inspector.pointlight")) && !mScene->HasComponent<PointLightComponent>(mSelected))
 			{
 				mScene->CreateComponent<PointLightComponent>(mSelected);
 			}
@@ -126,21 +127,21 @@ namespace Ilargi
 		if (world.try_get<TransformComponent>(mSelected))
 		{
 			TransformComponent& transformComponent{ mScene->GetComponent<TransformComponent>(mSelected) };
-			if (ImGui::CollapsingHeader("Transform Component"))
+			if (ImGui::CollapsingHeader(LOC("editor.inspector.transform")))
 			{
-				ImVec2 size{ ImGui::CalcTextSize("Rotation") };
+				ImVec2 size{ ImGui::CalcTextSize(LOC("editor.transform.rotation")) };
 				float widthWindow{ ImGui::GetContentRegionMax().x - size.x };
 				bool hasChanged{ false };
 
-				ImGui::Text("Position");
+				ImGui::Text(LOC("editor.transform.position"));
 				ImGui::SameLine();
 				hasChanged |= ImGui::DragFloat3("##Position", glm::value_ptr(transformComponent.position));
 
-				ImGui::Text("Rotation");
+				ImGui::Text(LOC("editor.transform.rotation"));
 				ImGui::SameLine();
 				hasChanged |= ImGui::DragFloat3("##Rotation", glm::value_ptr(transformComponent.rotation));
 
-				ImGui::Text("Scale");
+				ImGui::Text(LOC("editor.transform.scale"));
 				ImGui::SameLine();
 				hasChanged |= ImGui::DragFloat3("##Scale", glm::value_ptr(transformComponent.scale));
 
@@ -170,70 +171,31 @@ namespace Ilargi
 		if (world.try_get<StaticMeshComponent>(mSelected))
 		{
 			StaticMeshComponent& staticMesh{ mScene->GetComponent<StaticMeshComponent>(mSelected) };
-			if (ImGui::CollapsingHeader("Static Mesh Component"))
+			if (ImGui::CollapsingHeader(LOC("editor.inspector.staticmesh")))
 			{
-				if (auto mesh{ staticMesh.staticMesh.lock() })
+				for (auto& submesh : staticMesh.submeshes)
 				{
-					auto material{ staticMesh.material.lock() };
-
-					if (material)
+					ImGui::Text(ResourceManager::GetMetadata(submesh.mesh).filepath.filename().stem().string().c_str());
+					ImGui::Text(ResourceManager::GetMetadata(submesh.material).filepath.filename().stem().string().c_str());
+					if (ImGui::BeginDragDropTarget())
 					{
-						ImVec4 colorBg { 0.43f, 0.43f, 0.50f, 0.50f };
-						ImGui::PushStyleColor(ImGuiCol_ChildBg, colorBg);
-						ImGui::PushStyleColor(ImGuiCol_Border, colorBg);
+						auto payload{ ImGui::AcceptDragDropPayload("MATERIAL") };
 
-						//ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
-						ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 2.0f, 2.0f });
-						if (ImGui::BeginChild("Diffuse", { 36, 36 }, true, ImGuiWindowFlags_NoDecoration))
+						if (payload)
 						{
-							if (material->GetDiffuse())
-							{
-								ImGui::Image((void*)material->GetDiffuse()->GetID(), { 32, 32 });
-							}
-							else
-							{
-								ImGui::Text("Diffuse");
-							}
-							if (ImGui::BeginDragDropTarget())
-							{
-								auto payload{ ImGui::AcceptDragDropPayload("MATERIAL") };
-
-								if (payload)
-								{
-									UUID uuid{ *(UUID*)payload->Data };
-									const auto& metadata{ ResourceManager::GetResourcesMetadata()[uuid] };
-
-									staticMesh.material = std::static_pointer_cast<Material>(ResourceManager::GetResource(uuid));
-								}
-							}
-							ImGui::EndChild();
+							UUID uuid{ *(UUID*)payload->Data };
+							submesh.material = uuid;
 						}
-						if (ImGui::ColorEdit4("Color", glm::value_ptr(material->GetMaterialData().color)))
-						{
-							material->UpdateMaterialData();
-						}
-						if (ImGui::SliderFloat("Metallic", &material->GetMaterialData().metallic, 0.0f, 1.0f))
-						{
-							material->UpdateMaterialData();
-						}
-						if (ImGui::SliderFloat("Roughness", &material->GetMaterialData().roughness, 0.0f, 1.0f))
-						{
-							material->UpdateMaterialData();
-						}
-						ImGui::PopStyleColor(2);
-						ImGui::PopStyleVar(1);
-
-						ResourceManager::SaveResource(material);
 					}
+					ImGui::Separator();
 				}
-				ImGui::Separator();
 			}	
 		}
 
 		if (world.try_get<DirectionalLightComponent>(mSelected))
 		{
 			DirectionalLightComponent& dirLight{ mScene->GetComponent<DirectionalLightComponent>(mSelected) };
-			if (ImGui::CollapsingHeader("Directional Light Component"))
+			if (ImGui::CollapsingHeader(LOC("editor.inspector.directionallight")))
 			{
 				ImGui::Text("Radiance");
 				ImGui::SameLine();
@@ -245,7 +207,7 @@ namespace Ilargi
 		if (world.try_get<PointLightComponent>(mSelected))
 		{
 			PointLightComponent& pointLight{ mScene->GetComponent<PointLightComponent>(mSelected) };
-			if (ImGui::CollapsingHeader("Point Light Component"))
+			if (ImGui::CollapsingHeader(LOC("editor.inspector.pointlight")))
 			{
 				ImGui::Text("Radiance");
 				ImGui::SameLine();

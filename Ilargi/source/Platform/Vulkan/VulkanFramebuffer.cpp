@@ -60,7 +60,7 @@ namespace Ilargi
 				1,																	// arrayLayers
 				VK_SAMPLE_COUNT_1_BIT,												// samples
 				VK_IMAGE_TILING_OPTIMAL,											// tiling
-				VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,	// usage
+				VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,	// usage
 				VK_SHARING_MODE_EXCLUSIVE,											// sharingMode
 				0,																	// queueFamilyIndexCount
 				nullptr,															// pQueueFamilyIndices
@@ -286,6 +286,53 @@ namespace Ilargi
 		}
 
 		Init(aRenderPass->As<VulkanRenderPass>()->GetRenderPass());
+	}
+
+	uint32_t VulkanFramebuffer::ReadFramebufferPixel(uint32_t aX, uint32_t aY)
+	{
+		const auto& device{ VulkanContext::GetLogicalDevice() };
+		VkCommandBuffer commandBuffer{ VulkanContext::BeginSingleCommandBuffer() };
+
+		VkBufferCreateInfo stagingBufferInfo
+		{
+			VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+			nullptr,
+			0,
+			sizeof(uint32_t),
+			VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+			VK_SHARING_MODE_EXCLUSIVE,
+			0,
+			nullptr
+		};
+
+		VulkanBuffer stagingBuffer;
+		VmaAllocationInfo allocationInfo{};
+		VulkanAllocator::AllocateBuffer(stagingBuffer, stagingBufferInfo, VMA_MEMORY_USAGE_CPU_ONLY, &allocationInfo);
+
+
+		VkBufferImageCopy region;
+		region.bufferOffset = 0;
+		region.bufferRowLength = 0;
+		region.bufferImageHeight = 0;
+
+		region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		region.imageSubresource.mipLevel = 0;
+		region.imageSubresource.baseArrayLayer = 0;
+		region.imageSubresource.layerCount = 1;
+
+		region.imageOffset = { (int)aX, (int)aY, 0 };
+		region.imageExtent = { 1, 1, 1 };
+
+		vkCmdCopyImageToBuffer(commandBuffer, mColorAttachments[0].image.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, stagingBuffer.buffer, 1, &region);
+	
+		VulkanContext::EndSingleCommandBuffer(commandBuffer);
+
+		uint32_t pixel{ 0U };
+		void* data{ VulkanAllocator::MapMemory(stagingBuffer) };
+		memcpy(&pixel, data, sizeof(uint32_t));
+		VulkanAllocator::UnmapMemory(stagingBuffer);
+
+		return pixel;
 	}
 
 	void* VulkanFramebuffer::GetID() const

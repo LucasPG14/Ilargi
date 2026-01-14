@@ -13,6 +13,12 @@ namespace Ilargi
 	class Material;
 	class Shader;
 
+	struct AABB
+	{
+		glm::vec3 min;
+		glm::vec3 max;
+	};
+
 	// TODO: Check half floats for normal, tangent and bitangent
 	struct StaticVertex
 	{
@@ -21,6 +27,12 @@ namespace Ilargi
 		glm::vec3 tangent;
 		glm::vec3 bitangent;
 		glm::vec2 texCoord;
+	};
+
+	struct StaticSubmesh
+	{
+		UUID mesh;
+		UUID material;
 	};
 
 	class StaticMesh : public Resource

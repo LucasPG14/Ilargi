@@ -1,20 +1,44 @@
 {
-  "File": "File",
-  "New Scene": "New Scene",
-  "Open Scene": "Open Scene",
-  "Save Scene": "Save Scene",
-  "Save Scene As": "Save Scene As...",
-  "Exit": "Exit",
+  "editor.file": "File",
+  "editor.file.newscene": "New Scene",
+  "editor.file.openscene": "Open Scene",
+  "editor.file.savescene": "Save Scene",
+  "editor.file.savesceneas": "Save Scene As...",
+  "editor.file.exit": "Exit",
 
-  "Edit": "Edit",
-  "Undo": "Undo",
-  "Redo": "Redo",
-  "Copy": "Copy",
-  "Paste": "Paste",
-  "Delete": "Delete",
-  "Duplicate": "Duplicate",
+  "editor.edit": "Edit",
+  "editor.edit.undo": "Undo",
+  "editor.edit.redo": "Redo",
+  "editor.edit.copy": "Copy",
+  "editor.edit.paste": "Paste",
+  "editor.edit.delete": "Delete",
+  "editor.edit.duplicate": "Duplicate",
 
-  "Localization": "Localization",
-  "English": "English",
-  "Spanish": "Spanish"
+  "editor.viewport.play": "Play",
+  "editor.viewport.pause": "Pause",
+  "editor.viewport.stop": "Stop",
+
+  "editor.scenehierarchy": "Scene Hierarchy",
+  "editor.scenehierarchy.add": "Add",
+  "editor.scenehierarchy.createchild": "Create Child",
+  "editor.scenehierarchy.createentity": "Create Entity",
+  "editor.scenehierarchy.deleteentity": "Delete Entity",
+
+  "editor.inspector": "Inspector",
+  "editor.inspector.addcomponent": "Add Component",
+
+  "editor.inspector.transform": "Transform Component",
+  "editor.transform.position": "Position",
+  "editor.transform.rotation": "Rotation",
+  "editor.transform.scale": "Scale",
+
+  "editor.inspector.staticmesh": "Static Mesh Component",
+  "editor.inspector.directionallight": "Directional Light Component",
+  "editor.inspector.pointlight": "Point Light Component",
+
+  "editor.resourcespanel.search": "Search...",
+
+  "editor.localization": "Localization",
+  "editor.localization.english": "English",
+  "editor.localization.spanish": "Spanish"
 }

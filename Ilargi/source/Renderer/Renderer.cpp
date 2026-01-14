@@ -13,6 +13,7 @@ namespace Ilargi
 	std::unique_ptr<Render> Renderer::sRender{ Render::Create() };
 	std::unique_ptr<ShaderLibrary> Renderer::sShaderLibrary{ std::make_unique<ShaderLibrary>() };
 	std::shared_ptr<Texture2D> Renderer::sDefaultTexture{ nullptr };
+	std::shared_ptr<Texture2D> Renderer::sDefaultNormalTexture{ nullptr };
 	std::shared_ptr<Material> Renderer::sDefaultMaterial{ nullptr };
 	RendererConfig Renderer::sConfig {};
 	RendererStatistics Renderer::sStats {};
@@ -24,14 +25,20 @@ namespace Ilargi
 		uint32_t data{ 0xffffffff };
 		sDefaultTexture = Texture2D::Create(&data, 1, 1, 4);
 
+		uint32_t normalData{ 0x8080FFFF };
+		sDefaultNormalTexture = Texture2D::Create(&normalData, 1, 1, 4);
+		
 		sShaderLibrary->Init();
 
 		sDefaultMaterial = Material::Create(sShaderLibrary->Get("PBR_Static"), {});
+		sDefaultMaterial->UpdateTexture("DiffuseMap", sDefaultTexture);
+		sDefaultMaterial->UpdateTexture("NormalMap", sDefaultNormalTexture);
 	}
 
 	void Renderer::Destroy()
 	{
 		sDefaultTexture.reset();
+		sDefaultNormalTexture.reset();
 		sDefaultMaterial.reset();
 	}
 

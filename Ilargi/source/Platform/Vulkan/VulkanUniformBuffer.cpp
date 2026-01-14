@@ -57,12 +57,12 @@ namespace Ilargi
 		}
 	}
 	
-	void VulkanUniformBuffer::SetData(void* data)
+	void VulkanUniformBuffer::SetData(void* aData, uint32_t aBinding)
 	{
 		auto device{ VulkanContext::GetLogicalDevice() };
 		uint32_t currentFrame{ Renderer::GetCurrentFrame() };
 
-		memcpy(mUniformBuffersMapped[currentFrame], data, mSize);
+		memcpy(mUniformBuffersMapped[currentFrame], aData, mSize);
 
 		VkDescriptorBufferInfo bufferInfo
 		{
@@ -77,7 +77,7 @@ namespace Ilargi
 		{
 			descriptorWrites[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 			descriptorWrites[i].dstSet = mDescriptorSets[currentFrame];
-			descriptorWrites[i].dstBinding = 0;
+			descriptorWrites[i].dstBinding = aBinding;
 			descriptorWrites[i].dstArrayElement = 0;
 			descriptorWrites[i].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 			descriptorWrites[i].descriptorCount = 1;

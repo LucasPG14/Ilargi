@@ -1,21 +1,44 @@
 {
-  "File": "Archivo",
-  "New Scene": "Nueva Escena",
-  "Open Scene": "Abrir Escena",
-  "Save Scene": "Guardar Escena",
-  "Save Scene As": "Guardar Escena Como...",
-  "Exit": "Salir",
+  "editor.file": "Archivo",
+  "editor.file.newscene": "Nueva Escena",
+  "editor.file.openscene": "Abrir Escena",
+  "editor.file.savescene": "Guardar Escena",
+  "editor.file.savesceneas": "Guardar Escena Como...",
+  "editor.file.exit": "Salir",
 
+  "editor.edit": "Editar",
+  "editor.edit.undo": "Deshacer",
+  "editor.edit.redo": "Rehacer",
+  "editor.edit.copy": "Copiar",
+  "editor.edit.paste": "Pegar",
+  "editor.edit.delete": "Eliminar",
+  "editor.edit.duplicate": "Duplicar",
 
-  "Edit": "Editar",
-  "Undo": "Deshacer",
-  "Redo": "Rehacer",
-  "Copy": "Copiar",
-  "Paste": "Pegar",
-  "Delete": "Eliminar",
-  "Duplicate": "Duplicar",
+  "editor.viewport.play": "Jugar",
+  "editor.viewport.pause": "Pausar",
+  "editor.viewport.stop": "Parar",
 
-  "Localization": "Localización",
-  "English": "Inglés",
-  "Spanish": "Español",
+  "editor.scenehierarchy": "Jerarquía de Escena",
+  "editor.scenehierarchy.add": "Añadir",
+  "editor.scenehierarchy.createchild": "Crear Hijo",
+  "editor.scenehierarchy.createentity": "Crear Entidad",
+  "editor.scenehierarchy.deleteentity": "Eliminar Entidad",
+
+  "editor.inspector": "Inspector",
+  "editor.inspector.addcomponent": "Añadir Componente",
+
+  "editor.inspector.transform": "Componente de Transformación",
+  "editor.transform.position": "Posición",
+  "editor.transform.rotation": "Rotación",
+  "editor.transform.scale": "Escala",
+
+  "editor.inspector.staticmesh": "Componente de Malla Estática",
+  "editor.inspector.directionallight": "Componente de Luz Direccional",
+  "editor.inspector.pointlight": "Componente de Luz de Punto",
+
+  "editor.resourcespanel.search": "Buscar...",
+
+  "editor.localization": "Localización",
+  "editor.localization.english": "Inglés",
+  "editor.localization.spanish": "Español"
 }

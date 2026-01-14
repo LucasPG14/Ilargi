@@ -1,10 +1,10 @@
 #pragma once
 
 #include "Resources/Resource.h"
+#include "Renderer/Shader.h"
 
 namespace Ilargi
 {
-	class Shader;
 	class Texture2D;
 
 	struct MaterialData
@@ -47,16 +47,30 @@ namespace Ilargi
 		[[nodiscard]] virtual MaterialData& GetMaterialData() = 0;
 
 		/*
-		* @brief Returns the diffuse texture.
-		* @return The diffuse texture.
+		* @brief Returns the material data.
+		* @return The material data.
 		*/
-		[[nodiscard]] virtual std::shared_ptr<Texture2D> GetDiffuse() = 0;
+		[[nodiscard]] virtual const std::unordered_map<std::string, BindingInfo>& GetBindings() = 0;
 
 		/*
-		* @brief Updates the diffuse texture.
-		* @param aTexture The new diffuse texture.
+		* @brief Returns the texture specified.
+		* @param aTextureName The texture name.
+		* @return An instance of the texture.
 		*/
-		virtual void UpdateDiffuse(std::shared_ptr<Texture2D> aTexture) = 0;
+		[[nodiscard]] virtual const std::shared_ptr<Texture2D>& GetTexture(const std::string& aTextureName) = 0;
+
+		/*
+		* @brief Returns all the textures.
+		* @return The map of textures.
+		*/
+		[[nodiscard]] virtual const std::map<std::string, std::shared_ptr<Texture2D>>& GetTextures() = 0;
+
+		/*
+		* @brief Updates the specified texture.
+		* @param aTextureName The name of the texture.
+		* @param aTexture The new texture.
+		*/
+		virtual void UpdateTexture(const std::string& aTextureName, const std::shared_ptr<Texture2D>& aTexture) = 0;
 
 		/*
 		* @brief Updates the material data.

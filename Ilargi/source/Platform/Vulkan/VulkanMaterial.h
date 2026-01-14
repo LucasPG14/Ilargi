@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Resources/Material.h"
+#include "VulkanShader.h"
 #include "VulkanAllocator.h"
 #include <vulkan/vulkan.h>
 
@@ -44,14 +45,24 @@ namespace Ilargi
 		[[nodiscard]] MaterialData& GetMaterialData() override { return mMaterialData; }
 
 		/*
-		* @copydoc Material::GetDiffuse().
+		* @copydoc Material::GetBindings().
 		*/
-		[[nodiscard]] std::shared_ptr<Texture2D> GetDiffuse() override { return mDiffuse; }
+		[[nodiscard]] virtual const std::unordered_map<std::string, BindingInfo>& GetBindings() { return mBindings; }
+
+		/*
+		* @copydoc Material::GetTexture().
+		*/
+		[[nodiscard]] virtual const std::shared_ptr<Texture2D>& GetTexture(const std::string& aTextureName);
+
+		/*
+		* @copydoc Material::GetTextures().
+		*/
+		[[nodiscard]] virtual const std::map<std::string, std::shared_ptr<Texture2D>>& GetTextures() { return mTextures; }
 
 		/*
 		* @copydoc Material::UpdateDiffuse().
 		*/
-		void UpdateDiffuse(std::shared_ptr<Texture2D> aTexture) override;
+		void UpdateTexture(const std::string& aTextureName, const std::shared_ptr<Texture2D>& aTexture) override;
 
 		/*
 		* @copydoc Material::UpdateMaterialData().
@@ -65,8 +76,9 @@ namespace Ilargi
 		void UpdateDescriptor();
 
 	private:
-		std::shared_ptr<Shader> mShader; // Instance of the shader used by the material.
-		std::shared_ptr<Texture2D> mDiffuse; // Instance of the diffuse texture used by the material.
+		std::map<std::string, std::shared_ptr<Texture2D>> mTextures; // Instance of the diffuse texture used by the material.
+		std::unordered_map<std::string, BindingInfo> mBindings;
+		std::shared_ptr<VulkanShader> mShader; // Instance of the shader used by the material.
 		VkDescriptorSet mDescriptorSet; // The ID of the material.
 		VulkanBuffer mMaterialBuffer; // The Vulkan buffer and allocation of the material.
 		void* mMaterialBufferMapped; // The pointer to the data stored on the descriptor set.

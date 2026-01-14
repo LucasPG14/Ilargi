@@ -10,6 +10,12 @@ namespace Ilargi
 	class Model;
 	class UniformBuffer;
 
+	struct CameraData
+	{
+		glm::mat4 projMatrix{};
+		glm::mat4 viewMatrix{};
+	};
+
 	struct PointLightUniformBuffer
 	{
 		glm::vec3 radiance;
@@ -155,10 +161,18 @@ namespace Ilargi
 		*/
 		[[nodiscard]] const std::shared_ptr<UniformBuffer> GetSceneDataUBO() const { return mSceneDataUBO; }
 
+		/*
+		* @brief Returns the uniform buffer of the camera data.
+		* @return The camera data uniform buffer.
+		*/
+		[[nodiscard]] const std::shared_ptr<UniformBuffer> GetCameraDataUBO() const { return mCameraDataUBO; }
+
 	private:
+		CameraData mCameraData;
 		SceneData mSceneData; // Instance of the scene data.
 		entt::registry mWorld; // Instance of the entity world.
 
 		std::shared_ptr<UniformBuffer> mSceneDataUBO; // Instance of the scene data uniform buffer.
+		std::shared_ptr<UniformBuffer> mCameraDataUBO; // Instance of the scene data uniform buffer.
 	};
 }

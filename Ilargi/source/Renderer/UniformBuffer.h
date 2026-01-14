@@ -14,7 +14,7 @@ namespace Ilargi
 		* @brief Sets the data of the uniform buffer.
 		* @param aData The data to store on the uniform buffer.
 		*/
-		virtual void SetData(void* aData) = 0;
+		virtual void SetData(void* aData, uint32_t aBinding) = 0;
 
 		/*
 		* @brief Casts the uniform buffer to the specified template class.

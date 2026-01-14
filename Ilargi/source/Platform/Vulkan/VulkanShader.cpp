@@ -358,6 +358,13 @@ namespace Ilargi
 			ILG_CORE_TRACE("	Binding: {0}", binding);
 			ILG_CORE_TRACE("	Descriptor Set: {0}", set);
 
+			BindingInfo bindingInfo
+			{
+				set,
+				binding,
+				Utils::GetDescriptorTypeFromVulkan(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
+			};
+
 			VkDescriptorSetLayoutBinding layoutBinding
 			{
 				binding,													// binding
@@ -368,6 +375,7 @@ namespace Ilargi
 			};
 
 			mDescriptorSetBindings[set].push_back(layoutBinding);
+			mBindings[sampledImage.name] = bindingInfo;
 		}
 
 		// Reflecting separate images

@@ -35,7 +35,7 @@ namespace Ilargi
 		/*
 		* @copydoc Pipeline::PushConstants().
 		*/
-		void PushConstants(const std::shared_ptr<CommandBuffer>& aCommandBuffer, uint32_t aOffset, uint32_t aSize, const void* aData) const override;
+		void PushConstants(const std::shared_ptr<CommandBuffer>& aCommandBuffer, ShaderStage aShaderStage, uint32_t aOffset, uint32_t aSize, const void* aData) const override;
 
 		/*
 		* @copydoc Pipeline::Bind().

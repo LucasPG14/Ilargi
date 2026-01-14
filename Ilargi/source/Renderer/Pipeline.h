@@ -2,6 +2,7 @@
 
 namespace Ilargi
 {
+	enum ShaderStage;
 	class RenderPass;
 	class Shader;
 	class CommandBuffer;
@@ -116,10 +117,12 @@ namespace Ilargi
 		std::shared_ptr<RenderPass> renderPass;
 		std::shared_ptr<Shader> shader;
 		Layout layout;
+		uint32_t layoutUsage;
 		bool testDepth = true;
 		bool writeDepth = true;
 		bool hasStencil = true;
 		bool writeStencil = true;
+		bool blend = true;
 	};
 
 	class Pipeline : public std::enable_shared_from_this<Pipeline>
@@ -137,7 +140,7 @@ namespace Ilargi
 		* @param aSize The size of the data.
 		* @param aData A pointer to the data pushed to the shader.
 		*/
-		virtual void PushConstants(const std::shared_ptr<CommandBuffer>& aCommandBuffer, uint32_t aOffset, uint32_t aSize, const void* aData) const = 0;
+		virtual void PushConstants(const std::shared_ptr<CommandBuffer>& aCommandBuffer, ShaderStage aShaderStage, uint32_t aOffset, uint32_t aSize, const void* aData) const = 0;
 
 		/*
 		* @brief Binds the pipeline.

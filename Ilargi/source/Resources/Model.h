@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Resource.h"
+#include "Mesh.h"
 
 namespace Ilargi
 {
@@ -8,12 +9,10 @@ namespace Ilargi
 	{
 		std::string name;
 		glm::mat4 localTransform;
-		UUID mesh;
-		UUID material;
+		std::vector<StaticSubmesh> submeshes;
 		std::vector<uint32_t> childrens;
 	};
 
-	class StaticMesh;
 	class Material;
 
 	class Model : public Resource

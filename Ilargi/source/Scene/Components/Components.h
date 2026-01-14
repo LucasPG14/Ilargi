@@ -15,6 +15,8 @@ namespace Ilargi
 	class IndexBuffer;
 	class StaticMesh;
 	class Material;
+	
+	struct StaticSubmesh;
 
 	using Entity = entt::entity;
 
@@ -66,8 +68,9 @@ namespace Ilargi
 
 	struct StaticMeshComponent
 	{
-		std::weak_ptr<StaticMesh> staticMesh; // Instance of the static mesh.
-		std::weak_ptr<Material> material; // Instance of the material.
+		std::vector<StaticSubmesh> submeshes;
+		//std::vector<UUID> staticMesh; // Instance of the static mesh.
+		//std::vector<UUID> material; // Instance of the material.
 	};
 
 	struct DirectionalLightComponent

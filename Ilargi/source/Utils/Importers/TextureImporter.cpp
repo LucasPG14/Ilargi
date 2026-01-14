@@ -16,14 +16,16 @@ namespace Ilargi
 	void TextureImporter::ImportTexture(UUID aUUID, const ResourceMetadata& aMetadata)
 	{
 		BinaryWriter writter(aMetadata.filepath.string());
-		int channels;
+		int desiredChannels, channels;
 		TextureHeader textureHeader;
 
 		stbi_set_flip_vertically_on_load(true);
 
-		void* data{ stbi_load(aMetadata.sourceFile.string().c_str(), &textureHeader.width, &textureHeader.height, &channels, STBI_rgb_alpha) };
+		stbi_info(aMetadata.sourceFile.string().c_str(), &textureHeader.width, &textureHeader.height, &desiredChannels);
+		desiredChannels = desiredChannels == 3 ? 4 : desiredChannels;
+		void* data{ stbi_load(aMetadata.sourceFile.string().c_str(), &textureHeader.width, &textureHeader.height, &channels, desiredChannels) };
 		
-		textureHeader.channels = channels == 3 ? 4 : channels;
+		textureHeader.channels = desiredChannels;
 		if (!data)
 		{
 			ILG_CORE_ERROR("Unable to load the texture: {0}", aMetadata.sourceFile.string());

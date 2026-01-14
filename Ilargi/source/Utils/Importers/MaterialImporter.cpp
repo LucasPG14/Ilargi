@@ -24,17 +24,20 @@ namespace Ilargi
 		MaterialData materialData;
 		reader.Read(materialData);
 
-		// TODO: Textures in material file
-		//bool hasDiffuseTexture;
-		//reader.Read(hasDiffuseTexture);
-		//
-		//UUID diffuse;
-		//if (hasDiffuseTexture)
-		//{
-		//	reader.Read(diffuse);
-		//}
+		uint8_t texturesSize;
+		reader.Read(texturesSize);
 
-		const std::shared_ptr<Resource>& material{ Material::Create(Renderer::GetShader(shaderName), materialData) };
+		const std::shared_ptr<Material>& material{ Material::Create(Renderer::GetShader(shaderName), materialData) };
+		
+		for (uint8_t index{ 0U }; index < texturesSize; ++index)
+		{
+			std::string textureName;
+			reader.ReadString(textureName);
+			UUID textureUUID;
+			reader.Read(textureUUID);
+
+			material->UpdateTexture(textureName, std::static_pointer_cast<Texture2D>(ResourceManager::GetResource(textureUUID)));
+		}
 
 		return material;
 	}
@@ -53,12 +56,13 @@ namespace Ilargi
 		writer.WriteString(shader->GetName());
 		writer.Write(materialData);
 
-		//bool hasDiffuseTexture{ material->GetDiffuse() != nullptr };
-		//writer.Write(hasDiffuseTexture);
-		//
-		//if (hasDiffuseTexture)
-		//{
-		//	writer.Write(material->GetDiffuse()->mResourceUUID);
-		//}
+		const auto& texturesMap{ material->GetTextures() };
+		writer.Write(static_cast<uint8_t>(texturesMap.size()));
+
+		for (const auto& [textureName, textureUUID] : texturesMap)
+		{
+			writer.WriteString(textureName);
+			writer.Write(textureUUID);
+		}
 	}
 }

@@ -1,1 +1,2984 @@
-[]
+[
+  {
+    "UUID": 3804372513760351828,
+    "Type": 4,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\stones_2ndfloor.imat"
+  },
+  {
+    "UUID": 4306287667941428324,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_2ndfloor_03-2.imesh"
+  },
+  {
+    "UUID": 17558615782006989631,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\columns_1stfloor_03-1.imesh"
+  },
+  {
+    "UUID": 10751858966232800949,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_doors_03-2.imesh"
+  },
+  {
+    "UUID": 5496836988777925723,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_03-0.imesh"
+  },
+  {
+    "UUID": 17505773209865923976,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ceiling_1stfloor_01-2.imesh"
+  },
+  {
+    "UUID": 13299521259153549236,
+    "Type": 4,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_head_1stfloor.imat"
+  },
+  {
+    "UUID": 15898214824380793206,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_1stfloor_03-1.imesh"
+  },
+  {
+    "UUID": 8091348184380826771,
+    "Type": 1,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\NewSponza_Main_glTF_003.imodel"
+  },
+  {
+    "UUID": 6248275413197361732,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_1stfloor_03-0.imesh"
+  },
+  {
+    "UUID": 17032659245358685128,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\master_material-7.imesh"
+  },
+  {
+    "UUID": 11585124441688347966,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_18-0.imesh"
+  },
+  {
+    "UUID": 635448871189808593,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ceiling_1stfloor_01-0.imesh"
+  },
+  {
+    "UUID": 2471856776325226467,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_1stfloor_02-1.imesh"
+  },
+  {
+    "UUID": 1145449195340022955,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_1stfloor_03-2.imesh"
+  },
+  {
+    "UUID": 9267798474165449520,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\orn_windows_03-1.imesh"
+  },
+  {
+    "UUID": 4209611921571339999,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_09-5.imesh"
+  },
+  {
+    "UUID": 716898144233880238,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_doors_04-0.imesh"
+  },
+  {
+    "UUID": 2632361424819968114,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_doors_10-0.imesh"
+  },
+  {
+    "UUID": 10793562943611136294,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ceiling_1stfloor_02-3.imesh"
+  },
+  {
+    "UUID": 15278689843260669151,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\arch_stones_01-1.imesh"
+  },
+  {
+    "UUID": 14647935017934942048,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_doors_08-1.imesh"
+  },
+  {
+    "UUID": 11175552744453112565,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_doors_03-0.imesh"
+  },
+  {
+    "UUID": 2572835742557440848,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\arch_stones_04-9.imesh"
+  },
+  {
+    "UUID": 15627396775182508797,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_doors_04-1.imesh"
+  },
+  {
+    "UUID": 2653327352217454416,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_doors_05-1.imesh"
+  },
+  {
+    "UUID": 15830911495657928570,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_06-0.imesh"
+  },
+  {
+    "UUID": 1689714881435304004,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_19-0.imesh"
+  },
+  {
+    "UUID": 6209462559521893956,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_1stfloor_04-0.imesh"
+  },
+  {
+    "UUID": 10503614666993281852,
+    "Type": 4,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\stone_trims_01.imat"
+  },
+  {
+    "UUID": 7213108417729321270,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\orn_windows_03-0.imesh"
+  },
+  {
+    "UUID": 17396870286111211031,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_02-1.imesh"
+  },
+  {
+    "UUID": 5340348338309909712,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_1stfloor_04-1.imesh"
+  },
+  {
+    "UUID": 15656468059477668876,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_11-5.imesh"
+  },
+  {
+    "UUID": 6764904358400084120,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_doors_01-1.imesh"
+  },
+  {
+    "UUID": 2721662562190773460,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_1stfloor_04-2.imesh"
+  },
+  {
+    "UUID": 1115869136822019352,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/roof_tiles_01_Normal.png",
+    "Filepath": "Resources\\roof_tiles_01_Normal.itex"
+  },
+  {
+    "UUID": 2644746939066354686,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_01-2.imesh"
+  },
+  {
+    "UUID": 4361429225017731435,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_1stfloor_02-2.imesh"
+  },
+  {
+    "UUID": 12654801168147788360,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_1stfloor_02-0.imesh"
+  },
+  {
+    "UUID": 933439894677681288,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_1stfloor_01-0.imesh"
+  },
+  {
+    "UUID": 18149300218936840983,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_doors_03-1.imesh"
+  },
+  {
+    "UUID": 11428155663152198389,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ceiling_2ndfloor-4.imesh"
+  },
+  {
+    "UUID": 17009763729741985721,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_1stfloor_01-1.imesh"
+  },
+  {
+    "UUID": 12919271239132100692,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\arch_stones_02-0.imesh"
+  },
+  {
+    "UUID": 12752383011705716568,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/arch_stone_wall_01_Normal.png",
+    "Filepath": "Resources\\arch_stone_wall_01_Normal.itex"
+  },
+  {
+    "UUID": 11466419250579263529,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\orn_windows_06-0.imesh"
+  },
+  {
+    "UUID": 18174001499978781930,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_1stfloor_01-2.imesh"
+  },
+  {
+    "UUID": 9778934428723266312,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\master_material-26.imesh"
+  },
+  {
+    "UUID": 17001585350794106742,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_01-1.imesh"
+  },
+  {
+    "UUID": 5514761620769345922,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_10-1.imesh"
+  },
+  {
+    "UUID": 9600827136412585830,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_01-5.imesh"
+  },
+  {
+    "UUID": 5823208193079578842,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\master_material-5.imesh"
+  },
+  {
+    "UUID": 12878954468382780952,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\arch_stones_04-5.imesh"
+  },
+  {
+    "UUID": 264122426214674406,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_02-0.imesh"
+  },
+  {
+    "UUID": 5839398296384856699,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\floor_1stfloor_01-1.imesh"
+  },
+  {
+    "UUID": 8217084517745658153,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ceiling_1stfloor_02-2.imesh"
+  },
+  {
+    "UUID": 10040537386671249750,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_02-2.imesh"
+  },
+  {
+    "UUID": 4294601619630754056,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_01-0.imesh"
+  },
+  {
+    "UUID": 14648275391195018208,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_doors_10-4.imesh"
+  },
+  {
+    "UUID": 14612055270070021856,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_doors_02-1.imesh"
+  },
+  {
+    "UUID": 11567088692083854945,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\orn_windows_02-1.imesh"
+  },
+  {
+    "UUID": 8115423112049441363,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_07-0.imesh"
+  },
+  {
+    "UUID": 4732304372975074112,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamp_1stfloor_entrance-1.imesh"
+  },
+  {
+    "UUID": 867635009083852803,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\columns_1stfloor_05-0.imesh"
+  },
+  {
+    "UUID": 5578000132136386785,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\columns_1stfloor_02-1.imesh"
+  },
+  {
+    "UUID": 10290313973119582418,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/lionhead_01_BaseColor.png",
+    "Filepath": "Resources\\lionhead_01_BaseColor.itex"
+  },
+  {
+    "UUID": 4304192966677241246,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ceiling_2ndfloor-1.imesh"
+  },
+  {
+    "UUID": 5758537394471101495,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_02-3.imesh"
+  },
+  {
+    "UUID": 9529636747974072588,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/stone_01_tile_Roughnessstone_01_tile_Metalness.png",
+    "Filepath": "Resources\\stone_01_tile_Roughnessstone_01_tile_Metalness.itex"
+  },
+  {
+    "UUID": 10955748784825174132,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\columns_1stfloor_02-0.imesh"
+  },
+  {
+    "UUID": 9610872780463577139,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_2ndfloor_02-1.imesh"
+  },
+  {
+    "UUID": 16601493393759643858,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_01-1.imesh"
+  },
+  {
+    "UUID": 15891729055962466416,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_02-4.imesh"
+  },
+  {
+    "UUID": 12987564022560308792,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\arch_wall_2ndfloor-1.imesh"
+  },
+  {
+    "UUID": 636992323636655017,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ceiling_1stfloor_02-0.imesh"
+  },
+  {
+    "UUID": 9043405688121615630,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_10-5.imesh"
+  },
+  {
+    "UUID": 8701426821636962515,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_03-3.imesh"
+  },
+  {
+    "UUID": 5091349506183974070,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\columns_1stfloor_01-0.imesh"
+  },
+  {
+    "UUID": 3961981498523824541,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\arch_stones_01-0.imesh"
+  },
+  {
+    "UUID": 3437289528087291137,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/col_brickwall_01_Roughnesscol_brickwall_01_Metalness.png",
+    "Filepath": "Resources\\col_brickwall_01_Roughnesscol_brickwall_01_Metalness.itex"
+  },
+  {
+    "UUID": 17776502819853186808,
+    "Type": 4,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_head_2ndfloor_02.imat"
+  },
+  {
+    "UUID": 7864692966950345204,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\arch_stones_02-1.imesh"
+  },
+  {
+    "UUID": 2356375889462815542,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\arch_stones_03-0.imesh"
+  },
+  {
+    "UUID": 3015066379761635982,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_doors_07-0.imesh"
+  },
+  {
+    "UUID": 1426155037408843141,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\arch_stones_03-1.imesh"
+  },
+  {
+    "UUID": 18047225385557503132,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ceiling_1stfloor_01-1.imesh"
+  },
+  {
+    "UUID": 8371338911265479889,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_18-1.imesh"
+  },
+  {
+    "UUID": 9599038016570653476,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\columns_1stfloor_03-0.imesh"
+  },
+  {
+    "UUID": 17635757938864503065,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ceiling_1stfloor_02-1.imesh"
+  },
+  {
+    "UUID": 12842995541196865416,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/col_head_1stfloor_Roughnesscol_head_1stfloor_Metalness.png",
+    "Filepath": "Resources\\col_head_1stfloor_Roughnesscol_head_1stfloor_Metalness.itex"
+  },
+  {
+    "UUID": 16144582748892740030,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_doors_01-3.imesh"
+  },
+  {
+    "UUID": 3272397933118982562,
+    "Type": 4,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\brickwall_02.imat"
+  },
+  {
+    "UUID": 17870513053583965418,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ceiling_1stfloor_02-4.imesh"
+  },
+  {
+    "UUID": 2158963596115701905,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_10-4.imesh"
+  },
+  {
+    "UUID": 10987534052580600848,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\columns_1stfloor_01-1.imesh"
+  },
+  {
+    "UUID": 12911436734871993256,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\columns_1stfloor_04-0.imesh"
+  },
+  {
+    "UUID": 14586885368823742157,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\columns_1stfloor_04-1.imesh"
+  },
+  {
+    "UUID": 11522129253151512947,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/brickwall_01_BaseColor.png",
+    "Filepath": "Resources\\brickwall_01_BaseColor.itex"
+  },
+  {
+    "UUID": 15940638347039302974,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\orn_windows_02-2.imesh"
+  },
+  {
+    "UUID": 11017668149269457313,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\orn_windows_04-1.imesh"
+  },
+  {
+    "UUID": 10407996709101537672,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\columns_1stfloor_05-1.imesh"
+  },
+  {
+    "UUID": 1215542357626825247,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\arch_stones_04-4.imesh"
+  },
+  {
+    "UUID": 7821556090824007570,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamp_1stfloor_entrance-0.imesh"
+  },
+  {
+    "UUID": 1002903868848876666,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\orn_windows_05-3.imesh"
+  },
+  {
+    "UUID": 5742771575609136498,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamp_1stfloor_entrance-2.imesh"
+  },
+  {
+    "UUID": 17933840691399229377,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/stone_trims_02_Roughnessstone_trims_02_Metalness.png",
+    "Filepath": "Resources\\stone_trims_02_Roughnessstone_trims_02_Metalness.itex"
+  },
+  {
+    "UUID": 4501695882194523050,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\orn_windows_08-1.imesh"
+  },
+  {
+    "UUID": 7081065302952094505,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_11-3.imesh"
+  },
+  {
+    "UUID": 3476873160008084679,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_doors_07-2.imesh"
+  },
+  {
+    "UUID": 4335996818227332124,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_doors_02-2.imesh"
+  },
+  {
+    "UUID": 5157920558964215574,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/wood_tile_01_Normal.png",
+    "Filepath": "Resources\\wood_tile_01_Normal.itex"
+  },
+  {
+    "UUID": 775292077048880825,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\master_material-10.imesh"
+  },
+  {
+    "UUID": 17466517597060075722,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_doors_01-0.imesh"
+  },
+  {
+    "UUID": 10133854693786704547,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_doors_01-2.imesh"
+  },
+  {
+    "UUID": 1633809931764601887,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_doors_02-0.imesh"
+  },
+  {
+    "UUID": 11012388544891247614,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/arch_stone_wall_01_Roughnessarch_stone_wall_01_Metalness.png",
+    "Filepath": "Resources\\arch_stone_wall_01_Roughnessarch_stone_wall_01_Metalness.itex"
+  },
+  {
+    "UUID": 4324446141604534860,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_doors_07-1.imesh"
+  },
+  {
+    "UUID": 7257556966389305898,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_12-2.imesh"
+  },
+  {
+    "UUID": 10452149165053104196,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\stonewalls_2ndfloor_01-2.imesh"
+  },
+  {
+    "UUID": 11241913070579888962,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_doors_08-0.imesh"
+  },
+  {
+    "UUID": 10726134260863960287,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_doors_09-0.imesh"
+  },
+  {
+    "UUID": 17994006138597400712,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_doors_09-1.imesh"
+  },
+  {
+    "UUID": 18251476597494335990,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_doors_09-2.imesh"
+  },
+  {
+    "UUID": 17744344531960062320,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_doors_09-3.imesh"
+  },
+  {
+    "UUID": 4707428224652008796,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_08-0.imesh"
+  },
+  {
+    "UUID": 14307623680264873298,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_doors_10-1.imesh"
+  },
+  {
+    "UUID": 4503690823520519885,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\orn_windows_06-1.imesh"
+  },
+  {
+    "UUID": 15441578460047397270,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\walls_floor_03-0.imesh"
+  },
+  {
+    "UUID": 8885167748273864152,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_04-0.imesh"
+  },
+  {
+    "UUID": 282864063661398003,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_doors_10-2.imesh"
+  },
+  {
+    "UUID": 6754636980538671790,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\wood_door-0.imesh"
+  },
+  {
+    "UUID": 38736334944521004,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_doors_10-3.imesh"
+  },
+  {
+    "UUID": 17214416027632434913,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\roof_floor_03_05-1.imesh"
+  },
+  {
+    "UUID": 1818225294491112576,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\roof_floor_03_05-0.imesh"
+  },
+  {
+    "UUID": 14466648462518896664,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_doors_10-5.imesh"
+  },
+  {
+    "UUID": 8057142780678600088,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\stonewalls_2ndfloor_01-1.imesh"
+  },
+  {
+    "UUID": 9414344894991144576,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_stones_01.imesh"
+  },
+  {
+    "UUID": 14281257617504528391,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\walls_1stfloor_01-0.imesh"
+  },
+  {
+    "UUID": 17001370306532673980,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/stone_01_tile_Roughnessstone_01_tile_Metalness.png",
+    "Filepath": "Resources\\stone_01_tile_Roughnessstone_01_tile_Metalness.itex"
+  },
+  {
+    "UUID": 9749643585084705990,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\walls_1stfloor_01-1.imesh"
+  },
+  {
+    "UUID": 17425088908040578638,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\walls_1stfloor_02-0.imesh"
+  },
+  {
+    "UUID": 16824182855162186086,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\walls_1stfloor_01-2.imesh"
+  },
+  {
+    "UUID": 2875665771783357791,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_2ndfloor_03-0.imesh"
+  },
+  {
+    "UUID": 8425049893505701937,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lionhead.imesh"
+  },
+  {
+    "UUID": 2439947104781197221,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\walls_1stfloor_01-3.imesh"
+  },
+  {
+    "UUID": 6878915669689511548,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_08-2.imesh"
+  },
+  {
+    "UUID": 14645949654276016797,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\wood_door-1.imesh"
+  },
+  {
+    "UUID": 10324380121549737813,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/floor_tiles_01_Roughnessfloor_tiles_01_Metalness.png",
+    "Filepath": "Resources\\floor_tiles_01_Roughnessfloor_tiles_01_Metalness.itex"
+  },
+  {
+    "UUID": 3537997789705216907,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\wooden_parts-0.imesh"
+  },
+  {
+    "UUID": 2626707094351103419,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_06-0.imesh"
+  },
+  {
+    "UUID": 14817571601146338561,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\wooden_parts-1.imesh"
+  },
+  {
+    "UUID": 16669806230603863677,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\wooden_parts-2.imesh"
+  },
+  {
+    "UUID": 12686684916279816000,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/ceiling_plaster_01_Roughnessceiling_plaster_01_Metalness.png",
+    "Filepath": "Resources\\ceiling_plaster_01_Roughnessceiling_plaster_01_Metalness.itex"
+  },
+  {
+    "UUID": 16374299011988038502,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_08-0.imesh"
+  },
+  {
+    "UUID": 9843557346055373869,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\wooden_parts-3.imesh"
+  },
+  {
+    "UUID": 18179223153814828241,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\wooden_parts-3.imesh"
+  },
+  {
+    "UUID": 9133710726208195640,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_02-1.imesh"
+  },
+  {
+    "UUID": 2737972364430271405,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\exterior-0.imesh"
+  },
+  {
+    "UUID": 1569190708563803533,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\exterior-1.imesh"
+  },
+  {
+    "UUID": 15545194908078365795,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\exterior-2.imesh"
+  },
+  {
+    "UUID": 6088560237919704216,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/floor_tiles_01_Normal.png",
+    "Filepath": "Resources\\floor_tiles_01_Normal.itex"
+  },
+  {
+    "UUID": 3417799660807066700,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_1stfloor_06-0.imesh"
+  },
+  {
+    "UUID": 785030335306605525,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/stone_trims_02_Normal.png",
+    "Filepath": "Resources\\stone_trims_02_Normal.itex"
+  },
+  {
+    "UUID": 90212794113473098,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_1stfloor_06-1.imesh"
+  },
+  {
+    "UUID": 15428767587998842780,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/dirt_decal_01_dirt_decal_01_mask_gltf_alpha_dirt_decal_Opacity.png",
+    "Filepath": "Resources\\dirt_decal_01_dirt_decal_01_mask_gltf_alpha_dirt_decal_Opacity.itex"
+  },
+  {
+    "UUID": 17416051770098932519,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/window_frame_01_Roughnesswindow_frame_01_Metalness.png",
+    "Filepath": "Resources\\window_frame_01_Roughnesswindow_frame_01_Metalness.itex"
+  },
+  {
+    "UUID": 14152777052994168308,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\orn_windows_05-1.imesh"
+  },
+  {
+    "UUID": 14336444615469455556,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_1stfloor_06-2.imesh"
+  },
+  {
+    "UUID": 6493071118372842674,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/stone_trims_01_BaseColor.png",
+    "Filepath": "Resources\\stone_trims_01_BaseColor.itex"
+  },
+  {
+    "UUID": 11843834856750471136,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_1stfloor_00-0.imesh"
+  },
+  {
+    "UUID": 6608757051922351805,
+    "Type": 4,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\roof_tiles_01.imat"
+  },
+  {
+    "UUID": 8725157496922907235,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\orn_windows_02-3.imesh"
+  },
+  {
+    "UUID": 9013514440562701623,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_1stfloor_00-1.imesh"
+  },
+  {
+    "UUID": 18242444369269673185,
+    "Type": 4,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_head_2ndfloor_03.imat"
+  },
+  {
+    "UUID": 18249130979886044519,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_07-1.imesh"
+  },
+  {
+    "UUID": 2170670718744835353,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_1stfloor_00-2.imesh"
+  },
+  {
+    "UUID": 13111305577291799020,
+    "Type": 4,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_01.imat"
+  },
+  {
+    "UUID": 16568171767534360670,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_1stfloor_12-0.imesh"
+  },
+  {
+    "UUID": 59565985147740499,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_1stfloor_12-1.imesh"
+  },
+  {
+    "UUID": 15098732785391710924,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_1stfloor_12-2.imesh"
+  },
+  {
+    "UUID": 1029993257761148900,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_14-2.imesh"
+  },
+  {
+    "UUID": 2788020419135688754,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_14-1.imesh"
+  },
+  {
+    "UUID": 17368236350144560245,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\floor_1stfloor_01-0.imesh"
+  },
+  {
+    "UUID": 312944658853145881,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/col_brickwall_01_BaseColor.png",
+    "Filepath": "Resources\\col_brickwall_01_BaseColor.itex"
+  },
+  {
+    "UUID": 11948205194650110729,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_17-1.imesh"
+  },
+  {
+    "UUID": 7151092800093285830,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\floor_1stfloor_01-2.imesh"
+  },
+  {
+    "UUID": 13368882299577968749,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/stones_2ndfloor_01_BaseColor.png",
+    "Filepath": "Resources\\stones_2ndfloor_01_BaseColor.itex"
+  },
+  {
+    "UUID": 182173048907478811,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_14-0.imesh"
+  },
+  {
+    "UUID": 12721252955650090390,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\floor_1stfloor_01-3.imesh"
+  },
+  {
+    "UUID": 16848408520806166712,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\arch_stones_04-0.imesh"
+  },
+  {
+    "UUID": 16076397244999040761,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/wood_tile_01_Roughnesswood_tile_01_Metalness.png",
+    "Filepath": "Resources\\wood_tile_01_Roughnesswood_tile_01_Metalness.itex"
+  },
+  {
+    "UUID": 4559357081200626,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_06-4.imesh"
+  },
+  {
+    "UUID": 4126078082232598392,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\arch_stones_04-1.imesh"
+  },
+  {
+    "UUID": 11887610876797926463,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\arch_stones_04-1.imesh"
+  },
+  {
+    "UUID": 2978423448269091444,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\arch_stones_04-1.imesh"
+  },
+  {
+    "UUID": 10478934544527089155,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/ceiling_plaster_01_Roughnessceiling_plaster_01_Metalness.png",
+    "Filepath": "Resources\\ceiling_plaster_01_Roughnessceiling_plaster_01_Metalness.itex"
+  },
+  {
+    "UUID": 13325524208458437901,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/brickwall_02_BaseColor.png",
+    "Filepath": "Resources\\brickwall_02_BaseColor.itex"
+  },
+  {
+    "UUID": 17736202518990005176,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_2ndfloor_05-1.imesh"
+  },
+  {
+    "UUID": 9676972669178831231,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\arch_stones_04-2.imesh"
+  },
+  {
+    "UUID": 4407557752207393939,
+    "Type": 4,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ceiling_plaster_02.imat"
+  },
+  {
+    "UUID": 9775271651500908102,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\arch_stones_04-3.imesh"
+  },
+  {
+    "UUID": 1991236749508281148,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/lionhead_01_Roughnesslionhead_01_Metalness.png",
+    "Filepath": "Resources\\lionhead_01_Roughnesslionhead_01_Metalness.itex"
+  },
+  {
+    "UUID": 2194033941212296157,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\arch_stones_04-6.imesh"
+  },
+  {
+    "UUID": 1053548175758450636,
+    "Type": 4,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\metal_door.imat"
+  },
+  {
+    "UUID": 3839357933705601428,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\arch_stones_04-7.imesh"
+  },
+  {
+    "UUID": 9792309317084978449,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_13-3.imesh"
+  },
+  {
+    "UUID": 18424514720371965064,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\arch_stones_04-8.imesh"
+  },
+  {
+    "UUID": 7816339553487347245,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_2ndfloor_07-1.imesh"
+  },
+  {
+    "UUID": 4576483673066725107,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\arch_stones_05-0.imesh"
+  },
+  {
+    "UUID": 17378138892607501571,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\arch_stones_05-1.imesh"
+  },
+  {
+    "UUID": 10702467123664196465,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\arch_stones_05-2.imesh"
+  },
+  {
+    "UUID": 17663775635909775198,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\decals_1st_floor.imesh"
+  },
+  {
+    "UUID": 11927198462645423761,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\walls_1stfloor_02-0.imesh"
+  },
+  {
+    "UUID": 8135079202311931666,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/metal_door_01_BaseColor.png",
+    "Filepath": "Resources\\metal_door_01_BaseColor.itex"
+  },
+  {
+    "UUID": 16167165143012583790,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\walls_1stfloor_02-1.imesh"
+  },
+  {
+    "UUID": 112986466913733731,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\walls_1stfloor_02-2.imesh"
+  },
+  {
+    "UUID": 10540744403988584978,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\walls_1stfloor_02-2.imesh"
+  },
+  {
+    "UUID": 3496792267785497966,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_15-3.imesh"
+  },
+  {
+    "UUID": 788508274792363094,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_08-1.imesh"
+  },
+  {
+    "UUID": 8620305437849510629,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_02-2.imesh"
+  },
+  {
+    "UUID": 8109533434649031247,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_19-1.imesh"
+  },
+  {
+    "UUID": 11236831396565949675,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/col_head_2ndfloor_02_Normal.png",
+    "Filepath": "Resources\\col_head_2ndfloor_02_Normal.itex"
+  },
+  {
+    "UUID": 15495465656537365799,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_20-0.imesh"
+  },
+  {
+    "UUID": 18296804074416543164,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_20-1.imesh"
+  },
+  {
+    "UUID": 14207775535352581772,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/col_brickwall_01_Normal.png",
+    "Filepath": "Resources\\col_brickwall_01_Normal.itex"
+  },
+  {
+    "UUID": 14499767619169691735,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/col_1stfloor_BaseColor.png",
+    "Filepath": "Resources\\col_1stfloor_BaseColor.itex"
+  },
+  {
+    "UUID": 11947808089960729709,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_2ndfloor_07-2.imesh"
+  },
+  {
+    "UUID": 17866122233264738912,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_17-0.imesh"
+  },
+  {
+    "UUID": 15290857560394582691,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/door_stoneframe_02_Normal.png",
+    "Filepath": "Resources\\door_stoneframe_02_Normal.itex"
+  },
+  {
+    "UUID": 138112578220162473,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\roof_floor_03_05-6.imesh"
+  },
+  {
+    "UUID": 17520467512122563100,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_17-2.imesh"
+  },
+  {
+    "UUID": 12264181141278818795,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_16-0.imesh"
+  },
+  {
+    "UUID": 10069111296356111764,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_16-1.imesh"
+  },
+  {
+    "UUID": 471555336132260110,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_16-2.imesh"
+  },
+  {
+    "UUID": 2100591796913489526,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ceiling_2ndfloor-0.imesh"
+  },
+  {
+    "UUID": 1420127759030306334,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ceiling_2ndfloor-2.imesh"
+  },
+  {
+    "UUID": 16033654640713667360,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ceiling_2ndfloor-3.imesh"
+  },
+  {
+    "UUID": 4173143344596963505,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\arch_wall_2ndfloor-0.imesh"
+  },
+  {
+    "UUID": 11218908510483009172,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\arch_wall_2ndfloor-2.imesh"
+  },
+  {
+    "UUID": 6233257566899673452,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_2ndfloor_05-0.imesh"
+  },
+  {
+    "UUID": 9961974591854670254,
+    "Type": 4,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamp_glass_01.imat"
+  },
+  {
+    "UUID": 3928406105295303771,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_2ndfloor_05-2.imesh"
+  },
+  {
+    "UUID": 16510577509124576352,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\stonewalls_2ndfloor_01-0.imesh"
+  },
+  {
+    "UUID": 9284754861686196231,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_stones_2ndfloor.imesh"
+  },
+  {
+    "UUID": 1533387548378285134,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_05-0.imesh"
+  },
+  {
+    "UUID": 12227621896815653349,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_02-0.imesh"
+  },
+  {
+    "UUID": 6625363766464521827,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_02-3.imesh"
+  },
+  {
+    "UUID": 14603201408252942980,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/brickwall_01_Roughnessbrickwall_01_Metalness.png",
+    "Filepath": "Resources\\brickwall_01_Roughnessbrickwall_01_Metalness.itex"
+  },
+  {
+    "UUID": 1175794879953814769,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_03-1.imesh"
+  },
+  {
+    "UUID": 4508332249682610266,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/col_1stfloor_Roughnesscol_1stfloor_Metalness.png",
+    "Filepath": "Resources\\col_1stfloor_Roughnesscol_1stfloor_Metalness.itex"
+  },
+  {
+    "UUID": 15183354501300876463,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_03-2.imesh"
+  },
+  {
+    "UUID": 14097001440277140959,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\master_material-19.imesh"
+  },
+  {
+    "UUID": 157732728506303945,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_04-0.imesh"
+  },
+  {
+    "UUID": 15041020926173823059,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_04-1.imesh"
+  },
+  {
+    "UUID": 3999142186282612619,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_04-2.imesh"
+  },
+  {
+    "UUID": 9504543929719419793,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_06-2.imesh"
+  },
+  {
+    "UUID": 8867140232603803835,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_04-3.imesh"
+  },
+  {
+    "UUID": 4159858748209243101,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_05-0.imesh"
+  },
+  {
+    "UUID": 7131132159660083660,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_05-1.imesh"
+  },
+  {
+    "UUID": 4606299803759986836,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_08-1.imesh"
+  },
+  {
+    "UUID": 17533106226257338661,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_04-1.imesh"
+  },
+  {
+    "UUID": 18306006916598669822,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_05-2.imesh"
+  },
+  {
+    "UUID": 1226980876466211377,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\roof_floor_03_05-4.imesh"
+  },
+  {
+    "UUID": 12781417088396201235,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_06-1.imesh"
+  },
+  {
+    "UUID": 2006001297472624448,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\master_material-17.imesh"
+  },
+  {
+    "UUID": 8011910930610373721,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\master_material-1.imesh"
+  },
+  {
+    "UUID": 17750539274804221150,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_06-3.imesh"
+  },
+  {
+    "UUID": 12938759893847318864,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_07-0.imesh"
+  },
+  {
+    "UUID": 6738316146950276511,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_07-2.imesh"
+  },
+  {
+    "UUID": 6542906968816926253,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\orn_windows_01-0.imesh"
+  },
+  {
+    "UUID": 10926129458629893429,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_08-2.imesh"
+  },
+  {
+    "UUID": 142009022424857913,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_09-0.imesh"
+  },
+  {
+    "UUID": 9074685731253049230,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_09-1.imesh"
+  },
+  {
+    "UUID": 13323670644914045927,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/col_head_1stfloor_Roughnesscol_head_1stfloor_Metalness.png",
+    "Filepath": "Resources\\col_head_1stfloor_Roughnesscol_head_1stfloor_Metalness.itex"
+  },
+  {
+    "UUID": 1388447966974345376,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\orn_windows_03-3.imesh"
+  },
+  {
+    "UUID": 6934263725339095584,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_10-0.imesh"
+  },
+  {
+    "UUID": 16204593686647230605,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_10-1.imesh"
+  },
+  {
+    "UUID": 14482960237746850218,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_11-0.imesh"
+  },
+  {
+    "UUID": 9816634687065915976,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/door_stoneframe_02_BaseColor.png",
+    "Filepath": "Resources\\door_stoneframe_02_BaseColor.itex"
+  },
+  {
+    "UUID": 12434236282233050936,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_11-1.imesh"
+  },
+  {
+    "UUID": 16452842761380014181,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_12-0.imesh"
+  },
+  {
+    "UUID": 12887871918291004887,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/lionhead_01_Roughnesslionhead_01_Metalness.png",
+    "Filepath": "Resources\\lionhead_01_Roughnesslionhead_01_Metalness.itex"
+  },
+  {
+    "UUID": 12427295443207409775,
+    "Type": 4,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_1stfloor.imat"
+  },
+  {
+    "UUID": 12859650548929582591,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_12-1.imesh"
+  },
+  {
+    "UUID": 12343295533312600593,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_13-0.imesh"
+  },
+  {
+    "UUID": 4844774412744497878,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_13-1.imesh"
+  },
+  {
+    "UUID": 13149152783462300868,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\roof_floor_03_08-0.imesh"
+  },
+  {
+    "UUID": 13735998523954846181,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\stonewalls_2ndfloor_02-0.imesh"
+  },
+  {
+    "UUID": 14919206603886591117,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_14-1.imesh"
+  },
+  {
+    "UUID": 2059121167840941521,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\master_material-27.imesh"
+  },
+  {
+    "UUID": 13442289779989502347,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_15-0.imesh"
+  },
+  {
+    "UUID": 7520106958179305745,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\roof_floor_03_07-0.imesh"
+  },
+  {
+    "UUID": 16604478180825234805,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_2ndfloor_15-1.imesh"
+  },
+  {
+    "UUID": 5943500885628589890,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/col_head_2ndfloor_03_BaseColor.png",
+    "Filepath": "Resources\\col_head_2ndfloor_03_BaseColor.itex"
+  },
+  {
+    "UUID": 18044344627421741805,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/col_head_1stfloor_Normal.png",
+    "Filepath": "Resources\\col_head_1stfloor_Normal.itex"
+  },
+  {
+    "UUID": 1738993156606750690,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_01-0.imesh"
+  },
+  {
+    "UUID": 17835397042948014585,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_01-2.imesh"
+  },
+  {
+    "UUID": 6189772890310084622,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_01-3.imesh"
+  },
+  {
+    "UUID": 633211413777319182,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_01-4.imesh"
+  },
+  {
+    "UUID": 16806473521512070678,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_04-2.imesh"
+  },
+  {
+    "UUID": 9062073021438076441,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_04-3.imesh"
+  },
+  {
+    "UUID": 18423595944015713322,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/stone_trims_01_Roughnessstone_trims_01_Metalness.png",
+    "Filepath": "Resources\\stone_trims_01_Roughnessstone_trims_01_Metalness.itex"
+  },
+  {
+    "UUID": 8278192336360255862,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_04-4.imesh"
+  },
+  {
+    "UUID": 3340179643045371889,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_07-2.imesh"
+  },
+  {
+    "UUID": 5804895262331493726,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_05-1.imesh"
+  },
+  {
+    "UUID": 13312441871767887713,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_05-2.imesh"
+  },
+  {
+    "UUID": 8041755954711133131,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_05-3.imesh"
+  },
+  {
+    "UUID": 6508837750200846576,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_05-4.imesh"
+  },
+  {
+    "UUID": 4086778041367331033,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_05-5.imesh"
+  },
+  {
+    "UUID": 3978077501398809802,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/col_1stfloor_Normal.png",
+    "Filepath": "Resources\\col_1stfloor_Normal.itex"
+  },
+  {
+    "UUID": 9290285161890955581,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_06-2.imesh"
+  },
+  {
+    "UUID": 11548968155525197937,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_06-3.imesh"
+  },
+  {
+    "UUID": 929372252284905877,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/col_1stfloor_Roughnesscol_1stfloor_Metalness.png",
+    "Filepath": "Resources\\col_1stfloor_Roughnesscol_1stfloor_Metalness.itex"
+  },
+  {
+    "UUID": 12757206136619216726,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_07-1.imesh"
+  },
+  {
+    "UUID": 7125539168432506966,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_07-3.imesh"
+  },
+  {
+    "UUID": 2139211805141804571,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_07-4.imesh"
+  },
+  {
+    "UUID": 12249031481891047960,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_08-3.imesh"
+  },
+  {
+    "UUID": 12477933172423399908,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_08-4.imesh"
+  },
+  {
+    "UUID": 1842468033675547942,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_08-5.imesh"
+  },
+  {
+    "UUID": 11565889087670160352,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/ceiling_plaster_01_Normal.png",
+    "Filepath": "Resources\\ceiling_plaster_01_Normal.itex"
+  },
+  {
+    "UUID": 3496307236270737601,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_09-0.imesh"
+  },
+  {
+    "UUID": 2244410614535595162,
+    "Type": 4,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\stones_01_tile.imat"
+  },
+  {
+    "UUID": 15123026135727585557,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_09-1.imesh"
+  },
+  {
+    "UUID": 13327612616410024547,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_2ndfloor_01-1.imesh"
+  },
+  {
+    "UUID": 9210685016399213476,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_09-2.imesh"
+  },
+  {
+    "UUID": 10200413448111116736,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_09-3.imesh"
+  },
+  {
+    "UUID": 13805909981503642500,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/col_head_1stfloor_BaseColor.png",
+    "Filepath": "Resources\\col_head_1stfloor_BaseColor.itex"
+  },
+  {
+    "UUID": 12753405627553031689,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_09-4.imesh"
+  },
+  {
+    "UUID": 16844295375730210869,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_10-0.imesh"
+  },
+  {
+    "UUID": 10670517517891057536,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_10-2.imesh"
+  },
+  {
+    "UUID": 7332063330632385995,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_10-3.imesh"
+  },
+  {
+    "UUID": 17362723351050538056,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_11-0.imesh"
+  },
+  {
+    "UUID": 5852118177928528584,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_11-2.imesh"
+  },
+  {
+    "UUID": 565687224075838140,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_11-4.imesh"
+  },
+  {
+    "UUID": 12818720627105534231,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_12-0.imesh"
+  },
+  {
+    "UUID": 15682579828529562561,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\sponza_ornament.imesh"
+  },
+  {
+    "UUID": 17996782277914363763,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_12-3.imesh"
+  },
+  {
+    "UUID": 15465843519482334285,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_12-4.imesh"
+  },
+  {
+    "UUID": 2797468049680687645,
+    "Type": 4,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ceiling_plaster_01.imat"
+  },
+  {
+    "UUID": 5160042160658321041,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_13-0.imesh"
+  },
+  {
+    "UUID": 11027835874351525851,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/metal_door_01_Roughnessmetal_door_01_Metalness.png",
+    "Filepath": "Resources\\metal_door_01_Roughnessmetal_door_01_Metalness.itex"
+  },
+  {
+    "UUID": 8519015053066850430,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_13-2.imesh"
+  },
+  {
+    "UUID": 16763757322895222445,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\orn_windows_05-2.imesh"
+  },
+  {
+    "UUID": 16290056199450517774,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_13-4.imesh"
+  },
+  {
+    "UUID": 1494680627863430536,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_14-0.imesh"
+  },
+  {
+    "UUID": 11592151758774228440,
+    "Type": 4,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\wood_01.imat"
+  },
+  {
+    "UUID": 16462007545822226296,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_14-3.imesh"
+  },
+  {
+    "UUID": 11828366639278145933,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_14-4.imesh"
+  },
+  {
+    "UUID": 739886316148671748,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_15-0.imesh"
+  },
+  {
+    "UUID": 17288048524224919236,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_15-1.imesh"
+  },
+  {
+    "UUID": 3493162907616304101,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_15-2.imesh"
+  },
+  {
+    "UUID": 3850576600531557738,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_door_2ndfloor_15-4.imesh"
+  },
+  {
+    "UUID": 4035542207972553548,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\master_material-13.imesh"
+  },
+  {
+    "UUID": 5382413670644782699,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_2ndfloor_06-0.imesh"
+  },
+  {
+    "UUID": 1778282114996181724,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_2ndfloor_06-1.imesh"
+  },
+  {
+    "UUID": 5204749722758091822,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\roof_floor_03_01-0.imesh"
+  },
+  {
+    "UUID": 11047913695148274506,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_2ndfloor_06-2.imesh"
+  },
+  {
+    "UUID": 4688177723558081456,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/door_stoneframe_01_Normal.png",
+    "Filepath": "Resources\\door_stoneframe_01_Normal.itex"
+  },
+  {
+    "UUID": 1558610397990327595,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_2ndfloor_07-0.imesh"
+  },
+  {
+    "UUID": 8974886850557210495,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\master_material-9.imesh"
+  },
+  {
+    "UUID": 8739500368311871266,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\decals_2nd_floor.imesh"
+  },
+  {
+    "UUID": 13529177631011798023,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_2ndfloor_08-0.imesh"
+  },
+  {
+    "UUID": 737705534108091762,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/window_frame_01_Roughnesswindow_frame_01_Metalness.png",
+    "Filepath": "Resources\\window_frame_01_Roughnesswindow_frame_01_Metalness.itex"
+  },
+  {
+    "UUID": 13128406577204915275,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_2ndfloor_08-1.imesh"
+  },
+  {
+    "UUID": 7229052788834260531,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\master_material-0.imesh"
+  },
+  {
+    "UUID": 16671537731060124986,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_2ndfloor_08-2.imesh"
+  },
+  {
+    "UUID": 16377972583028529714,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\roof_floor_03_08-1.imesh"
+  },
+  {
+    "UUID": 1708919275528932558,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_2ndfloor_03-1.imesh"
+  },
+  {
+    "UUID": 15230679745271397390,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/roof_tiles_01_BaseColor.png",
+    "Filepath": "Resources\\roof_tiles_01_BaseColor.itex"
+  },
+  {
+    "UUID": 9793636646964356851,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_2ndfloor_02-0.imesh"
+  },
+  {
+    "UUID": 6993763092283948137,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/col_head_2ndfloor_03_Roughnesscol_head_2ndfloor_03_Metalness.png",
+    "Filepath": "Resources\\col_head_2ndfloor_03_Roughnesscol_head_2ndfloor_03_Metalness.itex"
+  },
+  {
+    "UUID": 6700766243103624047,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_2ndfloor_02-2.imesh"
+  },
+  {
+    "UUID": 14422706230145463668,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_2ndfloor_01-0.imesh"
+  },
+  {
+    "UUID": 16780010493850321418,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_2ndfloor_01-2.imesh"
+  },
+  {
+    "UUID": 13063548818531180681,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_2ndfloor_04-0.imesh"
+  },
+  {
+    "UUID": 7576266475805030322,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_2ndfloor_04-1.imesh"
+  },
+  {
+    "UUID": 13255239758262452120,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/col_head_2ndfloor_03_Roughnesscol_head_2ndfloor_03_Metalness.png",
+    "Filepath": "Resources\\col_head_2ndfloor_03_Roughnesscol_head_2ndfloor_03_Metalness.itex"
+  },
+  {
+    "UUID": 16164906868431884737,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\master_material-12.imesh"
+  },
+  {
+    "UUID": 3103604546811875072,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\lamps_2ndfloor_04-2.imesh"
+  },
+  {
+    "UUID": 723352943682971363,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\orn_windows_01-2.imesh"
+  },
+  {
+    "UUID": 4965998803600921458,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\stonewalls_2ndfloor_02-1.imesh"
+  },
+  {
+    "UUID": 17573227834006157006,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\master_material-2.imesh"
+  },
+  {
+    "UUID": 13454036515736910579,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\roof_floor_03_01-1.imesh"
+  },
+  {
+    "UUID": 5040299099336994809,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\roof_floor_03_10-0.imesh"
+  },
+  {
+    "UUID": 6519413381951831358,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\roof_floor_03_02-0.imesh"
+  },
+  {
+    "UUID": 15475263001170486897,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/floor_tiles_01_BaseColor.png",
+    "Filepath": "Resources\\floor_tiles_01_BaseColor.itex"
+  },
+  {
+    "UUID": 12630977428458650263,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\roof_floor_03_02-1.imesh"
+  },
+  {
+    "UUID": 9124607693688126773,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\orn_windows_01-1.imesh"
+  },
+  {
+    "UUID": 6025720861916660282,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\orn_windows_01-3.imesh"
+  },
+  {
+    "UUID": 6373347501312469413,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_roof-0.imesh"
+  },
+  {
+    "UUID": 17556279841419545632,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_roof-1.imesh"
+  },
+  {
+    "UUID": 9357515298668030541,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\roof_floor_03_09-0.imesh"
+  },
+  {
+    "UUID": 8244249109742943881,
+    "Type": 4,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\stone_trims_02.imat"
+  },
+  {
+    "UUID": 17526566459036396976,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\roof_floor_03_09-1.imesh"
+  },
+  {
+    "UUID": 1475400078606145936,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\roof_floor_03_10-1.imesh"
+  },
+  {
+    "UUID": 11053774820218805771,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\roof_floor_03_05-2.imesh"
+  },
+  {
+    "UUID": 1983733398860057702,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\roof_floor_03_05-3.imesh"
+  },
+  {
+    "UUID": 11902768531293974890,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\roof_floor_03_05-5.imesh"
+  },
+  {
+    "UUID": 11331524628958831008,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\master_material-4.imesh"
+  },
+  {
+    "UUID": 13102235921752018309,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\roof_floor_03_06-0.imesh"
+  },
+  {
+    "UUID": 3002296978592552068,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\roof_floor_03_06-1.imesh"
+  },
+  {
+    "UUID": 14909250659474960286,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\roof_floor_03_06-2.imesh"
+  },
+  {
+    "UUID": 17906919149871954153,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\roof_floor_03_06-3.imesh"
+  },
+  {
+    "UUID": 17902232695078913095,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\roof_floor_03_07-1.imesh"
+  },
+  {
+    "UUID": 1693086981756418997,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/ceiling_plaster_01_BaseColor.png",
+    "Filepath": "Resources\\ceiling_plaster_01_BaseColor.itex"
+  },
+  {
+    "UUID": 5544204491485160355,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\walls_floor_03-1.imesh"
+  },
+  {
+    "UUID": 9242721525484626306,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\walls_floor_03-2.imesh"
+  },
+  {
+    "UUID": 8693917486016679961,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\walls_floor_03-3.imesh"
+  },
+  {
+    "UUID": 17337262088557055701,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\orn_windows_06-2.imesh"
+  },
+  {
+    "UUID": 13753466494104031967,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\orn_windows_08-0.imesh"
+  },
+  {
+    "UUID": 1176676476045638736,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\walls_floor_03-4.imesh"
+  },
+  {
+    "UUID": 6454305020500845653,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\orn_windows_08-2.imesh"
+  },
+  {
+    "UUID": 1988650408331600889,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\orn_windows_07-0.imesh"
+  },
+  {
+    "UUID": 3712937067671145993,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\orn_windows_07-1.imesh"
+  },
+  {
+    "UUID": 6644363133197389485,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/wood_tile_01_Roughnesswood_tile_01_Metalness.png",
+    "Filepath": "Resources\\wood_tile_01_Roughnesswood_tile_01_Metalness.itex"
+  },
+  {
+    "UUID": 254479081290545895,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/wood_door_01_Roughnesswood_door_01_Metalness.png",
+    "Filepath": "Resources\\wood_door_01_Roughnesswood_door_01_Metalness.itex"
+  },
+  {
+    "UUID": 435687222925257466,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\orn_windows_07-2.imesh"
+  },
+  {
+    "UUID": 6822967020881204572,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\orn_windows_05-0.imesh"
+  },
+  {
+    "UUID": 18143681897806879836,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\orn_windows_04-0.imesh"
+  },
+  {
+    "UUID": 669286772124403366,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\orn_windows_04-2.imesh"
+  },
+  {
+    "UUID": 11577579111781801595,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\orn_windows_04-3.imesh"
+  },
+  {
+    "UUID": 4767116889188805650,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\orn_windows_03-2.imesh"
+  },
+  {
+    "UUID": 6258881351403251259,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\orn_windows_02-0.imesh"
+  },
+  {
+    "UUID": 9225812220709453450,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\decals_3rd_floor.imesh"
+  },
+  {
+    "UUID": 4324230179171780375,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\master_material-3.imesh"
+  },
+  {
+    "UUID": 4880039860104289934,
+    "Type": 4,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\column_brickwall_01.imat"
+  },
+  {
+    "UUID": 7538612428825072055,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\master_material-6.imesh"
+  },
+  {
+    "UUID": 14268168697872641240,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\master_material-8.imesh"
+  },
+  {
+    "UUID": 4462854502684247081,
+    "Type": 4,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\wood_door_01.imat"
+  },
+  {
+    "UUID": 15411913119861669112,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\master_material-11.imesh"
+  },
+  {
+    "UUID": 14790240043404638018,
+    "Type": 4,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\floor_01.imat"
+  },
+  {
+    "UUID": 10645335160196999998,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\master_material-14.imesh"
+  },
+  {
+    "UUID": 18149501076848158352,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\master_material-15.imesh"
+  },
+  {
+    "UUID": 6563109542459480783,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\master_material-16.imesh"
+  },
+  {
+    "UUID": 3110109585158009322,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/brickwall_01_Normal.png",
+    "Filepath": "Resources\\brickwall_01_Normal.itex"
+  },
+  {
+    "UUID": 7868779001359016765,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\master_material-18.imesh"
+  },
+  {
+    "UUID": 7466933302399974033,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\master_material-20.imesh"
+  },
+  {
+    "UUID": 10103526247343092455,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\master_material-21.imesh"
+  },
+  {
+    "UUID": 13353625511445184041,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\master_material-22.imesh"
+  },
+  {
+    "UUID": 13945375639764356648,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\master_material-23.imesh"
+  },
+  {
+    "UUID": 13873970455816127748,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/roof_tiles_01_Roughnessroof_tiles_01_Metalness.png",
+    "Filepath": "Resources\\roof_tiles_01_Roughnessroof_tiles_01_Metalness.itex"
+  },
+  {
+    "UUID": 2469990394075795736,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\master_material-24.imesh"
+  },
+  {
+    "UUID": 14316720156004618143,
+    "Type": 2,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\master_material-25.imesh"
+  },
+  {
+    "UUID": 4601676735458641684,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/brickwall_02_Roughnessbrickwall_02_Metalness.png",
+    "Filepath": "Resources\\brickwall_02_Roughnessbrickwall_02_Metalness.itex"
+  },
+  {
+    "UUID": 421273428303368330,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/arch_stone_wall_01_BaseColor.png",
+    "Filepath": "Resources\\arch_stone_wall_01_BaseColor.itex"
+  },
+  {
+    "UUID": 8245210815487412276,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/arch_stone_wall_01_Roughnessarch_stone_wall_01_Metalness.png",
+    "Filepath": "Resources\\arch_stone_wall_01_Roughnessarch_stone_wall_01_Metalness.itex"
+  },
+  {
+    "UUID": 17153410690644995807,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/door_stoneframe_02_Roughnessdoor_stoneframe_02_Metalness.png",
+    "Filepath": "Resources\\door_stoneframe_02_Roughnessdoor_stoneframe_02_Metalness.itex"
+  },
+  {
+    "UUID": 13599318123128748004,
+    "Type": 4,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\arch_stone_wall_01.imat"
+  },
+  {
+    "UUID": 18104344449803755481,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/stone_trims_01_Normal.png",
+    "Filepath": "Resources\\stone_trims_01_Normal.itex"
+  },
+  {
+    "UUID": 17200705125767537041,
+    "Type": 4,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\ornament_lion.imat"
+  },
+  {
+    "UUID": 18319461826652774875,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/stone_trims_01_Roughnessstone_trims_01_Metalness.png",
+    "Filepath": "Resources\\stone_trims_01_Roughnessstone_trims_01_Metalness.itex"
+  },
+  {
+    "UUID": 9848821658986309304,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/metal_door_01_Normal.png",
+    "Filepath": "Resources\\metal_door_01_Normal.itex"
+  },
+  {
+    "UUID": 6284545411114984204,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/metal_door_01_Roughnessmetal_door_01_Metalness.png",
+    "Filepath": "Resources\\metal_door_01_Roughnessmetal_door_01_Metalness.itex"
+  },
+  {
+    "UUID": 6345574551380155845,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/brickwall_02_Normal.png",
+    "Filepath": "Resources\\brickwall_02_Normal.itex"
+  },
+  {
+    "UUID": 17160910203611806606,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/brickwall_02_Roughnessbrickwall_02_Metalness.png",
+    "Filepath": "Resources\\brickwall_02_Roughnessbrickwall_02_Metalness.itex"
+  },
+  {
+    "UUID": 10902443749490101957,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/stones_2ndfloor_01_Normal.png",
+    "Filepath": "Resources\\stones_2ndfloor_01_Normal.itex"
+  },
+  {
+    "UUID": 14965215011594791683,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/stones_2ndfloor_01_Roughnessstones_2ndfloor_01_Metalness.png",
+    "Filepath": "Resources\\stones_2ndfloor_01_Roughnessstones_2ndfloor_01_Metalness.itex"
+  },
+  {
+    "UUID": 10838980124651583715,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/stones_2ndfloor_01_Roughnessstones_2ndfloor_01_Metalness.png",
+    "Filepath": "Resources\\stones_2ndfloor_01_Roughnessstones_2ndfloor_01_Metalness.itex"
+  },
+  {
+    "UUID": 14249730823548547772,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/stone_trims_02_BaseColor.png",
+    "Filepath": "Resources\\stone_trims_02_BaseColor.itex"
+  },
+  {
+    "UUID": 8643265333218346739,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/stone_trims_02_Roughnessstone_trims_02_Metalness.png",
+    "Filepath": "Resources\\stone_trims_02_Roughnessstone_trims_02_Metalness.itex"
+  },
+  {
+    "UUID": 18276499132304123826,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/ceiling_plaster_02_BaseColor.png",
+    "Filepath": "Resources\\ceiling_plaster_02_BaseColor.itex"
+  },
+  {
+    "UUID": 4819692235587920561,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/ceiling_plaster_01_Normal.png",
+    "Filepath": "Resources\\ceiling_plaster_01_Normal.itex"
+  },
+  {
+    "UUID": 10403978706912091995,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/ceiling_plaster_02_Roughnessceiling_plaster_01_Metalness.png",
+    "Filepath": "Resources\\ceiling_plaster_02_Roughnessceiling_plaster_01_Metalness.itex"
+  },
+  {
+    "UUID": 565525119629678099,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/ceiling_plaster_02_Roughnessceiling_plaster_01_Metalness.png",
+    "Filepath": "Resources\\ceiling_plaster_02_Roughnessceiling_plaster_01_Metalness.itex"
+  },
+  {
+    "UUID": 12193094005159595439,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/window_frame_01_BaseColor.png",
+    "Filepath": "Resources\\window_frame_01_BaseColor.itex"
+  },
+  {
+    "UUID": 5594006378001959371,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/col_head_2ndfloor_02_Roughnesscol_head_2ndfloor_02_Metalness.png",
+    "Filepath": "Resources\\col_head_2ndfloor_02_Roughnesscol_head_2ndfloor_02_Metalness.itex"
+  },
+  {
+    "UUID": 18098200645986549347,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/window_frame_01_Normal.png",
+    "Filepath": "Resources\\window_frame_01_Normal.itex"
+  },
+  {
+    "UUID": 12403455473084339677,
+    "Type": 4,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\window_frame_01.imat"
+  },
+  {
+    "UUID": 5210261303979014395,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/stone_01_tile_BaseColor.png",
+    "Filepath": "Resources\\stone_01_tile_BaseColor.itex"
+  },
+  {
+    "UUID": 4933072531354791838,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/stone_01_tile_Normal.png",
+    "Filepath": "Resources\\stone_01_tile_Normal.itex"
+  },
+  {
+    "UUID": 1414204200053451717,
+    "Type": 4,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\light_bulb.imat"
+  },
+  {
+    "UUID": 8098923515251243100,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/door_stoneframe_02_Roughnessdoor_stoneframe_02_Metalness.png",
+    "Filepath": "Resources\\door_stoneframe_02_Roughnessdoor_stoneframe_02_Metalness.itex"
+  },
+  {
+    "UUID": 12784864910445594024,
+    "Type": 4,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\door_stoneframe_02.imat"
+  },
+  {
+    "UUID": 5802066192742988873,
+    "Type": 4,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\glass.imat"
+  },
+  {
+    "UUID": 7410931976378953257,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/door_stoneframe_01_BaseColor.png",
+    "Filepath": "Resources\\door_stoneframe_01_BaseColor.itex"
+  },
+  {
+    "UUID": 17022174136386691341,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/door_stoneframe_01_Roughnessdoor_stoneframe_01_Metalness.png",
+    "Filepath": "Resources\\door_stoneframe_01_Roughnessdoor_stoneframe_01_Metalness.itex"
+  },
+  {
+    "UUID": 8287646099370723890,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/door_stoneframe_01_Roughnessdoor_stoneframe_01_Metalness.png",
+    "Filepath": "Resources\\door_stoneframe_01_Roughnessdoor_stoneframe_01_Metalness.itex"
+  },
+  {
+    "UUID": 13959553974117103323,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/col_head_2ndfloor_02_Roughnesscol_head_2ndfloor_02_Metalness.png",
+    "Filepath": "Resources\\col_head_2ndfloor_02_Roughnesscol_head_2ndfloor_02_Metalness.itex"
+  },
+  {
+    "UUID": 9997262432651817499,
+    "Type": 4,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\door_stoneframe_01.imat"
+  },
+  {
+    "UUID": 12896562905751863889,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/brickwall_01_Roughnessbrickwall_01_Metalness.png",
+    "Filepath": "Resources\\brickwall_01_Roughnessbrickwall_01_Metalness.itex"
+  },
+  {
+    "UUID": 5250706286306747718,
+    "Type": 4,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\brickwall_01.imat"
+  },
+  {
+    "UUID": 2562517325213327181,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/wood_door_01_BaseColor.png",
+    "Filepath": "Resources\\wood_door_01_BaseColor.itex"
+  },
+  {
+    "UUID": 14795483155014980598,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/wood_door_01_Normal.png",
+    "Filepath": "Resources\\wood_door_01_Normal.itex"
+  },
+  {
+    "UUID": 14816766148422345194,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/wood_door_01_Roughnesswood_door_01_Metalness.png",
+    "Filepath": "Resources\\wood_door_01_Roughnesswood_door_01_Metalness.itex"
+  },
+  {
+    "UUID": 11745023926996920111,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/wood_tile_01_BaseColor.png",
+    "Filepath": "Resources\\wood_tile_01_BaseColor.itex"
+  },
+  {
+    "UUID": 17260105193725353571,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/floor_tiles_01_Roughnessfloor_tiles_01_Metalness.png",
+    "Filepath": "Resources\\floor_tiles_01_Roughnessfloor_tiles_01_Metalness.itex"
+  },
+  {
+    "UUID": 6551284405847754088,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/lionhead_01_Normal.png",
+    "Filepath": "Resources\\lionhead_01_Normal.itex"
+  },
+  {
+    "UUID": 1664043853437098976,
+    "Type": 4,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\NewSponza_Main_glTF_003.gltf",
+    "Filepath": "Resources\\dirt_decal.imat"
+  },
+  {
+    "UUID": 14621545495320168992,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/col_head_2ndfloor_02_BaseColor.png",
+    "Filepath": "Resources\\col_head_2ndfloor_02_BaseColor.itex"
+  },
+  {
+    "UUID": 1501590462928617320,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/col_brickwall_01_Roughnesscol_brickwall_01_Metalness.png",
+    "Filepath": "Resources\\col_brickwall_01_Roughnesscol_brickwall_01_Metalness.itex"
+  },
+  {
+    "UUID": 17373613172432408676,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/col_head_2ndfloor_03_Normal.png",
+    "Filepath": "Resources\\col_head_2ndfloor_03_Normal.itex"
+  },
+  {
+    "UUID": 16662160719511166077,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/roof_tiles_01_Roughnessroof_tiles_01_Metalness.png",
+    "Filepath": "Resources\\roof_tiles_01_Roughnessroof_tiles_01_Metalness.itex"
+  },
+  {
+    "UUID": 17699510762558225710,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/ornament_01_BaseColor.png",
+    "Filepath": "Resources\\ornament_01_BaseColor.itex"
+  },
+  {
+    "UUID": 6944523175510188167,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/ornament_01_Normal.png",
+    "Filepath": "Resources\\ornament_01_Normal.itex"
+  },
+  {
+    "UUID": 13143968866040169989,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/ornament_01_Roughnessornament_01_Metalness.png",
+    "Filepath": "Resources\\ornament_01_Roughnessornament_01_Metalness.itex"
+  },
+  {
+    "UUID": 5168679673400394563,
+    "Type": 3,
+    "SourceFile": "D:\\Usuario\\Documents\\main_sponza\\main_sponza\\textures/ornament_01_Roughnessornament_01_Metalness.png",
+    "Filepath": "Resources\\ornament_01_Roughnessornament_01_Metalness.itex"
+  }
+]

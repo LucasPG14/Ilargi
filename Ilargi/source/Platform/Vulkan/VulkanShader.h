@@ -45,6 +45,12 @@ namespace Ilargi
 		[[nodiscard]] const ShadersMap& GetShaders() const { return mShaders; }
 
 		/*
+		* @brief Returns the map of bindings.
+		* @return The bindings map.
+		*/
+		[[nodiscard]] const std::unordered_map<std::string, BindingInfo>& GetBindings() const { return mBindings; }
+
+		/*
 		* @brief Returns the push constants container of the shader.
 		* @return The push constants container.
 		*/
@@ -100,5 +106,7 @@ namespace Ilargi
 		std::vector<VkDescriptorSetLayout> mDescriptorSetLayouts; // Container of the descriptor sets layouts.
 
 		std::map<int, std::vector<VkDescriptorSetLayoutBinding>> mDescriptorSetBindings; // Map of the descriptor sets bindings.
+	
+		std::unordered_map<std::string, BindingInfo> mBindings;
 	};
 }

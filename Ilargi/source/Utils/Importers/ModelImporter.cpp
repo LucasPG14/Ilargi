@@ -33,8 +33,7 @@ namespace Ilargi
 	{
 		Assimp::Importer importer;
 
-		const aiScene* importScene{ importer.ReadFile(aMetadata.sourceFile.string().c_str(), aiProcess_CalcTangentSpace | aiProcess_Triangulate |
-			aiProcess_JoinIdenticalVertices | aiProcess_SortByPType) };
+		const aiScene* importScene{ importer.ReadFile(aMetadata.sourceFile.string().c_str(), aiProcessPreset_TargetRealtime_MaxQuality) };
 
 		if (!importScene)
 		{
@@ -73,8 +72,7 @@ namespace Ilargi
 
 		for (const auto& modelNode : modelNodes)
 		{
-			writer.Write(modelNode.mesh);
-			writer.Write(modelNode.material);
+			writer.WriteVector(modelNode.submeshes);
 			writer.WriteString(modelNode.name);
 			writer.WriteVector(modelNode.childrens);
 			writer.Write(modelNode.localTransform);
@@ -92,8 +90,7 @@ namespace Ilargi
 		
 		for (auto& node : modelNodes)
 		{
-			reader.Read(node.mesh);
-			reader.Read(node.material);
+			reader.ReadVector(node.submeshes);
 			reader.ReadString(node.name);
 			reader.ReadVector(node.childrens);
 			reader.Read(node.localTransform);
@@ -185,15 +182,17 @@ namespace Ilargi
 			ILG_CORE_ERROR("Unable to find the name of the material");
 		}
 		
-		aiString materialDiffuseTexture;
-		if (aiGetMaterialTexture(aMaterial, aiTextureType_DIFFUSE, 0, &materialDiffuseTexture) == AI_SUCCESS)
+		// TODO: Fix and automatize this
+		std::unordered_map<std::string, UUID> texturesUUID;
+		aiString materialBaseColorTexture;
+		if (aiGetMaterialTexture(aMaterial, aiTextureType_BASE_COLOR, 0, &materialBaseColorTexture) == AI_SUCCESS)
 		{
 			ResourceMetadata textureMetadata;
 			textureMetadata.type = ResourceType::TEXTURE2D;
-			textureMetadata.sourceFile = aMetadata.sourceFile.parent_path() / materialDiffuseTexture.C_Str();
-			textureMetadata.filepath = aMetadata.filepath.parent_path() / (std::filesystem::path(materialDiffuseTexture.C_Str()).stem().string() + ".itex");
-			UUID diffuseUUID{ ResourceManager::RegisterResource(textureMetadata) };
-			TextureImporter::ImportTexture(diffuseUUID, textureMetadata);
+			textureMetadata.sourceFile = aMetadata.sourceFile.parent_path() / materialBaseColorTexture.C_Str();
+			textureMetadata.filepath = aMetadata.filepath.parent_path() / (std::filesystem::path(materialBaseColorTexture.C_Str()).stem().string() + ".itex");
+			texturesUUID["DiffuseMap"] = ResourceManager::RegisterResource(textureMetadata);
+			TextureImporter::ImportTexture(texturesUUID["DiffuseMap"], textureMetadata);
 		}
 
 		aiString materialNormalTexture;
@@ -203,16 +202,50 @@ namespace Ilargi
 			textureMetadata.type = ResourceType::TEXTURE2D;
 			textureMetadata.sourceFile = aMetadata.sourceFile.parent_path() / materialNormalTexture.C_Str();
 			textureMetadata.filepath = aMetadata.filepath.parent_path() / (std::filesystem::path(materialNormalTexture.C_Str()).stem().string() + ".itex");
-			UUID diffuseUUID{ ResourceManager::RegisterResource(textureMetadata) };
-			TextureImporter::ImportTexture(diffuseUUID, textureMetadata);
+			texturesUUID["NormalMap"] = ResourceManager::RegisterResource(textureMetadata);
+			TextureImporter::ImportTexture(texturesUUID["NormalMap"], textureMetadata);
+		}
+
+		aiString materialMetallicTexture;
+		if (aiGetMaterialTexture(aMaterial, aiTextureType_METALNESS, 0, &materialMetallicTexture) == AI_SUCCESS)
+		{
+			ResourceMetadata textureMetadata;
+			textureMetadata.type = ResourceType::TEXTURE2D;
+			textureMetadata.sourceFile = aMetadata.sourceFile.parent_path() / materialMetallicTexture.C_Str();
+			textureMetadata.filepath = aMetadata.filepath.parent_path() / (std::filesystem::path(materialMetallicTexture.C_Str()).stem().string() + ".itex");
+			texturesUUID["MetallicMap"] = ResourceManager::RegisterResource(textureMetadata);
+			TextureImporter::ImportTexture(texturesUUID["MetallicMap"], textureMetadata);
+		}
+
+		aiString materialRoughnessTexture;
+		if (aiGetMaterialTexture(aMaterial, aiTextureType_METALNESS, 0, &materialRoughnessTexture) == AI_SUCCESS)
+		{
+			ResourceMetadata textureMetadata;
+			textureMetadata.type = ResourceType::TEXTURE2D;
+			textureMetadata.sourceFile = aMetadata.sourceFile.parent_path() / materialRoughnessTexture.C_Str();
+			textureMetadata.filepath = aMetadata.filepath.parent_path() / (std::filesystem::path(materialRoughnessTexture.C_Str()).stem().string() + ".itex");
+			texturesUUID["RoughnessMap"] = ResourceManager::RegisterResource(textureMetadata);
+			TextureImporter::ImportTexture(texturesUUID["RoughnessMap"], textureMetadata);
 		}
 
 		std::filesystem::path materialFilepath { aMetadata.filepath.parent_path() / std::string(materialName.C_Str() + std::string(".imat")) };
 
+		MaterialData materialData;
+		materialData.color = { color.r, color.g, color.g, color.a };
+
 		BinaryWriter writer(materialFilepath.string());
 		writer.Write(materialHeader);
 		writer.WriteString(std::string("PBR_Static"));
-		writer.Write(materialColor);
+		writer.Write(materialData);
+
+		uint8_t texturesSize{ static_cast<uint8_t>(texturesUUID.size()) };
+		writer.Write(texturesSize);
+		
+		for (const auto& [textureName, textureUUID] : texturesUUID)
+		{
+			writer.WriteString(textureName);
+			writer.Write(textureUUID);
+		}
 
 		ResourceMetadata materialMetadata;
 		materialMetadata.type = ResourceType::MATERIAL;
@@ -229,8 +262,14 @@ namespace Ilargi
 
 		ModelNode& modelNode { aModelNodes.emplace_back() };
 		modelNode.name = aNode->mName.C_Str();
-		modelNode.mesh = aNode->mNumMeshes ? aMeshesUUIDs[aNode->mMeshes[0]] : UUID(UINT64_MAX);
-		modelNode.material = aNode->mNumMeshes ? aMaterialsUUIDs[aScene->mMeshes[aNode->mMeshes[0]]->mMaterialIndex] : UUID(UINT64_MAX);
+		for (uint32_t index{ 0U }; index < aNode->mNumMeshes; ++index)
+		{
+			StaticSubmesh submesh;
+			submesh.mesh = aMeshesUUIDs[aNode->mMeshes[index]];
+			submesh.material = aMaterialsUUIDs[aScene->mMeshes[aNode->mMeshes[index]]->mMaterialIndex];
+			modelNode.submeshes.push_back(submesh);
+		}
+		
 		modelNode.localTransform = ConvertToGlm(aNode->mTransformation);
 
 		for (uint32_t index{ 0U }; index < aNode->mNumChildren; ++index)

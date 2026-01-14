@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Resources/Resource.h"
 #include "Events/Event.h"
 #include "Events/WindowEvents.h"
 #include "Events/KeyEvents.h"
@@ -9,6 +10,16 @@ namespace Ilargi
 	class UUID;
 	class Texture2D;
 	class MaterialPanel;
+
+	struct ResourceEntry
+	{
+		std::filesystem::path path;
+		std::string filename;
+		std::shared_ptr<Texture2D> thumbnail;
+		ResourceType type;
+		UUID resourceUUID;
+		bool isDirectory;
+	};
 
 	class ResourcesPanel
 	{
@@ -55,7 +66,7 @@ namespace Ilargi
 		/*
 		* @brief Draws the directory as normal.
 		*/
-		void NormalDirectory();
+		void DrawDirectory();
 
 		/*
 		* @brief Draws the recursive directory.
@@ -71,6 +82,8 @@ namespace Ilargi
 
 		std::shared_ptr<Texture2D> mFolderIcon; // The folder icon.
 		std::shared_ptr<Texture2D> mFileIcon; // The file icon.
+
+		std::vector<ResourceEntry> mResourceEntries;
 
 		MaterialPanel* mMaterialPanel; // Instance of the material panel.
 

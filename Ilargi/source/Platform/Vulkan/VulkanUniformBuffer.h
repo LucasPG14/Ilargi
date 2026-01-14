@@ -30,7 +30,7 @@ namespace Ilargi
 		/*
 		* @copydoc UniformBuffer::SetData()
 		*/
-		void SetData(void* data) override;
+		void SetData(void* aData, uint32_t aBinding) override;
 
 		/*
 		* Returns the vulkan descriptor set.

@@ -17,6 +17,7 @@ namespace Ilargi
 		RED8,
 		RED16,
 		RED32,
+		RED32_UINT,
 
 		DEPTH32,
 		DEPTH24_STENCIL8,
@@ -54,6 +55,8 @@ namespace Ilargi
 		* @param aHeight The new height of the framebuffer.
 		*/
 		virtual void Resize(const std::shared_ptr<RenderPass>& aRenderPass, uint32_t aWidth, uint32_t aHeight) = 0;
+
+		virtual uint32_t ReadFramebufferPixel(uint32_t aX, uint32_t aY) = 0;
 
 		/*
 		* @brief Returns the ID of the framebuffer.

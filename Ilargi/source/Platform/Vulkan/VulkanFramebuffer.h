@@ -43,6 +43,8 @@ namespace Ilargi
 		*/
 		void Resize(const std::shared_ptr<RenderPass>& aRenderPass, uint32_t aWidth, uint32_t aHeight) override;
 
+		virtual uint32_t ReadFramebufferPixel(uint32_t aX, uint32_t aY) override;
+
 		/*
 		* @copydoc Framebuffer::GetProperties()
 		*/

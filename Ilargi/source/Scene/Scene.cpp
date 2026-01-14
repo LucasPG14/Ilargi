@@ -16,6 +16,7 @@ namespace Ilargi
 	Scene::Scene()
 	{
 		mSceneDataUBO = UniformBuffer::Create(sizeof(SceneData), Renderer::GetConfig().maxFrames);
+		mCameraDataUBO = UniformBuffer::Create(sizeof(CameraData), Renderer::GetConfig().maxFrames);
 	}
 	
 	Scene::~Scene()
@@ -47,6 +48,7 @@ namespace Ilargi
 		mWorld.clear();
 
 		mSceneDataUBO->Destroy();
+		mCameraDataUBO->Destroy();
 	}
 
 	void Scene::LoadModel(const std::shared_ptr<Model>& model)
@@ -59,10 +61,9 @@ namespace Ilargi
 		{
 			ModelNode modelNode{ modelNodes[index] };
 			entities.push_back(CreateEntity(modelNode.name, modelNode.localTransform));
-			if (modelNode.mesh != UINT64_MAX)
+			if (!modelNode.submeshes.empty())
 			{
-				std::shared_ptr<Material> material{ modelNode.material != UINT64_MAX ? std::static_pointer_cast<Material>(ResourceManager::GetResource(modelNode.material)) : Renderer::GetDefaultMaterial() };
-				CreateComponent<StaticMeshComponent>(entities[index], std::static_pointer_cast<StaticMesh>(ResourceManager::GetResource(modelNode.mesh)), material);
+				CreateComponent<StaticMeshComponent>(entities[index], modelNode.submeshes);
 			}
 		}
 
@@ -137,15 +138,13 @@ namespace Ilargi
 		{
 			const auto&& [transform, light] { view.get<>(entity)};
 
-			PointLightUniformBuffer pointLight;
+			PointLightUniformBuffer& pointLight{ mSceneData.pointLights[mSceneData.pointLightsSize++] };
 			pointLight.radiance = light.radiance;
 			pointLight.radius = light.radius;
 			pointLight.position = transform.position;
-
-			mSceneData.pointLights[mSceneData.pointLightsSize++] = pointLight;
 		}
 
-		mSceneDataUBO->SetData(&mSceneData);
+		mSceneDataUBO->SetData(&mSceneData, 0);
 	}
 	
 	void Scene::CalculateChildrenTransforms(Entity aEntity, const glm::mat4& aMatrix)

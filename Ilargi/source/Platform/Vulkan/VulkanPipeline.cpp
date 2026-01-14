@@ -46,6 +46,21 @@ namespace Ilargi
 			return VkFormat();
 		}
 
+		VkShaderStageFlags GetShaderStages(const ShaderStage aShaderStage)
+		{
+			VkShaderStageFlags shaderStage{ 0x00000000 };
+			if (aShaderStage & VERTEX_SHADER)
+			{
+				shaderStage |= VK_SHADER_STAGE_VERTEX_BIT;
+			}
+			if (aShaderStage & FRAGMENT_SHADER)
+			{
+				shaderStage |= VK_SHADER_STAGE_FRAGMENT_BIT;
+			}
+
+			return shaderStage;
+		}
+
 		const std::filesystem::path GetPipelineCacheDirectory()
 		{
 			return { "Cache/vulkan/pipelines/" };
@@ -143,7 +158,7 @@ namespace Ilargi
 		};
 
 		const auto& elements{ mProperties.layout.GetElements() };
-		std::vector<VkVertexInputAttributeDescription> attributeDescriptions(elements.size());
+		std::vector<VkVertexInputAttributeDescription> attributeDescriptions(mProperties.layoutUsage);
 
 		int i{ 0 };
 		for (auto& attributeDescription : attributeDescriptions)
@@ -156,15 +171,16 @@ namespace Ilargi
 			i++;
 		}
 
+		uint32_t attributeSize{ static_cast<uint32_t>(attributeDescriptions.size()) };
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo
 		{
 			VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,					// sType
 			nullptr,																	// pNext
 			0,																			// flags
-			attributeDescriptions.size() == 0 ? 0U : 1U,								// vertexBindingDescriptionCount
-			attributeDescriptions.size() == 0 ? VK_NULL_HANDLE : &bindingDescription,	// pVertexBindingDescriptions
-			static_cast<uint32_t>(attributeDescriptions.size()),						// vertexAttributeDescriptionCount
-			attributeDescriptions.data()												// pVertexAttributeDescriptions
+			attributeSize == 0 ? 0U : 1U,												// vertexBindingDescriptionCount
+			attributeSize == 0 ? VK_NULL_HANDLE : &bindingDescription,					// pVertexBindingDescriptions
+			attributeSize == 0 ? 0U : attributeSize,									// vertexAttributeDescriptionCount
+			attributeSize == 0 ? VK_NULL_HANDLE : attributeDescriptions.data()			// pVertexAttributeDescriptions
 		};
 
 		VkPipelineInputAssemblyStateCreateInfo inputAssembly
@@ -229,8 +245,8 @@ namespace Ilargi
 			VK_FALSE,													// depthClampEnable
 			VK_FALSE,													// rasterizerDiscardEnable
 			VK_POLYGON_MODE_FILL,										// polygonMode
-			VK_CULL_MODE_BACK_BIT,										// cullMode
-			VK_FRONT_FACE_CLOCKWISE,									// frontFace
+			VK_CULL_MODE_NONE,											// cullMode
+			VK_FRONT_FACE_COUNTER_CLOCKWISE,							// frontFace
 			VK_FALSE,													// depthBiasEnable
 			0.0f,														// depthBiasConstantFactor
 			0.0f,														// depthBiasClamp
@@ -259,8 +275,8 @@ namespace Ilargi
 				continue;
 
 			VkPipelineColorBlendAttachmentState& colorBlendAttachment{ colorBlendAttachments.emplace_back() };
-			colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-			colorBlendAttachment.blendEnable = VK_TRUE;
+			colorBlendAttachment.colorWriteMask = mProperties.blend ? VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT : VK_COLOR_COMPONENT_R_BIT;
+			colorBlendAttachment.blendEnable = mProperties.blend;
 			colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
 			colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
 			colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
@@ -367,14 +383,14 @@ namespace Ilargi
 		vkDestroyDescriptorSetLayout(device, mDescriptorSetLayout, nullptr);
 	}
 
-	void VulkanPipeline::PushConstants(const std::shared_ptr<CommandBuffer>& aCommandBuffer, uint32_t aOffset, uint32_t aSize, const void* aData) const
+	void VulkanPipeline::PushConstants(const std::shared_ptr<CommandBuffer>& aCommandBuffer, ShaderStage aShaderStage, uint32_t aOffset, uint32_t aSize, const void* aData) const
 	{
-		Renderer::Submit([this, aCommandBuffer, aOffset, aSize, aData]()
+		Renderer::Submit([this, aCommandBuffer, aShaderStage, aOffset, aSize, aData]()
 			{
 				const uint32_t currentFrame{ Renderer::GetCurrentFrame() };
 
 				const VkCommandBuffer cmdBuffer{ aCommandBuffer->As<VulkanCommandBuffer>()->GetCurrentCommand(currentFrame) };
-				vkCmdPushConstants(cmdBuffer, mPipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, aOffset, aSize, aData);
+				vkCmdPushConstants(cmdBuffer, mPipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS, aOffset, aSize, aData);
 			});
 	}
 

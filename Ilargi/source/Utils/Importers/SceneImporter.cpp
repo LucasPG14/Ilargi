@@ -58,8 +58,16 @@ namespace Ilargi
 				UUID meshUUID{ static_cast<uint64_t>(node["StaticMeshComponent"]["Mesh"]) };
 				UUID materialUUID{ static_cast<uint64_t>(node["StaticMeshComponent"]["Material"]) };
 				
-				staticMesh.staticMesh = std::static_pointer_cast<StaticMesh>(ResourceManager::GetResource(meshUUID));
-				staticMesh.material = std::static_pointer_cast<Material>(ResourceManager::GetResource(materialUUID));
+				for (uint32_t indexSubmesh{ 0U }; indexSubmesh < node["StaticMeshComponent"].size(); ++indexSubmesh)
+				{
+					StaticSubmesh submesh;
+					submesh.mesh = static_cast<uint64_t>(node["StaticMeshComponent"][indexSubmesh]["Mesh"]);
+					submesh.material = static_cast<uint64_t>(node["StaticMeshComponent"][indexSubmesh]["Material"]);
+					staticMesh.submeshes.push_back(submesh);
+				}
+				// TODO: Meshes
+				//staticMesh.staticMesh = std::static_pointer_cast<StaticMesh>(ResourceManager::GetResource(meshUUID));
+				//staticMesh.material = std::static_pointer_cast<Material>(ResourceManager::GetResource(materialUUID));
 			}
 
 			if (node.containsKey("ParentComponent"))
@@ -129,19 +137,12 @@ namespace Ilargi
 			{
 				const StaticMeshComponent& staticMesh{ world.get<StaticMeshComponent>(entity) };
 
-				UUID uuid{ 0U };
-
-				if (auto mesh{ staticMesh.staticMesh.lock() })
+				for (uint32_t indexMesh{ 0U }; indexMesh < staticMesh.submeshes.size(); ++indexMesh)
 				{
-					uuid = mesh->mResourceUUID;
-					document[index]["StaticMeshComponent"]["Mesh"] = static_cast<uint64_t>(uuid);
+					document[index]["StaticMeshComponent"][indexMesh]["Mesh"] = static_cast<uint64_t>(staticMesh.submeshes[indexMesh].mesh);
+					document[index]["StaticMeshComponent"][indexMesh]["Material"] = static_cast<uint64_t>(staticMesh.submeshes[indexMesh].material);
 				}
-
-				if (auto material{ staticMesh.material.lock() })
-				{
-					uuid = material->mResourceUUID;
-					document[index]["StaticMeshComponent"]["Material"] = static_cast<uint64_t>(uuid);
-				}
+				// TODO: Meshes
 			}
 
 			if (world.try_get<ParentComponent>(entity))

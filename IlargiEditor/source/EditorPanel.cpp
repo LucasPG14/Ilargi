@@ -4,7 +4,7 @@
 #include "EditorPanels/SceneHierarchyInspectorPanel.h"
 #include "EditorPanels/ResourcesPanel.h"
 
-#include "Localization.h"
+#include "LocalizationManager.h"
 
 #include "Resources/Model.h"
 #include "Utils/FileSystem.h"
@@ -47,6 +47,9 @@ namespace Ilargi
 
 		mCommandBuffer = CommandBuffer::Create(Renderer::GetConfig().maxFrames);
 		
+		mMousePickingRenderPass = RenderPass::Create({ { ImageFormat::RED32_UINT }, true });
+		mMousePickingFramebuffer = Framebuffer::Create({ { ImageFormat::RED32_UINT }, mMousePickingRenderPass, 1080U, 720U, false, false });
+
 		mRenderPass = RenderPass::Create({ { ImageFormat::RGBA8, ImageFormat::DEPTH24_STENCIL8 }, true });
 		mFramebuffer = Framebuffer::Create({ { ImageFormat::RGBA8, ImageFormat::DEPTH24_STENCIL8 }, mRenderPass, 1080U, 720U, false, true });
 		{
@@ -62,6 +65,7 @@ namespace Ilargi
 					{ ShaderDataType::FLOAT3_32, "bitangent" },
 					{ ShaderDataType::FLOAT2_32, "texCoord" },
 				},
+				5U,
 				true,												// testDepth
 				true,												// writeDepth
 				true,												// hasStencil
@@ -78,6 +82,7 @@ namespace Ilargi
 				mRenderPass,								// renderPass
 				Renderer::GetShader("Grid"),	// shader
 				{},											// layout
+				0U,
 				true,										// testDepth
 				false,										// writeDepth
 				false,										// hasStencil
@@ -100,6 +105,7 @@ namespace Ilargi
 					{ ShaderDataType::FLOAT3_32, "bitangent" },
 					{ ShaderDataType::FLOAT2_32, "texCoord" },
 				},
+				1U,
 				true,												// testDepth
 				false,												// writeDepth
 				true,												// hasStencil
@@ -109,7 +115,31 @@ namespace Ilargi
 			mOutlinePipeline = Pipeline::Create(pipelineProperties);
 		}
 
-		LoadLanguage("Engine/Localization/english.json");
+		{
+			PipelineProperties pipelineProperties
+			{
+				"MousePicking",										// name
+				mMousePickingRenderPass,							// renderPass
+				Renderer::GetShader("MousePicking"),				// shader
+				{													// layout
+					{ ShaderDataType::FLOAT3_32, "position" },
+					{ ShaderDataType::FLOAT3_32, "normal" },
+					{ ShaderDataType::FLOAT3_32, "tangent" },
+					{ ShaderDataType::FLOAT3_32, "bitangent" },
+					{ ShaderDataType::FLOAT2_32, "texCoord" },
+				},
+				1U,
+				true,												// testDepth
+				false,												// writeDepth
+				true,												// hasStencil
+				false,												// writeStencil
+				false,												// blend
+			};
+
+			mMousePickingPipeline = Pipeline::Create(pipelineProperties);
+		}
+
+		LocalizationManager::LoadLanguage("Engine/Localization/english.json");
 	}
 
 	void EditorPanel::OnDestroy()
@@ -127,6 +157,10 @@ namespace Ilargi
 		mOutlinePipeline->Destroy();
 		mGeometryPipeline->Destroy();
 		mGridPipeline->Destroy();
+
+		mMousePickingFramebuffer->Destroy();
+		mMousePickingRenderPass->Destroy();
+		mMousePickingPipeline->Destroy();
 
 		mCommandBuffer->Destroy();
 	}
@@ -157,6 +191,42 @@ namespace Ilargi
 			DrawGeometry();
 			DrawOutline();
 
+			mRenderPass->EndRenderPass(mCommandBuffer);
+
+			const auto& trView{ mScene->GetWorld().view<TransformComponent, StaticMeshComponent>() };
+			if (Input::IsMouseButtonPressed(MouseCode::LEFT) && trView.begin() != trView.end())
+			{
+				glm::vec2 mousePos{ Input::GetMousePos() };
+				float mouseX { mousePos.x - mViewportPosition.x };
+				float mouseY { mousePos.y - mViewportPosition.y };
+				if (mouseX > 0 && mouseY > 0 && mouseX <= mViewportSize.x && mouseY <= mViewportSize.y)
+				{
+					mouseX = mouseX / mViewportSize.x;
+					mouseY = mouseY / mViewportSize.y;
+					mMousePickingRenderPass->BeginRenderPass(mCommandBuffer, mMousePickingFramebuffer);
+					mMousePickingPipeline->Bind(mCommandBuffer);
+
+					ShaderStage stage{ ShaderStage(3) };
+					for (auto entity : trView)
+					{
+						auto [transform, meshComponent] { trView.get<TransformComponent, StaticMeshComponent>(entity)};
+
+						for (uint32_t index{ 0U }; index < meshComponent.submeshes.size(); ++index)
+						{
+							mMousePickingPipeline->BindUniformBuffer(mCommandBuffer, mScene->GetSceneDataUBO(), 0);
+							mMousePickingPipeline->PushConstants(mCommandBuffer, stage, 0, 64, glm::value_ptr(transform.worldTransform));
+							mMousePickingPipeline->PushConstants(mCommandBuffer, stage, 64, 4, &entity);
+							Renderer::SubmitGeometry(mCommandBuffer, std::static_pointer_cast<StaticMesh>(ResourceManager::GetResource(meshComponent.submeshes[index].mesh)));
+						}
+					}
+
+					mMousePickingRenderPass->EndRenderPass(mCommandBuffer);
+
+					uint32_t objectID{ mMousePickingFramebuffer->ReadFramebufferPixel(mouseX, mouseY) };
+
+					mHierarchyInspector->SetSelected(objectID);
+				}
+			}
 			break;
 		}
 		case EditorMode::PLAY:
@@ -167,6 +237,7 @@ namespace Ilargi
 			if (mNeedToUpdateFramebuffer)
 			{
 				mFramebuffer->Resize(mRenderPass, (uint32_t)mViewportSize.x, (uint32_t)mViewportSize.y);
+				mMousePickingFramebuffer->Resize(mMousePickingRenderPass, (uint32_t)mViewportSize.x, (uint32_t)mViewportSize.y);
 				cameraComponent.aspectRatio = mViewportSize.x / mViewportSize.y;
 				mNeedToUpdateFramebuffer = false;
 			}
@@ -183,7 +254,6 @@ namespace Ilargi
 		}
 		}
 
-		mRenderPass->EndRenderPass(mCommandBuffer);
 		mCommandBuffer->EndCommand();
 		mCommandBuffer->Submit();
 	}
@@ -257,140 +327,117 @@ namespace Ilargi
 		{
 			auto [transform, meshComponent] { view.get<TransformComponent, StaticMeshComponent>(entity)};
 
-			auto mesh{ meshComponent.staticMesh.lock() };
-			auto material{ meshComponent.material.lock() };
-			if (!mesh)
-				continue;
-
-			
-			mGeometryPipeline->BindMaterial(mCommandBuffer, material ? material : Renderer::GetDefaultMaterial(), 0);
-			mGeometryPipeline->BindUniformBuffer(mCommandBuffer, mScene->GetSceneDataUBO(), 1);
-			mGeometryPipeline->PushConstants(mCommandBuffer, 0, 64, glm::value_ptr(transform.worldTransform));
-			mGeometryPipeline->PushConstants(mCommandBuffer, 64, 12, glm::value_ptr(light.radiance));
-			mGeometryPipeline->PushConstants(mCommandBuffer, 76, 12, glm::value_ptr(glm::radians(trans.rotation)));
-			Renderer::SubmitGeometry(mCommandBuffer, mesh);
+			for (uint32_t index{ 0U }; index < meshComponent.submeshes.size(); ++index)
+			{
+				mGeometryPipeline->BindMaterial(mCommandBuffer, std::static_pointer_cast<Material>(ResourceManager::GetResource(meshComponent.submeshes[index].material)), 1);
+				//mGeometryPipeline->BindUniformBuffer(mCommandBuffer, mScene->GetCameraDataUBO(), 0);
+				mGeometryPipeline->BindUniformBuffer(mCommandBuffer, mScene->GetSceneDataUBO(), 1);
+				mGeometryPipeline->PushConstants(mCommandBuffer, VERTEX_SHADER, 0, 64, glm::value_ptr(transform.worldTransform));
+				mGeometryPipeline->PushConstants(mCommandBuffer, VERTEX_SHADER, 64, 12, glm::value_ptr(light.radiance));
+				mGeometryPipeline->PushConstants(mCommandBuffer, VERTEX_SHADER, 76, 12, glm::value_ptr(trans.rotation));
+				Renderer::SubmitGeometry(mCommandBuffer, std::static_pointer_cast<StaticMesh>(ResourceManager::GetResource(meshComponent.submeshes[index].mesh)));
+			}
 		}
 	}
 
 	void EditorPanel::DrawOutline()
 	{
+		// TODO: MESHES
 		Entity selectedEntity{ mHierarchyInspector->GetSelected() };
 		if (selectedEntity != entt::null && mScene->GetWorld().try_get<StaticMeshComponent>(selectedEntity))
 		{
 			mOutlinePipeline->Bind(mCommandBuffer);
 
 			const auto&& [transform, meshComponent] { mScene->GetWorld().get<TransformComponent, StaticMeshComponent>(selectedEntity)};
-			const auto& mesh{ meshComponent.staticMesh.lock() };
-
+			
 			glm::vec3 position, rotation, scale;
 			ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(transform.worldTransform), glm::value_ptr(position), glm::value_ptr(rotation), glm::value_ptr(scale));
 			mStencilMatrix = glm::translate(glm::mat4(1.0), position) * glm::eulerAngleXYZ(glm::radians(rotation.x), glm::radians(rotation.y), glm::radians(rotation.z));
 			mStencilMatrix = glm::scale(mStencilMatrix, scale * 1.05f);
-			mOutlinePipeline->BindUniformBuffer(mCommandBuffer, mScene->GetSceneDataUBO(), 1);
-			mOutlinePipeline->PushConstants(mCommandBuffer, 0, 64, glm::value_ptr(mStencilMatrix));
 
-			Renderer::SubmitGeometry(mCommandBuffer, mesh);
+			mGeometryPipeline->BindUniformBuffer(mCommandBuffer, mScene->GetSceneDataUBO(), 1);
+			mOutlinePipeline->PushConstants(mCommandBuffer, VERTEX_SHADER, 0, 64, glm::value_ptr(mStencilMatrix));
+
+			for (const auto& submesh : meshComponent.submeshes)
+			{
+				const auto& mesh{ std::static_pointer_cast<StaticMesh>(ResourceManager::GetResource(submesh.mesh)) };
+
+				Renderer::SubmitGeometry(mCommandBuffer, mesh);
+			}
 		}
-	}
-	
-	void EditorPanel::LoadLanguage(std::filesystem::path path)
-	{
-		std::ifstream file(path, std::ios::in);
-
-		JsonDocument document;
-		deserializeJson(document, file);
-
-		menuNames[Texts::FILE] = document["File"].as<std::string>();
-		menuNames[Texts::NEW_SCENE] = document["New Scene"].as<std::string>();
-		menuNames[Texts::OPEN_SCENE] = document["Open Scene"].as<std::string>();
-		menuNames[Texts::SAVE_SCENE] = document["Save Scene"].as<std::string>();
-		menuNames[Texts::SAVE_SCENE_AS] = document["Save Scene As"].as<std::string>();
-		menuNames[Texts::EXIT] = document["Exit"].as<std::string>();
-		
-		menuNames[Texts::EDIT] = document["Edit"].as<std::string>();
-		menuNames[Texts::UNDO] = document["Undo"].as<std::string>();
-		menuNames[Texts::REDO] = document["Redo"].as<std::string>();
-		menuNames[Texts::COPY] = document["Copy"].as<std::string>();
-		menuNames[Texts::PASTE] = document["Paste"].as<std::string>();
-		menuNames[Texts::DELETE] = document["Delete"].as<std::string>();
-		menuNames[Texts::DUPLICATE] = document["Duplicate"].as<std::string>();
-		
-		menuNames[Texts::LOCALIZATION] = document["Localization"].as<std::string>();
-		menuNames[Texts::ENGLISH] = document["English"].as<std::string>();
-		menuNames[Texts::SPANISH] = document["Spanish"].as<std::string>();
 	}
 
 	void EditorPanel::RenderMainMenuBar()
 	{
 		ImGui::BeginMainMenuBar();
-		if (ImGui::BeginMenu(menuNames[Texts::FILE].c_str()))
+		if (ImGui::BeginMenu(LOC("editor.file")))
 		{
-			if (ImGui::MenuItem(menuNames[Texts::NEW_SCENE].c_str(), "Ctrl + N"))
+			if (ImGui::MenuItem(LOC("editor.file.newscene"), "Ctrl + N"))
 			{
 				NewScene();
 			}
-			if (ImGui::MenuItem(menuNames[Texts::OPEN_SCENE].c_str(), "Ctrl + O"))
+			if (ImGui::MenuItem(LOC("editor.file.openscene"), "Ctrl + O"))
 			{
 				OpenScene();
 			}
 			ImGui::Separator();
-			if (ImGui::MenuItem(menuNames[Texts::SAVE_SCENE].c_str(), "Ctrl + S"))
+			if (ImGui::MenuItem(LOC("editor.file.savescene"), "Ctrl + S"))
 			{
 				// TODO: Change this to save the scene with the current path of the scene
 				SaveSceneAs();
 			}
-			if (ImGui::MenuItem(menuNames[Texts::SAVE_SCENE_AS].c_str(), "Ctrl + Shift + S"))
+			if (ImGui::MenuItem(LOC("editor.file.savesceneas"), "Ctrl + Shift + S"))
 			{
 				SaveSceneAs();
 			}
 			ImGui::Separator();
-			if (ImGui::MenuItem(menuNames[Texts::EXIT].c_str(), "Ctrl + Alt + F4"))
+			if (ImGui::MenuItem(LOC("editor.file.exit"), "Ctrl + Alt + F4"))
 			{
 				Application::Get()->CloseApp();
 			}
 			ImGui::EndMenu();
 		}
-		if (ImGui::BeginMenu(menuNames[Texts::EDIT].c_str()))
+		if (ImGui::BeginMenu(LOC("editor.edit")))
 		{
-			if (ImGui::MenuItem(menuNames[Texts::UNDO].c_str(), "Ctrl + Z"))
+			if (ImGui::MenuItem(LOC("editor.edit.undo"), "Ctrl + Z"))
 			{
 				// TODO: Undo
 			}
-			if (ImGui::MenuItem(menuNames[Texts::REDO].c_str(), "Ctrl + Y"))
+			if (ImGui::MenuItem(LOC("editor.edit.redo"), "Ctrl + Y"))
 			{
 				// TODO: Redo
 			}
 			ImGui::Separator();
 
 			bool enabled{ mHierarchyInspector->GetSelected() != entt::null ? true : false };
-			if (ImGui::MenuItem(menuNames[Texts::COPY].c_str(), "Ctrl + C", (bool*)0, enabled))
+			if (ImGui::MenuItem(LOC("editor.edit.copy"), "Ctrl + C", (bool*)0, enabled))
 			{
 				// TODO: Copy
 			}
-			if (ImGui::MenuItem(menuNames[Texts::PASTE].c_str(), "Ctrl + V", (bool*)0, enabled))
+			if (ImGui::MenuItem(LOC("editor.edit.paste"), "Ctrl + V", (bool*)0, enabled))
 			{
 				// TODO: Paste
 			}
-			if (ImGui::MenuItem(menuNames[Texts::DELETE].c_str(), "Del", (bool*)0, enabled))
+			if (ImGui::MenuItem(LOC("editor.edit.delete"), "Del", (bool*)0, enabled))
 			{
 				mScene->DestroyEntity(mHierarchyInspector->GetSelected());
 				mHierarchyInspector->ResetSelected();
 			}
-			if (ImGui::MenuItem(menuNames[Texts::DUPLICATE].c_str(), "Ctrl + D", (bool*)0, enabled))
+			if (ImGui::MenuItem(LOC("editor.edit.duplicate"), "Ctrl + D", (bool*)0, enabled))
 			{
 				// TODO: Duplicate an entity
 			}
 			ImGui::EndMenu();
 		}
-		if (ImGui::BeginMenu(menuNames[Texts::LOCALIZATION].c_str()))
+		if (ImGui::BeginMenu(LOC("editor.localization")))
 		{
-			if (ImGui::MenuItem(menuNames[Texts::ENGLISH].c_str()))
+			if (ImGui::MenuItem(LOC("editor.localization.english")))
 			{
-				LoadLanguage("Engine/Localization/english.json");
+				LocalizationManager::LoadLanguage("Engine/Localization/english.json");
 			}
-			if (ImGui::MenuItem(menuNames[Texts::SPANISH].c_str()))
+			if (ImGui::MenuItem(LOC("editor.localization.spanish")))
 			{
-				LoadLanguage("Engine/Localization/spanish.json");
+				LocalizationManager::LoadLanguage("Engine/Localization/spanish.json");
 			}
 			ImGui::EndMenu();
 		}
@@ -402,7 +449,7 @@ namespace Ilargi
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
 		ImGui::Begin("Viewport", 0, ImGuiWindowFlags_NoDecoration);
 		ImVec2 frameViewportSize{ ImGui::GetContentRegionAvail() };
-		ImVec2 viewportPosition{ ImGui::GetWindowPos() };
+		mViewportPosition = { ImGui::GetWindowPos().x, ImGui::GetWindowPos().y };
 
 		ImGui::Image(mFramebuffer->GetID(), frameViewportSize, { 0.0f, 1.0f }, { 1.0f, 0.0f });
 
@@ -478,9 +525,9 @@ namespace Ilargi
 		ImGui::End();
 		ImGui::PopStyleVar();
 
-		ImGui::SetNextWindowPos({ frameViewportSize.x * 0.5f - 100.0f, viewportPosition.y + 5.0f });
+		ImGui::SetNextWindowPos({ frameViewportSize.x * 0.5f - 100.0f, mViewportPosition.y + 5.0f });
 		ImGui::BeginChild("Play/Stop", { 200.0f, 25.0f }, true, ImGuiWindowFlags_NoDecoration);
-		if (ImGui::Button("Play", { 50.0f, 20.0f }))
+		if (ImGui::Button(LOC("editor.viewport.play"), { 50.0f, 20.0f }))
 		{
 			SaveScene("Resources/Demo.ilargi");
 			mEditorMode = EditorMode::PLAY;
@@ -490,12 +537,12 @@ namespace Ilargi
 			cameraComponent.aspectRatio = mViewportSize.x / mViewportSize.y;
 		}
 		ImGui::SameLine();
-		if (ImGui::Button("Pause", { 50.0f, 20.0f }))
+		if (ImGui::Button(LOC("editor.viewport.pause"), { 50.0f, 20.0f }))
 		{
 			mEditorMode = EditorMode::PAUSE;
 		}
 		ImGui::SameLine();
-		if (ImGui::Button("Stop", { 50.0f, 20.0f }))
+		if (ImGui::Button(LOC("editor.viewport.stop"), { 50.0f, 20.0f }))
 		{
 			OpenScene(mScene->mResourceUUID);
 			mEditorMode = EditorMode::EDITOR;
@@ -509,6 +556,7 @@ namespace Ilargi
 		mHierarchyInspector->SetScene(mScene);
 
 		Entity entity{ mScene->CreateEntity("Directional Light") };
+		mScene->GetComponent<TransformComponent>(entity).rotation = { 0.0f, 80.0f, 45.0f };
 		mScene->CreateComponent<DirectionalLightComponent>(entity);
 
 		Entity cameraEntity{ mScene->CreateEntity("Main Camera") };

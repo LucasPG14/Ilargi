@@ -77,6 +77,12 @@ namespace Ilargi
 		[[nodiscard]] static const std::shared_ptr<Texture2D>& GetDefaultTexture() { return sDefaultTexture; }
 
 		/*
+		* @brief Returns the default normal texture.
+		* @return An instance of the default texture.
+		*/
+		[[nodiscard]] static const std::shared_ptr<Texture2D>& GetDefaultNormalTexture() { return sDefaultNormalTexture; }
+
+		/*
 		* @brief Returns the default material.
 		* @return An instance of the default material.
 		*/
@@ -125,6 +131,7 @@ namespace Ilargi
 		static void RenderQueue();
 	private:
 		static std::shared_ptr<Texture2D> sDefaultTexture; // Instance of the default texture.
+		static std::shared_ptr<Texture2D> sDefaultNormalTexture; // Instance of the default normal map texture.
 		static std::shared_ptr<Material> sDefaultMaterial; // Instance of the default material.
 		static std::vector<RenderFn> sRenderQueue; // The render queue.
 
