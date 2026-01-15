@@ -52,6 +52,14 @@ namespace Ilargi
 		void DrawInspector();
 
 		/*
+		* @brief Draws a vec3 of the transform.
+		* @param aLabel Draws a vec3 of the transform.
+		* @param aV The value to draw.
+		* @param aResetValue The value used to reset the passed value.
+		*/
+		void DrawVec3(const char* aLabel, float* aV, float aResetValue);
+
+		/*
 		* @brief Draws each node of the hierarchy.
 		* @param aEntity The entity to draw.
 		* @param aWorld The world of entities.

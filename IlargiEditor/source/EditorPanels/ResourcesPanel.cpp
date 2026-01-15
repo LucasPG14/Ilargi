@@ -255,12 +255,12 @@ namespace Ilargi
 				ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
 				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
 
-				ImVec4 colorBg{ 0.43f, 0.43f, 0.50f, 0.50f };
+				ImVec4 colorBg{ 0.12f, 0.12f, 0.13f, 1.00f };
 				if (mSelectedFile == resourceEntry.path)
-					colorBg = { 0.26f, 0.59f, 0.98f, 0.40f };
+					colorBg = { 0.65f, 0.10f, 0.12f, 0.60f };
 
 				ImGui::PushStyleColor(ImGuiCol_ChildBg, colorBg);
-				ImGui::PushStyleColor(ImGuiCol_Border, colorBg);
+				//ImGui::PushStyleColor(ImGuiCol_Border, colorBg);
 				if (ImGui::BeginChild(resourceEntry.path.string().c_str(), { cellX, cellY }, true, ImGuiWindowFlags_NoDecoration))
 				{
 					if (ImGui::IsWindowHovered())
@@ -317,7 +317,7 @@ namespace Ilargi
 					}
 				}
 				ImGui::EndChild();
-				ImGui::PopStyleColor(2);
+				ImGui::PopStyleColor(1);
 				ImGui::PopStyleVar(2);
 			}
 

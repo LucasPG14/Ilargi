@@ -10,6 +10,7 @@
 #include "Resources/Texture.h"
 
 #include <imgui/imgui.h>
+#include <imgui/imgui_internal.h>
 #include <gtc/type_ptr.hpp>
 #include "../LocalizationManager.h"
 
@@ -93,9 +94,6 @@ namespace Ilargi
 	{
 		auto& world{ mScene->GetWorld() };
 
-		ImGui::PushStyleColor(ImGuiCol_Header, { 12.0f / 255.0f, 12.0f / 255.0f, 25.0f / 255.0f, 1.0f });
-		ImGui::PushStyleColor(ImGuiCol_HeaderHovered, { 12.0f / 255.0f, 12.0f / 255.0f, 25.0f / 255.0f, 1.0f });
-		ImGui::PushStyleColor(ImGuiCol_HeaderActive, { 12.0f / 255.0f, 12.0f / 255.0f, 25.0f / 255.0f, 1.0f });
 		ImGui::Separator();
 
 		if (world.try_get<InfoComponent>(mSelected))
@@ -129,21 +127,11 @@ namespace Ilargi
 			TransformComponent& transformComponent{ mScene->GetComponent<TransformComponent>(mSelected) };
 			if (ImGui::CollapsingHeader(LOC("editor.inspector.transform")))
 			{
-				ImVec2 size{ ImGui::CalcTextSize(LOC("editor.transform.rotation")) };
-				float widthWindow{ ImGui::GetContentRegionMax().x - size.x };
 				bool hasChanged{ false };
 
-				ImGui::Text(LOC("editor.transform.position"));
-				ImGui::SameLine();
-				hasChanged |= ImGui::DragFloat3("##Position", glm::value_ptr(transformComponent.position));
-
-				ImGui::Text(LOC("editor.transform.rotation"));
-				ImGui::SameLine();
-				hasChanged |= ImGui::DragFloat3("##Rotation", glm::value_ptr(transformComponent.rotation));
-
-				ImGui::Text(LOC("editor.transform.scale"));
-				ImGui::SameLine();
-				hasChanged |= ImGui::DragFloat3("##Scale", glm::value_ptr(transformComponent.scale));
+				DrawVec3("Position", glm::value_ptr(transformComponent.position), 0.0f);
+				DrawVec3("Rotation", glm::value_ptr(transformComponent.rotation), 0.0f);
+				DrawVec3("Scale", glm::value_ptr(transformComponent.scale), 1.0f);
 
 				if (hasChanged)
 				{
@@ -220,7 +208,76 @@ namespace Ilargi
 			ImGui::Separator();
 		}
 
-		ImGui::PopStyleColor(3);
+		//ImGui::PopStyleColor(3);
+	}
+
+	void SceneHierarchyInspectorPanel::DrawVec3(const char* aLabel, float* v, float aResetValue)
+	{
+		ImGui::PushID(aLabel);
+
+		if (ImGui::BeginTable(aLabel, 2, ImGuiTableFlags_SizingStretchProp))
+		{
+			ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed, 90.0f);
+			ImGui::TableSetupColumn("Values", ImGuiTableColumnFlags_WidthStretch);
+			
+			ImGui::TableNextRow();
+
+			// Label
+			ImGui::TableSetColumnIndex(0);
+			ImGui::AlignTextToFramePadding();
+			ImGui::TextUnformatted(aLabel);
+
+			// Values
+			ImGui::TableSetColumnIndex(1);
+
+			float lineHeight{ ImGui::GetFrameHeight() };
+			ImVec2 buttonSize{ lineHeight, lineHeight };
+
+			float spacing{ ImGui::GetStyle().ItemSpacing.x };
+			float inner{ ImGui::GetStyle().ItemInnerSpacing.x };
+			float avail{ ImGui::GetContentRegionAvail().x };
+
+			float totalButtons{ buttonSize.x * 3.0f };
+			float totalSpacing{ spacing * 2.0f + inner * 3.0f + spacing * 2.0f };
+
+			float fieldWidth{ (avail - totalButtons - totalSpacing) / 3.0f };
+			if (fieldWidth < 32.0f)
+				fieldWidth = 32.0f;
+
+			float usedWidth{ totalButtons + totalSpacing + fieldWidth * 3.0f };
+			if (avail > usedWidth)
+				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (avail - usedWidth));
+
+			auto DrawAxis = [&](const char* aText, float& aValue, ImVec4 aColor, float aResetValue)
+			{
+				ImGui::PushStyleColor(ImGuiCol_Button, aColor);
+				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(aColor.x + 0.1f, aColor.y + 0.1f, aColor.z + 0.1f, 1.0f));
+				ImGui::PushStyleColor(ImGuiCol_ButtonActive, aColor);
+
+				if (ImGui::Button(aText, buttonSize))
+					aValue = aResetValue;
+
+				ImGui::PopStyleColor(3);
+
+				ImGui::SameLine();
+
+				ImGui::PushItemWidth(fieldWidth);
+				ImGui::DragFloat(std::string("##" + std::string(aText)).c_str(), &aValue);
+				ImGui::PopItemWidth();
+				
+				ImGui::SameLine();
+			};
+
+			DrawAxis("X", v[0], ImVec4(0.8f, 0.1f, 0.15f, 1.0f), aResetValue);
+			DrawAxis("Y", v[1], ImVec4(0.2f, 0.7f, 0.2f, 1.0f), aResetValue);
+			DrawAxis("Z", v[2], ImVec4(0.1f, 0.25f, 0.8f, 1.0f), aResetValue);
+
+			ImGui::NewLine();
+
+			ImGui::EndTable();
+		}
+
+		ImGui::PopID();
 	}
 	
 	void SceneHierarchyInspectorPanel::DrawNode(const Entity aEntity, const entt::registry& aWorld)
