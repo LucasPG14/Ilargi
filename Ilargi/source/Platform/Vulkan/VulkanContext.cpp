@@ -3,6 +3,7 @@
 // Main headers
 #include "VulkanContext.h"
 #include "VulkanAllocator.h"
+#include "VulkanUtils.h"
 
 // 3rd Party headers
 #include <GLFW/glfw3.h>
@@ -53,6 +54,8 @@ namespace Ilargi
 	VkCommandPool VulkanContext::sCommandPool{ VK_NULL_HANDLE };
 	VkQueue VulkanContext::sGraphicsQueue{ VK_NULL_HANDLE };
 	VkDescriptorPool VulkanContext::sDescriptorPool{ VK_NULL_HANDLE };
+	VkPipelineLayout VulkanContext::sPipelineLayout{ VK_NULL_HANDLE };
+	std::vector<VkDescriptorSetLayout> VulkanContext::sDescriptorSetLayouts{};
 
 	VulkanContext::VulkanContext(GLFWwindow* aWindow, std::string_view aAppName)
 	{
@@ -227,6 +230,8 @@ namespace Ilargi
 
 			VK_CHECK_RESULT(vkCreateDescriptorPool(sLogicalDevice, &poolInfo, nullptr, &sDescriptorPool));
 		}
+
+		CreatePipelineLayout();
 	}
 	
 	VulkanContext::~VulkanContext()
@@ -236,6 +241,12 @@ namespace Ilargi
 	void VulkanContext::Destroy() const
 	{
 		VulkanAllocator::Destroy();
+
+		vkDestroyPipelineLayout(sLogicalDevice, sPipelineLayout, nullptr);
+		for (auto descriptorLayout : sDescriptorSetLayouts)
+		{
+			vkDestroyDescriptorSetLayout(sLogicalDevice, descriptorLayout, nullptr);
+		}
 
 		vkDestroyDescriptorPool(sLogicalDevice, sDescriptorPool, nullptr);
 
@@ -373,5 +384,96 @@ namespace Ilargi
 		}
 
 		return indices;
+	}
+	
+	void VulkanContext::CreatePipelineLayout()
+	{
+		sDescriptorSetLayouts.resize(2);
+		
+		// Descriptor set 0
+		std::vector<VkDescriptorSetLayoutBinding> bindingSet0(2);
+
+		bindingSet0[0].binding = 0;
+		bindingSet0[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		bindingSet0[0].descriptorCount = 1;
+		bindingSet0[0].stageFlags = VK_SHADER_STAGE_ALL_GRAPHICS;
+		bindingSet0[0].pImmutableSamplers = nullptr;
+
+		bindingSet0[1].binding = 1;
+		bindingSet0[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		bindingSet0[1].descriptorCount = 1;
+		bindingSet0[1].stageFlags = VK_SHADER_STAGE_ALL_GRAPHICS;
+		bindingSet0[1].pImmutableSamplers = nullptr;
+
+		VkDescriptorSetLayoutCreateInfo layoutInfoSet0
+		{
+			VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,	// sType
+			nullptr,												// pNext
+			0,														// flags
+			bindingSet0.size(),										// bindingCount
+			bindingSet0.data()										// pBindings
+		};
+
+		VK_CHECK_RESULT(vkCreateDescriptorSetLayout(sLogicalDevice, &layoutInfoSet0, nullptr, &sDescriptorSetLayouts[0]));
+
+		// Descriptor set 1
+		std::vector<VkDescriptorSetLayoutBinding> bindingSet1(4);
+
+		bindingSet1[0].binding = 0;
+		bindingSet1[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		bindingSet1[0].descriptorCount = 1;
+		bindingSet1[0].stageFlags = VK_SHADER_STAGE_ALL_GRAPHICS;
+		bindingSet1[0].pImmutableSamplers = nullptr;
+
+		bindingSet1[1].binding = 1;
+		bindingSet1[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		bindingSet1[1].descriptorCount = 1;
+		bindingSet1[1].stageFlags = VK_SHADER_STAGE_ALL_GRAPHICS;
+		bindingSet1[1].pImmutableSamplers = nullptr;
+
+		bindingSet1[2].binding = 2;
+		bindingSet1[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		bindingSet1[2].descriptorCount = 1;
+		bindingSet1[2].stageFlags = VK_SHADER_STAGE_ALL_GRAPHICS;
+		bindingSet1[2].pImmutableSamplers = nullptr;
+
+		bindingSet1[3].binding = 4;
+		bindingSet1[3].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		bindingSet1[3].descriptorCount = 1;
+		bindingSet1[3].stageFlags = VK_SHADER_STAGE_ALL_GRAPHICS;
+		bindingSet1[3].pImmutableSamplers = nullptr;
+
+		VkDescriptorSetLayoutCreateInfo layoutInfoSet1
+		{
+			VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,	// sType
+			nullptr,												// pNext
+			0,														// flags
+			bindingSet1.size(),										// bindingCount
+			bindingSet1.data()										// pBindings
+		};
+
+		VK_CHECK_RESULT(vkCreateDescriptorSetLayout(sLogicalDevice, &layoutInfoSet1, nullptr, &sDescriptorSetLayouts[1]));
+
+		// Creating the push constants
+		VkPushConstantRange pushConstant;
+		pushConstant.offset = 0;
+		pushConstant.size = 96;
+		pushConstant.stageFlags = VK_SHADER_STAGE_ALL_GRAPHICS;
+
+		// Creating the pipeline layout
+		{
+			VkPipelineLayoutCreateInfo pipelineLayoutInfo
+			{
+				VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,					// sType
+				nullptr,														// pNext
+				0,																// flags
+				sDescriptorSetLayouts.size(),									// setLayoutCount
+				sDescriptorSetLayouts.data(),									// pSetLayouts
+				1,																// pushConstantRangeCount
+				&pushConstant													// pPushConstantRanges
+			};
+
+			VK_CHECK_RESULT(vkCreatePipelineLayout(sLogicalDevice, &pipelineLayoutInfo, nullptr, &sPipelineLayout));
+		}
 	}
 }

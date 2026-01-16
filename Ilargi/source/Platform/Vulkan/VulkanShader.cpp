@@ -138,27 +138,27 @@ namespace Ilargi
 		if (mShaders.empty())
 			ProcessShader();
 
-		if (!mDescriptorSetBindings.empty())
-		{
-			uint32_t size{ (--mDescriptorSetBindings.end())->first + 1U };
-			mDescriptorSetLayouts.resize(size);
-			for (uint32_t setBindingIndex { 0 }; setBindingIndex < size; ++setBindingIndex)
-			{
-				if (mDescriptorSetBindings.find(setBindingIndex) != mDescriptorSetBindings.end())
-				{
-					VkDescriptorSetLayoutCreateInfo layoutInfo
-					{
-						VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,					// sType
-						nullptr,																// pNext
-						0,																		// flags
-						static_cast<uint32_t>(mDescriptorSetBindings[setBindingIndex].size()),	// bindingCount
-						mDescriptorSetBindings[setBindingIndex].data()							// pBindings
-					};
+		//if (!mDescriptorSetBindings.empty())
+		//{
+		//	uint32_t size{ (--mDescriptorSetBindings.end())->first + 1U };
+		//	//mDescriptorSetLayouts.resize(size);
+		//	for (uint32_t setBindingIndex { 0 }; setBindingIndex < size; ++setBindingIndex)
+		//	{
+		//		if (mDescriptorSetBindings.find(setBindingIndex) != mDescriptorSetBindings.end())
+		//		{
+		//			VkDescriptorSetLayoutCreateInfo layoutInfo
+		//			{
+		//				VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,					// sType
+		//				nullptr,																// pNext
+		//				0,																		// flags
+		//				static_cast<uint32_t>(mDescriptorSetBindings[setBindingIndex].size()),	// bindingCount
+		//				mDescriptorSetBindings[setBindingIndex].data()							// pBindings
+		//			};
 
-					VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &mDescriptorSetLayouts[setBindingIndex]));
-				}
-			}
-		}
+		//			//VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &mDescriptorSetLayouts[setBindingIndex]));
+		//		}
+		//	}
+		//}
 	}
 	
 	VulkanShader::~VulkanShader()
@@ -174,17 +174,12 @@ namespace Ilargi
 			vkDestroyShaderModule(device, module, nullptr);
 		}
 
-		for (auto& descriptorSetLayout : mDescriptorSetLayouts)
-		{
-			vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
-		}
-
 		mShaders.clear();
 	}
 
 	void VulkanShader::AllocateDescriptorSet(uint32_t aIndex, VkDescriptorSet& aDescriptorSet)
 	{
-		ILG_ASSERT(aIndex < mDescriptorSetLayouts.size(), "This descriptor set does not exist");
+		ILG_ASSERT(aIndex < VulkanContext::GetDescriptorSetLayouts().size(), "This descriptor set does not exist");
 
 		auto device{ VulkanContext::GetLogicalDevice() };
 
@@ -194,7 +189,7 @@ namespace Ilargi
 			nullptr,											// pNext
 			VulkanContext::GetDescriptorPool(),					// descriptorPool
 			1,													// descriptorSetCount
-			&mDescriptorSetLayouts[aIndex]						// pSetLayouts
+			&VulkanContext::GetDescriptorSetLayouts()[aIndex]	// pSetLayouts
 		};
 
 		VK_CHECK_RESULT(vkAllocateDescriptorSets(device, &allocInfo, &aDescriptorSet));

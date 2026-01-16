@@ -75,7 +75,7 @@ namespace Ilargi
 	}
 
 	VulkanPipeline::VulkanPipeline(const PipelineProperties& aProperties) 
-		: mProperties(aProperties), mPipeline(VK_NULL_HANDLE), mPipelineLayout(VK_NULL_HANDLE), mDescriptorSetLayout(VK_NULL_HANDLE)
+		: mProperties(aProperties), mPipeline(VK_NULL_HANDLE)
 	{
 		Utils::CreatePipelineCacheDirectory();
 		const auto& renderPass{ mProperties.renderPass->As<VulkanRenderPass>() };
@@ -114,22 +114,6 @@ namespace Ilargi
 		VkGraphicsPipelineCreateInfo pipelineInfo {};
 
 		const auto& shader{ mProperties.shader->As<VulkanShader>() };
-
-		// Creating the pipeline layout
-		{
-			VkPipelineLayoutCreateInfo pipelineLayoutInfo
-			{
-				VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,					// sType
-				nullptr,														// pNext
-				0,																// flags
-				static_cast<uint32_t>(shader->GetDescriptorSetLayout().size()), // setLayoutCount
-				shader->GetDescriptorSetLayout().data(),						// pSetLayouts
-				static_cast<uint32_t>(shader->GetPushConstants().size()),		// pushConstantRangeCount
-				shader->GetPushConstants().data()								// pPushConstantRanges
-			};
-
-			VK_CHECK_RESULT(vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &mPipelineLayout));
-		}
 
 		const auto& shaders{ shader->GetShaders() };
 		std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
@@ -346,7 +330,7 @@ namespace Ilargi
 		pipelineInfo.pColorBlendState = &colorBlending;
 		pipelineInfo.pDynamicState = &dynamicState;
 
-		pipelineInfo.layout = mPipelineLayout;
+		pipelineInfo.layout = VulkanContext::GetPipelineLayout();
 
 		pipelineInfo.renderPass = aRenderPass;
 		pipelineInfo.subpass = 0;
@@ -379,8 +363,6 @@ namespace Ilargi
 
 		mProperties.shader->Destroy();
 		vkDestroyPipeline(device, mPipeline, nullptr);
-		vkDestroyPipelineLayout(device, mPipelineLayout, nullptr);
-		vkDestroyDescriptorSetLayout(device, mDescriptorSetLayout, nullptr);
 	}
 
 	void VulkanPipeline::PushConstants(const std::shared_ptr<CommandBuffer>& aCommandBuffer, ShaderStage aShaderStage, uint32_t aOffset, uint32_t aSize, const void* aData) const
@@ -390,7 +372,7 @@ namespace Ilargi
 				const uint32_t currentFrame{ Renderer::GetCurrentFrame() };
 
 				const VkCommandBuffer cmdBuffer{ aCommandBuffer->As<VulkanCommandBuffer>()->GetCurrentCommand(currentFrame) };
-				vkCmdPushConstants(cmdBuffer, mPipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS, aOffset, aSize, aData);
+				vkCmdPushConstants(cmdBuffer, VulkanContext::GetPipelineLayout(), VK_SHADER_STAGE_ALL_GRAPHICS, aOffset, aSize, aData);
 			});
 	}
 
@@ -413,7 +395,7 @@ namespace Ilargi
 
 				const VkCommandBuffer cmdBuffer { aCommandBuffer->As<VulkanCommandBuffer>()->GetCurrentCommand(currentFrame) };
 				std::vector<VkDescriptorSet> descriptorSets { aMaterial->As<VulkanMaterial>()->GetDescriptorSet()};
-				vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mPipelineLayout, 0, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
+				vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, VulkanContext::GetPipelineLayout(), aSetIndex, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
 			});
 	}
 
@@ -425,7 +407,7 @@ namespace Ilargi
 
 				const VkCommandBuffer cmdBuffer { aCommandBuffer->As<VulkanCommandBuffer>()->GetCurrentCommand(currentFrame) };
 				std::vector<VkDescriptorSet> descriptorSets { aUniformBuffer->As<VulkanUniformBuffer>()->GetDescriptorSet() };
-				vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mPipelineLayout, aSetIndex, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
+				vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, VulkanContext::GetPipelineLayout(), aSetIndex, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
 			});
 	}
 }
