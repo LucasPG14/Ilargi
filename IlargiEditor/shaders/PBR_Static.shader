@@ -21,7 +21,7 @@ struct PointLight
     vec3 position;
 };
 
-layout(set = 1, binding = 0) uniform SceneData
+layout(set = 0, binding = 0) uniform SceneData
 {
     mat4 proj;
     mat4 view;
@@ -71,10 +71,10 @@ layout(location = 9) in vec3 vDirection;
 layout(location = 0) out vec4 outColor;
 
 // Material Descriptor Sets
-layout(set = 0, binding = 0) uniform sampler2D DiffuseMap;
-layout(set = 0, binding = 1) uniform sampler2D NormalMap;
-layout(set = 0, binding = 2) uniform sampler2D RoughnessMap;
-layout(set = 0, binding = 4) uniform MaterialData
+layout(set = 1, binding = 0) uniform sampler2D DiffuseMap;
+layout(set = 1, binding = 1) uniform sampler2D NormalMap;
+layout(set = 1, binding = 2) uniform sampler2D RoughnessMap;
+layout(set = 1, binding = 4) uniform MaterialData
 {
     vec4 color;
     float metallic;
@@ -89,7 +89,7 @@ struct PointLight
 };
 
 // Descriptor sets
-layout(set = 1, binding = 0) uniform SceneData
+layout(set = 0, binding = 0) uniform SceneData
 {
     mat4 proj;
     mat4 view;
@@ -226,7 +226,7 @@ void main()
     F0 = mix(F0, materialColor, metallicRoughness.r);
 
     // reflectance equation
-    vec3 Lo = CalculateDirectionalLight(norm, lightDir, F0, materialColor, metallicRoughness);
+    vec3 Lo = CalculateDirectionalLight(norm, V, F0, materialColor, metallicRoughness);
 
     for (int i = 0; i < sceneData.pointLightsSize; ++i)
     {

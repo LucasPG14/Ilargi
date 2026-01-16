@@ -7,12 +7,12 @@
 
 namespace Ilargi
 {
-	VulkanUniformBuffer::VulkanUniformBuffer(uint32_t s, uint32_t framesInFlight) : mSize(s)
+	VulkanUniformBuffer::VulkanUniformBuffer(uint32_t aSize, uint32_t aFramesInFlight) : mSize(aSize)
 	{
 		auto device{ VulkanContext::GetLogicalDevice() };
 
-		mUbos.resize(framesInFlight);
-		mUniformBuffersMapped.resize(framesInFlight);
+		mUbos.resize(aFramesInFlight);
+		mUniformBuffersMapped.resize(aFramesInFlight);
 
 		VkBufferCreateInfo bufferInfo
 		{
@@ -26,7 +26,7 @@ namespace Ilargi
 			nullptr									// pQueueFamilyIndices
 		};
 
-		for (uint32_t i { 0 }; i < framesInFlight; ++i)
+		for (uint32_t i { 0 }; i < aFramesInFlight; ++i)
 		{
 			VulkanAllocator::AllocateBuffer(mUbos[i], bufferInfo, VMA_MEMORY_USAGE_CPU_TO_GPU);
 			mUniformBuffersMapped[i] = VulkanAllocator::MapMemory(mUbos[i]);
@@ -37,7 +37,7 @@ namespace Ilargi
 		mDescriptorSets.resize(Renderer::GetConfig().maxFrames, VK_NULL_HANDLE);
 		for (uint32_t setIndex { 0U }; setIndex < Renderer::GetConfig().maxFrames; ++setIndex)
 		{
-			vulkanShader->AllocateDescriptorSet(1, mDescriptorSets[setIndex]);
+			vulkanShader->AllocateDescriptorSet(0, mDescriptorSets[setIndex]);
 		}
 	}
 	

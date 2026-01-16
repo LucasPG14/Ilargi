@@ -61,7 +61,5 @@ namespace Ilargi
 		PipelineProperties mProperties; // The pipeline properties.
 
 		VkPipeline mPipeline; // The vulkan pipeline.
-		VkPipelineLayout mPipelineLayout; // The vulkan pipeline layout.
-		VkDescriptorSetLayout mDescriptorSetLayout; // The layout of the vulkan descriptor sets.
 	};
 }

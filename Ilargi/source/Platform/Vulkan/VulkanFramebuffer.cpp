@@ -28,10 +28,6 @@ namespace Ilargi
 	
 	VulkanFramebuffer::~VulkanFramebuffer()
 	{
-		const auto device{ VulkanContext::GetLogicalDevice() };
-		
-		vkFreeDescriptorSets(device, VulkanContext::GetDescriptorPool(), 1, &mDescriptorSet);
-		vkDestroyDescriptorSetLayout(device, mDescriptorSetLayout, nullptr);
 	}
 
 	void VulkanFramebuffer::Init(VkRenderPass aRenderPass)
@@ -250,6 +246,9 @@ namespace Ilargi
 	void VulkanFramebuffer::Destroy()
 	{
 		auto device{ VulkanContext::GetLogicalDevice() };
+
+		vkFreeDescriptorSets(device, VulkanContext::GetDescriptorPool(), 1, &mDescriptorSet);
+		vkDestroyDescriptorSetLayout(device, mDescriptorSetLayout, nullptr);
 
 		for (auto colorAttachment : mColorAttachments)
 		{

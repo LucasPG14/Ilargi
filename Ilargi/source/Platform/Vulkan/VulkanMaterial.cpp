@@ -7,13 +7,15 @@
 #include "VulkanTexture.h"
 #include "VulkanShader.h"
 
+#define MATERIAL_SET 0x01
+
 namespace Ilargi
 {
 	VulkanMaterial::VulkanMaterial(const std::shared_ptr<Shader>& aShader, const MaterialData& aMaterialData) 
 		: mShader(aShader->As<VulkanShader>()), mDescriptorSet(VK_NULL_HANDLE), mMaterialData(aMaterialData)
 	{
 		auto vulkanShader{ aShader->As<VulkanShader>() };
-		vulkanShader->AllocateDescriptorSet(0, mDescriptorSet);
+		vulkanShader->AllocateDescriptorSet(MATERIAL_SET, mDescriptorSet);
 
 		mBindings = mShader->GetBindings();
 

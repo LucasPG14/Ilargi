@@ -193,40 +193,40 @@ namespace Ilargi
 
 			mRenderPass->EndRenderPass(mCommandBuffer);
 
-			const auto& trView{ mScene->GetWorld().view<TransformComponent, StaticMeshComponent>() };
-			if (Input::IsMouseButtonPressed(MouseCode::LEFT) && trView.begin() != trView.end())
-			{
-				glm::vec2 mousePos{ Input::GetMousePos() };
-				float mouseX { mousePos.x - mViewportPosition.x };
-				float mouseY { mousePos.y - mViewportPosition.y };
-				if (mouseX > 0 && mouseY > 0 && mouseX <= mViewportSize.x && mouseY <= mViewportSize.y)
-				{
-					mouseX = mouseX / mViewportSize.x;
-					mouseY = mouseY / mViewportSize.y;
-					mMousePickingRenderPass->BeginRenderPass(mCommandBuffer, mMousePickingFramebuffer);
-					mMousePickingPipeline->Bind(mCommandBuffer);
+			//const auto& trView{ mScene->GetWorld().view<TransformComponent, StaticMeshComponent>() };
+			//if (Input::IsMouseButtonPressed(MouseCode::LEFT) && trView.begin() != trView.end())
+			//{
+			//	glm::vec2 mousePos{ Input::GetMousePos() };
+			//	float mouseX { mousePos.x - mViewportPosition.x };
+			//	float mouseY { mousePos.y - mViewportPosition.y };
+			//	if (mouseX > 0 && mouseY > 0 && mouseX <= mViewportSize.x && mouseY <= mViewportSize.y)
+			//	{
+			//		mouseX = mouseX / mViewportSize.x;
+			//		mouseY = mouseY / mViewportSize.y;
+			//		mMousePickingRenderPass->BeginRenderPass(mCommandBuffer, mMousePickingFramebuffer);
+			//		mMousePickingPipeline->Bind(mCommandBuffer);
 
-					ShaderStage stage{ ShaderStage(3) };
-					for (auto entity : trView)
-					{
-						auto [transform, meshComponent] { trView.get<TransformComponent, StaticMeshComponent>(entity)};
+			//		ShaderStage stage{ ShaderStage(3) };
+			//		for (auto entity : trView)
+			//		{
+			//			auto [transform, meshComponent] { trView.get<TransformComponent, StaticMeshComponent>(entity)};
 
-						for (uint32_t index{ 0U }; index < meshComponent.submeshes.size(); ++index)
-						{
-							mMousePickingPipeline->BindUniformBuffer(mCommandBuffer, mScene->GetSceneDataUBO(), 0);
-							mMousePickingPipeline->PushConstants(mCommandBuffer, stage, 0, 64, glm::value_ptr(transform.worldTransform));
-							mMousePickingPipeline->PushConstants(mCommandBuffer, stage, 64, 4, &entity);
-							Renderer::SubmitGeometry(mCommandBuffer, std::static_pointer_cast<StaticMesh>(ResourceManager::GetResource(meshComponent.submeshes[index].mesh)));
-						}
-					}
+			//			for (uint32_t index{ 0U }; index < meshComponent.submeshes.size(); ++index)
+			//			{
+			//				mMousePickingPipeline->BindUniformBuffer(mCommandBuffer, mScene->GetSceneDataUBO(), 0);
+			//				mMousePickingPipeline->PushConstants(mCommandBuffer, stage, 0, 64, glm::value_ptr(transform.worldTransform));
+			//				mMousePickingPipeline->PushConstants(mCommandBuffer, stage, 64, 4, &entity);
+			//				Renderer::SubmitGeometry(mCommandBuffer, std::static_pointer_cast<StaticMesh>(ResourceManager::GetResource(meshComponent.submeshes[index].mesh)));
+			//			}
+			//		}
 
-					mMousePickingRenderPass->EndRenderPass(mCommandBuffer);
+			//		mMousePickingRenderPass->EndRenderPass(mCommandBuffer);
 
-					uint32_t objectID{ mMousePickingFramebuffer->ReadFramebufferPixel(mouseX, mouseY) };
+			//		uint32_t objectID{ mMousePickingFramebuffer->ReadFramebufferPixel(mouseX, mouseY) };
 
-					mHierarchyInspector->SetSelected(objectID);
-				}
-			}
+			//		mHierarchyInspector->SetSelected(objectID);
+			//	}
+			//}
 			break;
 		}
 		case EditorMode::PLAY:
@@ -310,7 +310,7 @@ namespace Ilargi
 	void EditorPanel::DrawGrid()
 	{
 		mGridPipeline->Bind(mCommandBuffer);
-		mGridPipeline->BindUniformBuffer(mCommandBuffer, mScene->GetSceneDataUBO(), 1);
+		mGridPipeline->BindUniformBuffer(mCommandBuffer, mScene->GetSceneDataUBO(), 0);
 
 		Renderer::DrawDefault(mCommandBuffer);
 	}
@@ -330,8 +330,7 @@ namespace Ilargi
 			for (uint32_t index{ 0U }; index < meshComponent.submeshes.size(); ++index)
 			{
 				mGeometryPipeline->BindMaterial(mCommandBuffer, std::static_pointer_cast<Material>(ResourceManager::GetResource(meshComponent.submeshes[index].material)), 1);
-				//mGeometryPipeline->BindUniformBuffer(mCommandBuffer, mScene->GetCameraDataUBO(), 0);
-				mGeometryPipeline->BindUniformBuffer(mCommandBuffer, mScene->GetSceneDataUBO(), 1);
+				mGeometryPipeline->BindUniformBuffer(mCommandBuffer, mScene->GetSceneDataUBO(), 0);
 				mGeometryPipeline->PushConstants(mCommandBuffer, VERTEX_SHADER, 0, 64, glm::value_ptr(transform.worldTransform));
 				mGeometryPipeline->PushConstants(mCommandBuffer, VERTEX_SHADER, 64, 12, glm::value_ptr(light.radiance));
 				mGeometryPipeline->PushConstants(mCommandBuffer, VERTEX_SHADER, 76, 12, glm::value_ptr(trans.rotation));
@@ -355,7 +354,7 @@ namespace Ilargi
 			mStencilMatrix = glm::translate(glm::mat4(1.0), position) * glm::eulerAngleXYZ(glm::radians(rotation.x), glm::radians(rotation.y), glm::radians(rotation.z));
 			mStencilMatrix = glm::scale(mStencilMatrix, scale * 1.05f);
 
-			mGeometryPipeline->BindUniformBuffer(mCommandBuffer, mScene->GetSceneDataUBO(), 1);
+			mGeometryPipeline->BindUniformBuffer(mCommandBuffer, mScene->GetSceneDataUBO(), 0);
 			mOutlinePipeline->PushConstants(mCommandBuffer, VERTEX_SHADER, 0, 64, glm::value_ptr(mStencilMatrix));
 
 			for (const auto& submesh : meshComponent.submeshes)

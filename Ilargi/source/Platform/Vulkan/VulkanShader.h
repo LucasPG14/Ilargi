@@ -56,12 +56,6 @@ namespace Ilargi
 		*/
 		[[nodiscard]] const std::vector<VkPushConstantRange>& GetPushConstants() const { return mPushConstants; }
 
-		/*
-		* @brief Returns the descriptor set layout container of the shader.
-		* @return The descriptor set layout container.
-		*/
-		[[nodiscard]] const std::vector<VkDescriptorSetLayout>& GetDescriptorSetLayout() const { return mDescriptorSetLayouts; }
-
 	private:
 		/*
 		* @brief Returns the directory of the vulkan shader cache files.
@@ -103,7 +97,6 @@ namespace Ilargi
 
 		ShadersMap mShaders; // Map with the shaders based on their type(vertex, fragment, compute...).
 		std::vector<VkPushConstantRange> mPushConstants; // Container with the push constants of the shader.
-		std::vector<VkDescriptorSetLayout> mDescriptorSetLayouts; // Container of the descriptor sets layouts.
 
 		std::map<int, std::vector<VkDescriptorSetLayoutBinding>> mDescriptorSetBindings; // Map of the descriptor sets bindings.
 	
