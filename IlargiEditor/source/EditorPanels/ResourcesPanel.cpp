@@ -9,15 +9,13 @@
 #include "Resources/Texture.h"
 #include "Resources/Material.h"
 
+#include "../Thumbnails/ThumbnailManager.h"
+
 #include "../LocalizationManager.h"
 
 #include "Utils/FileSystem.h"
 
 #include <imgui/imgui.h>
-
-#define STB_IMAGE_RESIZE_IMPLEMENTATION
-#include <stb_image_resize2.h>
-#include <stb_image.h>
 
 namespace Ilargi
 {
@@ -75,6 +73,8 @@ namespace Ilargi
 
 		mMaterialPanel = new MaterialPanel();
 
+		ThumbnailManager::Init();
+
 		ResourceManager::LoadResourceRegistry();
 
 		RefreshAssets();
@@ -82,6 +82,7 @@ namespace Ilargi
 
 	ResourcesPanel::~ResourcesPanel()
 	{
+		ThumbnailManager::Clear();
 	}
 
 	void ResourcesPanel::Render()
@@ -171,6 +172,7 @@ namespace Ilargi
 			entry.filename = directoryEntry.path().stem().string();
 			entry.isDirectory = directoryEntry.is_directory();
 			entry.resourceUUID = mResources[entry.path];
+			entry.thumbnail = ThumbnailManager::GetThumbnail(entry.resourceUUID);
 		}
 	}
 	
@@ -296,7 +298,7 @@ namespace Ilargi
 					//ImGui::Button(filename.c_str(), {cellX, cellX});
 					if (resourceEntry.type == ResourceType::TEXTURE2D)
 					{
-						ImGui::Image((ImTextureID)std::static_pointer_cast<Texture2D>(ResourceManager::GetResource(resourceEntry.resourceUUID))->GetID(), {cellX, cellX});
+						ImGui::Image((ImTextureID)resourceEntry.thumbnail->GetID(), {cellX, cellX});
 					}
 					else
 					{

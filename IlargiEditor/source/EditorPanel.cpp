@@ -148,7 +148,7 @@ namespace Ilargi
 		delete mResourcesPanel;
 
 		ResourceManager::Clear();
-		
+
 		mScene->Destroy();
 
 		mFramebuffer->Destroy();
