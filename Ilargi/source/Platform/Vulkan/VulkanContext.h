@@ -88,18 +88,6 @@ namespace Ilargi
 		* @return The vulkan descriptor pool.
 		*/
 		[[nodiscard]] static VkDescriptorPool GetDescriptorPool() { return sDescriptorPool; }
-
-		/*
-		* @brief Returns the vulkan pipeline layout.
-		* @return The vulkan pipeline layout.
-		*/
-		[[nodiscard]] static VkPipelineLayout GetPipelineLayout() { return sPipelineLayout; }
-
-		/*
-		* @brief Returns the vulkan pipeline layout.
-		* @return The vulkan pipeline layout.
-		*/
-		[[nodiscard]] static std::vector<VkDescriptorSetLayout>& GetDescriptorSetLayouts() { return sDescriptorSetLayouts; }
 		
 		/*
 		* @brief Returns the vulkan graphics queue.
@@ -146,11 +134,6 @@ namespace Ilargi
 		*/
 		const QueueFamilyIndices FindQueueFamilies() const;
 
-		/*
-		* @brief Creates the pipeline layout.
-		*/
-		void CreatePipelineLayout();
-
 	private:
 		static VkInstance sInstance; // Instance of the vulkan instance.
 #ifdef ILG_DEBUG
@@ -168,8 +151,5 @@ namespace Ilargi
 		static VkQueue sGraphicsQueue; // Instance of the vulkan graphics queue.
 
 		static VkDescriptorPool sDescriptorPool; // Instance of the vulkan descriptor pool.
-		
-		static VkPipelineLayout sPipelineLayout; // Instance of the vulkan descriptor pool.
-		static std::vector<VkDescriptorSetLayout> sDescriptorSetLayouts; // Instance of the vulkan descriptor pool.
 	};
 }

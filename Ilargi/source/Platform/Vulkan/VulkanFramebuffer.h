@@ -29,9 +29,8 @@ namespace Ilargi
 
 		/*
 		* @brief Initializes the framebuffer.
-		* @param aRenderPass The vulkan render pass for the framebuffer.
 		*/
-		void Init(VkRenderPass aRenderPass);
+		void Init();
 
 		/*
 		* @copydoc Framebuffer::Destroy()
@@ -41,8 +40,11 @@ namespace Ilargi
 		/*
 		* @copydoc Framebuffer::Resize()
 		*/
-		void Resize(const std::shared_ptr<RenderPass>& aRenderPass, uint32_t aWidth, uint32_t aHeight) override;
+		void Resize(uint32_t aWidth, uint32_t aHeight) override;
 
+		/*
+		* @copydoc Framebuffer::ReadFramebufferPixel()
+		*/
 		virtual uint32_t ReadFramebufferPixel(uint32_t aX, uint32_t aY) override;
 
 		/*
@@ -69,12 +71,12 @@ namespace Ilargi
 		/*
 		* @copydoc Framebuffer::GetWidth()
 		*/
-		[[nodiscard]] const uint32_t GetWidth() const override { return mProperties.width; }
+		[[nodiscard]] const uint32_t GetWidth() const override { return mProperties.Width; }
 
 		/*
 		* @copydoc Framebuffer::GetHeight()
 		*/
-		[[nodiscard]] const uint32_t GetHeight() const override { return mProperties.height; }
+		[[nodiscard]] const uint32_t GetHeight() const override { return mProperties.Height; }
 
 		/*
 		* @copydoc Framebuffer::GetID()

@@ -19,7 +19,7 @@ namespace Ilargi
 		glm::vec3 max;
 	};
 
-	// TODO: Check half floats for normal, tangent and bitangent
+	// TODO: Check half floats for normal, tangent and bitangent and think to calculate bitangent on the shader to avoid storing it.
 	struct StaticVertex
 	{
 		glm::vec3 position;

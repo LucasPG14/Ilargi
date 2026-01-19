@@ -22,10 +22,9 @@ namespace Ilargi
 
 		/*
 		* @brief Initializes the pipeline.
-		* @param aRenderPass The Vulkan render pass for the pipeline.
 		* @param aFormats The image formats of the framebuffer.
 		*/
-		void Init(VkRenderPass aRenderPass, const std::vector<ImageFormat>& aFormats);
+		void Init(const std::vector<ImageFormat>& aFormats);
 		
 		/*
 		* @copydoc Pipeline::Destroy().
@@ -57,6 +56,35 @@ namespace Ilargi
 		*/
 		[[nodiscard]] const PipelineProperties& GetProperties() const override { return mProperties; }
 	
+	private:
+		/*
+		* @brief Returns a vulkan depth stencil state based on the given depth state.
+		* @param aDepthState The depth state information to build the vulkan depth stencil state.
+		* @return The vulkan depth stencil state.
+		*/
+		VkPipelineDepthStencilStateCreateInfo GetDepthStencilState(const DepthState& aDepthState);
+
+		/*
+		* @brief Returns a vulkan stencil state based on the given stencil face state.
+		* @param aStencilFaceState The stencil face state information to build the vulkan stencil state.
+		* @return The vulkan stencil state.
+		*/
+		VkStencilOpState GetStencilOpState(const StencilFaceState& aStencilFaceState);
+		
+		/*
+		* @brief Returns a vulkan color blend attachment based on the given blend state.
+		* @param aBlendState The blend state information to build the vulkan blend state.
+		* @return The vulkan color blend attachment.
+		*/
+		VkPipelineColorBlendAttachmentState GetBlendState(const BlendState& aBlendState);
+
+		/*
+		* @brief Returns a vulkan rasterization state based on the given raster state.
+		* @param aRasterState The raster state information to build the vulkan rasterization state.
+		* @return The vulkan rasterization state.
+		*/
+		VkPipelineRasterizationStateCreateInfo GetRasterizationState(const RasterState& aRasterState);
+
 	private:
 		PipelineProperties mProperties; // The pipeline properties.
 

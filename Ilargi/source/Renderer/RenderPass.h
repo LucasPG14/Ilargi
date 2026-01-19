@@ -10,8 +10,13 @@ namespace Ilargi
 
 	struct RenderPassProperties
 	{
-		std::vector<ImageFormat> formats;
-		bool clearValues;
+		std::vector<ImageFormat> Formats;
+		bool ClearValues;
+
+		bool operator==(const RenderPassProperties& aProperties) const
+		{
+			return Formats == aProperties.Formats;
+		}
 	};
 
 	class RenderPass : public std::enable_shared_from_this<RenderPass>
@@ -62,3 +67,17 @@ namespace Ilargi
 		static std::shared_ptr<RenderPass> Create(const RenderPassProperties& aProperties);
 	};
 }
+
+template<>
+struct std::hash<Ilargi::RenderPassProperties>
+{
+	size_t operator()(const Ilargi::RenderPassProperties& aProperties) const
+	{
+		size_t h{ 0 };
+		for (const auto& format : aProperties.Formats)
+			h ^= std::hash<int>{}(static_cast<int>(format));
+
+		h ^= std::hash<bool>{}(aProperties.ClearValues) << 1;
+		return h;
+	}
+};

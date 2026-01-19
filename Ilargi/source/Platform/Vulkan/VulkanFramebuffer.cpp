@@ -12,7 +12,7 @@ namespace Ilargi
 		: mProperties(aProperties), mDepthSpecification(ImageFormat::NONE), mDepthAttachment(), mFramebuffer(VK_NULL_HANDLE), 
 		mSampler(VK_NULL_HANDLE), mDescriptorSetLayout(VK_NULL_HANDLE), mDescriptorSet(VK_NULL_HANDLE)
 	{
-		for (ImageFormat format : aProperties.formats)
+		for (ImageFormat format : aProperties.Formats)
 		{
 			if (Utils::IsDepth(format))
 			{
@@ -22,15 +22,14 @@ namespace Ilargi
 			mColorSpecifications.push_back(format);
 		}
 
-		const auto& renderPass{ mProperties.renderPass->As<VulkanRenderPass>() };
-		Init(renderPass->GetRenderPass());
+		Init();
 	}
 	
 	VulkanFramebuffer::~VulkanFramebuffer()
 	{
 	}
 
-	void VulkanFramebuffer::Init(VkRenderPass aRenderPass)
+	void VulkanFramebuffer::Init()
 	{
 		auto device{ VulkanContext::GetLogicalDevice() };
 		
@@ -51,7 +50,7 @@ namespace Ilargi
 				0,																	// flags
 				VK_IMAGE_TYPE_2D,													// imageType
 				format,																// format
-				{mProperties.width, mProperties.height, 1},							// extent
+				{mProperties.Width, mProperties.Height, 1},							// extent
 				1,																	// mipLevels
 				1,																	// arrayLayers
 				VK_SAMPLE_COUNT_1_BIT,												// samples
@@ -100,7 +99,7 @@ namespace Ilargi
 				0,														// flags
 				VK_IMAGE_TYPE_2D,										// imageType
 				depthFormat,											// format
-				{mProperties.width, mProperties.height, 1},				// extent
+				{mProperties.Width, mProperties.Height, 1},				// extent
 				1,														// mipLevels
 				1,														// arrayLayers
 				VK_SAMPLE_COUNT_1_BIT,									// samples
@@ -137,6 +136,7 @@ namespace Ilargi
 			attachments.push_back(mDepthAttachment.imageView);
 		}
 
+		const VkRenderPass& renderPass{ Renderer::GetRenderPass({mProperties.Formats, true})->As<VulkanRenderPass>()->GetRenderPass() };
 		// Creating the framebuffer
 		{
 			VkFramebufferCreateInfo framebufferInfo
@@ -144,11 +144,11 @@ namespace Ilargi
 				VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,	// sType
 				nullptr,									// pNext
 				0,											// flags
-				aRenderPass,								// renderPass
+				renderPass,									// renderPass
 				static_cast<uint32_t>(attachments.size()),	// attachmentCount
 				attachments.data(),							// pAttachments
-				mProperties.width,							// width
-				mProperties.height,							// height
+				mProperties.Width,							// width
+				mProperties.Height,							// height
 				1											// layers
 			};
 
@@ -264,10 +264,10 @@ namespace Ilargi
 		vkDestroySampler(device, mSampler, nullptr);
 	}
 	
-	void VulkanFramebuffer::Resize(const std::shared_ptr<RenderPass>& aRenderPass, uint32_t aWidth, uint32_t aHeight)
+	void VulkanFramebuffer::Resize(uint32_t aWidth, uint32_t aHeight)
 	{
-		mProperties.width = aWidth;
-		mProperties.height = aHeight;
+		mProperties.Width = aWidth;
+		mProperties.Height = aHeight;
 
 		auto device{ VulkanContext::GetLogicalDevice() };
 		vkDeviceWaitIdle(device);
@@ -284,7 +284,7 @@ namespace Ilargi
 			vkDestroyImageView(device, mDepthAttachment.imageView, nullptr);
 		}
 
-		Init(aRenderPass->As<VulkanRenderPass>()->GetRenderPass());
+		Init();
 	}
 
 	uint32_t VulkanFramebuffer::ReadFramebufferPixel(uint32_t aX, uint32_t aY)

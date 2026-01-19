@@ -2,23 +2,10 @@
 
 namespace Ilargi
 {
-	enum class DescriptorType
-	{
-		UNIFORM_BUFFER = 0,
-		COMBINED_IMAGE_SAMPLER = 1
-	};
-
 	enum ShaderStage
 	{
-		VERTEX_SHADER = 0x00000001,
-		FRAGMENT_SHADER = 0x00000002,
-	};
-
-	struct BindingInfo
-	{
-		uint32_t set;
-		uint32_t binding;
-		DescriptorType type;
+		VERTEX_SHADER = 0x01,
+		FRAGMENT_SHADER = 0x02
 	};
 
 	class Shader : public std::enable_shared_from_this<Shader>

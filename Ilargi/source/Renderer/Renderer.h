@@ -1,6 +1,9 @@
 #pragma once
 
 #include "Shader.h"
+#include "PipelineManager.h"
+#include "PipelineLayoutManager.h"
+#include "RenderPassManager.h"
 
 namespace Ilargi
 {
@@ -16,6 +19,10 @@ namespace Ilargi
 	class StaticMesh;
 	class Texture2D;
 	class Material;
+	class Pipeline;
+	class PipelineLayout;
+	class DescriptorSetLayout;
+	class RenderPass;
 
 	struct RendererConfig
 	{
@@ -129,6 +136,35 @@ namespace Ilargi
 		* @brief Executes the render queue.
 		*/
 		static void RenderQueue();
+
+		/*
+		* @brief Gets a pipeline with the specified properties.
+		* @param aProperties The properties of the pipeline.
+		* @return An instance of the pipeline with the given properties.
+		*/
+		static std::shared_ptr<Pipeline> GetPipeline(const PipelineProperties& aProperties) { return sPipelineManager->GetPipeline(aProperties); }
+		
+		/*
+		* @brief Gets a pipeline layout with the specified properties.
+		* @param aProperties The properties of the pipeline layout.
+		* @return An instance of the pipeline layout with the given properties.
+		*/
+		static std::shared_ptr<PipelineLayout> GetPipelineLayout(const PipelineLayoutProperties& aProperties) { return sPipelineLayoutManager->GetPipelineLayout(aProperties); }
+		
+		/*
+		* @brief Gets a descriptor set layout with the specified properties.
+		* @param aProperties The properties of the descriptor set layout.
+		* @return An instance of the descriptor set layout with the given properties.
+		*/
+		static std::shared_ptr<DescriptorSetLayout> GetDescriptorSetLayout(const DescriptorSetLayoutProperties& aProperties) { return sPipelineLayoutManager->GetDescriptorSetLayout(aProperties); }
+		
+		/*
+		* @brief Gets a render pass with the specified properties.
+		* @param aProperties The properties of the render pass.
+		* @return An instance of the render pass with the given properties.
+		*/
+		static std::shared_ptr<RenderPass> GetRenderPass(const RenderPassProperties& aProperties) { return sRenderPassManager->GetRenderPass(aProperties); }
+	
 	private:
 		static std::shared_ptr<Texture2D> sDefaultTexture; // Instance of the default texture.
 		static std::shared_ptr<Texture2D> sDefaultNormalTexture; // Instance of the default normal map texture.
@@ -137,6 +173,9 @@ namespace Ilargi
 
 		static std::unique_ptr<ShaderLibrary> sShaderLibrary; // Instance of the shader library.
 		static std::unique_ptr<Render> sRender; // Instance of the render.
+		static std::unique_ptr<PipelineManager> sPipelineManager; // Instance of the pipeline manager.
+		static std::unique_ptr<RenderPassManager> sRenderPassManager; // Instance of the render pass manager.
+		static std::unique_ptr<PipelineLayoutManager> sPipelineLayoutManager; // Instance of the render pass manager.
 		static GraphicsAPI sGraphicsAPI; // The graphics API of the application.
 
 		static RendererConfig sConfig; // The configuration of the renderer.

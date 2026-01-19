@@ -45,11 +45,6 @@ namespace Ilargi
 		[[nodiscard]] MaterialData& GetMaterialData() override { return mMaterialData; }
 
 		/*
-		* @copydoc Material::GetBindings().
-		*/
-		[[nodiscard]] virtual const std::unordered_map<std::string, BindingInfo>& GetBindings() { return mBindings; }
-
-		/*
 		* @copydoc Material::GetTexture().
 		*/
 		[[nodiscard]] virtual const std::shared_ptr<Texture2D>& GetTexture(const std::string& aTextureName);
@@ -77,7 +72,6 @@ namespace Ilargi
 
 	private:
 		std::map<std::string, std::shared_ptr<Texture2D>> mTextures; // Instance of the diffuse texture used by the material.
-		std::unordered_map<std::string, BindingInfo> mBindings;
 		std::shared_ptr<VulkanShader> mShader; // Instance of the shader used by the material.
 		VkDescriptorSet mDescriptorSet; // The ID of the material.
 		VulkanBuffer mMaterialBuffer; // The Vulkan buffer and allocation of the material.

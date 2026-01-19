@@ -47,12 +47,6 @@ namespace Ilargi
 		[[nodiscard]] virtual MaterialData& GetMaterialData() = 0;
 
 		/*
-		* @brief Returns the material data.
-		* @return The material data.
-		*/
-		[[nodiscard]] virtual const std::unordered_map<std::string, BindingInfo>& GetBindings() = 0;
-
-		/*
 		* @brief Returns the texture specified.
 		* @param aTextureName The texture name.
 		* @return An instance of the texture.

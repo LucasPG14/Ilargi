@@ -2,6 +2,7 @@
 
 #include "VulkanShader.h"
 #include "VulkanContext.h"
+#include "Renderer/Renderer.h"
 
 #include <shaderc/shaderc.hpp>
 #include <include/spirv_glsl.hpp>
@@ -112,8 +113,6 @@ namespace Ilargi
 		Utils::CreateShaderCacheDirectory();
 		const auto& directory{ Utils::GetShaderCacheDirectory() };
 
-		mSetBindingMap.fill({false, false, false, false, false, false, false, false});
-
 		auto device{ VulkanContext::GetLogicalDevice() };
 
 		auto nonCacheFileTime{ std::filesystem::last_write_time(aFilepath) };
@@ -137,6 +136,14 @@ namespace Ilargi
 
 		if (mShaders.empty())
 			ProcessShader();
+
+		// TODO: Try to get it in order without doing a sort operation.
+		std::sort(mPipelineLayoutProperties.DescriptorSetLayoutsProperties.begin(), mPipelineLayoutProperties.DescriptorSetLayoutsProperties.end(), [](const DescriptorSetLayoutProperties& aProperties1, const DescriptorSetLayoutProperties& aProperties2)
+			{
+				return aProperties1.SetNumber < aProperties2.SetNumber;
+			});
+
+		mPipelineLayout = Renderer::GetPipelineLayout(mPipelineLayoutProperties)->As<VulkanPipelineLayout>();
 
 		//if (!mDescriptorSetBindings.empty())
 		//{
@@ -179,7 +186,7 @@ namespace Ilargi
 
 	void VulkanShader::AllocateDescriptorSet(uint32_t aIndex, VkDescriptorSet& aDescriptorSet)
 	{
-		ILG_ASSERT(aIndex < VulkanContext::GetDescriptorSetLayouts().size(), "This descriptor set does not exist");
+		ILG_ASSERT(aIndex < mPipelineLayout->GetDescriptorSetLayoutsCount(), "This descriptor set does not exist");
 
 		auto device{ VulkanContext::GetLogicalDevice() };
 
@@ -189,7 +196,7 @@ namespace Ilargi
 			nullptr,											// pNext
 			VulkanContext::GetDescriptorPool(),					// descriptorPool
 			1,													// descriptorSetCount
-			&VulkanContext::GetDescriptorSetLayouts()[aIndex]	// pSetLayouts
+			&mPipelineLayout->GetDescriptorSetLayout(aIndex)	// pSetLayouts
 		};
 
 		VK_CHECK_RESULT(vkAllocateDescriptorSets(device, &allocInfo, &aDescriptorSet));
@@ -304,9 +311,7 @@ namespace Ilargi
 			ILG_CORE_TRACE("	Binding: {0}", binding);
 			ILG_CORE_TRACE("	Members: {0}", membersCount);
 
-			VkPushConstantRange pushConstant { aStage, 0, size };
-			
-			mPushConstants.push_back(pushConstant);
+			mPipelineLayoutProperties.PushConstantRanges.emplace_back( size, 0);
 		}
 
 		// Reflecting uniform buffers
@@ -325,19 +330,22 @@ namespace Ilargi
 			ILG_CORE_TRACE("	Binding: {0}", binding);
 			ILG_CORE_TRACE("	Members: {0}", membersCount);
 
-			if (!mSetBindingMap[set][binding])
-			{
-				VkDescriptorSetLayoutBinding layoutBinding
-				{
-					binding,													// binding
-					VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,							// descriptorType
-					1,															// descriptorCount
-					VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,	// stageFlags
-					nullptr														// pImmutableSamplers
-				};
+			DescriptorBinding descriptorBinding{};
+			descriptorBinding.Binding = binding;
+			descriptorBinding.Type = DescriptorType::UNIFORM_BUFFER;
 
-				mSetBindingMap[set][binding] = true;
-				mDescriptorSetBindings[set].push_back(layoutBinding);
+			const auto& iterator{ std::find_if(mPipelineLayoutProperties.DescriptorSetLayoutsProperties.begin(), mPipelineLayoutProperties.DescriptorSetLayoutsProperties.end(), [set](const DescriptorSetLayoutProperties& aDescriptorSetLayout)
+			{
+				return aDescriptorSetLayout.SetNumber == set;
+			}) };
+			
+			if (iterator != mPipelineLayoutProperties.DescriptorSetLayoutsProperties.end())
+			{
+				(*iterator).DescriptorBindings.emplace_back(descriptorBinding);
+			}
+			else
+			{
+				mPipelineLayoutProperties.DescriptorSetLayoutsProperties.emplace_back(set, descriptorBinding);
 			}
 		}
 
@@ -353,24 +361,23 @@ namespace Ilargi
 			ILG_CORE_TRACE("	Binding: {0}", binding);
 			ILG_CORE_TRACE("	Descriptor Set: {0}", set);
 
-			BindingInfo bindingInfo
-			{
-				set,
-				binding,
-				Utils::GetDescriptorTypeFromVulkan(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
-			};
+			DescriptorBinding descriptorBinding{};
+			descriptorBinding.Binding = binding;
+			descriptorBinding.Type = DescriptorType::COMBINED_IMAGE_SAMPLER;
 
-			VkDescriptorSetLayoutBinding layoutBinding
+			const auto& iterator{ std::find_if(mPipelineLayoutProperties.DescriptorSetLayoutsProperties.begin(), mPipelineLayoutProperties.DescriptorSetLayoutsProperties.end(), [set](const DescriptorSetLayoutProperties& aDescriptorSetLayout)
 			{
-				binding,													// binding
-				VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,					// descriptorType
-				1,															// descriptorCount
-				aStage,														// stageFlags
-				nullptr														// pImmutableSamplers
-			};
+				return aDescriptorSetLayout.SetNumber == set;
+			}) };
 
-			mDescriptorSetBindings[set].push_back(layoutBinding);
-			mBindings[sampledImage.name] = bindingInfo;
+			if (iterator != mPipelineLayoutProperties.DescriptorSetLayoutsProperties.end())
+			{
+				(*iterator).DescriptorBindings.emplace_back(descriptorBinding);
+			}
+			else
+			{
+				mPipelineLayoutProperties.DescriptorSetLayoutsProperties.emplace_back(set, descriptorBinding);
+			}
 		}
 
 		// Reflecting separate images

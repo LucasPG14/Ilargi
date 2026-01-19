@@ -17,8 +17,6 @@ namespace Ilargi
 		auto vulkanShader{ aShader->As<VulkanShader>() };
 		vulkanShader->AllocateDescriptorSet(MATERIAL_SET, mDescriptorSet);
 
-		mBindings = mShader->GetBindings();
-
 		auto device{ VulkanContext::GetLogicalDevice() };
 
 		VkBufferCreateInfo bufferInfo
@@ -52,7 +50,7 @@ namespace Ilargi
 
 	void VulkanMaterial::UpdateTexture(const std::string& aTextureName, const std::shared_ptr<Texture2D>& aTexture)
 	{
-		if (mBindings.find(aTextureName) != mBindings.end())
+		//if (mBindings.find(aTextureName) != mBindings.end())
 		{
 			mTextures[aTextureName] = aTexture;
 			UpdateDescriptor();
