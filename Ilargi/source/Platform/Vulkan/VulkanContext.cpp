@@ -3,6 +3,7 @@
 // Main headers
 #include "VulkanContext.h"
 #include "VulkanAllocator.h"
+#include "VulkanUtils.h"
 
 // 3rd Party headers
 #include <GLFW/glfw3.h>

@@ -7,12 +7,12 @@
 
 namespace Ilargi
 {
-	VulkanUniformBuffer::VulkanUniformBuffer(uint32_t s, uint32_t framesInFlight) : mSize(s)
+	VulkanUniformBuffer::VulkanUniformBuffer(uint32_t aSize, uint32_t aFramesInFlight) : mSize(aSize)
 	{
 		auto device{ VulkanContext::GetLogicalDevice() };
 
-		mUbos.resize(framesInFlight);
-		mUniformBuffersMapped.resize(framesInFlight);
+		mUbos.resize(aFramesInFlight);
+		mUniformBuffersMapped.resize(aFramesInFlight);
 
 		VkBufferCreateInfo bufferInfo
 		{
@@ -26,18 +26,18 @@ namespace Ilargi
 			nullptr									// pQueueFamilyIndices
 		};
 
-		for (uint32_t i { 0 }; i < framesInFlight; ++i)
+		for (uint32_t i { 0 }; i < aFramesInFlight; ++i)
 		{
 			VulkanAllocator::AllocateBuffer(mUbos[i], bufferInfo, VMA_MEMORY_USAGE_CPU_TO_GPU);
 			mUniformBuffersMapped[i] = VulkanAllocator::MapMemory(mUbos[i]);
 		}
 
-		auto vulkanShader{ Renderer::GetShaderLibrary()->Get("PBR_Static")->As<VulkanShader>() };
+		auto vulkanShader{ Renderer::GetShader("PBR_Static")->As<VulkanShader>() };
 
 		mDescriptorSets.resize(Renderer::GetConfig().maxFrames, VK_NULL_HANDLE);
 		for (uint32_t setIndex { 0U }; setIndex < Renderer::GetConfig().maxFrames; ++setIndex)
 		{
-			vulkanShader->AllocateDescriptorSet(1, mDescriptorSets[setIndex]);
+			vulkanShader->AllocateDescriptorSet(0, mDescriptorSets[setIndex]);
 		}
 	}
 	
@@ -57,12 +57,12 @@ namespace Ilargi
 		}
 	}
 	
-	void VulkanUniformBuffer::SetData(void* data)
+	void VulkanUniformBuffer::SetData(void* aData, uint32_t aBinding)
 	{
 		auto device{ VulkanContext::GetLogicalDevice() };
 		uint32_t currentFrame{ Renderer::GetCurrentFrame() };
 
-		memcpy(mUniformBuffersMapped[currentFrame], data, mSize);
+		memcpy(mUniformBuffersMapped[currentFrame], aData, mSize);
 
 		VkDescriptorBufferInfo bufferInfo
 		{
@@ -77,7 +77,7 @@ namespace Ilargi
 		{
 			descriptorWrites[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 			descriptorWrites[i].dstSet = mDescriptorSets[currentFrame];
-			descriptorWrites[i].dstBinding = 0;
+			descriptorWrites[i].dstBinding = aBinding;
 			descriptorWrites[i].dstArrayElement = 0;
 			descriptorWrites[i].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 			descriptorWrites[i].descriptorCount = 1;
@@ -87,7 +87,7 @@ namespace Ilargi
 		vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}
 	
-	const void* VulkanUniformBuffer::GetDescriptorSet() const
+	const VkDescriptorSet VulkanUniformBuffer::GetDescriptorSet() const
 	{
 		return mDescriptorSets[Renderer::GetCurrentFrame()];
 	}

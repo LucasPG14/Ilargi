@@ -8,7 +8,7 @@
 
 namespace Ilargi
 {
-	VulkanSkybox::VulkanSkybox(std::shared_ptr<Shader> aShader)
+	VulkanSkybox::VulkanSkybox(const std::shared_ptr<Shader>& aShader)
 	{
 	}
 	

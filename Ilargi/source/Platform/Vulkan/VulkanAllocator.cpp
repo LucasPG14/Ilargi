@@ -23,13 +23,13 @@ namespace Ilargi
 		vmaDestroyAllocator(sAllocator);
 	}
 	
-	void VulkanAllocator::AllocateBuffer(VulkanBuffer& aBuffer, const VkBufferCreateInfo& aBufferInfo, VmaMemoryUsage aUsage)
+	void VulkanAllocator::AllocateBuffer(VulkanBuffer& aBuffer, const VkBufferCreateInfo& aBufferInfo, VmaMemoryUsage aUsage, VmaAllocationInfo* aAllocationInfo)
 	{
 		VmaAllocationCreateInfo vmaAllocInfo = {};
 		vmaAllocInfo.usage = aUsage;
 
 		// Allocate the buffer
-		vmaCreateBuffer(sAllocator, &aBufferInfo, &vmaAllocInfo, &aBuffer.buffer, &aBuffer.allocation, nullptr);
+		vmaCreateBuffer(sAllocator, &aBufferInfo, &vmaAllocInfo, &aBuffer.buffer, &aBuffer.allocation, aAllocationInfo);
 		
 		aBuffer.allocation->SetName(sAllocator, "Buffer");
 	}

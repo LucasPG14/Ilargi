@@ -10,7 +10,9 @@
 #include "Resources/Texture.h"
 
 #include <imgui/imgui.h>
+#include <imgui/imgui_internal.h>
 #include <gtc/type_ptr.hpp>
+#include "../LocalizationManager.h"
 
 namespace Ilargi
 {
@@ -26,27 +28,27 @@ namespace Ilargi
 	void SceneHierarchyInspectorPanel::Render()
 	{
 		// --------------------------------------Hierarchy window----------------------------------------------
-		ImGui::Begin("Scene Hierarchy", (bool*)0, ImGuiWindowFlags_NoCollapse);
+		ImGui::Begin(LOC("editor.scenehierarchy"), (bool*)0, ImGuiWindowFlags_NoCollapse);
 
 		mIsWindowFocused = ImGui::IsWindowFocused();
 
-		if (ImGui::Button("Add"))
+		if (ImGui::Button(LOC("editor.scenehierarchy.add")))
 		{
 			mScene->CreateEntity();
 		}
 
-		if (ImGui::Button("CreateChild"))
+		if (ImGui::Button(LOC("editor.scenehierarchy.createchild")))
 		{
 			mScene->CreateChildrenEntity(mSelected);
 		}
 
 		const auto& world{ mScene->GetWorld() };
-		const auto& view{ world.view<InfoComponent, FamilyComponent>() };
+		const auto& view{ world.view<TransformComponent, InfoComponent>() };
 
 		std::stack<Entity> stack;
 		for (const auto& entity : view)
 		{
-			if (world.get<FamilyComponent>(entity).parent != entt::null)
+			if (mScene->HasComponent<ParentComponent>(entity))
 				continue;
 		
 			DrawNode(entity, world);
@@ -57,11 +59,11 @@ namespace Ilargi
 
 		if (ImGui::BeginPopupContextWindow("##HierarchyPopUp"))
 		{
-			if (ImGui::MenuItem("Create Entity"))
+			if (ImGui::MenuItem(LOC("editor.scenehierarchy.createentity")))
 			{
 				mScene->CreateEntity();
 			}
-			if (mSelected != entt::null && ImGui::MenuItem("Delete Entity"))
+			if (mSelected != entt::null && ImGui::MenuItem(LOC("editor.scenehierarchy.deleteentity")))
 			{
 				mScene->DestroyEntity(mSelected);
 				mSelected = entt::null;
@@ -73,7 +75,7 @@ namespace Ilargi
 		// ----------------------------------------------------------------------------------------------------
 
 		// --------------------------------------Inspector window----------------------------------------------
-		ImGui::Begin("Inspector", (bool*)0);
+		ImGui::Begin(LOC("editor.inspector"), (bool*)0);
 
 		if (mSelected != entt::null)
 			DrawInspector();
@@ -92,27 +94,24 @@ namespace Ilargi
 	{
 		auto& world{ mScene->GetWorld() };
 
-		ImGui::PushStyleColor(ImGuiCol_Header, { 12.0f / 255.0f, 12.0f / 255.0f, 25.0f / 255.0f, 1.0f });
-		ImGui::PushStyleColor(ImGuiCol_HeaderHovered, { 12.0f / 255.0f, 12.0f / 255.0f, 25.0f / 255.0f, 1.0f });
-		ImGui::PushStyleColor(ImGuiCol_HeaderActive, { 12.0f / 255.0f, 12.0f / 255.0f, 25.0f / 255.0f, 1.0f });
 		ImGui::Separator();
 
 		if (world.try_get<InfoComponent>(mSelected))
 		{
-			InfoComponent& infoComponent{ mScene->GetWorld().get<InfoComponent>(mSelected) };
+			InfoComponent& infoComponent{ mScene->GetComponent<InfoComponent>(mSelected) };
 			char* buf{ infoComponent.name.data() };
 			ImGui::InputText("##Name", buf, infoComponent.name.size() + 2);
 		}
 
 		ImGui::SameLine();
 
-		if (ImGui::BeginCombo("##Add Component", "Add Component"))
+		if (ImGui::BeginCombo("##Add Component", LOC("editor.inspector.addcomponent")))
 		{
-			if (ImGui::Selectable("Directional Light Component") && !mScene->HasComponent<DirectionalLightComponent>(mSelected))
+			if (ImGui::Selectable(LOC("editor.inspector.directionallight")) && !mScene->HasComponent<DirectionalLightComponent>(mSelected))
 			{
 				mScene->CreateComponent<DirectionalLightComponent>(mSelected);
 			}
-			if (ImGui::Selectable("Point Light Component") && !mScene->HasComponent<PointLightComponent>(mSelected))
+			if (ImGui::Selectable(LOC("editor.inspector.pointlight")) && !mScene->HasComponent<PointLightComponent>(mSelected))
 			{
 				mScene->CreateComponent<PointLightComponent>(mSelected);
 			}
@@ -125,98 +124,66 @@ namespace Ilargi
 
 		if (world.try_get<TransformComponent>(mSelected))
 		{
-			TransformComponent& transformComponent{ mScene->GetWorld().get<TransformComponent>(mSelected) };
-			if (ImGui::CollapsingHeader("Transform Component"))
+			TransformComponent& transformComponent{ mScene->GetComponent<TransformComponent>(mSelected) };
+			if (ImGui::CollapsingHeader(LOC("editor.inspector.transform")))
 			{
-				ImVec2 size{ ImGui::CalcTextSize("Rotation") };
-				float widthWindow{ ImGui::GetContentRegionMax().x - size.x };
 				bool hasChanged{ false };
 
-				ImGui::Text("Position");
-				ImGui::SameLine();
-				hasChanged |= ImGui::DragFloat3("##Position", glm::value_ptr(transformComponent.position));
-
-				ImGui::Text("Rotation");
-				ImGui::SameLine();
-				hasChanged |= ImGui::DragFloat3("##Rotation", glm::value_ptr(transformComponent.rotation));
-
-				ImGui::Text("Scale");
-				ImGui::SameLine();
-				hasChanged |= ImGui::DragFloat3("##Scale", glm::value_ptr(transformComponent.scale));
+				DrawVec3("Position", glm::value_ptr(transformComponent.position), 0.0f);
+				DrawVec3("Rotation", glm::value_ptr(transformComponent.rotation), 0.0f);
+				DrawVec3("Scale", glm::value_ptr(transformComponent.scale), 1.0f);
 
 				if (hasChanged)
+				{
 					transformComponent.CalculateTransform();
+					if (mScene->HasComponent<ParentComponent>(mSelected))
+					{
+						const ParentComponent& parentComponent{ mScene->GetComponent<ParentComponent>(mSelected) };
+						TransformComponent& parentTransformComponent{ mScene->GetComponent<TransformComponent>(parentComponent.parent) };
+						transformComponent.CalculateWorldTransform(parentTransformComponent.worldTransform);
+					}
+					else
+					{
+						transformComponent.CalculateWorldTransform(glm::mat4(1.0));
+					}
+
+					if (mScene->HasComponent<ChildComponent>(mSelected))
+					{
+						mScene->CalculateChildrenTransforms(mSelected, transformComponent.worldTransform);
+					}
+				}
 			}
 			ImGui::Separator();
 		}
 
 		if (world.try_get<StaticMeshComponent>(mSelected))
 		{
-			StaticMeshComponent& staticMesh{ mScene->GetWorld().get<StaticMeshComponent>(mSelected) };
-			if (ImGui::CollapsingHeader("Static Mesh Component"))
+			StaticMeshComponent& staticMesh{ mScene->GetComponent<StaticMeshComponent>(mSelected) };
+			if (ImGui::CollapsingHeader(LOC("editor.inspector.staticmesh")))
 			{
-				if (auto mesh{ staticMesh.staticMesh.lock() })
+				for (auto& submesh : staticMesh.submeshes)
 				{
-					auto material{ staticMesh.material.lock() };
-
-					if (material)
+					ImGui::Text(ResourceManager::GetMetadata(submesh.mesh).filepath.filename().stem().string().c_str());
+					ImGui::Text(ResourceManager::GetMetadata(submesh.material).filepath.filename().stem().string().c_str());
+					if (ImGui::BeginDragDropTarget())
 					{
-						ImVec4 colorBg { 0.43f, 0.43f, 0.50f, 0.50f };
-						ImGui::PushStyleColor(ImGuiCol_ChildBg, colorBg);
-						ImGui::PushStyleColor(ImGuiCol_Border, colorBg);
+						auto payload{ ImGui::AcceptDragDropPayload("MATERIAL") };
 
-						//ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
-						ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 2.0f, 2.0f });
-						if (ImGui::BeginChild("Diffuse", { 36, 36 }, true, ImGuiWindowFlags_NoDecoration))
+						if (payload)
 						{
-							if (material->GetDiffuse())
-							{
-								ImGui::Image((void*)material->GetDiffuse()->GetID(), { 32, 32 });
-							}
-							else
-							{
-								ImGui::Text("Diffuse");
-							}
-							if (ImGui::BeginDragDropTarget())
-							{
-								auto payload{ ImGui::AcceptDragDropPayload("RESOURCE") };
-
-								if (payload)
-								{
-									UUID uuid{ *(UUID*)payload->Data };
-									const auto& metadata{ ResourceManager::GetResourcesMetadata()[uuid] };
-
-									staticMesh.material = std::static_pointer_cast<Material>(ResourceManager::GetResource(uuid));
-								}
-							}
-							ImGui::EndChild();
+							UUID uuid{ *(UUID*)payload->Data };
+							submesh.material = uuid;
 						}
-						if (ImGui::ColorEdit4("Color", glm::value_ptr(material->GetMaterialData().color)))
-						{
-							material->UpdateMaterialData();
-						}
-						if (ImGui::SliderFloat("Metallic", &material->GetMaterialData().metallic, 0.0f, 1.0f))
-						{
-							material->UpdateMaterialData();
-						}
-						if (ImGui::SliderFloat("Roughness", &material->GetMaterialData().roughness, 0.0f, 1.0f))
-						{
-							material->UpdateMaterialData();
-						}
-						ImGui::PopStyleColor(2);
-						ImGui::PopStyleVar(1);
-
-						ResourceManager::SaveResource(material);
 					}
+					ImGui::Separator();
 				}
-				ImGui::Separator();
 			}	
 		}
 
 		if (world.try_get<DirectionalLightComponent>(mSelected))
 		{
-			DirectionalLightComponent& dirLight{ mScene->GetWorld().get<DirectionalLightComponent>(mSelected) };
-			if (ImGui::CollapsingHeader("Directional Light Component"))
+			DirectionalLightComponent& dirLight{ mScene->GetComponent<DirectionalLightComponent>(mSelected) };
+			if (ImGui::CollapsingHeader(LOC("editor.inspector.directionallight")))
 			{
 				ImGui::Text("Radiance");
 				ImGui::SameLine();
@@ -227,8 +194,8 @@ namespace Ilargi
 
 		if (world.try_get<PointLightComponent>(mSelected))
 		{
-			PointLightComponent& pointLight{ mScene->GetWorld().get<PointLightComponent>(mSelected) };
-			if (ImGui::CollapsingHeader("Point Light Component"))
+			PointLightComponent& pointLight{ mScene->GetComponent<PointLightComponent>(mSelected) };
+			if (ImGui::CollapsingHeader(LOC("editor.inspector.pointlight")))
 			{
 				ImGui::Text("Radiance");
 				ImGui::SameLine();
@@ -241,25 +208,95 @@ namespace Ilargi
 			ImGui::Separator();
 		}
 
-		ImGui::PopStyleColor(3);
+		//ImGui::PopStyleColor(3);
+	}
+
+	void SceneHierarchyInspectorPanel::DrawVec3(const char* aLabel, float* v, float aResetValue)
+	{
+		ImGui::PushID(aLabel);
+
+		if (ImGui::BeginTable(aLabel, 2, ImGuiTableFlags_SizingStretchProp))
+		{
+			ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed, 90.0f);
+			ImGui::TableSetupColumn("Values", ImGuiTableColumnFlags_WidthStretch);
+			
+			ImGui::TableNextRow();
+
+			// Label
+			ImGui::TableSetColumnIndex(0);
+			ImGui::AlignTextToFramePadding();
+			ImGui::TextUnformatted(aLabel);
+
+			// Values
+			ImGui::TableSetColumnIndex(1);
+
+			float lineHeight{ ImGui::GetFrameHeight() };
+			ImVec2 buttonSize{ lineHeight, lineHeight };
+
+			float spacing{ ImGui::GetStyle().ItemSpacing.x };
+			float inner{ ImGui::GetStyle().ItemInnerSpacing.x };
+			float avail{ ImGui::GetContentRegionAvail().x };
+
+			float totalButtons{ buttonSize.x * 3.0f };
+			float totalSpacing{ spacing * 2.0f + inner * 3.0f + spacing * 2.0f };
+
+			float fieldWidth{ (avail - totalButtons - totalSpacing) / 3.0f };
+			if (fieldWidth < 32.0f)
+				fieldWidth = 32.0f;
+
+			float usedWidth{ totalButtons + totalSpacing + fieldWidth * 3.0f };
+			if (avail > usedWidth)
+				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (avail - usedWidth));
+
+			auto DrawAxis = [&](const char* aText, float& aValue, ImVec4 aColor, float aResetValue)
+			{
+				ImGui::PushStyleColor(ImGuiCol_Button, aColor);
+				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(aColor.x + 0.1f, aColor.y + 0.1f, aColor.z + 0.1f, 1.0f));
+				ImGui::PushStyleColor(ImGuiCol_ButtonActive, aColor);
+
+				if (ImGui::Button(aText, buttonSize))
+					aValue = aResetValue;
+
+				ImGui::PopStyleColor(3);
+
+				ImGui::SameLine();
+
+				ImGui::PushItemWidth(fieldWidth);
+				ImGui::DragFloat(std::string("##" + std::string(aText)).c_str(), &aValue);
+				ImGui::PopItemWidth();
+				
+				ImGui::SameLine();
+			};
+
+			DrawAxis("X", v[0], ImVec4(0.8f, 0.1f, 0.15f, 1.0f), aResetValue);
+			DrawAxis("Y", v[1], ImVec4(0.2f, 0.7f, 0.2f, 1.0f), aResetValue);
+			DrawAxis("Z", v[2], ImVec4(0.1f, 0.25f, 0.8f, 1.0f), aResetValue);
+
+			ImGui::NewLine();
+
+			ImGui::EndTable();
+		}
+
+		ImGui::PopID();
 	}
 	
 	void SceneHierarchyInspectorPanel::DrawNode(const Entity aEntity, const entt::registry& aWorld)
 	{
-		const auto&& [info, family] { aWorld.get<InfoComponent, FamilyComponent>(aEntity)};
+		const InfoComponent& infoComponent { aWorld.get<InfoComponent>(aEntity)};
 		bool select{ mSelected == aEntity };
 
 		ImGuiTreeNodeFlags flags{ ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth };
 		if (select)
 			flags |= ImGuiTreeNodeFlags_Selected;
 
-		bool open{ UI::BeginTreeNode((void*)aEntity, info.name, flags) };
+		bool open{ UI::BeginTreeNode((void*)aEntity, infoComponent.name, flags) };
 		if (ImGui::IsItemClicked(0) || ImGui::IsItemClicked(1))
 			mSelected = aEntity;
 
-		if (open)
+		if (open && mScene->HasComponent<ChildComponent>(aEntity))
 		{
-			for (const auto& entityChild : family.children)
+			const ChildComponent& childComponent{ mScene->GetComponent<ChildComponent>(aEntity) };
+			for (const auto& entityChild : childComponent.childrens)
 			{
 				DrawNode(entityChild, aWorld);
 			}

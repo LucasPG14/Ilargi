@@ -8,8 +8,8 @@
 
 namespace Ilargi
 {
-	StaticMesh::StaticMesh(const std::vector<StaticVertex>& vert, const std::vector<uint32_t>& ind) 
-		: mVertices(vert), indices(ind)
+	StaticMesh::StaticMesh(const std::vector<StaticVertex>& aVertices, const std::vector<uint32_t>& aIndices) 
+		: mVertices(aVertices), indices(aIndices)
 	{
 		mVertexBuffer = VertexBuffer::Create((void*)mVertices.data(), static_cast<uint32_t>(mVertices.size() * sizeof(StaticVertex)));
 		mIndexBuffer = IndexBuffer::Create((void*)indices.data(), static_cast<uint32_t>(indices.size()));

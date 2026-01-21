@@ -6,13 +6,14 @@ namespace Ilargi
 {
 	namespace Utils
 	{
-		const VkFormat GetFormatFromImageFormat(ImageFormat format)
+		const VkFormat GetFormatFromImageFormat(ImageFormat aFormat)
 		{
-			switch (format)
+			switch (aFormat)
 			{
 			case ImageFormat::RED8:					return VK_FORMAT_R8_SRGB;
 			case ImageFormat::RED16:				return VK_FORMAT_R16_SFLOAT;
 			case ImageFormat::RED32:				return VK_FORMAT_R32_SFLOAT;
+			case ImageFormat::RED32_UINT:			return VK_FORMAT_R32_UINT;
 			case ImageFormat::RGBA8:				return VK_FORMAT_R8G8B8A8_SRGB;
 			case ImageFormat::RGBA16:				return VK_FORMAT_R16G16B16A16_SFLOAT;
 			case ImageFormat::RGBA32:				return VK_FORMAT_R32G32B32A32_SFLOAT;
@@ -24,12 +25,56 @@ namespace Ilargi
 			return VkFormat();
 		}
 
-		bool IsDepth(ImageFormat format)
+		bool IsDepth(ImageFormat aFormat)
 		{
-			if (format == ImageFormat::DEPTH32 || format == ImageFormat::DEPTH24_STENCIL8)
+			if (aFormat == ImageFormat::DEPTH32 || aFormat == ImageFormat::DEPTH24_STENCIL8)
 				return true;
 
 			return false;
+		}
+		
+		VkDescriptorType GetVulkanDescriptorType(DescriptorType aType)
+		{
+			switch (aType)
+			{
+			case DescriptorType::UNIFORM_BUFFER: return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			case DescriptorType::COMBINED_IMAGE_SAMPLER: return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			}
+
+			return VK_DESCRIPTOR_TYPE_MAX_ENUM;
+		}
+		
+		DescriptorType GetDescriptorTypeFromVulkan(VkDescriptorType aType)
+		{
+			switch (aType)
+			{			
+			case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER: return DescriptorType::UNIFORM_BUFFER;
+			case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER: return DescriptorType::COMBINED_IMAGE_SAMPLER;
+			}
+
+			return DescriptorType();
+		}
+
+		VkShaderStageFlags GetVulkanShaderStage(const ShaderStage aShaderStage)
+		{
+			switch (aShaderStage)
+			{
+			case ShaderStage::VERTEX_SHADER: return VK_SHADER_STAGE_VERTEX_BIT;
+			case ShaderStage::FRAGMENT_SHADER: return VK_SHADER_STAGE_FRAGMENT_BIT;
+			}
+
+			return VK_SHADER_STAGE_VERTEX_BIT;
+		}
+
+		ShaderStage GetShaderStage(const VkShaderStageFlags aShaderStage)
+		{
+			switch (aShaderStage)
+			{
+			case VK_SHADER_STAGE_VERTEX_BIT: return VERTEX_SHADER;
+			case VK_SHADER_STAGE_FRAGMENT_BIT: return FRAGMENT_SHADER;
+			}
+
+			return VERTEX_SHADER;
 		}
 	}
 }

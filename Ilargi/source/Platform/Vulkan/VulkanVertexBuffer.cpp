@@ -11,21 +11,55 @@ namespace Ilargi
 	{
 		VkBufferCreateInfo vertexBufferInfo
 		{
-			VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,	// sType
-			nullptr,								// pNext
-			0,										// flags
-			aSize,									// size
-			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,		// usage
-			VK_SHARING_MODE_EXCLUSIVE,				// sharingMode
-			0,										// queueFamilyIndexCount
-			nullptr									// pQueueFamilyIndices
+			VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,										// sType
+			nullptr,																	// pNext
+			0,																			// flags
+			aSize,																		// size
+			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,		// usage
+			VK_SHARING_MODE_EXCLUSIVE,													// sharingMode
+			0,																			// queueFamilyIndexCount
+			nullptr																		// pQueueFamilyIndices
 		};
 
-		// TODO: Should be only on the GPU using a staging buffer
-		VulkanAllocator::AllocateBuffer(mBuffer, vertexBufferInfo, VMA_MEMORY_USAGE_CPU_TO_GPU);
-		void* bufferData{ VulkanAllocator::MapMemory(mBuffer) };
-		memcpy(bufferData, aData, aSize);
-		VulkanAllocator::UnmapMemory(mBuffer);
+		VulkanAllocator::AllocateBuffer(mBuffer, vertexBufferInfo, VMA_MEMORY_USAGE_GPU_ONLY);
+		{
+			VkBufferCreateInfo stagingBufferInfo
+			{
+				VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+				nullptr,
+				0,
+				aSize,
+				VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+				VK_SHARING_MODE_EXCLUSIVE,
+				0,
+				nullptr
+			};
+
+			VulkanBuffer stagingBuffer;
+			VmaAllocationInfo allocationInfo {};
+			VulkanAllocator::AllocateBuffer(stagingBuffer, stagingBufferInfo, VMA_MEMORY_USAGE_CPU_ONLY, &allocationInfo);
+
+			ILG_ASSERT(!allocationInfo.pMappedData, "AllocationInfo must have value");
+
+			void* data{ VulkanAllocator::MapMemory(stagingBuffer) };
+			memcpy(data, aData, aSize);
+			VulkanAllocator::UnmapMemory(stagingBuffer);
+
+			auto commandBuffer{ VulkanContext::BeginSingleCommandBuffer() };
+
+			VkBufferCopy copy
+			{
+				0,		// srcOffset
+				0,		// dstOffset
+				aSize	// size
+			};
+
+			vkCmdCopyBuffer(commandBuffer, stagingBuffer.buffer, mBuffer.buffer, 1, &copy);
+
+			VulkanContext::EndSingleCommandBuffer(commandBuffer);
+
+			VulkanAllocator::DestroyBuffer(stagingBuffer);
+		}
 	}
 	
 	VulkanVertexBuffer::~VulkanVertexBuffer()
@@ -35,7 +69,7 @@ namespace Ilargi
 		VulkanAllocator::DestroyBuffer(mBuffer);
 	}
 
-	void VulkanVertexBuffer::Bind(std::shared_ptr<CommandBuffer> aCommandBuffer) const
+	void VulkanVertexBuffer::Bind(const std::shared_ptr<CommandBuffer>& aCommandBuffer) const
 	{
 		uint32_t currentFrame{ Renderer::GetCurrentFrame() };
 		auto cmdBuffer{ aCommandBuffer->As<VulkanCommandBuffer>() };

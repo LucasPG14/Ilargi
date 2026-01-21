@@ -62,7 +62,7 @@ struct Converter<glm::vec4>
 
 	static glm::vec4 fromJson(JsonVariantConst src)
 	{
-		return glm::vec4(src["x"], src["y"], src["z"], src["w"]);
+		return { src["x"], src["y"], src["z"], src["w"] };
 	}
 
 	static bool checkJson(JsonVariantConst src)

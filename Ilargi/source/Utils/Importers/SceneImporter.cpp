@@ -29,7 +29,8 @@ namespace Ilargi
 		for (uint32_t index { 0U }; index < document.size(); ++index)
 		{
 			const auto& node{ document[index] };
-			const Entity entity{ scene->CreateEntity(node["InfoComponent"]["Name"]) };
+
+			const Entity entity{ scene->CreateEntity(node["InfoComponent"]["Name"], glm::mat4(1.0), static_cast<entt::entity>(node["EntityID"].as<uint64_t>()))};
 
 			auto& transform{ scene->GetWorld().get<TransformComponent>(entity) };
 			transform.position = node["TransformComponent"]["Position"];
@@ -54,9 +55,41 @@ namespace Ilargi
 			{
 				StaticMeshComponent& staticMesh{ scene->CreateComponent<StaticMeshComponent>(entity) };
 
-				UUID uuid{ static_cast<uint64_t>(node["StaticMeshComponent"]["UUID"]) };
+				UUID meshUUID{ static_cast<uint64_t>(node["StaticMeshComponent"]["Mesh"]) };
+				UUID materialUUID{ static_cast<uint64_t>(node["StaticMeshComponent"]["Material"]) };
 				
-				staticMesh.staticMesh = std::static_pointer_cast<StaticMesh>(ResourceManager::GetResource(uuid));
+				for (uint32_t indexSubmesh{ 0U }; indexSubmesh < node["StaticMeshComponent"].size(); ++indexSubmesh)
+				{
+					StaticSubmesh submesh;
+					submesh.mesh = static_cast<uint64_t>(node["StaticMeshComponent"][indexSubmesh]["Mesh"]);
+					submesh.material = static_cast<uint64_t>(node["StaticMeshComponent"][indexSubmesh]["Material"]);
+					staticMesh.submeshes.push_back(submesh);
+				}
+			}
+
+			if (node.containsKey("ParentComponent"))
+			{
+				ParentComponent& parentComponent{ scene->CreateComponent<ParentComponent>(entity) };
+				parentComponent.parent = static_cast<entt::entity>(node["ParentComponent"]["Parent"].as<uint64_t>());
+			}
+
+			if (node.containsKey("ChildComponent"))
+			{
+				ChildComponent& childComponent{ scene->CreateComponent<ChildComponent>(entity) };
+				JsonArray childrenList{ document[index]["ChildComponent"]["Childrens"] };
+				for (const auto& child : childrenList)
+				{
+					childComponent.childrens.push_back(static_cast<entt::entity>(child.as<uint64_t>()));
+				}
+			}
+
+			if (node.containsKey("CameraComponent"))
+			{
+				CameraComponent& cameraComponent{ scene->CreateComponent<CameraComponent>(entity) };
+				cameraComponent.fov = node["CameraComponent"]["Fov"];
+				cameraComponent.aspectRatio = node["CameraComponent"]["AspectRatio"];
+				cameraComponent.nearPlane = node["CameraComponent"]["NearPlane"];
+				cameraComponent.farPlane = node["CameraComponent"]["FarPlane"];
 			}
 		}
 
@@ -74,6 +107,7 @@ namespace Ilargi
 		{
 			uint64_t index{ static_cast<uint64_t>(entity) };
 
+			document[index]["EntityID"] = index;
 			const auto& transform{ world.get<TransformComponent>(entity) };
 			document[index]["TransformComponent"]["Position"] = transform.position;
 			document[index]["TransformComponent"]["Rotation"] = transform.rotation;
@@ -100,21 +134,36 @@ namespace Ilargi
 			{
 				const StaticMeshComponent& staticMesh{ world.get<StaticMeshComponent>(entity) };
 
-				UUID uuid{ 0U };
-
-				if (auto mesh{ staticMesh.staticMesh.lock() })
+				for (uint32_t indexMesh{ 0U }; indexMesh < staticMesh.submeshes.size(); ++indexMesh)
 				{
-					uuid = mesh->mResourceUUID;
+					document[index]["StaticMeshComponent"][indexMesh]["Mesh"] = static_cast<uint64_t>(staticMesh.submeshes[indexMesh].mesh);
+					document[index]["StaticMeshComponent"][indexMesh]["Material"] = static_cast<uint64_t>(staticMesh.submeshes[indexMesh].material);
 				}
+			}
 
-				document[index]["StaticMeshComponent"]["UUID"] = static_cast<uint64_t>(uuid);
+			if (world.try_get<ParentComponent>(entity))
+			{
+				const ParentComponent& parentComponent{ world.get<ParentComponent>(entity) };
+				document[index]["ParentComponent"]["Parent"] = static_cast<uint64_t>(parentComponent.parent);
+			}
 
-				if (auto material{ staticMesh.material.lock() })
+			if (world.try_get<ChildComponent>(entity))
+			{
+				const ChildComponent& childComponent{ world.get<ChildComponent>(entity) };
+				JsonArray childrenArray{ document[index]["ChildComponent"]["Childrens"].to<JsonArray>()};
+				for (auto child : childComponent.childrens)
 				{
-					document[index]["StaticMeshComponent"]["Color"] = material->GetMaterialData().color;
-					document[index]["StaticMeshComponent"]["Metallic"] = material->GetMaterialData().metallic;
-					document[index]["StaticMeshComponent"]["Roughness"] = material->GetMaterialData().roughness;
+					childrenArray.add(static_cast<uint64_t>(child));
 				}
+			}
+
+			if (world.try_get<CameraComponent>(entity))
+			{
+				const CameraComponent& cameraComponent{ world.get<CameraComponent>(entity) };
+				document[index]["CameraComponent"]["Fov"] = cameraComponent.fov;
+				document[index]["CameraComponent"]["AspectRatio"] = cameraComponent.aspectRatio;
+				document[index]["CameraComponent"]["NearPlane"] = cameraComponent.nearPlane;
+				document[index]["CameraComponent"]["FarPlane"] = cameraComponent.farPlane;
 			}
 		}
 

@@ -20,7 +20,7 @@ namespace Ilargi
 		VK_CHECK_RESULT(error);
 	}
 
-	VulkanImGuiPanel::VulkanImGuiPanel(GLFWwindow* win, const std::shared_ptr<Swapchain> swapchain)
+	VulkanImGuiPanel::VulkanImGuiPanel(GLFWwindow* win, const std::shared_ptr<Swapchain>& swapchain)
 	{
 		mSwapchain = swapchain->As<VulkanSwapchain>();
 
@@ -34,7 +34,7 @@ namespace Ilargi
 		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 		
 		ImGui::StyleColorsDark();
-		//UI::IlargiStyle2();
+		UI::IlargiStyle();
 
 		ImGui_ImplGlfw_InitForVulkan(win, true);
 		

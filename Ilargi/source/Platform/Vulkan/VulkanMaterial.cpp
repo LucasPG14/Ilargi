@@ -7,15 +7,15 @@
 #include "VulkanTexture.h"
 #include "VulkanShader.h"
 
+#define MATERIAL_SET 0x01
+
 namespace Ilargi
 {
-	VulkanMaterial::VulkanMaterial(std::shared_ptr<Shader> aShader, const MaterialData& aMaterialData) 
-		: mShader(aShader), mDescriptorSet(VK_NULL_HANDLE), mMaterialData(aMaterialData)
+	VulkanMaterial::VulkanMaterial(const std::shared_ptr<Shader>& aShader, const MaterialData& aMaterialData) 
+		: mShader(aShader->As<VulkanShader>()), mDescriptorSet(VK_NULL_HANDLE), mMaterialData(aMaterialData)
 	{
 		auto vulkanShader{ aShader->As<VulkanShader>() };
-		vulkanShader->AllocateDescriptorSet(0, mDescriptorSet);
-
-		mDiffuse = Renderer::GetDefaultTexture();
+		vulkanShader->AllocateDescriptorSet(MATERIAL_SET, mDescriptorSet);
 
 		auto device{ VulkanContext::GetLogicalDevice() };
 
@@ -43,11 +43,18 @@ namespace Ilargi
 		VulkanAllocator::DestroyBuffer(mMaterialBuffer);
 	}
 	
-	void VulkanMaterial::UpdateDiffuse(std::shared_ptr<Texture2D> aTexture)
+	const std::shared_ptr<Texture2D>& VulkanMaterial::GetTexture(const std::string& aTextureName)
 	{
-		mDiffuse = aTexture;
+		return mTextures.find(aTextureName) != mTextures.end() ? mTextures[aTextureName] : nullptr;
+	}
 
-		UpdateDescriptor();
+	void VulkanMaterial::UpdateTexture(const std::string& aTextureName, const std::shared_ptr<Texture2D>& aTexture)
+	{
+		//if (mBindings.find(aTextureName) != mBindings.end())
+		{
+			mTextures[aTextureName] = aTexture;
+			UpdateDescriptor();
+		}
 	}
 	
 	void VulkanMaterial::UpdateMaterialData()
@@ -58,7 +65,6 @@ namespace Ilargi
 	void VulkanMaterial::UpdateDescriptor()
 	{
 		auto device{ VulkanContext::GetLogicalDevice() };
-		auto albedo{ std::static_pointer_cast<VulkanTexture2D>(mDiffuse) };
 
 		memcpy(mMaterialBufferMapped, &mMaterialData, sizeof(MaterialData));
 		VkDescriptorBufferInfo bufferInfo
@@ -84,14 +90,40 @@ namespace Ilargi
 			}
 		};
 
-		if (albedo)
+		//std::vector<VkDescriptorImageInfo> imageInfos;
+
+		//for (const auto& [uniformName, texture] : mTextures)
+		//{
+		//	std::shared_ptr<VulkanTexture2D> vkTexture{ texture->As<VulkanTexture2D>() };
+		//	VkDescriptorImageInfo& imageInfo{ imageInfos.emplace_back() };
+		//	imageInfo.sampler = vkTexture->GetSampler();
+		//	imageInfo.imageView = vkTexture->GetImageView();
+		//	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+		//	auto& descriptorWrite{ descriptorWrites.emplace_back() };
+
+		//	descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		//	descriptorWrite.dstSet = mDescriptorSet;
+		//	descriptorWrite.dstBinding = mBindings[uniformName].binding;
+		//	descriptorWrite.descriptorCount = 1;
+		//	descriptorWrite.descriptorType = Utils::GetVulkanDescriptorType(mBindings[uniformName].type);
+		//	descriptorWrite.pImageInfo = &imageInfo;
+		//}
+
+		std::shared_ptr<VulkanTexture2D> vkTexture;
+		if (mTextures.find("DiffuseMap") != mTextures.end())
 		{
-			VkDescriptorImageInfo imageInfo
-			{
-				albedo->GetSampler(),
-				albedo->GetImageView(),
-				VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-			};
+			vkTexture = mTextures["DiffuseMap"]->As<VulkanTexture2D>();
+		}
+		else
+		{
+			vkTexture = Renderer::GetDefaultTexture()->As<VulkanTexture2D>();
+		}
+		{
+			VkDescriptorImageInfo imageInfo;
+			imageInfo.sampler = vkTexture->GetSampler();
+			imageInfo.imageView = vkTexture->GetImageView();
+			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
 			auto& descriptorWrite{ descriptorWrites.emplace_back() };
 
@@ -99,10 +131,62 @@ namespace Ilargi
 			descriptorWrite.dstSet = mDescriptorSet;
 			descriptorWrite.dstBinding = 0;
 			descriptorWrite.descriptorCount = 1;
-			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			descriptorWrite.descriptorType = Utils::GetVulkanDescriptorType(DescriptorType::COMBINED_IMAGE_SAMPLER);
 			descriptorWrite.pImageInfo = &imageInfo;
+
+			vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 		}
 
-		vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+		if (mTextures.find("NormalMap") != mTextures.end())
+		{
+			vkTexture = mTextures["NormalMap"]->As<VulkanTexture2D>();
+		}
+		else
+		{
+			vkTexture = Renderer::GetDefaultNormalTexture()->As<VulkanTexture2D>();
+		}
+		{
+			VkDescriptorImageInfo imageInfo;
+			imageInfo.sampler = vkTexture->GetSampler();
+			imageInfo.imageView = vkTexture->GetImageView();
+			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+			auto& descriptorWrite{ descriptorWrites.emplace_back() };
+
+			descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrite.dstSet = mDescriptorSet;
+			descriptorWrite.dstBinding = 1;
+			descriptorWrite.descriptorCount = 1;
+			descriptorWrite.descriptorType = Utils::GetVulkanDescriptorType(DescriptorType::COMBINED_IMAGE_SAMPLER);
+			descriptorWrite.pImageInfo = &imageInfo;
+
+			vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+		}
+
+		if (mTextures.find("RoughnessMap") != mTextures.end())
+		{
+			vkTexture = mTextures["RoughnessMap"]->As<VulkanTexture2D>();
+		}
+		else
+		{
+			vkTexture = Renderer::GetDefaultTexture()->As<VulkanTexture2D>();
+		}
+		{
+			VkDescriptorImageInfo imageInfo;
+			imageInfo.sampler = vkTexture->GetSampler();
+			imageInfo.imageView = vkTexture->GetImageView();
+			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+			auto& descriptorWrite{ descriptorWrites.emplace_back() };
+
+			descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrite.dstSet = mDescriptorSet;
+			descriptorWrite.dstBinding = 2;
+			descriptorWrite.descriptorCount = 1;
+			descriptorWrite.descriptorType = Utils::GetVulkanDescriptorType(DescriptorType::COMBINED_IMAGE_SAMPLER);
+			descriptorWrite.pImageInfo = &imageInfo;
+
+			vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+		}
 	}
 }

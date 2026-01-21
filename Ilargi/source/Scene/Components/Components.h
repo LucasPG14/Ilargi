@@ -15,48 +15,80 @@ namespace Ilargi
 	class IndexBuffer;
 	class StaticMesh;
 	class Material;
+	
+	struct StaticSubmesh;
 
 	using Entity = entt::entity;
 
-	struct FamilyComponent
+	struct ParentComponent
 	{
-		Entity parent{ entt::null };
-		std::vector<Entity> children;
+		Entity parent{ entt::null }; // Identifier of the parent entity.
+	};
+
+	struct ChildComponent
+	{
+		std::vector<Entity> childrens; // Container of children entities identifiers.
 	};
 
 	struct TransformComponent
 	{
-		glm::mat4 transform{ glm::mat4(1.0f) };
-		glm::vec3 position{ glm::vec3(0.0f) };
-		glm::vec3 rotation{ glm::vec3(0.0f) };
-		glm::vec3 scale{ glm::vec3(1.0f) };
+		glm::mat4 localTransform{ 1.0f }; // Local transform of the entity.
+		glm::mat4 worldTransform{ 1.0f }; // World transform of the entity.
+		glm::vec3 position; // The position of the entity.
+		glm::vec3 rotation; // The rotation of the entity.
+		glm::vec3 scale; // The scale of the entity.
 
+		TransformComponent(const glm::mat4& aLocalTransform) : localTransform(aLocalTransform)
+		{
+			DecomposeMatrix(localTransform, position, rotation, scale);
+		}
+
+		/*
+		* @brief Calculates the local transform of the entity.
+		*/
 		void CalculateTransform()
 		{
-			transform = glm::translate(glm::mat4(1.0), position) * glm::eulerAngleXYZ(glm::radians(rotation.x), glm::radians(rotation.y), glm::radians(rotation.z));
-			transform = glm::scale(transform, scale);
+			localTransform = glm::translate(glm::mat4(1.0), position) * glm::eulerAngleXYZ(glm::radians(rotation.x), glm::radians(rotation.y), glm::radians(rotation.z));
+			localTransform = glm::scale(localTransform, scale);
+		}
+
+		/*
+		* @brief Calculates the world transform of the entity.
+		*/
+		void CalculateWorldTransform(const glm::mat4& aMatrix)
+		{
+			worldTransform = aMatrix * localTransform;
 		}
 	};
 
 	struct InfoComponent
 	{
-		std::string name;
+		std::string name; // Name of the entity.
 	};
 
 	struct StaticMeshComponent
 	{
-		std::weak_ptr<StaticMesh> staticMesh;
-		std::weak_ptr<Material> material;
+		std::vector<StaticSubmesh> submeshes;
+		//std::vector<UUID> staticMesh; // Instance of the static mesh.
+		//std::vector<UUID> material; // Instance of the material.
 	};
 
 	struct DirectionalLightComponent
 	{
-		glm::vec3 radiance{ glm::vec3(1.0f) };
+		glm::vec3 radiance{ 1.0f, 1.0f, 1.0f }; // Color of the light
 	};
 
 	struct PointLightComponent
 	{
-		glm::vec3 radiance{ glm::vec3(1.0f) };
-		float radius{ 1.0f };
+		glm::vec3 radiance{ 1.0f, 1.0f, 1.0f }; // Color of the light.
+		float radius{ 1.0f }; // Radius of the point light.
+	};
+
+	struct CameraComponent
+	{
+		float fov{ glm::radians(60.0f) };
+		float aspectRatio{ 16.0f / 9.0f }; // Aspect ratio.
+		float nearPlane{ 0.1f }; // The minimum distance of the camera.
+		float farPlane{ 1000.0f }; // The maximum distance of the camera.
 	};
 }

@@ -15,7 +15,7 @@ namespace Ilargi
 	VulkanRenderPass::VulkanRenderPass(const RenderPassProperties& props) : mProperties(props)
 	{
 		auto device{ VulkanContext::GetLogicalDevice() };
-		const std::vector<ImageFormat>& formats{ mProperties.framebuffer->GetProperties().formats };
+		const std::vector<ImageFormat>& formats{ mProperties.Formats };
 		
 		std::vector<VkAttachmentDescription> attachments;
 		std::vector<VkAttachmentReference> colorAttachmentRefs;
@@ -29,13 +29,13 @@ namespace Ilargi
 			VkAttachmentDescription& attachment{ attachments.emplace_back() };
 			attachment.format = Utils::GetFormatFromImageFormat(formats[i]);
 			attachment.samples = VK_SAMPLE_COUNT_1_BIT;
-			attachment.loadOp = mProperties.clearValues ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
+			attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 			attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 			
-			attachment.stencilLoadOp = mProperties.clearValues ? VK_ATTACHMENT_LOAD_OP_DONT_CARE : VK_ATTACHMENT_LOAD_OP_LOAD;
+			attachment.stencilLoadOp = mProperties.ClearValues ? VK_ATTACHMENT_LOAD_OP_DONT_CARE : VK_ATTACHMENT_LOAD_OP_LOAD;
 			attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
 			
-			attachment.initialLayout = mProperties.clearValues ? VK_IMAGE_LAYOUT_UNDEFINED : isDepth ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 			attachment.finalLayout = isDepth ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
 			VkClearValue& clearValue{ mClearValues.emplace_back() };
@@ -93,28 +93,26 @@ namespace Ilargi
 
 		VK_CHECK_RESULT(vkCreateRenderPass(device, &renderPassInfo, nullptr, &mRenderPass));
 
-		props.framebuffer->As<VulkanFramebuffer>()->Init(mRenderPass);
-		props.pipeline->As<VulkanPipeline>()->Init(mRenderPass, formats);
+		//props.framebuffer->As<VulkanFramebuffer>()->Init(mRenderPass);
+		//props.pipeline->As<VulkanPipeline>()->Init(mRenderPass, formats);
 	}
 	
 	VulkanRenderPass::~VulkanRenderPass()
 	{
+		auto device{ VulkanContext::GetLogicalDevice() };
+		vkDestroyRenderPass(device, mRenderPass, nullptr);
 	}
 
 	void VulkanRenderPass::Destroy()
 	{
-		auto device{ VulkanContext::GetLogicalDevice() };
-
-		mProperties.pipeline->Destroy();
-		vkDestroyRenderPass(device, mRenderPass, nullptr);
 	}
 	
-	void VulkanRenderPass::BeginRenderPass(const std::shared_ptr<CommandBuffer>& commandBuffer) const
+	void VulkanRenderPass::BeginRenderPass(const std::shared_ptr<CommandBuffer>& aCommandBuffer, const std::shared_ptr<Framebuffer>& aFramebuffer) const
 	{
-		Renderer::Submit([this, commandBuffer]()
+		Renderer::Submit([this, aCommandBuffer, aFramebuffer]()
 			{
-				auto framebuffer{ mProperties.framebuffer->As<VulkanFramebuffer>() };
-				auto cmdBuffer{ commandBuffer->As<VulkanCommandBuffer>()->GetCurrentCommand(Renderer::GetCurrentFrame())};
+				auto framebuffer{ aFramebuffer->As<VulkanFramebuffer>() };
+				auto cmdBuffer{ aCommandBuffer->As<VulkanCommandBuffer>()->GetCurrentCommand(Renderer::GetCurrentFrame())};
 
 				uint32_t width{ framebuffer->GetWidth() };
 				uint32_t height{ framebuffer->GetHeight() };
@@ -129,7 +127,7 @@ namespace Ilargi
 						{ 0, 0 },									// offset
 						{ width, height }							// extent
 					},
-					mProperties.clearValues ? static_cast<uint32_t>(mClearValues.size()) : 0,	// clearValueCount 
+					mProperties.ClearValues ? static_cast<uint32_t>(mClearValues.size()) : 0,	// clearValueCount 
 					mClearValues.data()							// pClearValues 
 				};
 

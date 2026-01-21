@@ -2,6 +2,8 @@
 
 #include "VulkanShader.h"
 #include "VulkanContext.h"
+#include "Renderer/Renderer.h"
+#include "VulkanUtils.h"
 
 #include <shaderc/shaderc.hpp>
 #include <include/spirv_glsl.hpp>
@@ -112,8 +114,6 @@ namespace Ilargi
 		Utils::CreateShaderCacheDirectory();
 		const auto& directory{ Utils::GetShaderCacheDirectory() };
 
-		mSetBindingMap.fill({false, false, false, false, false, false, false, false});
-
 		auto device{ VulkanContext::GetLogicalDevice() };
 
 		auto nonCacheFileTime{ std::filesystem::last_write_time(aFilepath) };
@@ -138,34 +138,38 @@ namespace Ilargi
 		if (mShaders.empty())
 			ProcessShader();
 
-		if (!mDescriptorSetBindings.empty())
-		{
-			uint32_t size{ (--mDescriptorSetBindings.end())->first + 1U };
-			mDescriptorSetLayouts.resize(size);
-			for (uint32_t setBindingIndex { 0 }; setBindingIndex < size; ++setBindingIndex)
+		// TODO: Try to get it in order without doing a sort operation.
+		std::sort(mPipelineLayoutProperties.DescriptorSetLayoutsProperties.begin(), mPipelineLayoutProperties.DescriptorSetLayoutsProperties.end(), [](const DescriptorSetLayoutProperties& aProperties1, const DescriptorSetLayoutProperties& aProperties2)
 			{
-				if (mDescriptorSetBindings.find(setBindingIndex) != mDescriptorSetBindings.end())
-				{
-					VkDescriptorSetLayoutCreateInfo layoutInfo
-					{
-						VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,					// sType
-						nullptr,																// pNext
-						0,																		// flags
-						static_cast<uint32_t>(mDescriptorSetBindings[setBindingIndex].size()),	// bindingCount
-						mDescriptorSetBindings[setBindingIndex].data()							// pBindings
-					};
+				return aProperties1.SetNumber < aProperties2.SetNumber;
+			});
 
-					VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &mDescriptorSetLayouts[setBindingIndex]));
-				}
-			}
-		}
+		mPipelineLayout = Renderer::GetPipelineLayout(mPipelineLayoutProperties)->As<VulkanPipelineLayout>();
+
+		//if (!mDescriptorSetBindings.empty())
+		//{
+		//	uint32_t size{ (--mDescriptorSetBindings.end())->first + 1U };
+		//	//mDescriptorSetLayouts.resize(size);
+		//	for (uint32_t setBindingIndex { 0 }; setBindingIndex < size; ++setBindingIndex)
+		//	{
+		//		if (mDescriptorSetBindings.find(setBindingIndex) != mDescriptorSetBindings.end())
+		//		{
+		//			VkDescriptorSetLayoutCreateInfo layoutInfo
+		//			{
+		//				VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,					// sType
+		//				nullptr,																// pNext
+		//				0,																		// flags
+		//				static_cast<uint32_t>(mDescriptorSetBindings[setBindingIndex].size()),	// bindingCount
+		//				mDescriptorSetBindings[setBindingIndex].data()							// pBindings
+		//			};
+
+		//			//VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &mDescriptorSetLayouts[setBindingIndex]));
+		//		}
+		//	}
+		//}
 	}
 	
 	VulkanShader::~VulkanShader()
-	{
-	}
-	
-	void VulkanShader::Destroy()
 	{
 		auto device{ VulkanContext::GetLogicalDevice() };
 
@@ -174,17 +178,16 @@ namespace Ilargi
 			vkDestroyShaderModule(device, module, nullptr);
 		}
 
-		for (auto& descriptorSetLayout : mDescriptorSetLayouts)
-		{
-			vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
-		}
-
 		mShaders.clear();
+	}
+	
+	void VulkanShader::Destroy()
+	{
 	}
 
 	void VulkanShader::AllocateDescriptorSet(uint32_t aIndex, VkDescriptorSet& aDescriptorSet)
 	{
-		ILG_ASSERT(aIndex < mDescriptorSetLayouts.size(), "This descriptor set does not exist");
+		ILG_ASSERT(aIndex < mPipelineLayout->GetDescriptorSetLayoutsCount(), "This descriptor set does not exist");
 
 		auto device{ VulkanContext::GetLogicalDevice() };
 
@@ -194,7 +197,7 @@ namespace Ilargi
 			nullptr,											// pNext
 			VulkanContext::GetDescriptorPool(),					// descriptorPool
 			1,													// descriptorSetCount
-			&mDescriptorSetLayouts[aIndex]						// pSetLayouts
+			&mPipelineLayout->GetDescriptorSetLayout(aIndex)	// pSetLayouts
 		};
 
 		VK_CHECK_RESULT(vkAllocateDescriptorSets(device, &allocInfo, &aDescriptorSet));
@@ -283,7 +286,7 @@ namespace Ilargi
 		if (module.GetCompilationStatus() != shaderc_compilation_status_success)
 		{
 			ILG_CORE_ERROR("{0}", module.GetErrorMessage().c_str());
-			ILG_ASSERT(false, "");
+			ILG_ASSERT(true, "");
 		}
 
 		return std::vector<uint32_t>(module.cbegin(), module.cend());
@@ -309,9 +312,7 @@ namespace Ilargi
 			ILG_CORE_TRACE("	Binding: {0}", binding);
 			ILG_CORE_TRACE("	Members: {0}", membersCount);
 
-			VkPushConstantRange pushConstant { aStage, 0, size };
-			
-			mPushConstants.push_back(pushConstant);
+			mPipelineLayoutProperties.PushConstantRanges.emplace_back( size, 0, Utils::GetShaderStage(aStage));
 		}
 
 		// Reflecting uniform buffers
@@ -330,19 +331,32 @@ namespace Ilargi
 			ILG_CORE_TRACE("	Binding: {0}", binding);
 			ILG_CORE_TRACE("	Members: {0}", membersCount);
 
-			if (!mSetBindingMap[set][binding])
-			{
-				VkDescriptorSetLayoutBinding layoutBinding
-				{
-					binding,													// binding
-					VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,							// descriptorType
-					1,															// descriptorCount
-					VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,	// stageFlags
-					nullptr														// pImmutableSamplers
-				};
+			DescriptorBinding descriptorBinding{};
+			descriptorBinding.Binding = binding;
+			descriptorBinding.Type = DescriptorType::UNIFORM_BUFFER;
+			descriptorBinding.Stage = Utils::GetShaderStage(aStage);
 
-				mSetBindingMap[set][binding] = true;
-				mDescriptorSetBindings[set].push_back(layoutBinding);
+			const auto& iterator{ std::find_if(mPipelineLayoutProperties.DescriptorSetLayoutsProperties.begin(), mPipelineLayoutProperties.DescriptorSetLayoutsProperties.end(), [set](const DescriptorSetLayoutProperties& aDescriptorSetLayout)
+			{
+				return aDescriptorSetLayout.SetNumber == set;
+			}) };
+			
+			if (iterator != mPipelineLayoutProperties.DescriptorSetLayoutsProperties.end())
+			{
+				DescriptorSetLayoutProperties& descriptorSetLayout{ (*iterator) };
+				const auto& bindingIterator{ std::find_if(descriptorSetLayout.DescriptorBindings.begin(), descriptorSetLayout.DescriptorBindings.end(), [binding](const DescriptorBinding& aDescriptorBinding)
+				{
+					return aDescriptorBinding.Binding == binding;
+				}) };
+
+				if (bindingIterator == descriptorSetLayout.DescriptorBindings.end())
+				{
+					descriptorSetLayout.DescriptorBindings.emplace_back(descriptorBinding);
+				}
+			}
+			else
+			{
+				mPipelineLayoutProperties.DescriptorSetLayoutsProperties.emplace_back(set, descriptorBinding);
 			}
 		}
 
@@ -358,16 +372,24 @@ namespace Ilargi
 			ILG_CORE_TRACE("	Binding: {0}", binding);
 			ILG_CORE_TRACE("	Descriptor Set: {0}", set);
 
-			VkDescriptorSetLayoutBinding layoutBinding
-			{
-				binding,													// binding
-				VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,					// descriptorType
-				1,															// descriptorCount
-				aStage,														// stageFlags
-				nullptr														// pImmutableSamplers
-			};
+			DescriptorBinding descriptorBinding{};
+			descriptorBinding.Binding = binding;
+			descriptorBinding.Type = DescriptorType::COMBINED_IMAGE_SAMPLER;
+			descriptorBinding.Stage = Utils::GetShaderStage(aStage);
 
-			mDescriptorSetBindings[set].push_back(layoutBinding);
+			const auto& iterator{ std::find_if(mPipelineLayoutProperties.DescriptorSetLayoutsProperties.begin(), mPipelineLayoutProperties.DescriptorSetLayoutsProperties.end(), [set](const DescriptorSetLayoutProperties& aDescriptorSetLayout)
+			{
+				return aDescriptorSetLayout.SetNumber == set;
+			}) };
+
+			if (iterator != mPipelineLayoutProperties.DescriptorSetLayoutsProperties.end())
+			{
+				(*iterator).DescriptorBindings.emplace_back(descriptorBinding);
+			}
+			else
+			{
+				mPipelineLayoutProperties.DescriptorSetLayoutsProperties.emplace_back(set, descriptorBinding);
+			}
 		}
 
 		// Reflecting separate images

@@ -5,7 +5,7 @@ layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec3 inNormal;
 layout(location = 2) in vec3 inTangent;
 layout(location = 3) in vec3 inBitangent;
-layout(location = 4) in vec2 inTexCoord;
+layout(location = 4) in vec2 inTexCoords;
 
 layout(push_constant) uniform Constants
 {
@@ -21,61 +21,84 @@ struct PointLight
     vec3 position;
 };
 
-// Descriptor sets
-layout(set = 1, binding = 0) uniform SceneData
+layout(set = 0, binding = 0) uniform SceneData
 {
-    mat4 viewProjMatrix;
+    mat4 proj;
+    mat4 view;
     vec3 cameraPos;
     uint pointLightsSize;
     PointLight pointLights[1024];
 } sceneData;
 
-layout(location = 0) out vec2 vTexCoord;
-layout(location = 1) out vec3 vLightColor;
-layout(location = 2) out vec3 vNormal;
-layout(location = 3) out vec3 vLightDirection;
-layout(location = 4) out vec3 vFragPos;
-layout(location = 5) out vec3 vViewPos;
+layout(location = 0) out vec2 vTexCoords;
+layout(location = 1) out vec3 vNormal;
+layout(location = 2) out vec3 vFragPos;
+layout(location = 3) out mat3 vTBN;
+layout(location = 10) out vec3 vCameraPosition;
+layout(location = 8) out vec3 vDirectionalColor;
+layout(location = 9) out vec3 vDirection;
 
 void main() 
 {
-    gl_Position = sceneData.viewProjMatrix * pushConstants.modelMatrix * vec4(inPosition, 1.0);
-    vTexCoord = inTexCoord;
-    vLightColor = pushConstants.radiance.rgb;
-    vNormal = mat3(transpose(inverse(pushConstants.modelMatrix))) * inNormal;
-    vLightDirection = pushConstants.direction;
     vFragPos = vec3(pushConstants.modelMatrix * vec4(inPosition, 1.0));
-    vViewPos = sceneData.cameraPos;
+    
+    vTexCoords = inTexCoords;
+    vNormal = inNormal;
+    vDirectionalColor = pushConstants.radiance;
+    vDirection = pushConstants.direction;
+
+    vec3 T = normalize(vec3(pushConstants.modelMatrix * vec4(inTangent, 0.0)));
+    vec3 B = normalize(vec3(pushConstants.modelMatrix * vec4(inBitangent, 0.0)));
+    vec3 N = normalize(vec3(pushConstants.modelMatrix * vec4(inNormal, 0.0)));
+    vTBN = mat3(T, B, N);
+
+    vCameraPosition = sceneData.cameraPos;
+    
+    gl_Position = sceneData.proj * sceneData.view * vec4(vFragPos, 1.0);
 }
 
 #type fragment
 #version 450
 
-layout(location = 0) in vec2 vTexCoord;
-layout(location = 1) in vec3 vLightColor;
-layout(location = 2) in vec3 vNormal;
-layout(location = 3) in vec3 vLightDirection;
-layout(location = 4) in vec3 vFragPos;
-layout(location = 5) in vec3 vViewPos;
+layout(location = 0) in vec2 vTexCoords;
+layout(location = 1) in vec3 vNormal;
+layout(location = 2) in vec3 vFragPos;
+layout(location = 3) in mat3 vTBN;
+layout(location = 10) in vec3 vCameraPosition;
+layout(location = 8) in vec3 vDirectionalColor;
+layout(location = 9) in vec3 vDirection;
 
 layout(location = 0) out vec4 outColor;
 
 // Material Descriptor Sets
-layout(set = 0, binding = 0) uniform sampler2D diffuseTex;
-layout(set = 0, binding = 1) uniform sampler2D normalTex;
-layout(set = 0, binding = 2) uniform sampler2D metallicTex;
-layout(set = 0, binding = 3) uniform sampler2D roughnessTex;
-layout(set = 0, binding = 4) uniform MaterialData
+layout(set = 1, binding = 0) uniform sampler2D DiffuseMap;
+layout(set = 1, binding = 1) uniform sampler2D NormalMap;
+layout(set = 1, binding = 2) uniform sampler2D RoughnessMap;
+layout(set = 1, binding = 4) uniform MaterialData
 {
     vec4 color;
     float metallic;
     float roughness;
 } material;
 
-vec3 fresnelSchlick(float cosTheta, vec3 F0)
+struct PointLight
 {
-    return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
-}
+    vec4 radiance;
+    vec3 position;
+    float radius;
+};
+
+// Descriptor sets
+layout(set = 0, binding = 0) uniform SceneData
+{
+    mat4 proj;
+    mat4 view;
+    vec3 cameraPos;
+    uint pointLightsSize;
+    PointLight pointLights[1024];
+} sceneData;
+
+const float PI = 3.14159265359;
 
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
@@ -86,7 +109,7 @@ float DistributionGGX(vec3 N, vec3 H, float roughness)
 
     float num = a2;
     float denom = (NdotH2 * (a2 - 1.0) + 1.0);
-    denom = 3.1415 * denom * denom;
+    denom = PI * denom * denom;
 
     return num / denom;
 }
@@ -101,6 +124,7 @@ float GeometrySchlickGGX(float NdotV, float roughness)
 
     return num / denom;
 }
+
 float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 {
     float NdotV = max(dot(N, V), 0.0);
@@ -111,97 +135,112 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
     return ggx1 * ggx2;
 }
 
-struct PointLight
+vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
-    vec4 radiance;
-    vec3 position;
-    float radius;
-};
+    return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+}
 
-// Descriptor sets
-layout(set = 1, binding = 0) uniform SceneData
+vec3 CalculateDirectionalLight(vec3 N, vec3 V, vec3 F0, vec3 materialColor, vec2 metallicRoughness)
 {
-    mat4 viewProjMatrix;
-    vec3 cameraPos;
-    uint pointLightsSize;
-    PointLight pointLights[1024];
-} sceneData;
-
-vec3 CalculateDirectionalLight(vec3 F0)
-{
-    vec3 N = normalize(vNormal);
-    vec3 V = normalize(vViewPos - vFragPos);
-    vec3 color = vec3(0.0f);
-    
-    // calculate per-light radiance
-    vec3 L = -vLightDirection;
+    vec3 L = normalize(-vDirection);
     vec3 H = normalize(V + L);
 
-    vec3 radiance = vLightColor;
-
-    // cook-torrance brdf
-    float NDF = DistributionGGX(N, H, material.roughness);
-    float G = GeometrySmith(N, V, L, material.roughness);
-    vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
-
-    vec3 kS = F;
-    vec3 kD = vec3(1.0) - kS;
-    kD *= 1.0 - material.metallic;
+    // Cook-Torrance BRDF
+    float NDF = DistributionGGX(N, H, metallicRoughness.g);
+    float G = GeometrySmith(N, V, L, metallicRoughness.g);
+    vec3 F = fresnelSchlick(clamp(dot(H, V), 0.0, 1.0), F0);
 
     vec3 numerator = NDF * G * F;
-    float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
+    float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001; // + 0.0001 to prevent divide by zero
     vec3 specular = numerator / denominator;
 
-    // add to outgoing radiance Lo
+    // kS is equal to Fresnel
+    vec3 kS = F;
+    // for energy conservation, the diffuse and specular light can't
+    // be above 1.0 (unless the surface emits light); to preserve this
+    // relationship the diffuse component (kD) should equal 1.0 - kS.
+    vec3 kD = vec3(1.0) - kS;
+    // multiply kD by the inverse metalness such that only non-metals 
+    // have diffuse lighting, or a linear blend if partly metal (pure metals
+    // have no diffuse light).
+    kD *= 1.0 - metallicRoughness.r;
+
+    // scale light by NdotL
     float NdotL = max(dot(N, L), 0.0);
-    return (kD * material.color.rgb / 3.1415 + specular) * radiance * NdotL;
+
+    // add to outgoing radiance Lo
+    return (kD * materialColor / PI + specular) * vDirectionalColor * NdotL;
+}
+
+vec3 CalculatePointLight(PointLight light, vec3 N, vec3 V, vec3 F0, vec3 materialColor, vec2 metallicRoughness)
+{
+    // calculate per-light radiance
+    vec3 L = normalize(light.position - vFragPos);
+    vec3 H = normalize(V + L);
+    float distance = length(light.position - vFragPos);
+    float attenuation = 1.0 / (distance * distance);
+    vec3 radiance = light.radiance.rgb;
+
+    // Cook-Torrance BRDF
+    float NDF = DistributionGGX(N, H, metallicRoughness.g);
+    float G = GeometrySmith(N, V, L, metallicRoughness.g);
+    vec3 F = fresnelSchlick(clamp(dot(H, V), 0.0, 1.0), F0);
+
+    vec3 numerator = NDF * G * F;
+    float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001; // + 0.0001 to prevent divide by zero
+    vec3 specular = numerator / denominator;
+
+    // kS is equal to Fresnel
+    vec3 kS = F;
+    // for energy conservation, the diffuse and specular light can't
+    // be above 1.0 (unless the surface emits light); to preserve this
+    // relationship the diffuse component (kD) should equal 1.0 - kS.
+    vec3 kD = vec3(1.0) - kS;
+    // multiply kD by the inverse metalness such that only non-metals 
+    // have diffuse lighting, or a linear blend if partly metal (pure metals
+    // have no diffuse light).
+    kD *= 1.0 - metallicRoughness.r;
+
+    // scale light by NdotL
+    float NdotL = max(dot(N, L), 0.0);
+
+    // add to outgoing radiance Lo
+    return (kD * materialColor / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
 }
 
 void main() 
 {
-    vec3 N = normalize(vNormal);
-    vec3 V = normalize(vViewPos - vFragPos);
+    vec3 norm = texture(NormalMap, vTexCoords).rgb * 2.0 - 1.0;
+    norm = normalize(vTBN * norm);
 
-    vec3 materialColor = material.color.rgb * texture(diffuseTex, vTexCoord).rgb;
+    vec2 metallicRoughness = texture(RoughnessMap, vTexCoords).rg;
+    
+    vec3 lightDir = normalize(-vDirection);
+    vec3 V = normalize(vCameraPosition - vFragPos);
 
+    vec3 materialColor = material.color.rgb * texture(DiffuseMap, vTexCoords).rgb;
+
+    // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
+    // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)    
     vec3 F0 = vec3(0.04);
-    F0 = mix(F0, materialColor, material.metallic);
+    F0 = mix(F0, materialColor, metallicRoughness.r);
 
     // reflectance equation
-    vec3 Lo = CalculateDirectionalLight(F0);
+    vec3 Lo = CalculateDirectionalLight(norm, V, F0, materialColor, metallicRoughness);
+
     for (int i = 0; i < sceneData.pointLightsSize; ++i)
     {
-        // calculate per-light radiance
-        vec3 L = normalize(sceneData.pointLights[i].position - vFragPos);
-        vec3 H = normalize(V + L);
-        float distance = length(sceneData.pointLights[i].position - vFragPos);
-
-        float attenuation = 1.0 / (distance * distance);
-        vec3 radiance = sceneData.pointLights[i].radiance.rgb * attenuation;
-
-        // cook-torrance brdf
-        float NDF = DistributionGGX(N, H, material.roughness);
-        float G = GeometrySmith(N, V, L, material.roughness);
-        vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
-
-        vec3 kS = F;
-        vec3 kD = vec3(1.0) - kS;
-        kD *= 1.0 - material.metallic;
-
-        vec3 numerator = NDF * G * F;
-        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
-        vec3 specular = numerator / denominator;
-
-        // add to outgoing radiance Lo
-        float NdotL = max(dot(N, L), 0.0);
-        Lo += (kD * material.color.rgb / 3.1415 + specular) * sceneData.pointLights[i].radiance.rgb * NdotL;
+        Lo += CalculatePointLight(sceneData.pointLights[i], norm, lightDir, F0, materialColor, metallicRoughness);
     }
 
+    // ambient lighting (note that the next IBL tutorial will replace 
+    // this ambient lighting with environment lighting).
     vec3 ambient = vec3(0.03) * materialColor * 1.0;
+
     vec3 color = ambient + Lo;
 
+    // HDR tonemapping
     color = color / (color + vec3(1.0));
-    color = pow(color, vec3(1.0 / 2.2));
 
     outColor = vec4(color, 1.0);
 }

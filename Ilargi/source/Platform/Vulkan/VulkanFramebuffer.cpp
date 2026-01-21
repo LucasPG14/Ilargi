@@ -12,7 +12,7 @@ namespace Ilargi
 		: mProperties(aProperties), mDepthSpecification(ImageFormat::NONE), mDepthAttachment(), mFramebuffer(VK_NULL_HANDLE), 
 		mSampler(VK_NULL_HANDLE), mDescriptorSetLayout(VK_NULL_HANDLE), mDescriptorSet(VK_NULL_HANDLE)
 	{
-		for (ImageFormat format : aProperties.formats)
+		for (ImageFormat format : aProperties.Formats)
 		{
 			if (Utils::IsDepth(format))
 			{
@@ -21,13 +21,15 @@ namespace Ilargi
 			}
 			mColorSpecifications.push_back(format);
 		}
+
+		Init();
 	}
 	
 	VulkanFramebuffer::~VulkanFramebuffer()
 	{
 	}
 
-	void VulkanFramebuffer::Init(VkRenderPass aRenderPass)
+	void VulkanFramebuffer::Init()
 	{
 		auto device{ VulkanContext::GetLogicalDevice() };
 		
@@ -48,12 +50,12 @@ namespace Ilargi
 				0,																	// flags
 				VK_IMAGE_TYPE_2D,													// imageType
 				format,																// format
-				{mProperties.width, mProperties.height, 1},							// extent
+				{mProperties.Width, mProperties.Height, 1},							// extent
 				1,																	// mipLevels
 				1,																	// arrayLayers
 				VK_SAMPLE_COUNT_1_BIT,												// samples
 				VK_IMAGE_TILING_OPTIMAL,											// tiling
-				VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,	// usage
+				VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,	// usage
 				VK_SHARING_MODE_EXCLUSIVE,											// sharingMode
 				0,																	// queueFamilyIndexCount
 				nullptr,															// pQueueFamilyIndices
@@ -97,7 +99,7 @@ namespace Ilargi
 				0,														// flags
 				VK_IMAGE_TYPE_2D,										// imageType
 				depthFormat,											// format
-				{mProperties.width, mProperties.height, 1},				// extent
+				{mProperties.Width, mProperties.Height, 1},				// extent
 				1,														// mipLevels
 				1,														// arrayLayers
 				VK_SAMPLE_COUNT_1_BIT,									// samples
@@ -134,6 +136,7 @@ namespace Ilargi
 			attachments.push_back(mDepthAttachment.imageView);
 		}
 
+		const VkRenderPass& renderPass{ Renderer::GetRenderPass({mProperties.Formats, true})->As<VulkanRenderPass>()->GetRenderPass() };
 		// Creating the framebuffer
 		{
 			VkFramebufferCreateInfo framebufferInfo
@@ -141,11 +144,11 @@ namespace Ilargi
 				VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,	// sType
 				nullptr,									// pNext
 				0,											// flags
-				aRenderPass,								// renderPass
+				renderPass,									// renderPass
 				static_cast<uint32_t>(attachments.size()),	// attachmentCount
 				attachments.data(),							// pAttachments
-				mProperties.width,							// width
-				mProperties.height,							// height
+				mProperties.Width,							// width
+				mProperties.Height,							// height
 				1											// layers
 			};
 
@@ -191,26 +194,29 @@ namespace Ilargi
 				nullptr										// pImmutableSamplers
 			};
 			
-			VkDescriptorSetLayoutCreateInfo info
+			if (mDescriptorSet == nullptr)
 			{
-				VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,	// sType
-				nullptr,												// pNext
-				0,														// flags
-				1,														// bindingCount
-				binding													// pBindings
-			};
-			VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &info, nullptr, &mDescriptorSetLayout));
+				VkDescriptorSetLayoutCreateInfo info
+				{
+					VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,	// sType
+					nullptr,												// pNext
+					0,														// flags
+					1,														// bindingCount
+					binding													// pBindings
+				};
+				VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &info, nullptr, &mDescriptorSetLayout));
 
-			VkDescriptorSetAllocateInfo allocInfo
-			{
-				VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,	// sType
-				nullptr,										// pNext
-				VulkanContext::GetDescriptorPool(),				// descriptorPool
-				1,												// descriptorSetCount
-				&mDescriptorSetLayout							// pSetLayouts
-			};
+				VkDescriptorSetAllocateInfo allocInfo
+				{
+					VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,	// sType
+					nullptr,										// pNext
+					VulkanContext::GetDescriptorPool(),				// descriptorPool
+					1,												// descriptorSetCount
+					&mDescriptorSetLayout							// pSetLayouts
+				};
 
-			VK_CHECK_RESULT(vkAllocateDescriptorSets(device, &allocInfo, &mDescriptorSet));
+				VK_CHECK_RESULT(vkAllocateDescriptorSets(device, &allocInfo, &mDescriptorSet));
+			}
 
 			VkDescriptorImageInfo imageInfo
 			{
@@ -234,14 +240,15 @@ namespace Ilargi
 			};
 
 			vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
-		
-			vkDestroyDescriptorSetLayout(device, mDescriptorSetLayout, nullptr);
 		}
 	}
 	
 	void VulkanFramebuffer::Destroy()
 	{
 		auto device{ VulkanContext::GetLogicalDevice() };
+
+		vkFreeDescriptorSets(device, VulkanContext::GetDescriptorPool(), 1, &mDescriptorSet);
+		vkDestroyDescriptorSetLayout(device, mDescriptorSetLayout, nullptr);
 
 		for (auto colorAttachment : mColorAttachments)
 		{
@@ -257,10 +264,10 @@ namespace Ilargi
 		vkDestroySampler(device, mSampler, nullptr);
 	}
 	
-	void VulkanFramebuffer::Resize(const std::shared_ptr<RenderPass>& aRenderPass, uint32_t aWidth, uint32_t aHeight)
+	void VulkanFramebuffer::Resize(uint32_t aWidth, uint32_t aHeight)
 	{
-		mProperties.width = aWidth;
-		mProperties.height = aHeight;
+		mProperties.Width = aWidth;
+		mProperties.Height = aHeight;
 
 		auto device{ VulkanContext::GetLogicalDevice() };
 		vkDeviceWaitIdle(device);
@@ -277,7 +284,54 @@ namespace Ilargi
 			vkDestroyImageView(device, mDepthAttachment.imageView, nullptr);
 		}
 
-		Init(aRenderPass->As<VulkanRenderPass>()->GetRenderPass());
+		Init();
+	}
+
+	uint32_t VulkanFramebuffer::ReadFramebufferPixel(uint32_t aX, uint32_t aY)
+	{
+		const auto& device{ VulkanContext::GetLogicalDevice() };
+		VkCommandBuffer commandBuffer{ VulkanContext::BeginSingleCommandBuffer() };
+
+		VkBufferCreateInfo stagingBufferInfo
+		{
+			VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+			nullptr,
+			0,
+			sizeof(uint32_t),
+			VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+			VK_SHARING_MODE_EXCLUSIVE,
+			0,
+			nullptr
+		};
+
+		VulkanBuffer stagingBuffer;
+		VmaAllocationInfo allocationInfo{};
+		VulkanAllocator::AllocateBuffer(stagingBuffer, stagingBufferInfo, VMA_MEMORY_USAGE_CPU_ONLY, &allocationInfo);
+
+
+		VkBufferImageCopy region;
+		region.bufferOffset = 0;
+		region.bufferRowLength = 0;
+		region.bufferImageHeight = 0;
+
+		region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		region.imageSubresource.mipLevel = 0;
+		region.imageSubresource.baseArrayLayer = 0;
+		region.imageSubresource.layerCount = 1;
+
+		region.imageOffset = { (int)aX, (int)aY, 0 };
+		region.imageExtent = { 1, 1, 1 };
+
+		vkCmdCopyImageToBuffer(commandBuffer, mColorAttachments[0].image.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, stagingBuffer.buffer, 1, &region);
+	
+		VulkanContext::EndSingleCommandBuffer(commandBuffer);
+
+		uint32_t pixel{ 0U };
+		void* data{ VulkanAllocator::MapMemory(stagingBuffer) };
+		memcpy(&pixel, data, sizeof(uint32_t));
+		VulkanAllocator::UnmapMemory(stagingBuffer);
+
+		return pixel;
 	}
 
 	void* VulkanFramebuffer::GetID() const

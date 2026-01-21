@@ -33,6 +33,7 @@ namespace Ilargi
 		{ ".jpeg",		ResourceType::TEXTURE2D },
 		{ ".fbx",		ResourceType::MODEL },
 		{ ".obj",		ResourceType::MODEL },
+		{ ".gltf",		ResourceType::MODEL },
 		{ ".ilargi",	ResourceType::SCENE },
 	};
 
@@ -49,6 +50,7 @@ namespace Ilargi
 	{
 		{ ResourceType::TEXTURE2D, TextureImporter::LoadTexture },
 		{ ResourceType::MODEL, ModelImporter::LoadModel },
+		{ ResourceType::MESH, ModelImporter::LoadMesh },
 		{ ResourceType::SCENE, SceneImporter::LoadScene },
 		{ ResourceType::MATERIAL, MaterialImporter::LoadMaterial },
 	};
@@ -98,6 +100,12 @@ namespace Ilargi
 		return resourceUUID;
 	}
 
+	std::shared_ptr<Resource> ResourceManager::ReloadResource(UUID aUUID)
+	{
+		sLoadedResources.erase(aUUID);
+		return GetResource(aUUID);
+	}
+
 	void ResourceManager::SaveResource(const std::shared_ptr<Resource>& aResource)
 	{
 		ResourceMetadata& resourceMetadata{ sResourcesMetadata[aResource->mResourceUUID] };
@@ -112,23 +120,17 @@ namespace Ilargi
 		return sResourcesMetadata.find(aUUID) != sResourcesMetadata.end();
 	}
 
+	bool ResourceManager::IsResourceLoaded(UUID aUUID)
+	{
+		return sLoadedResources.find(aUUID) != sLoadedResources.end();
+	}
+
 	const ResourceMetadata& ResourceManager::GetMetadata(UUID aUUID)
 	{
 		if (ExistsResource(aUUID))
 			return sResourcesMetadata[aUUID];
 
 		return ResourceMetadata();
-	}
-
-	void ResourceManager::RemoveResource(UUID aUUID)
-	{
-		if (sLoadedResources.contains(aUUID))
-			sLoadedResources.erase(aUUID);
-
-		if (sResourcesMetadata.contains(aUUID))
-			sResourcesMetadata.erase(aUUID);
-
-		SaveResourceRegistry();
 	}
 
 	std::shared_ptr<Resource> ResourceManager::GetResource(UUID aUUID)
@@ -151,9 +153,15 @@ namespace Ilargi
 		return resource;
 	}
 
-	bool ResourceManager::IsResourceLoaded(UUID aUUID)
+	void ResourceManager::RemoveResource(UUID aUUID)
 	{
-		return sLoadedResources.find(aUUID) != sLoadedResources.end();
+		if (sLoadedResources.contains(aUUID))
+			sLoadedResources.erase(aUUID);
+
+		if (sResourcesMetadata.contains(aUUID))
+			sResourcesMetadata.erase(aUUID);
+
+		SaveResourceRegistry();
 	}
 	
 	const ResourceType ResourceManager::GetResourceType(const std::string& mStringType)
@@ -164,47 +172,24 @@ namespace Ilargi
 		return ResourceType::NONE;
 	}
 
-	void ResourceManager::SaveResourceRegistry()
-	{
-		JsonDocument document;
-
-		std::ofstream file("ResourceRegistry.json", std::ios::out | std::ios::binary);
-		file.clear();
-
-		for (auto it = sResourcesMetadata.begin(); it != sResourcesMetadata.end(); ++it)
-		{
-			const ResourceMetadata& metadata{ it->second };
-			uint32_t index{ (uint32_t)document.size() };
-
-			document[index]["UUID"] = static_cast<uint64_t>(it->first);
-			document[index]["Type"] = static_cast<int>(metadata.type);
-			document[index]["SourceFile"] = metadata.sourceFile.string();
-			document[index]["Filepath"] = metadata.filepath.string();
-		}
-
-		serializeJsonPretty(document, file);
-
-		file.close();
-	}
-	
 	void ResourceManager::LoadResourceRegistry()
 	{
 		JsonDocument document;
 
 		std::ifstream file("ResourceRegistry.json", std::ios::in | std::ios::binary);
-		
+
 		deserializeJson(document, file);
 		file.close();
 
 		std::vector<uint32_t> resourcesToRemove;
-		
-		for (uint32_t i { 0U }; i < document.size(); ++i)
+
+		for (uint32_t i{ 0U }; i < document.size(); ++i)
 		{
 			UUID uuid{ static_cast<uint64_t>(document[i]["UUID"]) };
 			ResourceMetadata metadata;
 
 			metadata.filepath = static_cast<const char*>(document[i]["Filepath"]);
-			
+
 			if (!std::filesystem::exists(metadata.filepath))
 			{
 				resourcesToRemove.push_back(i);
@@ -231,5 +216,28 @@ namespace Ilargi
 
 			file.close();
 		}
+	}
+
+	void ResourceManager::SaveResourceRegistry()
+	{
+		JsonDocument document;
+
+		std::ofstream file("ResourceRegistry.json", std::ios::out | std::ios::binary);
+		file.clear();
+
+		for (auto it = sResourcesMetadata.begin(); it != sResourcesMetadata.end(); ++it)
+		{
+			const ResourceMetadata& metadata{ it->second };
+			uint32_t index{ (uint32_t)document.size() };
+
+			document[index]["UUID"] = static_cast<uint64_t>(it->first);
+			document[index]["Type"] = static_cast<int>(metadata.type);
+			document[index]["SourceFile"] = metadata.sourceFile.string();
+			document[index]["Filepath"] = metadata.filepath.string();
+		}
+
+		serializeJsonPretty(document, file);
+
+		file.close();
 	}
 }

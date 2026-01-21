@@ -1,26 +1,52 @@
 #pragma once
 
 #include "Resource.h"
+#include "Mesh.h"
 
 namespace Ilargi
 {
-	class StaticMesh;
+	struct ModelNode
+	{
+		std::string name;
+		glm::mat4 localTransform;
+		std::vector<StaticSubmesh> submeshes;
+		std::vector<uint32_t> childrens;
+	};
+
 	class Material;
 
 	class Model : public Resource
 	{
 	public:
-		Model(const std::vector<std::shared_ptr<StaticMesh>>& aMeshes, const std::vector<std::shared_ptr<Material>>& aMaterials);
+		/*
+		* @brief Constructor.
+		* @param aModelNodes The vector of model nodes.
+		*/
+		Model(const std::vector<ModelNode>& aModelNodes);
+		
+		/*
+		* @brief Destructor.
+		*/
 		virtual ~Model();
 
-		static ResourceType GetStaticType() { return ResourceType::MODEL; }
-		const ResourceType GetType() const { return GetStaticType(); }
+		/*
+		* @brief Returns the resource type.
+		* @return The resource type.
+		*/
+		[[nodiscard]] static ResourceType GetStaticType() { return ResourceType::MODEL; }
+		
+		/*
+		* @copydoc Resource::GetType()
+		*/
+		[[nodiscard]] const ResourceType GetType() const { return GetStaticType(); }
 
-		const std::vector<std::shared_ptr<StaticMesh>>& GetMeshes() const { return mMeshes; }
-		const std::vector<std::shared_ptr<Material>>& GetMaterials() const { return mMaterials; }
+		/*
+		* @brief Returns the container of model nodes.
+		* @return The model nodes container.
+		*/
+		[[nodiscard]] const std::vector<ModelNode>& GetModelNodes() const { return mModelNodes; }
 
 	private:
-		std::vector<std::shared_ptr<StaticMesh>> mMeshes;
-		std::vector<std::shared_ptr<Material>> mMaterials;
+		std::vector<ModelNode> mModelNodes; // Container of the model nodes
 	};
 }

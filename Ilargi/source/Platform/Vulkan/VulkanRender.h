@@ -7,11 +7,24 @@ namespace Ilargi
 	class VulkanRender : public Render
 	{
 	public:
+		/*
+		* @brief Constructor.
+		*/
 		VulkanRender();
+
+		/*
+		* @brief Destructor.
+		*/
 		virtual ~VulkanRender();
 
-		void SubmitGeometry(std::shared_ptr<CommandBuffer> aCommandBuffer, std::shared_ptr<VertexBuffer> aVertexBuffer, std::shared_ptr<IndexBuffer> aIndexBuffer) const;
-		void DrawDefault(std::shared_ptr<CommandBuffer> aCommandBuffer) const;
-	
+		/*
+		* @copydoc VulkanRender::SubmitGeometry() 
+		*/
+		void SubmitGeometry(const std::shared_ptr<CommandBuffer>& aCommandBuffer, const std::shared_ptr<VertexBuffer>& aVertexBuffer, const std::shared_ptr<IndexBuffer>& aIndexBuffer) const override;
+		
+		/*
+		* @copydoc VulkanRender::DrawDefault()
+		*/
+		void DrawDefault(const std::shared_ptr<CommandBuffer>& aCommandBuffer) const override;
 	};
 }

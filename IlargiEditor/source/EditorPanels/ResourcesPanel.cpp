@@ -9,14 +9,34 @@
 #include "Resources/Texture.h"
 #include "Resources/Material.h"
 
+#include "../LocalizationManager.h"
+
 #include "Utils/FileSystem.h"
 
 #include <imgui/imgui.h>
+
+#define STB_IMAGE_RESIZE_IMPLEMENTATION
+#include <stb_image_resize2.h>
+#include <stb_image.h>
 
 namespace Ilargi
 {
 	namespace Utils
 	{
+		ResourceType GetResourceTypeFromString(const std::string& aExtension)
+		{
+			if (aExtension == std::string(".imodel"))
+				return ResourceType::MODEL;
+			if (aExtension == std::string(".itex"))
+				return ResourceType::TEXTURE2D;
+			if (aExtension == std::string(".ilargi"))
+				return ResourceType::SCENE;
+			if (aExtension == std::string(".imat"))
+				return ResourceType::MATERIAL;
+
+			return ResourceType::NONE;
+		}
+
 		std::string GetStringFromResourceType(ResourceType type)
 		{
 			switch (type)
@@ -28,7 +48,7 @@ namespace Ilargi
 			case Ilargi::ResourceType::SCENE:		return "SCENE";
 			}
 
-			return "Unknown";
+			return "UNKNOWN";
 		}
 
 		bool IsResourceValid(std::string extension)
@@ -62,13 +82,14 @@ namespace Ilargi
 
 	ResourcesPanel::~ResourcesPanel()
 	{
+		ResourceManager::Clear();
 	}
 
 	void ResourcesPanel::Render()
 	{
 		if (ImGui::Begin("Resources Panel"))
 		{
-			mResourcesPanelFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows);
+			//mResourcesPanelFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows);
 
 			if (ImGui::ArrowButton("Arrow", ImGuiDir_Left))
 			{
@@ -84,7 +105,7 @@ namespace Ilargi
 
 			ImGui::SetNextItemWidth(200.0f);
 			char* buf{ mSearch.data() };
-			ImGui::InputTextWithHint("##Search...", "Search...", buf, sizeof(buf));
+			ImGui::InputTextWithHint("##Search...", LOC("editor.resourcespanel.search"), buf, sizeof(buf));
 			mSearch = buf;
 
 			for (auto dir : mActualDir)
@@ -103,24 +124,21 @@ namespace Ilargi
 				ImGui::Text("/");
 			}
 
-			if (!mSearch.empty())
-				RecursiveDirectory();
-			else
-				NormalDirectory();
+			DrawDirectory();
 
 			ImGui::Columns(1);
 
 			if (!mSelectedFile.empty() && mResourcesPanelFocused && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 				mSelectedFile.clear();
 
-			if (ImGui::BeginPopupContextWindow("##HierarchyPopup"))
-			{
-				if (ImGui::MenuItem("Create Folder"))
-				{
-					std::filesystem::create_directory(mActualDir / "New Folder");
-				}
-				ImGui::EndPopup();
-			}
+			//if (ImGui::BeginPopupContextWindow("##HierarchyPopup"))
+			//{
+			//	if (ImGui::MenuItem("Create Folder"))
+			//	{
+			//		std::filesystem::create_directory(mActualDir / "New Folder");
+			//	}
+			//	ImGui::EndPopup();
+			//}
 
 			ImGui::End();
 		}
@@ -144,6 +162,16 @@ namespace Ilargi
 		for (auto& [uuid, metadata] : assetsMap)
 		{
 			mResources[metadata.filepath] = uuid;
+		}
+
+		for (const auto& directoryEntry : std::filesystem::directory_iterator(mActualDir))
+		{
+			ResourceEntry& entry{ mResourceEntries.emplace_back() };
+			entry.type = Utils::GetResourceTypeFromString(directoryEntry.path().extension().string());
+			entry.path = directoryEntry.path();
+			entry.filename = directoryEntry.path().stem().string();
+			entry.isDirectory = directoryEntry.is_directory();
+			entry.resourceUUID = mResources[entry.path];
 		}
 	}
 	
@@ -180,22 +208,27 @@ namespace Ilargi
 		return true;
 	}
 	
-	void ResourcesPanel::NormalDirectory()
+	void ResourcesPanel::DrawDirectory()
 	{
 		constexpr float cellX { 132.0f };
 		constexpr float cellY { 190.0f };
 
-		int columns{ int(ImGui::GetContentRegionAvail().x / cellX) };
+		int columns{ int(ImGui::GetContentRegionAvail().x / cellX) - 1 };
 
 		ImGui::Columns(columns, (const char*)0, false);
 
-		for (const auto& file : std::filesystem::directory_iterator(mActualDir))
+		for (const ResourceEntry& resourceEntry : mResourceEntries)
 		{
-			const auto& path{ file.path() };
-			const auto& relative{ std::filesystem::relative(path, mActualDir) };
-			const auto& filename{ path.stem().string() };
+			if (!mSearch.empty())
+			{
+				std::string resourceName{ resourceEntry.filename };
+				std::transform(resourceName.begin(), resourceName.end(), resourceName.begin(),[](unsigned char c) { return std::tolower(c); });
 
-			if (file.is_directory())
+				if (resourceName.find(mSearch) == std::string::npos)
+					continue;
+			}
+
+			if (resourceEntry.isDirectory)
 			{
 				ImGui::Image((ImTextureID)mFolderIcon->GetID(), { cellX, cellX });
 
@@ -203,68 +236,68 @@ namespace Ilargi
 				{
 					if (ImGui::IsMouseDoubleClicked(0))
 					{
-						mActualDir /= relative;
+						mActualDir /= std::filesystem::relative(resourceEntry.path, mActualDir);
 					}
 					else if (ImGui::IsMouseClicked(0))
 					{
-						mSelectedFile = path;
+						mSelectedFile = resourceEntry.path;
 					}
-				}	
+				}
 
-				ImVec2 textSize{ ImGui::CalcTextSize(filename.c_str()) };
+				ImVec2 textSize{ ImGui::CalcTextSize(resourceEntry.filename.c_str()) };
 				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (cellX - textSize.x) * 0.5f);
-				ImGui::Text(filename.c_str());
+				ImGui::Text(resourceEntry.filename.c_str());
 			}
 			else
 			{
-				if (!Utils::IsResourceValid(path.extension().string()))
+				if (!Utils::IsResourceValid(resourceEntry.path.extension().string()))
 					continue;
 
 				ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
 				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
 
-				ImVec4 colorBg { 0.43f, 0.43f, 0.50f, 0.50f };
-				if (mSelectedFile == path)
-					colorBg = { 0.26f, 0.59f, 0.98f, 0.40f };
+				ImVec4 colorBg{ 0.12f, 0.12f, 0.13f, 1.00f };
+				if (mSelectedFile == resourceEntry.path)
+					colorBg = { 0.65f, 0.10f, 0.12f, 0.60f };
 
 				ImGui::PushStyleColor(ImGuiCol_ChildBg, colorBg);
-				ImGui::PushStyleColor(ImGuiCol_Border, colorBg);
-				if (ImGui::BeginChild(path.string().c_str(), {cellX, cellY}, true, ImGuiWindowFlags_NoDecoration))
+				//ImGui::PushStyleColor(ImGuiCol_Border, colorBg);
+				if (ImGui::BeginChild(resourceEntry.path.string().c_str(), { cellX, cellY }, true, ImGuiWindowFlags_NoDecoration))
 				{
 					if (ImGui::IsWindowHovered())
 					{
 						if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 						{
-							if (ResourceManager::GetMetadata(mResources[path]).type == ResourceType::MATERIAL)
+							if (resourceEntry.type == ResourceType::MATERIAL)
 							{
-								mMaterialPanel->SetMaterial(std::static_pointer_cast<Material>(ResourceManager::GetResource(mResources[path])));
+								mMaterialPanel->SetMaterial(std::static_pointer_cast<Material>(ResourceManager::GetResource(resourceEntry.resourceUUID)));
 							}
 						}
 						else if (ImGui::IsMouseDown(ImGuiMouseButton_Left))
 						{
-							mSelectedFile = path;
+							mSelectedFile = resourceEntry.path;
 						}
 						else if (ImGui::IsMouseDown(ImGuiMouseButton_Right))
 						{
-							mSelectedFile = path;
+							mSelectedFile = resourceEntry.path;
 							// TODO: Pop up with options for this file
 						}
 					}
 
-					//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 8.0f, 8.0f });
+					ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 8.0f, 8.0f });
 					if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
-					{	
-						ImGui::SetDragDropPayload("RESOURCE", &mResources[path], sizeof(mResources[path]));
-						ImGui::Text(path.filename().string().c_str());
+					{
+						ImGui::SetDragDropPayload(Utils::GetStringFromResourceType(resourceEntry.type).c_str(), &resourceEntry.resourceUUID, sizeof(UUID));
+						ImGui::Text(resourceEntry.filename.c_str());
 						ImGui::EndDragDropSource();
 					}
-					//ImGui::PopStyleVar();
-					
+					ImGui::PopStyleVar();
+
 					//ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 6.0f);
 					//ImGui::Button(filename.c_str(), {cellX, cellX});
-					if (ResourceManager::GetMetadata(mResources[path]).type == ResourceType::TEXTURE2D)
+					if (resourceEntry.type == ResourceType::TEXTURE2D)
 					{
-						ImGui::Image((ImTextureID)std::static_pointer_cast<Texture2D>(ResourceManager::GetResource(mResources[path]))->GetID(), { 132, cellX });
+						ImGui::Image((ImTextureID)std::static_pointer_cast<Texture2D>(ResourceManager::GetResource(resourceEntry.resourceUUID))->GetID(), {cellX, cellX});
 					}
 					else
 					{
@@ -273,28 +306,131 @@ namespace Ilargi
 					//ImGui::PopStyleVar();
 
 					ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 5.0f);
-					ImGui::Text(filename.c_str());
-					if (mResources.find(path) != mResources.end())
+					ImGui::Text(resourceEntry.filename.c_str());
+					//if (mResources.find(resourceEntry.path) != mResources.end())
 					{
-						UUID uuid{ mResources[path] };
-						const ResourceMetadata& metadata{ ResourceManager::GetMetadata(uuid) };
-					
-						std::string resType{ Utils::GetStringFromResourceType(metadata.type) };
+						std::string resType{ Utils::GetStringFromResourceType(resourceEntry.type) };
 
 						ImVec2 textSize{ ImGui::CalcTextSize(resType.c_str()) };
 						ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (cellX - textSize.x - 5.0f));
 						ImGui::SetCursorPosY(cellY - textSize.y - 5.0f);
 						ImGui::Text(resType.c_str());
 					}
-
-					ImGui::EndChild();
 				}
-				ImGui::PopStyleColor(2);
+				ImGui::EndChild();
+				ImGui::PopStyleColor(1);
 				ImGui::PopStyleVar(2);
 			}
 
 			ImGui::NextColumn();
 		}
+
+		//for (const auto& file : std::filesystem::directory_iterator(mActualDir))
+		//{
+		//	const auto& path{ file.path() };
+		//	const auto& relative{ std::filesystem::relative(path, mActualDir) };
+		//	const auto& filename{ path.stem().string() };
+
+		//	if (file.is_directory())
+		//	{
+		//		ImGui::Image((ImTextureID)mFolderIcon->GetID(), { cellX, cellX });
+
+		//		if (ImGui::IsItemHovered())
+		//		{
+		//			if (ImGui::IsMouseDoubleClicked(0))
+		//			{
+		//				mActualDir /= relative;
+		//			}
+		//			else if (ImGui::IsMouseClicked(0))
+		//			{
+		//				mSelectedFile = path;
+		//			}
+		//		}	
+
+		//		ImVec2 textSize{ ImGui::CalcTextSize(filename.c_str()) };
+		//		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (cellX - textSize.x) * 0.5f);
+		//		ImGui::Text(filename.c_str());
+		//	}
+		//	else
+		//	{
+		//		if (!Utils::IsResourceValid(path.extension().string()))
+		//			continue;
+
+		//		ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
+		//		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f });
+
+		//		ImVec4 colorBg { 0.43f, 0.43f, 0.50f, 0.50f };
+		//		if (mSelectedFile == path)
+		//			colorBg = { 0.26f, 0.59f, 0.98f, 0.40f };
+
+		//		ImGui::PushStyleColor(ImGuiCol_ChildBg, colorBg);
+		//		ImGui::PushStyleColor(ImGuiCol_Border, colorBg);
+		//		if (ImGui::BeginChild(path.string().c_str(), {cellX, cellY}, true, ImGuiWindowFlags_NoDecoration))
+		//		{
+		//			if (ImGui::IsWindowHovered())
+		//			{
+		//				if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+		//				{
+		//					if (ResourceManager::GetMetadata(mResources[path]).type == ResourceType::MATERIAL)
+		//					{
+		//						mMaterialPanel->SetMaterial(std::static_pointer_cast<Material>(ResourceManager::GetResource(mResources[path])));
+		//					}
+		//				}
+		//				else if (ImGui::IsMouseDown(ImGuiMouseButton_Left))
+		//				{
+		//					mSelectedFile = path;
+		//				}
+		//				else if (ImGui::IsMouseDown(ImGuiMouseButton_Right))
+		//				{
+		//					mSelectedFile = path;
+		//					// TODO: Pop up with options for this file
+		//				}
+		//			}
+
+		//			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 8.0f, 8.0f });
+		//			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+		//			{	
+		//				const auto& resourceMetadata{ ResourceManager::GetMetadata(mResources[path]) };
+		//				ImGui::SetDragDropPayload(Utils::GetStringFromResourceType(resourceMetadata.type).c_str(), &mResources[path], sizeof(UUID));
+		//				ImGui::Text(path.filename().string().c_str());
+		//				ImGui::EndDragDropSource();
+		//			}
+		//			ImGui::PopStyleVar();
+		//			
+		//			//ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 6.0f);
+		//			//ImGui::Button(filename.c_str(), {cellX, cellX});
+		//			if (ResourceManager::GetMetadata(mResources[path]).type == ResourceType::TEXTURE2D)
+		//			{
+		//				ImGui::Image((ImTextureID)std::static_pointer_cast<Texture2D>(ResourceManager::GetResource(mResources[path]))->GetID(), { 132, cellX });
+		//			}
+		//			else
+		//			{
+		//				ImGui::Image((ImTextureID)mFileIcon->GetID(), { cellX, cellX });
+		//			}
+		//			//ImGui::PopStyleVar();
+
+		//			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 5.0f);
+		//			ImGui::Text(filename.c_str());
+		//			if (mResources.find(path) != mResources.end())
+		//			{
+		//				UUID uuid{ mResources[path] };
+		//				const ResourceMetadata& metadata{ ResourceManager::GetMetadata(uuid) };
+		//			
+		//				std::string resType{ Utils::GetStringFromResourceType(metadata.type) };
+
+		//				ImVec2 textSize{ ImGui::CalcTextSize(resType.c_str()) };
+		//				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (cellX - textSize.x - 5.0f));
+		//				ImGui::SetCursorPosY(cellY - textSize.y - 5.0f);
+		//				ImGui::Text(resType.c_str());
+		//			}
+		//		}
+		//		ImGui::EndChild();
+		//		ImGui::PopStyleColor(2);
+		//		ImGui::PopStyleVar(2);
+		//	}
+
+		//	ImGui::NextColumn();
+		//}
 	}
 	
 	void ResourcesPanel::RecursiveDirectory()
@@ -302,7 +438,7 @@ namespace Ilargi
 		constexpr float cellX { 128.0f };
 		constexpr float cellY { 190.0f };
 
-		int columns{ int(ImGui::GetContentRegionAvail().x / cellX) };
+		int columns{ int(ImGui::GetContentRegionAvail().x / cellX) - 1 };
 
 		ImGui::Columns(columns, (const char*)0, false);
 		std::regex pattern(mSearch, std::regex_constants::icase);
@@ -325,7 +461,8 @@ namespace Ilargi
 				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 8.0f, 8.0f });
 				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 				{
-					ImGui::SetDragDropPayload("RESOURCE", &mResources[path], sizeof(mResources[path]));
+					const auto& resourceMetadata{ ResourceManager::GetMetadata(mResources[path]) };
+					ImGui::SetDragDropPayload(Utils::GetStringFromResourceType(resourceMetadata.type).c_str(), &mResources[path], sizeof(UUID));
 					ImGui::Text(filename.c_str());
 					ImGui::EndDragDropSource();
 				}

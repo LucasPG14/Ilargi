@@ -8,20 +8,41 @@ namespace Ilargi
 	class VulkanUniformBuffer : public UniformBuffer
 	{
 	public:
-		VulkanUniformBuffer(uint32_t size, uint32_t framesInFlight);
+		/*
+		* @brief Constructor.
+		* @param aSize The size of the uniform buffer data.
+		* @param aFramesInFlight The number of uniform buffers needed.
+		*/
+		VulkanUniformBuffer(uint32_t aSize, uint32_t aFramesInFlight);
+
+		/*
+		* @brief Destructor.
+		* @param aSize The size of the uniform buffer data.
+		* @param aFramesInFlight The number of uniform buffers needed.
+		*/
 		virtual ~VulkanUniformBuffer();
 
+		/*
+		* @copydoc UniformBuffer::Destroy()
+		*/
 		void Destroy() override;
 
-		void SetData(void* data) override;
+		/*
+		* @copydoc UniformBuffer::SetData()
+		*/
+		void SetData(void* aData, uint32_t aBinding) override;
 
-		const void* GetDescriptorSet() const override;
+		/*
+		* Returns the vulkan descriptor set.
+		* @return The vulkan descriptor set.
+		*/
+		[[nodiscard]] const VkDescriptorSet GetDescriptorSet() const;
 
 	private:
-		uint32_t mSize;
+		std::vector<VulkanBuffer> mUbos; // Container of the vulkan buffers and allocations
+		std::vector<void*> mUniformBuffersMapped; // Container with the data mapped to the uniform buffer.
+		std::vector<VkDescriptorSet> mDescriptorSets; // Container of the descriptor sets.
 
-		std::vector<VulkanBuffer> mUbos;
-		std::vector<void*> mUniformBuffersMapped;
-		std::vector<VkDescriptorSet> mDescriptorSets;
+		uint32_t mSize; // The size of the uniform buffer data.
 	};
 }

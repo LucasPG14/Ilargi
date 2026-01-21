@@ -1,11 +1,22 @@
 #type vertex
 #version 450
 
-layout(push_constant) uniform PushConstants
+struct PointLight
 {
-    mat4 view;
+    vec3 radiance;
+    float radius;
+    vec3 position;
+};
+
+// Descriptor sets
+layout(set = 0, binding = 0) uniform SceneData
+{
     mat4 proj;
-} pushConstant;
+    mat4 view;
+    vec3 cameraPos;
+    uint pointLightsSize;
+    PointLight pointLights[1024];
+} sceneData;
 
 layout(location = 0) out float near; //0.01
 layout(location = 1) out float far; //100
@@ -34,12 +45,12 @@ void main()
 {
     vec3 p = gridPlane[gl_VertexIndex].xyz;
 
-    nearPoint = UnprojectPoint(p.x, p.y, 0.0, pushConstant.view, pushConstant.proj).xyz;
-    farPoint = UnprojectPoint(p.x, p.y, 1.0, pushConstant.view, pushConstant.proj).xyz;
+    nearPoint = UnprojectPoint(p.x, p.y, 0.0, sceneData.view, sceneData.proj).xyz;
+    farPoint = UnprojectPoint(p.x, p.y, 1.0, sceneData.view, sceneData.proj).xyz;
     gl_Position = vec4(p, 1.0);
     
-    fragView = pushConstant.view;
-    fragProj = pushConstant.proj;
+    fragView = sceneData.view;
+    fragProj = sceneData.proj;
     near = 0.001;
     far = 100.0;
 }
@@ -53,6 +64,7 @@ layout(location = 2) in vec3 nearPoint;
 layout(location = 3) in vec3 farPoint;
 layout(location = 4) in mat4 fragView;
 layout(location = 8) in mat4 fragProj;
+
 layout(location = 0) out vec4 outColor;
 
 vec4 grid(vec3 fragPos3D, float scale, bool drawAxis) 
@@ -99,5 +111,3 @@ void main()
 
     outColor = (grid(fragPos3D, 10, true) + grid(fragPos3D, 1, true)) * float(t > 0); // adding multiple resolution for the grid
 }
-
-

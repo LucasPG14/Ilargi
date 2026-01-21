@@ -9,11 +9,11 @@
 
 namespace Ilargi
 {
-	std::shared_ptr<GraphicsContext> GraphicsContext::Create(GLFWwindow* win, std::string_view appName)
+	std::unique_ptr<GraphicsContext> GraphicsContext::Create(GLFWwindow* win, std::string_view appName)
 	{
 		switch (Renderer::GetGraphicsAPI())
 		{
-		case GraphicsAPI::VULKAN:	return std::make_shared<VulkanContext>(win, appName);
+		case GraphicsAPI::VULKAN:	return std::make_unique<VulkanContext>(win, appName);
 		}
 
 		ILG_ASSERT(nullptr, "The platform specified is not supported");
