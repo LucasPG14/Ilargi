@@ -2,12 +2,6 @@
 
 namespace Ilargi
 {
-	enum ShaderStage
-	{
-		VERTEX_SHADER = 0x01,
-		FRAGMENT_SHADER = 0x02
-	};
-
 	class Shader : public std::enable_shared_from_this<Shader>
 	{
 	public:

@@ -15,6 +15,11 @@ namespace Ilargi
 		VulkanDescriptorSetLayout(const DescriptorSetLayoutProperties& aProperties);
 
 		/*
+		* @brief Destructor.
+		*/
+		virtual ~VulkanDescriptorSetLayout();
+
+		/*
 		* @brief Return the descriptor set layout.
 		* @return Instance of the vulkan descriptor set layout.
 		*/

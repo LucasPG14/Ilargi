@@ -22,7 +22,8 @@ namespace Ilargi
 		std::vector<VkPushConstantRange> pushConstantRanges;
 		for (const auto& pushConstant : aPipelineLayoutProperties.PushConstantRanges)
 		{
-			pushConstantRanges.emplace_back(VK_SHADER_STAGE_ALL_GRAPHICS, pushConstant.offset, pushConstant.size);
+			// TODO: Store only the stage where the binding is used.
+			pushConstantRanges.emplace_back(VK_SHADER_STAGE_ALL_GRAPHICS, pushConstant.Offset, pushConstant.Size);
 		}
 
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo
@@ -37,5 +38,12 @@ namespace Ilargi
 		};
 
 		VK_CHECK_RESULT(vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &mPipelineLayout));
+	}
+	
+	VulkanPipelineLayout::~VulkanPipelineLayout()
+	{
+		const auto& device{ VulkanContext::GetLogicalDevice() };
+
+		vkDestroyPipelineLayout(device, mPipelineLayout, nullptr);
 	}
 }

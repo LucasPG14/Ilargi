@@ -43,6 +43,11 @@ namespace Ilargi
 		sDefaultTexture.reset();
 		sDefaultNormalTexture.reset();
 		sDefaultMaterial.reset();
+
+		sShaderLibrary.reset();
+		sPipelineLayoutManager.reset();
+		sPipelineManager.reset();
+		sRenderPassManager.reset();
 	}
 
 	void Renderer::SubmitGeometry(const std::shared_ptr<CommandBuffer>& aCommandBuffer, const std::shared_ptr<StaticMesh>& aMesh)

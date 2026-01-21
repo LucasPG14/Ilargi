@@ -99,14 +99,12 @@ namespace Ilargi
 	
 	VulkanRenderPass::~VulkanRenderPass()
 	{
+		auto device{ VulkanContext::GetLogicalDevice() };
+		vkDestroyRenderPass(device, mRenderPass, nullptr);
 	}
 
 	void VulkanRenderPass::Destroy()
 	{
-		auto device{ VulkanContext::GetLogicalDevice() };
-
-		//mProperties.pipeline->Destroy();
-		vkDestroyRenderPass(device, mRenderPass, nullptr);
 	}
 	
 	void VulkanRenderPass::BeginRenderPass(const std::shared_ptr<CommandBuffer>& aCommandBuffer, const std::shared_ptr<Framebuffer>& aFramebuffer) const

@@ -147,10 +147,9 @@ namespace Ilargi
 
 			DrawGrid();
 			DrawGeometry();
+			//DrawOutline();
 
 			RenderPass->EndRenderPass(mCommandBuffer);
-			//DrawGeometry();
-			//DrawOutline();
 
 			//mRenderPass->EndRenderPass(mCommandBuffer);
 

@@ -3,6 +3,7 @@
 #include "VulkanShader.h"
 #include "VulkanContext.h"
 #include "Renderer/Renderer.h"
+#include "VulkanUtils.h"
 
 #include <shaderc/shaderc.hpp>
 #include <include/spirv_glsl.hpp>
@@ -170,10 +171,6 @@ namespace Ilargi
 	
 	VulkanShader::~VulkanShader()
 	{
-	}
-	
-	void VulkanShader::Destroy()
-	{
 		auto device{ VulkanContext::GetLogicalDevice() };
 
 		for (auto& [stage, module] : mShaders)
@@ -182,6 +179,10 @@ namespace Ilargi
 		}
 
 		mShaders.clear();
+	}
+	
+	void VulkanShader::Destroy()
+	{
 	}
 
 	void VulkanShader::AllocateDescriptorSet(uint32_t aIndex, VkDescriptorSet& aDescriptorSet)
@@ -311,7 +312,7 @@ namespace Ilargi
 			ILG_CORE_TRACE("	Binding: {0}", binding);
 			ILG_CORE_TRACE("	Members: {0}", membersCount);
 
-			mPipelineLayoutProperties.PushConstantRanges.emplace_back( size, 0);
+			mPipelineLayoutProperties.PushConstantRanges.emplace_back( size, 0, Utils::GetShaderStage(aStage));
 		}
 
 		// Reflecting uniform buffers
@@ -333,6 +334,7 @@ namespace Ilargi
 			DescriptorBinding descriptorBinding{};
 			descriptorBinding.Binding = binding;
 			descriptorBinding.Type = DescriptorType::UNIFORM_BUFFER;
+			descriptorBinding.Stage = Utils::GetShaderStage(aStage);
 
 			const auto& iterator{ std::find_if(mPipelineLayoutProperties.DescriptorSetLayoutsProperties.begin(), mPipelineLayoutProperties.DescriptorSetLayoutsProperties.end(), [set](const DescriptorSetLayoutProperties& aDescriptorSetLayout)
 			{
@@ -341,7 +343,16 @@ namespace Ilargi
 			
 			if (iterator != mPipelineLayoutProperties.DescriptorSetLayoutsProperties.end())
 			{
-				(*iterator).DescriptorBindings.emplace_back(descriptorBinding);
+				DescriptorSetLayoutProperties& descriptorSetLayout{ (*iterator) };
+				const auto& bindingIterator{ std::find_if(descriptorSetLayout.DescriptorBindings.begin(), descriptorSetLayout.DescriptorBindings.end(), [binding](const DescriptorBinding& aDescriptorBinding)
+				{
+					return aDescriptorBinding.Binding == binding;
+				}) };
+
+				if (bindingIterator == descriptorSetLayout.DescriptorBindings.end())
+				{
+					descriptorSetLayout.DescriptorBindings.emplace_back(descriptorBinding);
+				}
 			}
 			else
 			{
@@ -364,6 +375,7 @@ namespace Ilargi
 			DescriptorBinding descriptorBinding{};
 			descriptorBinding.Binding = binding;
 			descriptorBinding.Type = DescriptorType::COMBINED_IMAGE_SAMPLER;
+			descriptorBinding.Stage = Utils::GetShaderStage(aStage);
 
 			const auto& iterator{ std::find_if(mPipelineLayoutProperties.DescriptorSetLayoutsProperties.begin(), mPipelineLayoutProperties.DescriptorSetLayoutsProperties.end(), [set](const DescriptorSetLayoutProperties& aDescriptorSetLayout)
 			{

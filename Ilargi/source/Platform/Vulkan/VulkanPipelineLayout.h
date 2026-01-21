@@ -15,6 +15,11 @@ namespace Ilargi
 		VulkanPipelineLayout(const PipelineLayoutProperties& aPipelineLayoutProperties);
 
 		/*
+		* @brief Destructor.
+		*/
+		virtual ~VulkanPipelineLayout();
+
+		/*
 		* @brief Returns the vulkan pipeline layout.
 		* @return Instance of the vulkan pipeline layout.
 		*/

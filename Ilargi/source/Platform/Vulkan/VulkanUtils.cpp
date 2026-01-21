@@ -54,5 +54,27 @@ namespace Ilargi
 
 			return DescriptorType();
 		}
+
+		VkShaderStageFlags GetVulkanShaderStage(const ShaderStage aShaderStage)
+		{
+			switch (aShaderStage)
+			{
+			case ShaderStage::VERTEX_SHADER: return VK_SHADER_STAGE_VERTEX_BIT;
+			case ShaderStage::FRAGMENT_SHADER: return VK_SHADER_STAGE_FRAGMENT_BIT;
+			}
+
+			return VK_SHADER_STAGE_VERTEX_BIT;
+		}
+
+		ShaderStage GetShaderStage(const VkShaderStageFlags aShaderStage)
+		{
+			switch (aShaderStage)
+			{
+			case VK_SHADER_STAGE_VERTEX_BIT: return VERTEX_SHADER;
+			case VK_SHADER_STAGE_FRAGMENT_BIT: return FRAGMENT_SHADER;
+			}
+
+			return VERTEX_SHADER;
+		}
 	}
 }

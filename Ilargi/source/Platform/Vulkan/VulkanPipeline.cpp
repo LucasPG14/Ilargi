@@ -46,21 +46,6 @@ namespace Ilargi
 			return VkFormat();
 		}
 
-		VkShaderStageFlags GetShaderStages(const ShaderStage aShaderStage)
-		{
-			VkShaderStageFlags shaderStage{ 0x00000000 };
-			if (aShaderStage & VERTEX_SHADER)
-			{
-				shaderStage |= VK_SHADER_STAGE_VERTEX_BIT;
-			}
-			if (aShaderStage & FRAGMENT_SHADER)
-			{
-				shaderStage |= VK_SHADER_STAGE_FRAGMENT_BIT;
-			}
-
-			return shaderStage;
-		}
-
 		const std::filesystem::path GetPipelineCacheDirectory()
 		{
 			return { "Cache/vulkan/pipelines/" };
@@ -200,6 +185,9 @@ namespace Ilargi
 	
 	VulkanPipeline::~VulkanPipeline()
 	{
+		const auto& device{ VulkanContext::GetLogicalDevice() };
+
+		vkDestroyPipeline(device, mPipeline, nullptr);
 	}
 
 	void VulkanPipeline::Init(const std::vector<ImageFormat>& aFormats)

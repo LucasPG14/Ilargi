@@ -35,4 +35,11 @@ namespace Ilargi
 
 		VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &layoutInfoSet1, nullptr, &mDescriptorSetLayout));
 	}
+	
+	VulkanDescriptorSetLayout::~VulkanDescriptorSetLayout()
+	{
+		const auto& device{ VulkanContext::GetLogicalDevice() };
+
+		vkDestroyDescriptorSetLayout(device, mDescriptorSetLayout, nullptr);
+	}
 }

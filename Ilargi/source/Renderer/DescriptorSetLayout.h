@@ -2,6 +2,12 @@
 
 namespace Ilargi
 {
+	enum ShaderStage
+	{
+		VERTEX_SHADER = 0x01,
+		FRAGMENT_SHADER = 0x02
+	};
+
 	enum class DescriptorType : uint8_t
 	{
 		UNIFORM_BUFFER = 0,
@@ -14,6 +20,7 @@ namespace Ilargi
 
 		uint8_t Binding;
 		DescriptorType Type;
+		ShaderStage Stage;
 	};
 
 	struct DescriptorSetLayoutProperties
@@ -64,6 +71,7 @@ namespace std
 		{
 			size_t h{ std::hash<uint8_t>{}(aBinding.Binding) };
 			h ^= std::hash<int>{}(static_cast<int>(aBinding.Type)) << 1;
+			h ^= std::hash<int>{}(static_cast<int>(aBinding.Stage)) << 2;
 			return h;
 		}
 	};

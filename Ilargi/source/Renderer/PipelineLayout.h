@@ -6,8 +6,9 @@ namespace Ilargi
 {
 	struct PushConstantRange
 	{
-		uint32_t size{0U};
-		uint32_t offset {0U};
+		uint32_t Size{0U};
+		uint32_t Offset {0U};
+		ShaderStage Stage;
 	};
 
 	struct PipelineLayoutProperties
