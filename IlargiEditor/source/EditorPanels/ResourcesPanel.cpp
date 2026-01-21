@@ -82,6 +82,7 @@ namespace Ilargi
 
 	ResourcesPanel::~ResourcesPanel()
 	{
+		ResourceManager::Clear();
 	}
 
 	void ResourcesPanel::Render()

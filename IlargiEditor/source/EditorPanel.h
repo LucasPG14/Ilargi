@@ -120,12 +120,8 @@ namespace Ilargi
 		std::shared_ptr<CommandBuffer> mCommandBuffer; // Instance of the editor command buffer.
 
 		std::shared_ptr<Framebuffer> mFramebuffer; // Instance of the editor framebuffer.
-		std::shared_ptr<RenderPass> mRenderPass; // Instance of the editor render pass.
-		std::shared_ptr<Pipeline> mGeometryPipeline; // Instance of the geometry pipeline.
-		std::shared_ptr<Pipeline> mGridPipeline; // Instance of the grid pipeline.
 		std::shared_ptr<Pipeline> mOutlinePipeline; // Instance of the outline pipeline.
 
-		std::shared_ptr<RenderPass> mMousePickingRenderPass; // Instance of the render pass for mouse picking.
 		std::shared_ptr<Framebuffer> mMousePickingFramebuffer; // Instance of the framebuffer for mouse picking.
 		std::shared_ptr<Pipeline> mMousePickingPipeline; // Instance of the pipeline for mouse picking.
 

@@ -15,7 +15,7 @@ namespace Ilargi
 	VulkanRenderPass::VulkanRenderPass(const RenderPassProperties& props) : mProperties(props)
 	{
 		auto device{ VulkanContext::GetLogicalDevice() };
-		const std::vector<ImageFormat>& formats{ mProperties.formats };
+		const std::vector<ImageFormat>& formats{ mProperties.Formats };
 		
 		std::vector<VkAttachmentDescription> attachments;
 		std::vector<VkAttachmentReference> colorAttachmentRefs;
@@ -32,7 +32,7 @@ namespace Ilargi
 			attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 			attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 			
-			attachment.stencilLoadOp = mProperties.clearValues ? VK_ATTACHMENT_LOAD_OP_DONT_CARE : VK_ATTACHMENT_LOAD_OP_LOAD;
+			attachment.stencilLoadOp = mProperties.ClearValues ? VK_ATTACHMENT_LOAD_OP_DONT_CARE : VK_ATTACHMENT_LOAD_OP_LOAD;
 			attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
 			
 			attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -99,14 +99,12 @@ namespace Ilargi
 	
 	VulkanRenderPass::~VulkanRenderPass()
 	{
+		auto device{ VulkanContext::GetLogicalDevice() };
+		vkDestroyRenderPass(device, mRenderPass, nullptr);
 	}
 
 	void VulkanRenderPass::Destroy()
 	{
-		auto device{ VulkanContext::GetLogicalDevice() };
-
-		//mProperties.pipeline->Destroy();
-		vkDestroyRenderPass(device, mRenderPass, nullptr);
 	}
 	
 	void VulkanRenderPass::BeginRenderPass(const std::shared_ptr<CommandBuffer>& aCommandBuffer, const std::shared_ptr<Framebuffer>& aFramebuffer) const
@@ -129,7 +127,7 @@ namespace Ilargi
 						{ 0, 0 },									// offset
 						{ width, height }							// extent
 					},
-					mProperties.clearValues ? static_cast<uint32_t>(mClearValues.size()) : 0,	// clearValueCount 
+					mProperties.ClearValues ? static_cast<uint32_t>(mClearValues.size()) : 0,	// clearValueCount 
 					mClearValues.data()							// pClearValues 
 				};
 

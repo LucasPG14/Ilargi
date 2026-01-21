@@ -43,9 +43,6 @@ namespace Ilargi
 	
 	std::shared_ptr<Texture2D> TextureImporter::LoadTexture(const ResourceMetadata& aMetadata)
 	{
-		// TODO: Take a look to the formats, doesn't allow to create an image with three channels
-		std::shared_ptr<Texture2D> texture;
-
 		BinaryReader reader(aMetadata.filepath.string());
 		
 		TextureHeader textureHeader;
@@ -54,6 +51,10 @@ namespace Ilargi
 		void* imageData{ new char[textureHeader.width * textureHeader.height * textureHeader.channels] };
 		reader.Read(imageData, textureHeader.width * textureHeader.height * textureHeader.channels);
 
-		return Texture2D::Create(imageData, textureHeader.width, textureHeader.height, textureHeader.channels);
+		std::shared_ptr<Texture2D> texture { Texture2D::Create(imageData, textureHeader.width, textureHeader.height, textureHeader.channels) };
+		
+		delete[] imageData;
+		
+		return texture;
 	}
 }

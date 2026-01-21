@@ -65,9 +65,6 @@ namespace Ilargi
 					submesh.material = static_cast<uint64_t>(node["StaticMeshComponent"][indexSubmesh]["Material"]);
 					staticMesh.submeshes.push_back(submesh);
 				}
-				// TODO: Meshes
-				//staticMesh.staticMesh = std::static_pointer_cast<StaticMesh>(ResourceManager::GetResource(meshUUID));
-				//staticMesh.material = std::static_pointer_cast<Material>(ResourceManager::GetResource(materialUUID));
 			}
 
 			if (node.containsKey("ParentComponent"))
@@ -142,7 +139,6 @@ namespace Ilargi
 					document[index]["StaticMeshComponent"][indexMesh]["Mesh"] = static_cast<uint64_t>(staticMesh.submeshes[indexMesh].mesh);
 					document[index]["StaticMeshComponent"][indexMesh]["Material"] = static_cast<uint64_t>(staticMesh.submeshes[indexMesh].material);
 				}
-				// TODO: Meshes
 			}
 
 			if (world.try_get<ParentComponent>(entity))

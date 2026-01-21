@@ -12,6 +12,9 @@ namespace Ilargi
 	GraphicsAPI Renderer::sGraphicsAPI{ GraphicsAPI::VULKAN };
 	std::unique_ptr<Render> Renderer::sRender{ Render::Create() };
 	std::unique_ptr<ShaderLibrary> Renderer::sShaderLibrary{ std::make_unique<ShaderLibrary>() };
+	std::unique_ptr<PipelineManager> Renderer::sPipelineManager{ std::make_unique<PipelineManager>() };
+	std::unique_ptr<PipelineLayoutManager> Renderer::sPipelineLayoutManager{ std::make_unique<PipelineLayoutManager>() };
+	std::unique_ptr<RenderPassManager> Renderer::sRenderPassManager{ std::make_unique<RenderPassManager>() };
 	std::shared_ptr<Texture2D> Renderer::sDefaultTexture{ nullptr };
 	std::shared_ptr<Texture2D> Renderer::sDefaultNormalTexture{ nullptr };
 	std::shared_ptr<Material> Renderer::sDefaultMaterial{ nullptr };
@@ -40,6 +43,11 @@ namespace Ilargi
 		sDefaultTexture.reset();
 		sDefaultNormalTexture.reset();
 		sDefaultMaterial.reset();
+
+		sShaderLibrary.reset();
+		sPipelineLayoutManager.reset();
+		sPipelineManager.reset();
+		sRenderPassManager.reset();
 	}
 
 	void Renderer::SubmitGeometry(const std::shared_ptr<CommandBuffer>& aCommandBuffer, const std::shared_ptr<StaticMesh>& aMesh)
