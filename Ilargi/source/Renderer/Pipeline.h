@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Framebuffer.h"
+
 namespace Ilargi
 {
 	enum ShaderStage;
@@ -63,23 +65,25 @@ namespace Ilargi
 
 	struct Element
 	{
-		ShaderDataType type;
-		std::string name;
-		uint32_t size;
-		uint32_t offset;
+		ShaderDataType Type;
+		std::string Name;
+		uint32_t Size;
+		uint32_t Offset;
 
-		Element() : name(""), type(ShaderDataType::NONE), size(0), offset(0) {}
+		Element() : Name(""), Type(ShaderDataType::NONE), Size(0U), Offset(0U) {}
 
-		Element(const ShaderDataType elemType, const std::string& elemName, bool normalized = false)
-			: type(elemType), name(elemName), size(ShaderDataTypeSize(elemType)), offset(0) {}
+		Element(const ShaderDataType aElemType, const std::string& aElemName, bool aNormalized = false)
+			: Type(aElemType), Name(aElemName), Size(ShaderDataTypeSize(aElemType)), Offset(0U) {}
+
+		bool operator==(const Element&) const = default;
 	};
 
-	class Layout
+	struct VertexLayout
 	{
 	public:
-		Layout() : mStride(0) {}
+		VertexLayout() : mStride(0) {}
 
-		Layout(const std::initializer_list<Element>& aElements) : mElements(aElements)
+		VertexLayout(const std::initializer_list<Element>& aElements) : mElements(aElements)
 		{
 			CalculateOffset();
 		}
@@ -92,6 +96,8 @@ namespace Ilargi
 
 		constexpr std::vector<Element>::const_iterator begin() const { return mElements.cbegin(); }
 		constexpr std::vector<Element>::const_iterator end() const { return mElements.cend(); }
+		
+		bool operator==(const VertexLayout&) const = default;
 	
 	private:
 		void CalculateOffset()
@@ -100,29 +106,173 @@ namespace Ilargi
 			mStride = 0;
 			for (auto& element : mElements)
 			{
-				element.offset = offset;
-				offset += element.size;
-				mStride += element.size;
+				element.Offset = offset;
+				offset += element.Size;
+				mStride += element.Size;
 			}
 		}
 
-	private:
+	public:
 		std::vector<Element> mElements;
 		uint32_t mStride;
 	};
 
+	enum class CullMode : uint8_t
+	{
+		NONE,
+		FRONT,
+		BACK
+	};
+
+	enum class FillMode : uint8_t
+	{
+		FILL,
+		LINE, 
+		POINT
+	};
+
+	enum class FrontFace : uint8_t
+	{
+		COUNTER_CLOCKWISE,
+		CLOCKWISE
+	};
+
+	enum class StencilOp : uint8_t
+	{
+		KEEP,
+		ZERO,
+		REPLACE,
+		INCREMENT_WRAP,
+		INCREMENT_CLAMP,
+		DECREMENT_WRAP,
+		DECREMENT_CLAMP,
+		INVERT
+	};
+
+	enum class BlendOp : uint8_t
+	{
+		ADD,
+		SUBSTRACT,
+		REVERSE_SUBSTRACT,
+		MIN,
+		MAX
+	};
+
+	enum class CompareOp : uint8_t
+	{
+		NEVER,
+		LESS,
+		EQUAL,
+		LESS_EQUAL,
+		GREATER,
+		NOT_EQUAL,
+		GREATER_EQUAL,
+		ALWAYS
+	};
+
+	enum class BlendFactor : uint8_t
+	{
+		ZERO,
+		ONE,
+		SRC_COLOR,
+		ONE_MINUS_SRC_COLOR,
+		DST_COLOR,
+		ONE_MINUS_DST_COLOR,
+		SRC_ALPHA,
+		ONE_MINUS_SRC_ALPHA,
+		DST_ALPHA,
+		ONE_MINUS_DST_ALPHA,
+		CONSTANT_COLOR,
+		ONE_MINUS_CONSTANT_COLOR
+	};
+
+	enum class ColorMask : uint8_t
+	{
+		R,
+		RG,
+		RGB,
+		RGBA
+	};
+
+	struct StencilFaceState
+	{
+		CompareOp CompareOp{ CompareOp::ALWAYS };
+		StencilOp PassOp{ StencilOp::KEEP };
+		StencilOp FailOp{ StencilOp::KEEP };
+		StencilOp DepthFailOp{ StencilOp::KEEP };
+		uint8_t CompareMask{ 0xFFU };
+		uint8_t WriteMask{ 0xFFU };
+		uint8_t Reference{ 1U };
+
+		bool operator==(const StencilFaceState&) const = default;
+	};
+
+	struct BlendState
+	{
+		bool Enabled{true};
+		BlendFactor SrcColor{ BlendFactor::SRC_ALPHA };
+		BlendFactor DstColor{ BlendFactor::ONE_MINUS_SRC_ALPHA };
+		BlendOp ColorOp{ BlendOp::ADD };
+		BlendFactor SrcAlpha{ BlendFactor::ONE };
+		BlendFactor DstAlpha{ BlendFactor::ZERO };
+		BlendOp AlphaOp{ BlendOp::ADD };
+		ColorMask ColorMask{ ColorMask::RGBA };
+
+		bool operator==(const BlendState&) const = default;
+	};
+
+	struct StencilState
+	{
+		bool Enabled {false};
+		StencilFaceState Front{};
+		StencilFaceState Back{};
+
+		bool operator==(const StencilState&) const = default;
+	};
+
+	struct DepthState
+	{
+		bool Enabled {true};
+		bool Test {true};
+		bool Write {true};
+		CompareOp CompareOp{ CompareOp::LESS };
+		StencilState StencilState {};
+
+		bool operator==(const DepthState&) const = default;
+	};
+
+	struct RasterState
+	{
+		CullMode Cull{ CullMode::NONE };
+		FillMode Fill{ FillMode::FILL };
+		FrontFace FrontFace{ FrontFace::COUNTER_CLOCKWISE };
+		bool DepthClamp {false};
+		bool DepthBias {false};
+
+		bool operator==(const RasterState&) const = default;
+	};
+
 	struct PipelineProperties
 	{
-		std::string name;
-		std::shared_ptr<RenderPass> renderPass;
-		std::shared_ptr<Shader> shader;
-		Layout layout;
-		uint32_t layoutUsage;
-		bool testDepth = true;
-		bool writeDepth = true;
-		bool hasStencil = true;
-		bool writeStencil = true;
-		bool blend = true;
+		std::string ShaderName;
+		VertexLayout VertexLayout;
+		std::vector<ImageFormat> ColorFormats;
+		RasterState RasterState;
+		DepthState DepthState;
+		BlendState BlendState;
+
+		uint32_t SampleCount;
+
+		bool operator==(const PipelineProperties& aProperties) const
+		{
+			return ShaderName == aProperties.ShaderName &&
+				VertexLayout == aProperties.VertexLayout &&
+				ColorFormats == aProperties.ColorFormats &&
+				RasterState == aProperties.RasterState &&
+				DepthState == aProperties.DepthState &&
+				BlendState == aProperties.BlendState &&
+				SampleCount == aProperties.SampleCount;
+		};
 	};
 
 	class Pipeline : public std::enable_shared_from_this<Pipeline>
@@ -189,5 +339,131 @@ namespace Ilargi
 		* @return An instance of the pipeline created.
 		*/
 		static std::shared_ptr<Pipeline> Create(const PipelineProperties& aProperties);
+	};
+}
+
+namespace std
+{
+	template<>
+	struct hash<Ilargi::RasterState>
+	{
+		size_t operator()(const Ilargi::RasterState& aRasterState) const
+		{
+			size_t h{ std::hash<int>{}(static_cast<int>(aRasterState.Cull)) };
+			h ^= std::hash<int>{}(static_cast<int>(aRasterState.Fill)) << 1;
+			h ^= std::hash<int>{}(static_cast<int>(aRasterState.FrontFace)) << 2;
+			h ^= std::hash<bool>{}(aRasterState.DepthClamp) << 3;
+			h ^= std::hash<bool>{}(aRasterState.DepthBias) << 4;
+			return h;
+		}
+	};
+
+	template<>
+	struct hash<Ilargi::BlendState>
+	{
+		size_t operator()(const Ilargi::BlendState& aBlendState) const
+		{
+			size_t h{ std::hash<bool>{}(aBlendState.Enabled) };
+			h ^= std::hash<int>{}(static_cast<int>(aBlendState.SrcColor)) << 1;
+			h ^= std::hash<int>{}(static_cast<int>(aBlendState.DstColor)) << 2;
+			h ^= std::hash<int>{}(static_cast<int>(aBlendState.ColorOp)) << 3;
+			h ^= std::hash<int>{}(static_cast<int>(aBlendState.SrcAlpha)) << 4;
+			h ^= std::hash<int>{}(static_cast<int>(aBlendState.DstAlpha)) << 5;
+			h ^= std::hash<int>{}(static_cast<int>(aBlendState.AlphaOp)) << 6;
+			h ^= std::hash<int>{}(static_cast<int>(aBlendState.ColorMask)) << 7;
+			return h;
+		}
+	};
+
+	template<>
+	struct hash<Ilargi::StencilFaceState>
+	{
+		size_t operator()(const Ilargi::StencilFaceState& aStencilFaceState) const
+		{
+			size_t h{ std::hash<int>{}(static_cast<int>(aStencilFaceState.CompareOp)) };
+			h ^= std::hash<int>{}(static_cast<int>(aStencilFaceState.PassOp)) << 1;
+			h ^= std::hash<int>{}(static_cast<int>(aStencilFaceState.FailOp)) << 2;
+			h ^= std::hash<int>{}(static_cast<int>(aStencilFaceState.DepthFailOp)) << 3;
+			h ^= std::hash<uint8_t>{}(aStencilFaceState.CompareMask) << 4;
+			h ^= std::hash<uint8_t>{}(aStencilFaceState.WriteMask) << 5;
+			h ^= std::hash<uint8_t>{}(aStencilFaceState.Reference) << 6;
+
+			return h;
+		}
+	};
+
+	template<>
+	struct hash<Ilargi::StencilState>
+	{
+		size_t operator()(const Ilargi::StencilState& aStencilState) const
+		{
+			size_t h{ std::hash<bool>{}(aStencilState.Enabled) };
+			h ^= std::hash<Ilargi::StencilFaceState>{}(aStencilState.Front) << 1;
+			h ^= std::hash<Ilargi::StencilFaceState>{}(aStencilState.Back) << 2;
+
+			return h;
+		}
+	};
+
+	template<>
+	struct hash<Ilargi::DepthState>
+	{
+		size_t operator()(const Ilargi::DepthState& aDepthState) const
+		{
+			size_t h{ std::hash<bool>{}(aDepthState.Enabled) };
+			h ^= std::hash<bool>{}(aDepthState.Test) << 1;
+			h ^= std::hash<bool>{}(aDepthState.Write) << 2;
+			h ^= std::hash<int>{}(static_cast<int>(aDepthState.CompareOp)) << 3;
+			h ^= std::hash<Ilargi::StencilState>{}(aDepthState.StencilState) << 4;
+		
+
+			return h;
+		}
+	};
+
+	template<>
+	struct hash<Ilargi::Element>
+	{
+		size_t operator()(const Ilargi::Element& aElement) const
+		{
+			size_t h{ std::hash<int>{}(static_cast<int>(aElement.Type)) };
+			h ^= std::hash<std::string>{}(aElement.Name) << 1;
+			h ^= std::hash<uint32_t>{}(aElement.Size) << 2;
+			h ^= std::hash<uint32_t>{}(aElement.Offset) << 3;
+
+			return h;
+		}
+	};
+
+	template<>
+	struct hash<Ilargi::VertexLayout>
+	{
+		size_t operator()(const Ilargi::VertexLayout& aVertexLayout) const
+		{
+			size_t h{ std::hash<uint32_t>{}(aVertexLayout.mStride) };
+			for (const auto& element : aVertexLayout)
+				h ^= std::hash<Ilargi::Element>{}(element) << 2;
+
+			return h;
+		}
+	};
+
+	template<>
+	struct hash<Ilargi::PipelineProperties>
+	{
+		size_t operator()(const Ilargi::PipelineProperties& aProperties) const
+		{
+			size_t h{ std::hash<std::string>{}(aProperties.ShaderName) };
+			h ^= std::hash<Ilargi::VertexLayout>{}(aProperties.VertexLayout) << 1;
+			for (const auto& format : aProperties.ColorFormats)
+				h ^= std::hash<int>{}(static_cast<int>(format)) << 2;
+
+			h ^= std::hash<Ilargi::RasterState>{}(aProperties.RasterState) << 3;
+			h ^= std::hash<Ilargi::DepthState>{}(aProperties.DepthState) << 4;
+			h ^= std::hash<Ilargi::BlendState>{}(aProperties.BlendState) << 5;
+			h ^= std::hash<uint32_t>{}(aProperties.SampleCount) << 6;
+
+			return h;
+		}
 	};
 }

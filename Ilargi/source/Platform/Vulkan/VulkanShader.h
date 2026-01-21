@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Renderer/Shader.h"
+#include "VulkanPipelineLayout.h"
 #include <vulkan/vulkan.h>
 
 namespace Ilargi
@@ -45,23 +46,17 @@ namespace Ilargi
 		[[nodiscard]] const ShadersMap& GetShaders() const { return mShaders; }
 
 		/*
-		* @brief Returns the map of bindings.
-		* @return The bindings map.
+		* @brief Returns the vulkan pipeline layout.
+		* @return Instance of the vulkan pipeline layout.
 		*/
-		[[nodiscard]] const std::unordered_map<std::string, BindingInfo>& GetBindings() const { return mBindings; }
-
-		/*
-		* @brief Returns the push constants container of the shader.
-		* @return The push constants container.
-		*/
-		[[nodiscard]] const std::vector<VkPushConstantRange>& GetPushConstants() const { return mPushConstants; }
+		[[nodiscard]] const VkPipelineLayout& GetPipelineLayout() const { return mPipelineLayout->GetPipelineLayout(); }
 
 	private:
 		/*
 		* @brief Returns the directory of the vulkan shader cache files.
 		* @return The directory of the vulkan shader cache files.
 		*/
-		[[nodiscard]] const char* GetShaderCacheDirectory() const { return "cache/vulkan/"; }
+		[[nodiscard]] constexpr const char* GetShaderCacheDirectory() const { return "cache/vulkan/"; }
 
 		/*
 		* @brief Reads the shader file and process it.
@@ -91,15 +86,12 @@ namespace Ilargi
 		void ReflectShader(VkShaderStageFlags aStage, const std::vector<uint32_t>& aCode);
 	
 	private:
-		std::array<std::array<bool, 8>, 8> mSetBindingMap; // Descriptor sets of the shader.
 		std::string mFilepath; // The shader filepath.
 		std::string mName; // The name of the shader.
 
 		ShadersMap mShaders; // Map with the shaders based on their type(vertex, fragment, compute...).
-		std::vector<VkPushConstantRange> mPushConstants; // Container with the push constants of the shader.
-
-		std::map<int, std::vector<VkDescriptorSetLayoutBinding>> mDescriptorSetBindings; // Map of the descriptor sets bindings.
-	
-		std::unordered_map<std::string, BindingInfo> mBindings;
+		
+		std::shared_ptr<VulkanPipelineLayout> mPipelineLayout; // Instance of the pipeline layout.
+		PipelineLayoutProperties mPipelineLayoutProperties; // The pipeline layout properties.
 	};
 }

@@ -82,6 +82,7 @@ namespace Ilargi
 
 	ResourcesPanel::~ResourcesPanel()
 	{
+		ResourceManager::Clear();
 		ThumbnailManager::Clear();
 	}
 

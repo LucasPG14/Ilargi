@@ -25,13 +25,12 @@ namespace Ilargi
 
 	struct FramebufferProperties
 	{
-		std::vector<ImageFormat> formats;
-		std::shared_ptr<RenderPass> renderPass;
-		uint16_t width;
-		uint16_t height;
+		std::vector<ImageFormat> Formats;
+		uint16_t Width;
+		uint16_t Height;
 
-		bool swapchainTarget;
-		bool multisampling;
+		bool SwapchainTarget;
+		bool MultiSampling;
 	};
 
 	class Framebuffer : public std::enable_shared_from_this<Framebuffer>
@@ -50,12 +49,16 @@ namespace Ilargi
 
 		/*
 		* @brief Resizes the framebuffer to a given width and height.
-		* @param aRenderPass The render pass of the framebuffer.
 		* @param aWidth The new width of the framebuffer.
 		* @param aHeight The new height of the framebuffer.
 		*/
-		virtual void Resize(const std::shared_ptr<RenderPass>& aRenderPass, uint32_t aWidth, uint32_t aHeight) = 0;
+		virtual void Resize(uint32_t aWidth, uint32_t aHeight) = 0;
 
+		/*
+		* @brief Reads a pixel of the framebuffer for a given x and y.
+		* @param aX The x position of the pixel.
+		* @param aY The y position of the pixel.
+		*/
 		virtual uint32_t ReadFramebufferPixel(uint32_t aX, uint32_t aY) = 0;
 
 		/*

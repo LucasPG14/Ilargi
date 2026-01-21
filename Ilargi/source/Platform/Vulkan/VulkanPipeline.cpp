@@ -46,21 +46,6 @@ namespace Ilargi
 			return VkFormat();
 		}
 
-		VkShaderStageFlags GetShaderStages(const ShaderStage aShaderStage)
-		{
-			VkShaderStageFlags shaderStage{ 0x00000000 };
-			if (aShaderStage & VERTEX_SHADER)
-			{
-				shaderStage |= VK_SHADER_STAGE_VERTEX_BIT;
-			}
-			if (aShaderStage & FRAGMENT_SHADER)
-			{
-				shaderStage |= VK_SHADER_STAGE_FRAGMENT_BIT;
-			}
-
-			return shaderStage;
-		}
-
 		const std::filesystem::path GetPipelineCacheDirectory()
 		{
 			return { "Cache/vulkan/pipelines/" };
@@ -72,48 +57,167 @@ namespace Ilargi
 			if (!std::filesystem::exists(cacheDirectory))
 				std::filesystem::create_directories(cacheDirectory);
 		}
+
+		VkStencilOp GetVulkanStencilOp(StencilOp aStencilOp)
+		{
+			switch(aStencilOp)
+			{
+			case StencilOp::KEEP:				return VK_STENCIL_OP_KEEP;
+			case StencilOp::ZERO:				return VK_STENCIL_OP_ZERO;
+			case StencilOp::REPLACE:			return VK_STENCIL_OP_REPLACE;
+			case StencilOp::INCREMENT_WRAP:		return VK_STENCIL_OP_INCREMENT_AND_WRAP;
+			case StencilOp::INCREMENT_CLAMP:	return VK_STENCIL_OP_INCREMENT_AND_CLAMP;
+			case StencilOp::DECREMENT_WRAP:		return VK_STENCIL_OP_DECREMENT_AND_WRAP;
+			case StencilOp::DECREMENT_CLAMP:	return VK_STENCIL_OP_DECREMENT_AND_CLAMP;
+			case StencilOp::INVERT:				return VK_STENCIL_OP_INVERT;
+			}
+
+			return VK_STENCIL_OP_KEEP;
+		}
+
+		VkCompareOp GetVulkanCompareOp(CompareOp aCompareOp)
+		{
+			switch (aCompareOp)
+			{
+			case CompareOp::NEVER:			return VK_COMPARE_OP_NEVER;
+			case CompareOp::LESS:			return VK_COMPARE_OP_LESS;
+			case CompareOp::EQUAL:			return VK_COMPARE_OP_EQUAL;
+			case CompareOp::LESS_EQUAL:		return VK_COMPARE_OP_LESS_OR_EQUAL;
+			case CompareOp::GREATER:		return VK_COMPARE_OP_GREATER;
+			case CompareOp::NOT_EQUAL:		return VK_COMPARE_OP_NOT_EQUAL;
+			case CompareOp::GREATER_EQUAL:	return VK_COMPARE_OP_GREATER_OR_EQUAL;
+			case CompareOp::ALWAYS:			return VK_COMPARE_OP_ALWAYS;
+			}
+
+			return VK_COMPARE_OP_ALWAYS;
+		}
+
+		VkPolygonMode GetVulkanFillMode(FillMode aFillMode)
+		{
+			switch (aFillMode)
+			{
+			case FillMode::FILL:	return VK_POLYGON_MODE_FILL;
+			case FillMode::LINE:	return VK_POLYGON_MODE_LINE;
+			case FillMode::POINT:	return VK_POLYGON_MODE_POINT;
+			}
+
+			return VK_POLYGON_MODE_FILL;
+		}
+
+		VkCullModeFlags GetVulkanCullMode(CullMode aCullMode)
+		{
+			switch (aCullMode)
+			{
+			case CullMode::NONE:	return VK_CULL_MODE_NONE;
+			case CullMode::FRONT:	return VK_CULL_MODE_FRONT_BIT;
+			case CullMode::BACK:	return VK_CULL_MODE_BACK_BIT;
+			}
+
+			return VK_CULL_MODE_BACK_BIT;
+		}
+
+		VkFrontFace GetVulkanFrontFace(FrontFace aFrontFace)
+		{
+			switch (aFrontFace)
+			{
+			case FrontFace::COUNTER_CLOCKWISE:		return VK_FRONT_FACE_COUNTER_CLOCKWISE;
+			case FrontFace::CLOCKWISE:				return VK_FRONT_FACE_CLOCKWISE;
+			}
+
+			return VK_FRONT_FACE_COUNTER_CLOCKWISE;
+		}
+
+		VkBlendFactor GetVulkanBlendFactor(BlendFactor aBlendFactor)
+		{
+			switch (aBlendFactor)
+			{
+			case BlendFactor::ZERO:							return VK_BLEND_FACTOR_ZERO;
+			case BlendFactor::ONE:							return VK_BLEND_FACTOR_ONE;
+			case BlendFactor::SRC_COLOR:					return VK_BLEND_FACTOR_SRC_COLOR;
+			case BlendFactor::ONE_MINUS_SRC_COLOR:			return VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR;
+			case BlendFactor::DST_COLOR:					return VK_BLEND_FACTOR_DST_COLOR;
+			case BlendFactor::ONE_MINUS_DST_COLOR:			return VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR;
+			case BlendFactor::SRC_ALPHA:					return VK_BLEND_FACTOR_SRC_ALPHA;
+			case BlendFactor::ONE_MINUS_SRC_ALPHA:			return VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+			case BlendFactor::DST_ALPHA:					return VK_BLEND_FACTOR_DST_ALPHA;
+			case BlendFactor::ONE_MINUS_DST_ALPHA:			return VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
+			case BlendFactor::CONSTANT_COLOR:				return VK_BLEND_FACTOR_CONSTANT_COLOR;
+			case BlendFactor::ONE_MINUS_CONSTANT_COLOR:		return VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR;
+			}
+
+			return VK_BLEND_FACTOR_ZERO;
+		}
+
+		VkBlendOp GetVulkanBlendOp(BlendOp aBlendOp)
+		{
+			switch (aBlendOp)
+			{
+			case BlendOp::ADD:					return VK_BLEND_OP_ADD;
+			case BlendOp::SUBSTRACT:			return VK_BLEND_OP_SUBTRACT;
+			case BlendOp::REVERSE_SUBSTRACT:	return VK_BLEND_OP_REVERSE_SUBTRACT;
+			case BlendOp::MIN:					return VK_BLEND_OP_MIN;
+			case BlendOp::MAX:					return VK_BLEND_OP_MAX;
+			}
+
+			return VK_BLEND_OP_ADD;
+		}
+
+		VkColorComponentFlags GetVulkanColorMask(ColorMask aColorMask)
+		{
+			switch (aColorMask)
+			{
+			case ColorMask::R:		return VK_COLOR_COMPONENT_R_BIT;
+			case ColorMask::RG:		return VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT;
+			case ColorMask::RGB:	return VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT;
+			case ColorMask::RGBA:	return VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+			}
+
+			return VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+		}
 	}
 
 	VulkanPipeline::VulkanPipeline(const PipelineProperties& aProperties) 
 		: mProperties(aProperties), mPipeline(VK_NULL_HANDLE)
 	{
 		Utils::CreatePipelineCacheDirectory();
-		const auto& renderPass{ mProperties.renderPass->As<VulkanRenderPass>() };
-		Init(renderPass->GetRenderPass(), renderPass->GetProperties().formats);
+		Init(aProperties.ColorFormats);
 	}
 	
 	VulkanPipeline::~VulkanPipeline()
 	{
+		const auto& device{ VulkanContext::GetLogicalDevice() };
+
+		vkDestroyPipeline(device, mPipeline, nullptr);
 	}
 
-	void VulkanPipeline::Init(VkRenderPass aRenderPass, const std::vector<ImageFormat>& aFormats)
+	void VulkanPipeline::Init(const std::vector<ImageFormat>& aFormats)
 	{
 		auto device{ VulkanContext::GetLogicalDevice() };
 
 		// Pipeline cache
-		VkPipelineCache pipelineCache{ VK_NULL_HANDLE };
+		//VkPipelineCache pipelineCache{ VK_NULL_HANDLE };
 
-		VkPipelineCacheCreateInfo pipelineCacheInfo {};
-		pipelineCacheInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
+		//VkPipelineCacheCreateInfo pipelineCacheInfo {};
+		//pipelineCacheInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
 
-		std::filesystem::path pipelineCacheFilepath{ (std::filesystem::path("cache/vulkan/pipelines/" + mProperties.name + ".pipe")) };
-		BinaryReader reader(pipelineCacheFilepath);
+		//std::filesystem::path pipelineCacheFilepath{ (std::filesystem::path("cache/vulkan/pipelines/" + mProperties.name + ".pipe")) };
+		//BinaryReader reader(pipelineCacheFilepath);
 
-		if (std::filesystem::exists(pipelineCacheFilepath))
-		{
-			pipelineCacheInfo.initialDataSize = reader.GetSize();
-			
-			char* cacheData = new char[pipelineCacheInfo.initialDataSize];
-			reader.Read(cacheData, pipelineCacheInfo.initialDataSize);
-			
-			pipelineCacheInfo.pInitialData = cacheData;
-			delete[] cacheData;
-		}
-		VK_CHECK_RESULT(vkCreatePipelineCache(device, &pipelineCacheInfo, nullptr, &pipelineCache));
+		//if (std::filesystem::exists(pipelineCacheFilepath))
+		//{
+		//	pipelineCacheInfo.initialDataSize = reader.GetSize();
+		//	
+		//	char* cacheData = new char[pipelineCacheInfo.initialDataSize];
+		//	reader.Read(cacheData, pipelineCacheInfo.initialDataSize);
+		//	
+		//	pipelineCacheInfo.pInitialData = cacheData;
+		//	delete[] cacheData;
+		//}
+		//VK_CHECK_RESULT(vkCreatePipelineCache(device, &pipelineCacheInfo, nullptr, &pipelineCache));
 
 		VkGraphicsPipelineCreateInfo pipelineInfo {};
 
-		const auto& shader{ mProperties.shader->As<VulkanShader>() };
+		const auto& shader{ Renderer::GetShader(mProperties.ShaderName)->As<VulkanShader>() };
 
 		const auto& shaders{ shader->GetShaders() };
 		std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
@@ -136,21 +240,21 @@ namespace Ilargi
 		// TODO: Gives an error when layout is empty
 		VkVertexInputBindingDescription bindingDescription
 		{
-			0,								// binding
-			mProperties.layout.GetStride(), // stride
-			VK_VERTEX_INPUT_RATE_VERTEX		// inputRate
+			0,										// binding
+			mProperties.VertexLayout.GetStride(),	// stride
+			VK_VERTEX_INPUT_RATE_VERTEX				// inputRate
 		};
 
-		const auto& elements{ mProperties.layout.GetElements() };
-		std::vector<VkVertexInputAttributeDescription> attributeDescriptions(mProperties.layoutUsage);
+		const auto& elements{ mProperties.VertexLayout.GetElements() };
+		std::vector<VkVertexInputAttributeDescription> attributeDescriptions(elements.size());
 
 		int i{ 0 };
 		for (auto& attributeDescription : attributeDescriptions)
 		{
 			attributeDescription.binding = 0;
 			attributeDescription.location = i;
-			attributeDescription.format = Utils::GetVkFormatFromShaderDataType(elements[i].type);
-			attributeDescription.offset = elements[i].offset;
+			attributeDescription.format = Utils::GetVkFormatFromShaderDataType(elements[i].Type);
+			attributeDescription.offset = elements[i].Offset;
 
 			i++;
 		}
@@ -221,22 +325,14 @@ namespace Ilargi
 			&scissor												// pScissors
 		};
 
-		VkPipelineRasterizationStateCreateInfo rasterizer
+		if (mProperties.DepthState.Enabled)
 		{
-			VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO, // sType
-			nullptr,													// pNext
-			0,															// flags
-			VK_FALSE,													// depthClampEnable
-			VK_FALSE,													// rasterizerDiscardEnable
-			VK_POLYGON_MODE_FILL,										// polygonMode
-			VK_CULL_MODE_NONE,											// cullMode
-			VK_FRONT_FACE_COUNTER_CLOCKWISE,							// frontFace
-			VK_FALSE,													// depthBiasEnable
-			0.0f,														// depthBiasConstantFactor
-			0.0f,														// depthBiasClamp
-			0.0f,														// depthBiasSlopeFactor
-			1.0f														// lineWidth
-		};
+			VkPipelineDepthStencilStateCreateInfo depthStencil{ GetDepthStencilState(mProperties.DepthState) };
+
+			pipelineInfo.pDepthStencilState = &depthStencil;
+		}
+
+		VkPipelineRasterizationStateCreateInfo rasterizer{ GetRasterizationState(mProperties.RasterState) };
 
 		VkPipelineMultisampleStateCreateInfo multisampling
 		{
@@ -252,21 +348,14 @@ namespace Ilargi
 		};
 
 		std::vector<VkPipelineColorBlendAttachmentState> colorBlendAttachments;
-
+		colorBlendAttachments.reserve(aFormats.size());
+		
 		for (uint32_t i { 0 }; i < aFormats.size(); ++i)
 		{
 			if (Utils::IsDepth(aFormats[i]))
 				continue;
 
-			VkPipelineColorBlendAttachmentState& colorBlendAttachment{ colorBlendAttachments.emplace_back() };
-			colorBlendAttachment.colorWriteMask = mProperties.blend ? VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT : VK_COLOR_COMPONENT_R_BIT;
-			colorBlendAttachment.blendEnable = mProperties.blend;
-			colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-			colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-			colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
-			colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-			colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-			colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+			colorBlendAttachments.push_back(GetBlendState(mProperties.BlendState));
 		}
 
 		VkPipelineColorBlendStateCreateInfo colorBlending
@@ -281,39 +370,28 @@ namespace Ilargi
 			{ 0.0f, 0.0f, 0.0f, 0.0f }									// blendConstants
 		};
 
-		if (mProperties.writeDepth || mProperties.testDepth)
+		if (mProperties.DepthState.Enabled)
 		{
 			VkPipelineDepthStencilStateCreateInfo depthStencil
 			{
 				VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO, // sType
 				nullptr,													// pNext
 				0,															// flags
-				mProperties.testDepth,										// depthTestEnable
-				mProperties.writeDepth,										// depthWriteEnable
+				mProperties.DepthState.Test,								// depthTestEnable
+				mProperties.DepthState.Write,								// depthWriteEnable
 				VK_COMPARE_OP_LESS,											// depthCompareOp
 				VK_FALSE,													// depthBoundsTestEnable
-				mProperties.hasStencil,										// stencilTestEnable
+				mProperties.DepthState.StencilState.Enabled,				// stencilTestEnable
 				{},															// front
 				{},															// back
 				0.0f,														// minDepthBounds
 				1.0f														// maxDepthBounds
 			};
 
-			if (mProperties.hasStencil)
+			if (mProperties.DepthState.StencilState.Enabled)
 			{
-				VkStencilOpState stencilWrite
-				{
-					VK_STENCIL_OP_KEEP,															//failOp
-					mProperties.writeStencil ? VK_STENCIL_OP_REPLACE : VK_STENCIL_OP_KEEP,		//passOp
-					VK_STENCIL_OP_KEEP,															//depthFailOp
-					mProperties.writeStencil ? VK_COMPARE_OP_ALWAYS : VK_COMPARE_OP_NOT_EQUAL,	//compareOp
-					0xFFU,																		//compareMask
-					mProperties.writeStencil ? 0xFFU : 0x00U,									//writeMask
-					1U																			//reference
-				};
-
-				depthStencil.front = stencilWrite;
-				depthStencil.back = stencilWrite;
+				depthStencil.front = GetStencilOpState(mProperties.DepthState.StencilState.Front);
+				depthStencil.back = GetStencilOpState(mProperties.DepthState.StencilState.Back);
 			}
 			pipelineInfo.pDepthStencilState = &depthStencil;
 		}
@@ -330,38 +408,37 @@ namespace Ilargi
 		pipelineInfo.pColorBlendState = &colorBlending;
 		pipelineInfo.pDynamicState = &dynamicState;
 
-		pipelineInfo.layout = VulkanContext::GetPipelineLayout();
+		pipelineInfo.layout = shader->GetPipelineLayout();
 
-		pipelineInfo.renderPass = aRenderPass;
+		pipelineInfo.renderPass = Renderer::GetRenderPass({aFormats, true})->As<VulkanRenderPass>()->GetRenderPass();
 		pipelineInfo.subpass = 0;
 
 		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 		pipelineInfo.basePipelineIndex = -1;
 
-		VK_CHECK_RESULT(vkCreateGraphicsPipelines(device, pipelineCache, 1, &pipelineInfo, nullptr, &mPipeline));
+		VK_CHECK_RESULT(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &mPipeline));
 
-		if (!std::filesystem::exists(pipelineCacheFilepath))
-		{
-			size_t pipelineSize;
-			VK_CHECK_RESULT(vkGetPipelineCacheData(device, pipelineCache, &pipelineSize, nullptr));
+		//if (!std::filesystem::exists(pipelineCacheFilepath))
+		//{
+		//	size_t pipelineSize;
+		//	VK_CHECK_RESULT(vkGetPipelineCacheData(device, pipelineCache, &pipelineSize, nullptr));
 
-			char* data = new char[pipelineSize];
-			VK_CHECK_RESULT(vkGetPipelineCacheData(device, pipelineCache, &pipelineSize, data));
+		//	char* data = new char[pipelineSize];
+		//	VK_CHECK_RESULT(vkGetPipelineCacheData(device, pipelineCache, &pipelineSize, data));
 
-			BinaryWriter writer(pipelineCacheFilepath);
-			writer.Write(data, pipelineSize);
+		//	BinaryWriter writer(pipelineCacheFilepath);
+		//	writer.Write(data, pipelineSize);
 
-			delete[] data;
-		}
+		//	delete[] data;
+		//}
 
-		vkDestroyPipelineCache(device, pipelineCache, nullptr);
+		//vkDestroyPipelineCache(device, pipelineCache, nullptr);
 	}
 
 	void VulkanPipeline::Destroy()
 	{
 		auto device{ VulkanContext::GetLogicalDevice() };
 
-		mProperties.shader->Destroy();
 		vkDestroyPipeline(device, mPipeline, nullptr);
 	}
 
@@ -372,7 +449,7 @@ namespace Ilargi
 				const uint32_t currentFrame{ Renderer::GetCurrentFrame() };
 
 				const VkCommandBuffer cmdBuffer{ aCommandBuffer->As<VulkanCommandBuffer>()->GetCurrentCommand(currentFrame) };
-				vkCmdPushConstants(cmdBuffer, VulkanContext::GetPipelineLayout(), VK_SHADER_STAGE_ALL_GRAPHICS, aOffset, aSize, aData);
+				vkCmdPushConstants(cmdBuffer, Renderer::GetShader(mProperties.ShaderName)->As<VulkanShader>()->GetPipelineLayout(), VK_SHADER_STAGE_ALL_GRAPHICS, aOffset, aSize, aData);
 			});
 	}
 
@@ -395,7 +472,7 @@ namespace Ilargi
 
 				const VkCommandBuffer cmdBuffer { aCommandBuffer->As<VulkanCommandBuffer>()->GetCurrentCommand(currentFrame) };
 				std::vector<VkDescriptorSet> descriptorSets { aMaterial->As<VulkanMaterial>()->GetDescriptorSet()};
-				vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, VulkanContext::GetPipelineLayout(), aSetIndex, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
+				vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, Renderer::GetShader(mProperties.ShaderName)->As<VulkanShader>()->GetPipelineLayout(), aSetIndex, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
 			});
 	}
 
@@ -407,7 +484,83 @@ namespace Ilargi
 
 				const VkCommandBuffer cmdBuffer { aCommandBuffer->As<VulkanCommandBuffer>()->GetCurrentCommand(currentFrame) };
 				std::vector<VkDescriptorSet> descriptorSets { aUniformBuffer->As<VulkanUniformBuffer>()->GetDescriptorSet() };
-				vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, VulkanContext::GetPipelineLayout(), aSetIndex, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
+				vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, Renderer::GetShader(mProperties.ShaderName)->As<VulkanShader>()->GetPipelineLayout(), aSetIndex, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
 			});
+	}
+	
+	VkPipelineDepthStencilStateCreateInfo VulkanPipeline::GetDepthStencilState(const DepthState& aDepthState)
+	{
+		VkPipelineDepthStencilStateCreateInfo depthStencil
+		{
+			VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
+			nullptr,
+			0,
+			aDepthState.Test,
+			aDepthState.Write,
+			Utils::GetVulkanCompareOp(aDepthState.CompareOp),
+			VK_FALSE,
+			aDepthState.StencilState.Enabled,
+			GetStencilOpState(aDepthState.StencilState.Front),
+			GetStencilOpState(aDepthState.StencilState.Back),
+			0.0f,
+			1.0f
+		};
+
+		return depthStencil;
+	}
+
+	VkStencilOpState VulkanPipeline::GetStencilOpState(const StencilFaceState& aStencilState)
+	{
+		VkStencilOpState stencilState
+		{
+			Utils::GetVulkanStencilOp(aStencilState.FailOp),
+			Utils::GetVulkanStencilOp(aStencilState.PassOp),
+			Utils::GetVulkanStencilOp(aStencilState.DepthFailOp),
+			Utils::GetVulkanCompareOp(aStencilState.CompareOp),
+			aStencilState.CompareMask,
+			aStencilState.WriteMask,
+			aStencilState.Reference
+		};
+
+		return stencilState;
+	}
+	
+	VkPipelineRasterizationStateCreateInfo VulkanPipeline::GetRasterizationState(const RasterState& aRasterState)
+	{
+		VkPipelineRasterizationStateCreateInfo rasterizer
+		{
+			VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
+			nullptr,
+			0,
+			aRasterState.DepthClamp,
+			VK_FALSE,
+			Utils::GetVulkanFillMode(aRasterState.Fill),
+			Utils::GetVulkanCullMode(aRasterState.Cull),
+			Utils::GetVulkanFrontFace(aRasterState.FrontFace),
+			aRasterState.DepthBias,
+			0.0f,
+			0.0f,
+			0.0f,
+			1.0f
+		};
+
+		return rasterizer;
+	}
+
+	VkPipelineColorBlendAttachmentState VulkanPipeline::GetBlendState(const BlendState& aBlendState)
+	{
+		VkPipelineColorBlendAttachmentState colorBlendState
+		{
+			aBlendState.Enabled,
+			Utils::GetVulkanBlendFactor(aBlendState.SrcColor),
+			Utils::GetVulkanBlendFactor(aBlendState.DstColor),
+			Utils::GetVulkanBlendOp(aBlendState.ColorOp),
+			Utils::GetVulkanBlendFactor(aBlendState.SrcAlpha),
+			Utils::GetVulkanBlendFactor(aBlendState.DstAlpha),
+			Utils::GetVulkanBlendOp(aBlendState.AlphaOp),
+			Utils::GetVulkanColorMask(aBlendState.ColorMask)
+		};
+
+		return colorBlendState;
 	}
 }
