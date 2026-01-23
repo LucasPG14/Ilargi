@@ -32,7 +32,7 @@ namespace Ilargi
 			attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 			attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 			
-			attachment.stencilLoadOp = mProperties.ClearValues ? VK_ATTACHMENT_LOAD_OP_DONT_CARE : VK_ATTACHMENT_LOAD_OP_LOAD;
+			attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 			attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
 			
 			attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -127,7 +127,7 @@ namespace Ilargi
 						{ 0, 0 },									// offset
 						{ width, height }							// extent
 					},
-					mProperties.ClearValues ? static_cast<uint32_t>(mClearValues.size()) : 0,	// clearValueCount 
+					static_cast<uint32_t>(mClearValues.size()),	// clearValueCount 
 					mClearValues.data()							// pClearValues 
 				};
 

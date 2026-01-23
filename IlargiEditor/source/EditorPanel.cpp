@@ -63,7 +63,6 @@ namespace Ilargi
 		//			{ ShaderDataType::FLOAT3_32, "position" },
 		//			{ ShaderDataType::FLOAT3_32, "normal" },
 		//			{ ShaderDataType::FLOAT3_32, "tangent" },
-		//			{ ShaderDataType::FLOAT3_32, "bitangent" },
 		//			{ ShaderDataType::FLOAT2_32, "texCoord" },
 		//		},
 		//		1U,
@@ -86,7 +85,6 @@ namespace Ilargi
 		//			{ ShaderDataType::FLOAT3_32, "position" },
 		//			{ ShaderDataType::FLOAT3_32, "normal" },
 		//			{ ShaderDataType::FLOAT3_32, "tangent" },
-		//			{ ShaderDataType::FLOAT3_32, "bitangent" },
 		//			{ ShaderDataType::FLOAT2_32, "texCoord" },
 		//		},
 		//		1U,
@@ -113,8 +111,6 @@ namespace Ilargi
 		mFramebuffer->Destroy();
 		mMousePickingFramebuffer->Destroy();
 
-		//mOutlinePipeline->Destroy();
-
 		//mMousePickingPipeline->Destroy();
 
 		mCommandBuffer->Destroy();
@@ -136,7 +132,7 @@ namespace Ilargi
 				mNeedToUpdateFramebuffer = false;
 			}
 
-			const auto& RenderPass{ Renderer::GetRenderPass({ mFramebuffer->GetProperties().Formats, true }) };
+			const auto& RenderPass{ Renderer::GetRenderPass({mFramebuffer->GetProperties().Formats}) };
 			RenderPass->BeginRenderPass(mCommandBuffer, mFramebuffer);
 
 			mCamera.Update(aDeltaTime);
@@ -147,46 +143,59 @@ namespace Ilargi
 
 			DrawGrid();
 			DrawGeometry();
-			//DrawOutline();
+			DrawOutline();
 
 			RenderPass->EndRenderPass(mCommandBuffer);
 
-			//mRenderPass->EndRenderPass(mCommandBuffer);
+	
 
-			//const auto& trView{ mScene->GetWorld().view<TransformComponent, StaticMeshComponent>() };
-			//if (Input::IsMouseButtonPressed(MouseCode::LEFT) && trView.begin() != trView.end())
-			//{
-			//	glm::vec2 mousePos{ Input::GetMousePos() };
-			//	float mouseX { mousePos.x - mViewportPosition.x };
-			//	float mouseY { mousePos.y - mViewportPosition.y };
-			//	if (mouseX > 0 && mouseY > 0 && mouseX <= mViewportSize.x && mouseY <= mViewportSize.y)
-			//	{
-			//		mouseX = mouseX / mViewportSize.x;
-			//		mouseY = mouseY / mViewportSize.y;
-			//		mMousePickingRenderPass->BeginRenderPass(mCommandBuffer, mMousePickingFramebuffer);
-			//		mMousePickingPipeline->Bind(mCommandBuffer);
+			const auto& trView{ mScene->GetWorld().view<TransformComponent, StaticMeshComponent>() };
+			if (Input::IsMouseButtonPressed(MouseCode::LEFT) && trView.begin() != trView.end())
+			{
+				glm::vec2 mousePos{ Input::GetMousePos() };
+				int mouseX { static_cast<int>(mousePos.x - mViewportPosition.x) };
+				int mouseY { static_cast<int>(mousePos.y - mViewportPosition.y) };
+				if (mouseX > 0 && mouseY > 0 && mouseX <= mViewportSize.x && mouseY <= mViewportSize.y)
+				{					
+					const auto& MousePickingRenderPass{ Renderer::GetRenderPass({ mMousePickingFramebuffer->GetProperties().Formats }) };
+					MousePickingRenderPass->BeginRenderPass(mCommandBuffer, mMousePickingFramebuffer);
+					
+					BlendState blendState;
+					blendState.ColorMask = ColorMask::NONE;
+					blendState.Enabled = false;
 
-			//		ShaderStage stage{ ShaderStage(3) };
-			//		for (auto entity : trView)
-			//		{
-			//			auto [transform, meshComponent] { trView.get<TransformComponent, StaticMeshComponent>(entity)};
+					DepthState depthState;
+					depthState.Write = false;
+					depthState.StencilState.Enabled = false;
 
-			//			for (uint32_t index{ 0U }; index < meshComponent.submeshes.size(); ++index)
-			//			{
-			//				mMousePickingPipeline->BindUniformBuffer(mCommandBuffer, mScene->GetSceneDataUBO(), 0);
-			//				mMousePickingPipeline->PushConstants(mCommandBuffer, stage, 0, 64, glm::value_ptr(transform.worldTransform));
-			//				mMousePickingPipeline->PushConstants(mCommandBuffer, stage, 64, 4, &entity);
-			//				Renderer::SubmitGeometry(mCommandBuffer, std::static_pointer_cast<StaticMesh>(ResourceManager::GetResource(meshComponent.submeshes[index].mesh)));
-			//			}
-			//		}
+					const auto& Pipeline{ Renderer::GetPipeline({"MousePicking", {{ ShaderDataType::FLOAT3_32, "position" },
+									{ ShaderDataType::FLOAT3_32, "normal" },
+									{ ShaderDataType::FLOAT4_32, "tangent" },
+									{ ShaderDataType::FLOAT2_32, "texCoord" },}, { ImageFormat::RED32_UINT }, {}, {}, blendState, 1}) };
+					
+					Pipeline->Bind(mCommandBuffer);
 
-			//		mMousePickingRenderPass->EndRenderPass(mCommandBuffer);
+					ShaderStage stage{ ShaderStage(3) };
+					for (const auto& entity : trView)
+					{
+						auto [transform, meshComponent] { trView.get<TransformComponent, StaticMeshComponent>(entity)};
 
-			//		uint32_t objectID{ mMousePickingFramebuffer->ReadFramebufferPixel(mouseX, mouseY) };
+						for (uint32_t index{ 0U }; index < meshComponent.submeshes.size(); ++index)
+						{
+							Pipeline->BindUniformBuffer(mCommandBuffer, mScene->GetSceneDataUBO(), 0);
+							Pipeline->PushConstants(mCommandBuffer, stage, 0, 64, glm::value_ptr(transform.worldTransform));
+							Pipeline->PushConstants(mCommandBuffer, stage, 64, 4, &entity);
+							Renderer::SubmitGeometry(mCommandBuffer, std::static_pointer_cast<StaticMesh>(ResourceManager::GetResource(meshComponent.submeshes[index].mesh)));
+						}
+					}
 
-			//		mHierarchyInspector->SetSelected(objectID);
-			//	}
-			//}
+					MousePickingRenderPass->EndRenderPass(mCommandBuffer);
+
+					uint32_t objectID{ mMousePickingFramebuffer->ReadFramebufferPixel(mouseX, mouseY) };
+
+					mHierarchyInspector->SetSelected(objectID);
+				}
+			}
 			break;
 		}
 		case EditorMode::PLAY:
@@ -285,17 +294,15 @@ namespace Ilargi
 	void EditorPanel::DrawGeometry()
 	{
 		DepthState depthState {true, true, true, CompareOp::LESS};
-		depthState.StencilState.Enabled = true;
-		depthState.StencilState.Back = { CompareOp::ALWAYS, StencilOp::REPLACE, StencilOp::KEEP, StencilOp::KEEP, 0xFFU, 0xFFU, 1U };
-		depthState.StencilState.Front = { CompareOp::ALWAYS, StencilOp::REPLACE, StencilOp::KEEP, StencilOp::KEEP, 0xFFU, 0xFFU, 1U };
+		depthState.StencilState.Enabled = false;
 
 		RasterState rasterState { CullMode::NONE, FillMode::FILL, FrontFace::COUNTER_CLOCKWISE, false, false };
 
-		const std::shared_ptr<Pipeline>& Pipeline{ Renderer::GetPipeline({"PBR_Static", {{ ShaderDataType::FLOAT3_32, "position" },
-						{ ShaderDataType::FLOAT3_32, "normal" },
-						{ ShaderDataType::FLOAT3_32, "tangent" },
-						{ ShaderDataType::FLOAT3_32, "bitangent" },
-						{ ShaderDataType::FLOAT2_32, "texCoord" }}, { ImageFormat::RGBA8, ImageFormat::DEPTH24_STENCIL8 }, rasterState, depthState, {}, 1}) };
+		const std::shared_ptr<Pipeline>& Pipeline{ Renderer::GetPipeline({"PBR_Static", {
+			{ ShaderDataType::FLOAT3_32, "position" },
+			{ ShaderDataType::FLOAT3_32, "normal" },
+			{ ShaderDataType::FLOAT4_32, "tangent" },
+			{ ShaderDataType::FLOAT2_32, "texCoord" }}, { ImageFormat::RGBA8, ImageFormat::DEPTH24_STENCIL8 }, rasterState, depthState, {}, 1}) };
 		
 		Pipeline->Bind(mCommandBuffer);
 		auto ent{ *mScene->GetWorld().view<TransformComponent, DirectionalLightComponent>().begin() };
@@ -321,27 +328,78 @@ namespace Ilargi
 
 	void EditorPanel::DrawOutline()
 	{
-		// TODO: MESHES
 		Entity selectedEntity{ mHierarchyInspector->GetSelected() };
 		if (selectedEntity != entt::null && mScene->GetWorld().try_get<StaticMeshComponent>(selectedEntity))
 		{
-			mOutlinePipeline->Bind(mCommandBuffer);
-
-			const auto&& [transform, meshComponent] { mScene->GetWorld().get<TransformComponent, StaticMeshComponent>(selectedEntity)};
-			
-			glm::vec3 position, rotation, scale;
-			ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(transform.worldTransform), glm::value_ptr(position), glm::value_ptr(rotation), glm::value_ptr(scale));
-			mStencilMatrix = glm::translate(glm::mat4(1.0), position) * glm::eulerAngleXYZ(glm::radians(rotation.x), glm::radians(rotation.y), glm::radians(rotation.z));
-			mStencilMatrix = glm::scale(mStencilMatrix, scale * 1.05f);
-
-			mOutlinePipeline->BindUniformBuffer(mCommandBuffer, mScene->GetSceneDataUBO(), 0);
-			mOutlinePipeline->PushConstants(mCommandBuffer, VERTEX_SHADER, 0, 64, glm::value_ptr(mStencilMatrix));
-
-			for (const auto& submesh : meshComponent.submeshes)
+			// Write stencil
 			{
-				const auto& mesh{ std::static_pointer_cast<StaticMesh>(ResourceManager::GetResource(submesh.mesh)) };
+				BlendState blendState;
+				blendState.Enabled = false;
+				blendState.ColorMask = ColorMask::NONE;
 
-				Renderer::SubmitGeometry(mCommandBuffer, mesh);
+				DepthState writeStencilDepthState{ true, false, true, CompareOp::LESS };
+				writeStencilDepthState.StencilState.Enabled = true;
+				writeStencilDepthState.StencilState.Back = { CompareOp::ALWAYS, StencilOp::REPLACE, StencilOp::KEEP, StencilOp::KEEP, 0xFFU, 0xFFU, 1U };
+				writeStencilDepthState.StencilState.Front = { CompareOp::ALWAYS, StencilOp::REPLACE, StencilOp::KEEP, StencilOp::KEEP, 0xFFU, 0xFFU, 1U };
+
+				RasterState rasterState{ CullMode::NONE, FillMode::FILL, FrontFace::COUNTER_CLOCKWISE, false, false };
+
+				const std::shared_ptr<Pipeline>& Pipeline{ Renderer::GetPipeline({"Outline", {
+					{ ShaderDataType::FLOAT3_32, "position" },
+					{ ShaderDataType::FLOAT3_32, "normal" },
+					{ ShaderDataType::FLOAT4_32, "tangent" },
+					{ ShaderDataType::FLOAT2_32, "texCoord" }}, { ImageFormat::RGBA8, ImageFormat::DEPTH24_STENCIL8 }, rasterState, writeStencilDepthState, blendState, 1}) };
+
+
+
+				Pipeline->Bind(mCommandBuffer);
+
+				const auto&& [transform, meshComponent] { mScene->GetWorld().get<TransformComponent, StaticMeshComponent>(selectedEntity)};
+
+				Pipeline->BindUniformBuffer(mCommandBuffer, mScene->GetSceneDataUBO(), 0);
+				Pipeline->PushConstants(mCommandBuffer, VERTEX_SHADER, 0, 64, glm::value_ptr(transform.worldTransform));
+
+				for (const auto& submesh : meshComponent.submeshes)
+				{
+					const auto& mesh{ std::static_pointer_cast<StaticMesh>(ResourceManager::GetResource(submesh.mesh)) };
+
+					Renderer::SubmitGeometry(mCommandBuffer, mesh);
+				}
+			}
+
+			// Read Stencil
+			{
+				DepthState readStencilDepthState{ true, false, false, CompareOp::LESS_EQUAL };
+				readStencilDepthState.StencilState.Enabled = true;
+				readStencilDepthState.StencilState.Back = { CompareOp::NOT_EQUAL, StencilOp::KEEP, StencilOp::KEEP, StencilOp::KEEP, 0xFFU, 0x00U, 1U };
+				readStencilDepthState.StencilState.Front = { CompareOp::NOT_EQUAL, StencilOp::KEEP, StencilOp::KEEP, StencilOp::KEEP, 0xFFU, 0x00U, 1U };
+
+				RasterState rasterState{ CullMode::NONE, FillMode::FILL, FrontFace::COUNTER_CLOCKWISE, false, false };
+
+				const std::shared_ptr<Pipeline>& Pipeline{ Renderer::GetPipeline({"Outline", {
+					{ ShaderDataType::FLOAT3_32, "position" },
+					{ ShaderDataType::FLOAT3_32, "normal" },
+					{ ShaderDataType::FLOAT4_32, "tangent" },
+					{ ShaderDataType::FLOAT2_32, "texCoord" }}, { ImageFormat::RGBA8, ImageFormat::DEPTH24_STENCIL8 }, rasterState, readStencilDepthState, {}, 1}) };
+
+				Pipeline->Bind(mCommandBuffer);
+
+				const auto&& [transform, meshComponent] { mScene->GetWorld().get<TransformComponent, StaticMeshComponent>(selectedEntity)};
+
+				glm::vec3 position, rotation, scale;
+				ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(transform.worldTransform), glm::value_ptr(position), glm::value_ptr(rotation), glm::value_ptr(scale));
+				mStencilMatrix = glm::translate(glm::mat4(1.0), position) * glm::eulerAngleXYZ(glm::radians(rotation.x), glm::radians(rotation.y), glm::radians(rotation.z));
+				mStencilMatrix = glm::scale(mStencilMatrix, scale * 1.03f);
+
+				Pipeline->BindUniformBuffer(mCommandBuffer, mScene->GetSceneDataUBO(), 0);
+				Pipeline->PushConstants(mCommandBuffer, VERTEX_SHADER, 0, 64, glm::value_ptr(mStencilMatrix));
+
+				for (const auto& submesh : meshComponent.submeshes)
+				{
+					const auto& mesh{ std::static_pointer_cast<StaticMesh>(ResourceManager::GetResource(submesh.mesh)) };
+
+					Renderer::SubmitGeometry(mCommandBuffer, mesh);
+				}
 			}
 		}
 	}

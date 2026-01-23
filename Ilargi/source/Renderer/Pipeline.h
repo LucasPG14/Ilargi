@@ -188,6 +188,7 @@ namespace Ilargi
 
 	enum class ColorMask : uint8_t
 	{
+		NONE,
 		R,
 		RG,
 		RGB,
