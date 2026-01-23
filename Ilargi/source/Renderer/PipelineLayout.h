@@ -6,6 +6,11 @@ namespace Ilargi
 {
 	struct PushConstantRange
 	{
+		bool operator==(const PushConstantRange& aPushConstant) const
+		{
+			return Size == aPushConstant.Size && Offset == aPushConstant.Offset && Stage == aPushConstant.Stage;
+		}
+
 		uint32_t Size{0U};
 		uint32_t Offset {0U};
 		ShaderStage Stage;
@@ -15,7 +20,8 @@ namespace Ilargi
 	{
 		bool operator==(const PipelineLayoutProperties& aProperties) const
 		{
-			return DescriptorSetLayoutsProperties == aProperties.DescriptorSetLayoutsProperties;
+			return DescriptorSetLayoutsProperties == aProperties.DescriptorSetLayoutsProperties && 
+				PushConstantRanges == aProperties.PushConstantRanges;
 		}
 
 		std::vector<DescriptorSetLayoutProperties> DescriptorSetLayoutsProperties;
@@ -50,6 +56,19 @@ namespace Ilargi
 namespace std
 {
 	template<>
+	struct hash<Ilargi::PushConstantRange>
+	{
+		size_t operator()(const Ilargi::PushConstantRange& aPushConstant) const
+		{
+			size_t h{ hash<uint32_t>{}(aPushConstant.Size) };
+			h ^= hash<uint32_t>{}(aPushConstant.Offset) << 1;
+			h ^= hash<int>{}(static_cast<int>(aPushConstant.Stage)) << 2;
+
+			return h;
+		}
+	};
+
+	template<>
 	struct hash<Ilargi::PipelineLayoutProperties>
 	{
 		size_t operator()(const Ilargi::PipelineLayoutProperties& aProperties) const
@@ -57,6 +76,8 @@ namespace std
 			size_t h{};
 			for (const auto& DescriptorBinding : aProperties.DescriptorSetLayoutsProperties)
 				h ^= hash<Ilargi::DescriptorSetLayoutProperties>{}(DescriptorBinding);
+			for (const auto& PushConstant : aProperties.PushConstantRanges)
+				h ^= hash<Ilargi::PushConstantRange>{}(PushConstant) << 1;
 
 			return h;
 		}

@@ -11,7 +11,6 @@ namespace Ilargi
 	struct RenderPassProperties
 	{
 		std::vector<ImageFormat> Formats;
-		bool ClearValues;
 
 		bool operator==(const RenderPassProperties& aProperties) const
 		{
@@ -77,7 +76,6 @@ struct std::hash<Ilargi::RenderPassProperties>
 		for (const auto& format : aProperties.Formats)
 			h ^= std::hash<int>{}(static_cast<int>(format));
 
-		h ^= std::hash<bool>{}(aProperties.ClearValues) << 1;
 		return h;
 	}
 };

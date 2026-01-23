@@ -129,15 +129,21 @@ namespace Ilargi
 		meshHeader.verticesCount = aMesh->mNumVertices;
 		meshHeader.indicesCount = aMesh->mNumFaces * 3;
 		vertices.reserve(meshHeader.verticesCount);
-		vertices.reserve(meshHeader.indicesCount);
+		indices.reserve(meshHeader.indicesCount);
+
+		glm::vec3 bitangent;
+		glm::vec3 tangent;
 
 		for (uint32_t vertexIndex{ 0U }; vertexIndex < meshHeader.verticesCount; ++vertexIndex)
 		{
 			StaticVertex& vertex{ vertices.emplace_back() };
 			vertex.position = glm::vec3(aMesh->mVertices[vertexIndex].x, aMesh->mVertices[vertexIndex].y, aMesh->mVertices[vertexIndex].z);
 			vertex.normal = glm::vec3(aMesh->mNormals[vertexIndex].x, aMesh->mNormals[vertexIndex].y, aMesh->mNormals[vertexIndex].z);
-			vertex.tangent = glm::vec3(aMesh->mTangents[vertexIndex].x, aMesh->mTangents[vertexIndex].y, aMesh->mTangents[vertexIndex].z);
-			vertex.bitangent = glm::vec3(aMesh->mBitangents[vertexIndex].x, aMesh->mBitangents[vertexIndex].y, aMesh->mBitangents[vertexIndex].z);
+			
+			bitangent = glm::vec3(aMesh->mBitangents[vertexIndex].x, aMesh->mBitangents[vertexIndex].y, aMesh->mBitangents[vertexIndex].z);
+			tangent = glm::vec3(aMesh->mTangents[vertexIndex].x, aMesh->mTangents[vertexIndex].y, aMesh->mTangents[vertexIndex].z);
+			
+			vertex.tangent = glm::vec4(tangent, (glm::dot(glm::cross(vertex.normal, tangent), bitangent) < 0.0f) ? -1.0f : 1.0f);
 			vertex.texCoord = glm::vec2(aMesh->mTextureCoords[0][vertexIndex].x, aMesh->mTextureCoords[0][vertexIndex].y);
 		}
 

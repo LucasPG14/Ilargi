@@ -166,6 +166,7 @@ namespace Ilargi
 		{
 			switch (aColorMask)
 			{
+			case ColorMask::NONE:	return 0;
 			case ColorMask::R:		return VK_COLOR_COMPONENT_R_BIT;
 			case ColorMask::RG:		return VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT;
 			case ColorMask::RGB:	return VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT;
@@ -410,7 +411,7 @@ namespace Ilargi
 
 		pipelineInfo.layout = shader->GetPipelineLayout();
 
-		pipelineInfo.renderPass = Renderer::GetRenderPass({aFormats, true})->As<VulkanRenderPass>()->GetRenderPass();
+		pipelineInfo.renderPass = Renderer::GetRenderPass({aFormats})->As<VulkanRenderPass>()->GetRenderPass();
 		pipelineInfo.subpass = 0;
 
 		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;

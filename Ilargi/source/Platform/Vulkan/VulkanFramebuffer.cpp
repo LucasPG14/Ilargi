@@ -136,7 +136,7 @@ namespace Ilargi
 			attachments.push_back(mDepthAttachment.imageView);
 		}
 
-		const VkRenderPass& renderPass{ Renderer::GetRenderPass({mProperties.Formats, true})->As<VulkanRenderPass>()->GetRenderPass() };
+		const VkRenderPass& renderPass{ Renderer::GetRenderPass({mProperties.Formats})->As<VulkanRenderPass>()->GetRenderPass() };
 		// Creating the framebuffer
 		{
 			VkFramebufferCreateInfo framebufferInfo
@@ -307,7 +307,6 @@ namespace Ilargi
 		VulkanBuffer stagingBuffer;
 		VmaAllocationInfo allocationInfo{};
 		VulkanAllocator::AllocateBuffer(stagingBuffer, stagingBufferInfo, VMA_MEMORY_USAGE_CPU_ONLY, &allocationInfo);
-
 
 		VkBufferImageCopy region;
 		region.bufferOffset = 0;
