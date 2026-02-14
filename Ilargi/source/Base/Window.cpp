@@ -30,6 +30,7 @@ namespace Ilargi
 
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 		glfwWindowHint(GLFW_MAXIMIZED, mProperties.fullscreen);
+		glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
 
 		GLFWmonitor* primaryMonitor{ glfwGetPrimaryMonitor() };
 		const GLFWvidmode* videoMode{ glfwGetVideoMode(primaryMonitor) };
@@ -41,6 +42,8 @@ namespace Ilargi
 
 		ILG_ASSERT(mWindow, "Error while creating the GLFW window");
 		
+		glfwShowWindow(mWindow);
+
 		if (!mProperties.fullscreen)
 			glfwSetWindowPos(mWindow, (int)(monitorX + (videoMode->width - mProperties.width) * 0.5f), (int)(monitorY + (videoMode->height - mProperties.height) * 0.5f));
 
@@ -91,6 +94,27 @@ namespace Ilargi
 		glfwPollEvents();
 	}
 	
+	void Window::MaximizeWindow()
+	{
+		if (glfwGetWindowAttrib(mWindow, GLFW_MAXIMIZED))
+			glfwRestoreWindow(mWindow);
+		else
+			glfwMaximizeWindow(mWindow);
+	}
+
+	void Window::MinimizeWindow()
+	{
+		glfwIconifyWindow(mWindow);
+	}
+
+	void Window::SetWindowPosition(int aX, int aY)
+	{
+		int x {0};
+		int y {0};
+		glfwGetWindowPos(mWindow, &x, &y);
+		glfwSetWindowPos(mWindow, x + aX, y + aY);
+	}
+
 	void Window::SettingCallbacks() const
 	{
 		// ---------------------------------Setting the close callback---------------------------------------

@@ -50,4 +50,9 @@ namespace Ilargi
 
 		return std::string();
 	}
+
+	void FileSystem::OpenWeb(const std::wstring& aURL)
+	{
+		ShellExecute(0, 0, aURL.data(), 0, 0, SW_SHOW);
+	}
 }

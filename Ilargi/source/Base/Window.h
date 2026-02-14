@@ -66,6 +66,23 @@ namespace Ilargi
 		*/
 		[[nodiscard]] const std::shared_ptr<Swapchain> GetSwapchain() const { return mSwapchain; }
 
+		/*
+		* @brief Sets the maximum size for the window or restores the last one.
+		*/
+		void MaximizeWindow();
+
+		/*
+		* @brief Minimizes the window.
+		*/
+		void MinimizeWindow();
+
+		/*
+		* @brief Sets the window position with the x and y specified.
+		* @param aX The new x position for the window.
+		* @param aY The new y position for the window.
+		*/
+		void SetWindowPosition(int aX, int aY);
+
 	private:
 		/*
 		* @brief Sets all the callbacks needed for the application.

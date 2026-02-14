@@ -116,6 +116,8 @@ namespace Ilargi
 		*/
 		bool OnKeyEvent(KeyPressedEvent& aEvent);
 	private:
+		std::shared_ptr<Texture2D> mAppIcon; // Application icon for the editor.
+
 		std::shared_ptr<Scene> mScene; // Instance of the scene.
 		std::shared_ptr<CommandBuffer> mCommandBuffer; // Instance of the editor command buffer.
 
