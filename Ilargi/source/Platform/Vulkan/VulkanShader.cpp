@@ -1,7 +1,7 @@
 #include "ilargipch.h"
 
 #include "VulkanShader.h"
-#include "VulkanContext.h"
+#include "VulkanGraphicsContext.h"
 #include "Renderer/Renderer.h"
 #include "VulkanUtils.h"
 
@@ -105,6 +105,26 @@ namespace Ilargi
 			if (!std::filesystem::exists(cacheDirectory))
 				std::filesystem::create_directories(cacheDirectory);
 		}
+
+		const ShaderDataType GetShaderDataTypeFromSPIRV(const spirv_cross::SPIRType& aType)
+		{
+			switch (aType.basetype)
+			{
+			case spirv_cross::SPIRType::BaseType::Float:  
+			{
+				switch (aType.vecsize)
+				{
+				case 1:	return ShaderDataType::FLOAT_32;
+				case 2:	return ShaderDataType::FLOAT2_32;
+				case 3:	return ShaderDataType::FLOAT3_32;
+				case 4:	return ShaderDataType::FLOAT4_32;
+				}	
+			}
+			}
+
+			ILG_ASSERT(false, "");
+			return ShaderDataType::NONE;
+		}
 	}
 
 	VulkanShader::VulkanShader(std::string_view aFilepath) : mFilepath(aFilepath), mName(std::filesystem::path(aFilepath).stem().string())
@@ -114,7 +134,7 @@ namespace Ilargi
 		Utils::CreateShaderCacheDirectory();
 		const auto& directory{ Utils::GetShaderCacheDirectory() };
 
-		auto device{ VulkanContext::GetLogicalDevice() };
+		const VkDevice& device{ VulkanGraphicsContext::GetLogicalDevice() };
 
 		auto nonCacheFileTime{ std::filesystem::last_write_time(aFilepath) };
 		auto shaderCacheFile{ mName + "_cache_" };
@@ -171,7 +191,7 @@ namespace Ilargi
 	
 	VulkanShader::~VulkanShader()
 	{
-		auto device{ VulkanContext::GetLogicalDevice() };
+		auto device{ VulkanGraphicsContext::GetLogicalDevice() };
 
 		for (auto& [stage, module] : mShaders)
 		{
@@ -189,15 +209,15 @@ namespace Ilargi
 	{
 		ILG_ASSERT(aIndex < mPipelineLayout->GetDescriptorSetLayoutsCount(), "This descriptor set does not exist");
 
-		auto device{ VulkanContext::GetLogicalDevice() };
+		auto device{ VulkanGraphicsContext::GetLogicalDevice() };
 
 		VkDescriptorSetAllocateInfo allocInfo
 		{
-			VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,		// sType
-			nullptr,											// pNext
-			VulkanContext::GetDescriptorPool(),					// descriptorPool
-			1,													// descriptorSetCount
-			&mPipelineLayout->GetDescriptorSetLayout(aIndex)	// pSetLayouts
+			.sType {VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO},
+			.pNext {nullptr},
+			.descriptorPool {VulkanGraphicsContext::GetDescriptorPool()},
+			.descriptorSetCount {1U},
+			.pSetLayouts {&mPipelineLayout->GetDescriptorSetLayout(aIndex)}
 		};
 
 		VK_CHECK_RESULT(vkAllocateDescriptorSets(device, &allocInfo, &aDescriptorSet));
@@ -205,7 +225,7 @@ namespace Ilargi
 	
 	void VulkanShader::ProcessShader()
 	{
-		auto device{ VulkanContext::GetLogicalDevice() };
+		auto device{ VulkanGraphicsContext::GetLogicalDevice() };
 
 		std::string code{ Utils::ReadFile(mFilepath.data()) };
 
@@ -220,7 +240,7 @@ namespace Ilargi
 			size_t begin{ pos + typeLength + 1 };
 			std::string shader{ code.substr(begin, eol - begin) };
 
-			ILG_ASSERT(shader == "vertex" || shader == "fragment", "Invalid Shader Type");
+			ILG_ASSERT(shader == "vertex" || shader == "fragment" || shader == "compute", "Invalid Shader Type");
 
 			size_t nextLinePosition{ code.find_first_not_of("\r\n", eol) };
 			pos = code.find(type, nextLinePosition);
@@ -251,15 +271,15 @@ namespace Ilargi
 
 	void VulkanShader::CreateShaderModule(VkShaderStageFlagBits aStage, const std::vector<uint32_t>& aCode)
 	{
-		auto device{ VulkanContext::GetLogicalDevice() };
+		auto device{ VulkanGraphicsContext::GetLogicalDevice() };
 
 		VkShaderModuleCreateInfo createInfo
 		{
-			VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,	// sType
-			nullptr,										// pNext
-			0,												// flags
-			4 * aCode.size(),								// codeSize
-			aCode.data()									// pCode
+			.sType {VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO},
+			.pNext {nullptr},
+			.flags {0U},
+			.codeSize {sizeof(uint32_t) * aCode.size()},
+			.pCode {aCode.data()}
 		};
 
 		VkShaderModule shaderModule{ nullptr };
@@ -298,6 +318,24 @@ namespace Ilargi
 		spirv_cross::ShaderResources resources{ compiler.get_shader_resources() };
 
 		// Reflecting push constants
+		if (aStage == VK_SHADER_STAGE_VERTEX_BIT)
+		{
+			mVertexInputsCount = resources.stage_inputs.size();
+			//const auto& stageInputs{ resources.stage_inputs };
+			////mInputFormats.resize(stageInputs.size());
+			//for (const auto& stageInput : stageInputs)
+			//{
+			//	const auto& type{ compiler.get_type(stageInput.type_id) };
+			//	//uint32_t size{ static_cast<uint32_t>(compiler.get_declared_struct_size(type)) };
+
+			//	uint32_t location{ compiler.get_decoration(stageInput.id, spv::DecorationLocation) };
+
+			//	ILG_CORE_TRACE("Vertex Input: {0}", stageInput.name);
+			//	ILG_CORE_TRACE("	Location: {0}", location);
+
+			//	//mInputFormats[location] = Utils::GetShaderDataTypeFromSPIRV(type);
+			//}
+		}
 		
 		const auto& constants{ resources.push_constant_buffers };
 		for (const auto& pushConstant : constants)

@@ -9,7 +9,7 @@
 
 namespace Ilargi
 {
-	std::unique_ptr<ImGuiPanel> ImGuiPanel::Create(GLFWwindow* aWindow, const std::shared_ptr<Swapchain>& aSwapchain)
+	std::unique_ptr<ImGuiPanel> ImGuiPanel::Create(GLFWwindow* aWindow, const std::shared_ptr<ISwapchain>& aSwapchain)
 	{
 		switch (Renderer::GetGraphicsAPI())
 		{

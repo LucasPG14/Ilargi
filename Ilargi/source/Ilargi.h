@@ -1,5 +1,6 @@
 #pragma once
 
+// Base
 #include "Base/Application.h"
 #include "Base/Input.h"
 #include "Base/Panel.h"
@@ -15,19 +16,12 @@
 #include "Scene/Components/Components.h"
 
 // Renderer
-#include "Renderer/CommandBuffer.h"
-#include "Renderer/Framebuffer.h"
-#include "Renderer/IndexBuffer.h"
-#include "Renderer/Pipeline.h"
+#include "Renderer/ICommandBuffer.h"
+#include "Renderer/IFramebuffer.h"
 #include "Renderer/Renderer.h"
-#include "Renderer/RenderPass.h"
-#include "Renderer/Shader.h"
-#include "Renderer/UniformBuffer.h"
-#include "Renderer/VertexBuffer.h"
 
 // Resources
 #include "Resources/ResourceManager.h"
-#include "Resources/Resource.h"
 #include "Resources/Texture.h"
 #include "Resources/Mesh.h"
 #include "Resources/Material.h"

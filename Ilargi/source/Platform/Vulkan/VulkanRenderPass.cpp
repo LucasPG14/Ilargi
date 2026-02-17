@@ -3,18 +3,17 @@
 // Main headers
 #include "VulkanRenderPass.h"
 #include "Renderer/Renderer.h"
-#include "Renderer/Pipeline.h"
 #include "VulkanFramebuffer.h"
 #include "VulkanCommandBuffer.h"
-#include "VulkanPipeline.h"
-#include "VulkanContext.h"
+#include "VulkanGraphicsPipeline.h"
+#include "VulkanGraphicsContext.h"
 #include "VulkanUtils.h"
 
 namespace Ilargi
 {
 	VulkanRenderPass::VulkanRenderPass(const RenderPassProperties& props) : mProperties(props)
 	{
-		auto device{ VulkanContext::GetLogicalDevice() };
+		const VkDevice& device{ VulkanGraphicsContext::GetLogicalDevice() };
 		const std::vector<ImageFormat>& formats{ mProperties.Formats };
 		
 		std::vector<VkAttachmentDescription> attachments;
@@ -56,109 +55,51 @@ namespace Ilargi
 
 		VkSubpassDescription subpass 
 		{
-			0,																							// flags
-			VK_PIPELINE_BIND_POINT_GRAPHICS,															// sType
-			0,																							// inputAttachmentCount
-			nullptr,																					// pInputAttachments
-			static_cast<uint32_t>(colorAttachmentRefs.size()),											// colorAttachmentCount
-			colorAttachmentRefs.data(),																	// pColorAttachments
-			nullptr,																					// pResolveAttachments
-			depthAttachmentRef.layout == VK_IMAGE_LAYOUT_UNDEFINED ? nullptr : &depthAttachmentRef,		// pDepthStencilAttachment
-			0,																							// preserveAttachmentCount
-			nullptr																						// pPreserveAttachments
+			.flags {0U},
+			.pipelineBindPoint {VK_PIPELINE_BIND_POINT_GRAPHICS},
+			.inputAttachmentCount {0U},
+			.pInputAttachments {nullptr},
+			.colorAttachmentCount {static_cast<uint32_t>(colorAttachmentRefs.size())},
+			.pColorAttachments {colorAttachmentRefs.data()},
+			.pResolveAttachments {nullptr},
+			.pDepthStencilAttachment {depthAttachmentRef.layout == VK_IMAGE_LAYOUT_UNDEFINED ? nullptr : &depthAttachmentRef},
+			.preserveAttachmentCount {0U},
+			.pPreserveAttachments {nullptr}
 		};
 
 		VkSubpassDependency dependency
 		{
-			VK_SUBPASS_EXTERNAL,																		// srcSubpass
-			0,																							// dstSubpass
-			VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, // srcStageMask
-			VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, // dstStageMask
-			VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,			// srcAccessMask
-			VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT			// dstAccessMask
+			.srcSubpass {VK_SUBPASS_EXTERNAL},
+			.dstSubpass {0U},
+			.srcStageMask {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT},
+			.dstStageMask {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT},
+			.srcAccessMask {VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT},
+			.dstAccessMask {VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT}
 		};
 
 		VkRenderPassCreateInfo renderPassInfo
 		{
-			VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,	// sType
-			nullptr,									// pNext
-			0,											// flags
-			static_cast<uint32_t>(attachments.size()),	// attachmentCount
-			attachments.data(),							// pAttachments
-			1,											// subpassCount
-			&subpass,									// pSubpasses
-			1,											// dependencyCount
-			&dependency									// pDependencies
+			.sType {VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO},
+			.pNext {nullptr},
+			.flags {0U},
+			.attachmentCount {static_cast<uint32_t>(attachments.size())},
+			.pAttachments {attachments.data()},
+			.subpassCount {1U},
+			.pSubpasses {&subpass},
+			.dependencyCount {1U},
+			.pDependencies {&dependency}
 		};
 
 		VK_CHECK_RESULT(vkCreateRenderPass(device, &renderPassInfo, nullptr, &mRenderPass));
-
-		//props.framebuffer->As<VulkanFramebuffer>()->Init(mRenderPass);
-		//props.pipeline->As<VulkanPipeline>()->Init(mRenderPass, formats);
 	}
 	
 	VulkanRenderPass::~VulkanRenderPass()
 	{
-		auto device{ VulkanContext::GetLogicalDevice() };
+		const VkDevice& device{ VulkanGraphicsContext::GetLogicalDevice() };
 		vkDestroyRenderPass(device, mRenderPass, nullptr);
 	}
 
 	void VulkanRenderPass::Destroy()
 	{
-	}
-	
-	void VulkanRenderPass::BeginRenderPass(const std::shared_ptr<CommandBuffer>& aCommandBuffer, const std::shared_ptr<Framebuffer>& aFramebuffer) const
-	{
-		Renderer::Submit([this, aCommandBuffer, aFramebuffer]()
-			{
-				auto framebuffer{ aFramebuffer->As<VulkanFramebuffer>() };
-				auto cmdBuffer{ aCommandBuffer->As<VulkanCommandBuffer>()->GetCurrentCommand(Renderer::GetCurrentFrame())};
-
-				uint32_t width{ framebuffer->GetWidth() };
-				uint32_t height{ framebuffer->GetHeight() };
-
-				VkRenderPassBeginInfo renderPassInfo
-				{
-					VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,	// sType
-					nullptr,									// pNext
-					mRenderPass,								// renderPass
-					framebuffer->GetFramebuffer(),				// framebuffer
-					{											// renderArea
-						{ 0, 0 },									// offset
-						{ width, height }							// extent
-					},
-					static_cast<uint32_t>(mClearValues.size()),	// clearValueCount 
-					mClearValues.data()							// pClearValues 
-				};
-
-				VkViewport viewport
-				{
-					0.0f,			// x
-					0.0f,			// y
-					(float)width,	// width
-					(float)height,	// height
-					0.0f,			// minDepth
-					1.0f			// maxDepth
-				};
-				vkCmdSetViewport(cmdBuffer, 0, 1, &viewport);
-
-				VkRect2D scissor
-				{
-					{ 0, 0 },			// offset
-					{ width, height }	// extent
-				};
-				vkCmdSetScissor(cmdBuffer, 0, 1, &scissor);
-
-				vkCmdBeginRenderPass(cmdBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-			});
-	}
-
-	void VulkanRenderPass::EndRenderPass(const std::shared_ptr<CommandBuffer>& aCommandBuffer) const
-	{
-		Renderer::Submit([aCommandBuffer]()
-			{
-				auto cmdBuffer{ aCommandBuffer->As<VulkanCommandBuffer>()->GetCurrentCommand(Renderer::GetCurrentFrame()) };
-				vkCmdEndRenderPass(cmdBuffer);
-			});
 	}
 }

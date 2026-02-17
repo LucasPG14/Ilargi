@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Renderer/PipelineLayout.h"
+#include "Renderer/IPipelineLayout.h"
 #include <vulkan/vulkan.h>
 
 namespace Ilargi
 {
-	class VulkanPipelineLayout : public PipelineLayout
+	class VulkanPipelineLayout : public IPipelineLayout
 	{
 	public:
 		/*

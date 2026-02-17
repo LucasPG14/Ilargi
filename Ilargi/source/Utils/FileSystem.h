@@ -123,5 +123,11 @@ namespace Ilargi
 		* @return The name of the file to save.
 		*/
 		static std::string SaveFile(const char* aFilter);
+
+		/*
+		* @brief Opens a browser with the URL specified.
+		* @param aURL The URL of the website to open.
+		*/
+		static void OpenWeb(const std::wstring& aURL);
 	};
 }

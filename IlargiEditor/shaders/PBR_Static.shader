@@ -30,7 +30,7 @@ layout(set = 0, binding = 0) uniform SceneData
 } sceneData;
 
 layout(location = 0) out vec2 vTexCoords;
-layout(location = 1) out vec3 vNormal;
+//layout(location = 1) out vec3 vNormal;
 layout(location = 2) out vec3 vFragPos;
 layout(location = 3) out mat3 vTBN;
 layout(location = 10) out vec3 vCameraPosition;
@@ -42,7 +42,7 @@ void main()
     vFragPos = vec3(pushConstants.modelMatrix * vec4(inPosition, 1.0));
     
     vTexCoords = inTexCoords;
-    vNormal = inNormal;
+    //vNormal = inNormal;
     vDirectionalColor = pushConstants.radiance;
     vDirection = pushConstants.direction;
 
@@ -61,7 +61,7 @@ void main()
 #version 450
 
 layout(location = 0) in vec2 vTexCoords;
-layout(location = 1) in vec3 vNormal;
+//layout(location = 1) in vec3 vNormal;
 layout(location = 2) in vec3 vFragPos;
 layout(location = 3) in mat3 vTBN;
 layout(location = 10) in vec3 vCameraPosition;

@@ -3,7 +3,7 @@
 #include "VulkanVertexBuffer.h"
 #include "Renderer/Renderer.h"
 #include "VulkanCommandBuffer.h"
-#include "VulkanContext.h"
+#include "VulkanGraphicsContext.h"
 
 namespace Ilargi
 {
@@ -11,28 +11,28 @@ namespace Ilargi
 	{
 		VkBufferCreateInfo vertexBufferInfo
 		{
-			VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,										// sType
-			nullptr,																	// pNext
-			0,																			// flags
-			aSize,																		// size
-			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,		// usage
-			VK_SHARING_MODE_EXCLUSIVE,													// sharingMode
-			0,																			// queueFamilyIndexCount
-			nullptr																		// pQueueFamilyIndices
+			.sType {VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO},
+			.pNext {nullptr},
+			.flags {0U},
+			.size {aSize},
+			.usage {VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT},
+			.sharingMode {VK_SHARING_MODE_EXCLUSIVE},
+			.queueFamilyIndexCount {0U},
+			.pQueueFamilyIndices {nullptr}
 		};
 
 		VulkanAllocator::AllocateBuffer(mBuffer, vertexBufferInfo, VMA_MEMORY_USAGE_GPU_ONLY);
 		{
 			VkBufferCreateInfo stagingBufferInfo
 			{
-				VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-				nullptr,
-				0,
-				aSize,
-				VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-				VK_SHARING_MODE_EXCLUSIVE,
-				0,
-				nullptr
+				.sType {VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO},
+				.pNext {nullptr},
+				.flags {0U},
+				.size {aSize},
+				.usage {VK_BUFFER_USAGE_TRANSFER_SRC_BIT},
+				.sharingMode {VK_SHARING_MODE_EXCLUSIVE},
+				.queueFamilyIndexCount {0U},
+				.pQueueFamilyIndices {nullptr}
 			};
 
 			VulkanBuffer stagingBuffer;
@@ -45,18 +45,18 @@ namespace Ilargi
 			memcpy(data, aData, aSize);
 			VulkanAllocator::UnmapMemory(stagingBuffer);
 
-			auto commandBuffer{ VulkanContext::BeginSingleCommandBuffer() };
+			auto commandBuffer{ VulkanGraphicsContext::BeginSingleCommandBuffer() };
 
 			VkBufferCopy copy
 			{
-				0,		// srcOffset
-				0,		// dstOffset
-				aSize	// size
+				.srcOffset {0U},
+				.dstOffset {0U},
+				.size {aSize}
 			};
 
 			vkCmdCopyBuffer(commandBuffer, stagingBuffer.buffer, mBuffer.buffer, 1, &copy);
 
-			VulkanContext::EndSingleCommandBuffer(commandBuffer);
+			VulkanGraphicsContext::EndSingleCommandBuffer(commandBuffer);
 
 			VulkanAllocator::DestroyBuffer(stagingBuffer);
 		}
@@ -64,12 +64,12 @@ namespace Ilargi
 	
 	VulkanVertexBuffer::~VulkanVertexBuffer()
 	{
-		vkDeviceWaitIdle(VulkanContext::GetLogicalDevice());
+		vkDeviceWaitIdle(VulkanGraphicsContext::GetLogicalDevice());
 
 		VulkanAllocator::DestroyBuffer(mBuffer);
 	}
 
-	void VulkanVertexBuffer::Bind(const std::shared_ptr<CommandBuffer>& aCommandBuffer) const
+	void VulkanVertexBuffer::Bind(const std::shared_ptr<ICommandBuffer>& aCommandBuffer) const
 	{
 		uint32_t currentFrame{ Renderer::GetCurrentFrame() };
 		auto cmdBuffer{ aCommandBuffer->As<VulkanCommandBuffer>() };
@@ -80,7 +80,7 @@ namespace Ilargi
 
 	void VulkanVertexBuffer::Destroy()
 	{
-		vkDeviceWaitIdle(VulkanContext::GetLogicalDevice());
+		vkDeviceWaitIdle(VulkanGraphicsContext::GetLogicalDevice());
 
 		VulkanAllocator::DestroyBuffer(mBuffer);
 	}

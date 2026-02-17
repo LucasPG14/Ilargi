@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Renderer/Framebuffer.h"
+#include "Renderer/IFramebuffer.h"
 #include "Platform/Vulkan/VulkanAllocator.h"
 
 #include <vulkan/vulkan.h>
@@ -13,7 +13,7 @@ namespace Ilargi
 		VkImageView imageView;
 	};
 
-	class VulkanFramebuffer : public Framebuffer
+	class VulkanFramebuffer : public IFramebuffer
 	{
 	public:
 		/*

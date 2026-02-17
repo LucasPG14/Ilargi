@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Resources/Resource.h"
-#include "Renderer/Shader.h"
+#include "Renderer/IShader.h"
 
 namespace Ilargi
 {
@@ -32,7 +32,7 @@ namespace Ilargi
 		* @brief Returns the shader used by the material.
 		* @return An instance of the shader used by the material.
 		*/
-		[[nodiscard]] virtual const std::shared_ptr<Shader>& GetShader() const = 0;
+		[[nodiscard]] virtual const std::shared_ptr<IShader>& GetShader() const = 0;
 
 		/*
 		* @brief Returns the material data.
@@ -77,6 +77,6 @@ namespace Ilargi
 		* @param aMaterialData The material data.
 		* @return An instance of the material created.
 		*/
-		static std::shared_ptr<Material> Create(const std::shared_ptr<Shader>& aShader, const MaterialData& aMaterialData = {});
+		static std::shared_ptr<Material> Create(const std::shared_ptr<IShader>& aShader, const MaterialData& aMaterialData = {});
 	};
 }

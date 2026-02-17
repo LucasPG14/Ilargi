@@ -2,7 +2,7 @@
 
 #include "VulkanSkybox.h"
 #include "Renderer/Renderer.h"
-#include "VulkanContext.h"
+#include "VulkanGraphicsContext.h"
 
 #include <stb_image.h>
 

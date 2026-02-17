@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Renderer/RenderPass.h"
+#include "Renderer/IRenderPass.h"
 
 #include <vulkan/vulkan.h>
 
 namespace Ilargi
 {
-	class VulkanRenderPass : public RenderPass
+	class VulkanRenderPass : public IRenderPass
 	{
 	public:
 		/*
@@ -24,16 +24,6 @@ namespace Ilargi
 		* @copydoc VulkanRenderPass::Destroy()
 		*/
 		void Destroy() override;
-
-		/*
-		* @copydoc VulkanRenderPass::BeginRenderPass()
-		*/
-		void BeginRenderPass(const std::shared_ptr<CommandBuffer>& aCommandBuffer, const std::shared_ptr<Framebuffer>& aFramebuffer) const override;
-		
-		/*
-		* @copydoc VulkanRenderPass::EndRenderPass()
-		*/
-		void EndRenderPass(const std::shared_ptr<CommandBuffer>& aCommandBuffer) const override;
 
 		/*
 		* @copydoc VulkanRenderPass::GetProperties()

@@ -2,7 +2,7 @@
 
 #include "VulkanImGuiPanel.h"
 #include "Renderer/Renderer.h"
-#include "VulkanContext.h"
+#include "VulkanGraphicsContext.h"
 #include "VulkanSwapchain.h"
 
 #include "Utils/UI/IlargiUI.h"
@@ -20,7 +20,7 @@ namespace Ilargi
 		VK_CHECK_RESULT(error);
 	}
 
-	VulkanImGuiPanel::VulkanImGuiPanel(GLFWwindow* win, const std::shared_ptr<Swapchain>& swapchain)
+	VulkanImGuiPanel::VulkanImGuiPanel(GLFWwindow* win, const std::shared_ptr<ISwapchain>& swapchain)
 	{
 		mSwapchain = swapchain->As<VulkanSwapchain>();
 
@@ -38,16 +38,16 @@ namespace Ilargi
 
 		ImGui_ImplGlfw_InitForVulkan(win, true);
 		
-		auto device{ VulkanContext::GetLogicalDevice() };
+		auto device{ VulkanGraphicsContext::GetLogicalDevice() };
 		uint32_t maxFrames{ Renderer::GetConfig().maxFrames };
 
 		ImGui_ImplVulkan_InitInfo imguiInfo {};
-		imguiInfo.Instance = VulkanContext::GetInstance();
-		imguiInfo.PhysicalDevice = VulkanContext::GetPhysicalDevice();
+		imguiInfo.Instance = VulkanGraphicsContext::GetInstance();
+		imguiInfo.PhysicalDevice = VulkanGraphicsContext::GetPhysicalDevice();
 		imguiInfo.Device = device;
-		imguiInfo.QueueFamily = VulkanContext::GetQueueIndices().graphicsFamily;
-		imguiInfo.Queue = VulkanContext::GetGraphicsQueue();
-		imguiInfo.DescriptorPool = VulkanContext::GetDescriptorPool();
+		imguiInfo.QueueFamily = VulkanGraphicsContext::GetQueueIndices().graphicsFamily;
+		imguiInfo.Queue = VulkanGraphicsContext::GetGraphicsQueue();
+		imguiInfo.DescriptorPool = VulkanGraphicsContext::GetDescriptorPool();
 		imguiInfo.Subpass = 0;
 		imguiInfo.MinImageCount = maxFrames;
 		imguiInfo.ImageCount = maxFrames;
@@ -58,11 +58,11 @@ namespace Ilargi
 
 		io.Fonts->AddFontFromFileTTF("Engine/Fonts/arial.ttf", 16.0f);
 		{
-			VkCommandBuffer commandBuffer{ VulkanContext::BeginSingleCommandBuffer() };
+			VkCommandBuffer commandBuffer{ VulkanGraphicsContext::BeginSingleCommandBuffer() };
 			
 			ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
 			
-			VulkanContext::EndSingleCommandBuffer(commandBuffer);
+			VulkanGraphicsContext::EndSingleCommandBuffer(commandBuffer);
 			ImGui_ImplVulkan_DestroyFontUploadObjects();
 		}
 	}
@@ -73,7 +73,7 @@ namespace Ilargi
 
 	void VulkanImGuiPanel::Destroy() const
 	{
-		auto device{ VulkanContext::GetLogicalDevice() };
+		auto device{ VulkanGraphicsContext::GetLogicalDevice() };
 
 		vkDeviceWaitIdle(device);
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RenderPass.h"
+#include "IRenderPass.h"
 
 namespace Ilargi
 {
@@ -17,9 +17,9 @@ namespace Ilargi
 		* @param aProperties The properties of the render pass.
 		* @return An instance of the render pass with the given properties.
 		*/
-		const std::shared_ptr<RenderPass>& GetRenderPass(const RenderPassProperties& aProperties);
+		const IRenderPass& GetRenderPass(const RenderPassProperties& aProperties);
 	
 	private:
-		std::unordered_map<RenderPassProperties, std::shared_ptr<RenderPass>> mRenderPasses; // Container of render passes.
+		std::unordered_map<RenderPassProperties, std::unique_ptr<IRenderPass>> mRenderPasses; // Container of render passes.
 	};
 }

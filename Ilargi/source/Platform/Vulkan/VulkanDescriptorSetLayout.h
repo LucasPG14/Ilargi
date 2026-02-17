@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Renderer/DescriptorSetLayout.h"
+#include "Renderer/IDescriptorSetLayout.h"
 #include <vulkan/vulkan.h>
 
 namespace Ilargi
 {
-	class VulkanDescriptorSetLayout : public DescriptorSetLayout
+	class VulkanDescriptorSetLayout : public IDescriptorSetLayout
 	{
 	public:
 		/*

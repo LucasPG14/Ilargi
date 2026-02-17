@@ -4,6 +4,7 @@
   "editor.file.openscene": "Open Scene",
   "editor.file.savescene": "Save Scene",
   "editor.file.savesceneas": "Save Scene As...",
+  "editor.file.settings": "Settings",
   "editor.file.exit": "Exit",
 
   "editor.edit": "Edit",
@@ -38,7 +39,9 @@
 
   "editor.resourcespanel.search": "Search...",
 
-  "editor.localization": "Localization",
-  "editor.localization.english": "English",
-  "editor.localization.spanish": "Spanish"
+  "editor.window": "Window",
+
+  "editor.help": "Help",
+  "editor.help.reportbug": "Report a Bug",
+  "editor.help.about": "About Ilargi Engine"
 }

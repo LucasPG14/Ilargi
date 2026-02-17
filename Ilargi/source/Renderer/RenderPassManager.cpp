@@ -3,11 +3,11 @@
 
 namespace Ilargi
 {
-	const std::shared_ptr<RenderPass>& RenderPassManager::GetRenderPass(const RenderPassProperties& aRenderPassProperties)
+	const IRenderPass& RenderPassManager::GetRenderPass(const RenderPassProperties& aRenderPassProperties)
 	{
 		if (mRenderPasses.find(aRenderPassProperties) == mRenderPasses.end())
-			mRenderPasses[aRenderPassProperties] = RenderPass::Create(aRenderPassProperties);
+			mRenderPasses[aRenderPassProperties] = IRenderPass::Create(aRenderPassProperties);
 		
-		return mRenderPasses[aRenderPassProperties];
+		return *mRenderPasses[aRenderPassProperties];
 	}
 }

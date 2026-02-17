@@ -1,14 +1,14 @@
 #include "ilargipch.h"
 
 #include "VulkanDescriptorSetLayout.h"
-#include "VulkanContext.h"
+#include "VulkanGraphicsContext.h"
 
 namespace Ilargi
 {
 	VulkanDescriptorSetLayout::VulkanDescriptorSetLayout(const DescriptorSetLayoutProperties& aProperties) 
 		: mDescriptorSetLayout(VK_NULL_HANDLE)
 	{
-		const auto& device{ VulkanContext::GetLogicalDevice() };
+		const auto& device{ VulkanGraphicsContext::GetLogicalDevice() };
 
 		std::vector<VkDescriptorSetLayoutBinding> vulkanBindings;
 		vulkanBindings.reserve(aProperties.DescriptorBindings.size());
@@ -26,11 +26,11 @@ namespace Ilargi
 		
 		VkDescriptorSetLayoutCreateInfo layoutInfoSet1
 		{
-			VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,	// sType
-			nullptr,												// pNext
-			0,														// flags
-			vulkanBindings.size(),										// bindingCount
-			vulkanBindings.data()										// pBindings
+			.sType {VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO},
+			.pNext {nullptr},
+			.flags {0U},
+			.bindingCount {static_cast<uint32_t>(vulkanBindings.size())},
+			.pBindings {vulkanBindings.data()}
 		};
 
 		VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &layoutInfoSet1, nullptr, &mDescriptorSetLayout));
@@ -38,7 +38,7 @@ namespace Ilargi
 	
 	VulkanDescriptorSetLayout::~VulkanDescriptorSetLayout()
 	{
-		const auto& device{ VulkanContext::GetLogicalDevice() };
+		const auto& device{ VulkanGraphicsContext::GetLogicalDevice() };
 
 		vkDestroyDescriptorSetLayout(device, mDescriptorSetLayout, nullptr);
 	}

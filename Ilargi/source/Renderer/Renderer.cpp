@@ -1,8 +1,7 @@
 #include "ilargipch.h"
 
 #include "Renderer.h"
-#include "Render.h"
-#include "CommandBuffer.h"
+#include "IRender.h"
 #include "Resources/Mesh.h"
 #include "Resources/Texture.h"
 #include "Resources/Material.h"
@@ -10,7 +9,7 @@
 namespace Ilargi
 {
 	GraphicsAPI Renderer::sGraphicsAPI{ GraphicsAPI::VULKAN };
-	std::unique_ptr<Render> Renderer::sRender{ Render::Create() };
+	std::unique_ptr<IRender> Renderer::sRender{ IRender::Create() };
 	std::unique_ptr<ShaderLibrary> Renderer::sShaderLibrary{ std::make_unique<ShaderLibrary>() };
 	std::unique_ptr<PipelineManager> Renderer::sPipelineManager{ std::make_unique<PipelineManager>() };
 	std::unique_ptr<PipelineLayoutManager> Renderer::sPipelineLayoutManager{ std::make_unique<PipelineLayoutManager>() };
@@ -50,14 +49,14 @@ namespace Ilargi
 		sRenderPassManager.reset();
 	}
 
-	void Renderer::SubmitGeometry(const std::shared_ptr<CommandBuffer>& aCommandBuffer, const std::shared_ptr<StaticMesh>& aMesh)
+	void Renderer::SubmitGeometry(const std::shared_ptr<ICommandBuffer>& aCommandBuffer, const std::shared_ptr<StaticMesh>& aMesh)
 	{
 		sStats.drawCalls++;
 		sStats.numMeshes++;
 		sRender->SubmitGeometry(aCommandBuffer, aMesh->GetVertexBuffer(), aMesh->GetIndexBuffer());
 	}
 
-	void Renderer::DrawDefault(const std::shared_ptr<CommandBuffer>& aCommandBuffer)
+	void Renderer::DrawDefault(const std::shared_ptr<ICommandBuffer>& aCommandBuffer)
 	{
 		sStats.drawCalls++;
 		sRender->DrawDefault(aCommandBuffer);

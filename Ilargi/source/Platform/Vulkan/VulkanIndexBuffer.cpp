@@ -3,7 +3,7 @@
 #include "VulkanIndexBuffer.h"
 #include "Renderer/Renderer.h"
 #include "VulkanCommandBuffer.h"
-#include "VulkanContext.h"
+#include "VulkanGraphicsContext.h"
 
 namespace Ilargi
 {
@@ -11,28 +11,28 @@ namespace Ilargi
 	{
 		VkBufferCreateInfo indexBufferInfo
 		{
-			VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,									// sType
-			nullptr,																// pNext
-			0,																		// flags
-			mCount * sizeof(uint32_t),												// size
-			VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,	// usage
-			VK_SHARING_MODE_EXCLUSIVE,												// sharingMode
-			0,																		// queueFamilyIndexCount
-			nullptr																	// pQueueFamilyIndices
+			.sType {VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO},
+			.pNext {nullptr},
+			.flags {0U},
+			.size {mCount * sizeof(uint32_t)},
+			.usage {VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT},
+			.sharingMode {VK_SHARING_MODE_EXCLUSIVE},
+			.queueFamilyIndexCount {0U},
+			.pQueueFamilyIndices {nullptr}
 		};
 
 		VulkanAllocator::AllocateBuffer(mBuffer, indexBufferInfo, VMA_MEMORY_USAGE_GPU_ONLY);
 		{
 			VkBufferCreateInfo stagingBufferInfo
 			{
-				VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-				nullptr,
-				0,
-				mCount * sizeof(uint32_t),
-				VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-				VK_SHARING_MODE_EXCLUSIVE,
-				0,
-				nullptr
+				.sType {VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO},
+				.pNext {nullptr},
+				.flags {0U},
+				.size {mCount * sizeof(uint32_t)},
+				.usage {VK_BUFFER_USAGE_TRANSFER_SRC_BIT},
+				.sharingMode {VK_SHARING_MODE_EXCLUSIVE},
+				.queueFamilyIndexCount {0U},
+				.pQueueFamilyIndices {nullptr}
 			};
 
 			VulkanBuffer stagingBuffer;
@@ -45,18 +45,18 @@ namespace Ilargi
 			memcpy(data, aData, mCount * sizeof(uint32_t));
 			VulkanAllocator::UnmapMemory(stagingBuffer);
 
-			auto commandBuffer{ VulkanContext::BeginSingleCommandBuffer() };
+			VkCommandBuffer commandBuffer{ VulkanGraphicsContext::BeginSingleCommandBuffer() };
 
 			VkBufferCopy copy
 			{
-				0,							// srcOffset
-				0,							// dstOffset
-				mCount * sizeof(uint32_t)	// size
+				.srcOffset {0U},
+				.dstOffset {0U},
+				.size {mCount * sizeof(uint32_t)}
 			};
 
 			vkCmdCopyBuffer(commandBuffer, stagingBuffer.buffer, mBuffer.buffer, 1, &copy);
 
-			VulkanContext::EndSingleCommandBuffer(commandBuffer);
+			VulkanGraphicsContext::EndSingleCommandBuffer(commandBuffer);
 
 			VulkanAllocator::DestroyBuffer(stagingBuffer);
 		}
@@ -67,7 +67,7 @@ namespace Ilargi
 		VulkanAllocator::DestroyBuffer(mBuffer);
 	}
 
-	void VulkanIndexBuffer::Bind(const std::shared_ptr<CommandBuffer>& commandBuffer) const
+	void VulkanIndexBuffer::Bind(const std::shared_ptr<ICommandBuffer>& commandBuffer) const
 	{
 		uint32_t currentFrame{ Renderer::GetCurrentFrame() };
 		auto cmdBuffer{ commandBuffer->As<VulkanCommandBuffer>() };

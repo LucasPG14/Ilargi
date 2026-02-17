@@ -3,7 +3,7 @@
 // Main headers
 #include "VulkanFramebuffer.h"
 #include "Renderer/Renderer.h"
-#include "VulkanContext.h"
+#include "VulkanGraphicsContext.h"
 #include "VulkanRenderPass.h"
 
 namespace Ilargi
@@ -31,7 +31,7 @@ namespace Ilargi
 
 	void VulkanFramebuffer::Init()
 	{
-		auto device{ VulkanContext::GetLogicalDevice() };
+		auto device{ VulkanGraphicsContext::GetLogicalDevice() };
 		
 		std::vector<VkImageView> attachments;
 
@@ -45,40 +45,41 @@ namespace Ilargi
 
 			VkImageCreateInfo imageInfo
 			{
-				VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,								// sType
-				nullptr,															// pNext
-				0,																	// flags
-				VK_IMAGE_TYPE_2D,													// imageType
-				format,																// format
-				{mProperties.Width, mProperties.Height, 1},							// extent
-				1,																	// mipLevels
-				1,																	// arrayLayers
-				VK_SAMPLE_COUNT_1_BIT,												// samples
-				VK_IMAGE_TILING_OPTIMAL,											// tiling
-				VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,	// usage
-				VK_SHARING_MODE_EXCLUSIVE,											// sharingMode
-				0,																	// queueFamilyIndexCount
-				nullptr,															// pQueueFamilyIndices
-				VK_IMAGE_LAYOUT_UNDEFINED											// initialLayout
+				.sType {VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO},
+				.pNext {nullptr},
+				.flags {0U},
+				.imageType {VK_IMAGE_TYPE_2D},
+				.format {format},
+				.extent {.width{mProperties.Width}, .height{mProperties.Height}, .depth{1U}},
+				.mipLevels {1U},
+				.arrayLayers {1U},
+				.samples {VK_SAMPLE_COUNT_1_BIT},
+				.tiling {VK_IMAGE_TILING_OPTIMAL},
+				.usage {VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT},
+				.sharingMode {VK_SHARING_MODE_EXCLUSIVE},
+				.queueFamilyIndexCount {0U},
+				.pQueueFamilyIndices {nullptr},
+				.initialLayout {VK_IMAGE_LAYOUT_UNDEFINED}
 			};
 
 			VulkanAllocator::AllocateImage(attachment.image, imageInfo, VMA_MEMORY_USAGE_GPU_ONLY, "Framebuffer");
 
 			VkImageViewCreateInfo imageViewInfo
 			{
-				VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,	// sType
-				nullptr,									// pNext
-				0,											// flags
-				attachment.image.image,						// image
-				VK_IMAGE_VIEW_TYPE_2D,						// viewType
-				format,										// format
-				{VK_COMPONENT_SWIZZLE_IDENTITY},			// components: RGBA
-				{											// subresourceRange:
-					VK_IMAGE_ASPECT_COLOR_BIT,					// aspectMask
-					0,											// baseMipLevel
-					1,											// levelCount
-					0,											// baseArrayLayer
-					1											// layerCount
+				.sType {VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO},
+				.pNext {nullptr},
+				.flags {0U},
+				.image {attachment.image.image},
+				.viewType {VK_IMAGE_VIEW_TYPE_2D},
+				.format {format},
+				.components {VK_COMPONENT_SWIZZLE_IDENTITY},
+				.subresourceRange 
+				{
+					.aspectMask {VK_IMAGE_ASPECT_COLOR_BIT},
+					.baseMipLevel {0U},
+					.levelCount {1U},
+					.baseArrayLayer {0U},
+					.layerCount {1U}
 				}
 			};
 
@@ -91,43 +92,44 @@ namespace Ilargi
 		if (mDepthSpecification != ImageFormat::NONE)
 		{
 			VkFormat depthFormat{ Utils::GetFormatFromImageFormat(mDepthSpecification) };
-			
+
 			VkImageCreateInfo imageInfo
 			{
-				VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,					// sType
-				nullptr,												// pNext
-				0,														// flags
-				VK_IMAGE_TYPE_2D,										// imageType
-				depthFormat,											// format
-				{mProperties.Width, mProperties.Height, 1},				// extent
-				1,														// mipLevels
-				1,														// arrayLayers
-				VK_SAMPLE_COUNT_1_BIT,									// samples
-				VK_IMAGE_TILING_OPTIMAL,								// tiling
-				VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,			// usage
-				VK_SHARING_MODE_EXCLUSIVE,								// sharingMode
-				0,														// queueFamilyIndexCount
-				nullptr,												// pQueueFamilyIndices
-				VK_IMAGE_LAYOUT_UNDEFINED								// initialLayout
+				.sType {VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO},
+				.pNext {nullptr},
+				.flags {0U},
+				.imageType {VK_IMAGE_TYPE_2D},
+				.format {depthFormat},
+				.extent {.width{mProperties.Width}, .height{mProperties.Height}, .depth{1U}},
+				.mipLevels {1U},
+				.arrayLayers {1U},
+				.samples {VK_SAMPLE_COUNT_1_BIT},
+				.tiling {VK_IMAGE_TILING_OPTIMAL},
+				.usage {VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT},
+				.sharingMode {VK_SHARING_MODE_EXCLUSIVE},
+				.queueFamilyIndexCount {0U},
+				.pQueueFamilyIndices {nullptr},
+				.initialLayout {VK_IMAGE_LAYOUT_UNDEFINED}
 			};
 
 			VulkanAllocator::AllocateImage(mDepthAttachment.image, imageInfo, VMA_MEMORY_USAGE_GPU_ONLY, "Framebuffer");
-			
+
 			VkImageViewCreateInfo imageViewInfo
 			{
-				VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,	// sType
-				nullptr,									// pNext
-				0,											// flags
-				mDepthAttachment.image.image,				// image
-				VK_IMAGE_VIEW_TYPE_2D,						// viewType
-				depthFormat,								// format
-				{VK_COMPONENT_SWIZZLE_IDENTITY},			// components: RGBA
-				{											// subresourceRange:
-					VK_IMAGE_ASPECT_DEPTH_BIT,					// aspectMask
-					0,											// baseMipLevel
-					1,											// levelCount
-					0,											// baseArrayLayer
-					1											// layerCount
+				.sType {VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO},
+				.pNext {nullptr},
+				.flags {0U},
+				.image {mDepthAttachment.image.image},
+				.viewType {VK_IMAGE_VIEW_TYPE_2D},
+				.format {depthFormat},
+				.components {VK_COMPONENT_SWIZZLE_IDENTITY},
+				.subresourceRange
+				{
+					.aspectMask {VK_IMAGE_ASPECT_DEPTH_BIT},
+					.baseMipLevel {0U},
+					.levelCount {1U},
+					.baseArrayLayer {0U},
+					.layerCount {1U}
 				}
 			};
 			
@@ -136,20 +138,20 @@ namespace Ilargi
 			attachments.push_back(mDepthAttachment.imageView);
 		}
 
-		const VkRenderPass& renderPass{ Renderer::GetRenderPass({mProperties.Formats})->As<VulkanRenderPass>()->GetRenderPass() };
+		const VkRenderPass& renderPass{ Renderer::GetRenderPass({mProperties.Formats}).As<VulkanRenderPass>().GetRenderPass() };
 		// Creating the framebuffer
 		{
 			VkFramebufferCreateInfo framebufferInfo
 			{
-				VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,	// sType
-				nullptr,									// pNext
-				0,											// flags
-				renderPass,									// renderPass
-				static_cast<uint32_t>(attachments.size()),	// attachmentCount
-				attachments.data(),							// pAttachments
-				mProperties.Width,							// width
-				mProperties.Height,							// height
-				1											// layers
+				.sType {VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO},
+				.pNext {nullptr},
+				.flags {0U},
+				.renderPass {renderPass},
+				.attachmentCount {static_cast<uint32_t>(attachments.size())},
+				.pAttachments {attachments.data()},
+				.width {mProperties.Width},
+				.height {mProperties.Height},
+				.layers {1U}
 			};
 
 			VK_CHECK_RESULT(vkCreateFramebuffer(device, &framebufferInfo, nullptr, &mFramebuffer));
@@ -160,24 +162,24 @@ namespace Ilargi
 		{
 			VkSamplerCreateInfo samplerInfo
 			{
-				VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,	// sType
-				nullptr,								// pNext
-				0,										// flags
-				VK_FILTER_LINEAR,						// magFilter
-				VK_FILTER_LINEAR,						// minFilter
-				VK_SAMPLER_MIPMAP_MODE_LINEAR,			// mipmapMode
-				VK_SAMPLER_ADDRESS_MODE_REPEAT,			// addressModeU
-				VK_SAMPLER_ADDRESS_MODE_REPEAT,			// addressModeV
-				VK_SAMPLER_ADDRESS_MODE_REPEAT,			// addressModeW
-				0.0f,									// mipLodBias
-				VK_FALSE,								// anisotropyEnable
-				Renderer::GetConfig().maxAnisotropy,	// maxAnisotropy
-				VK_FALSE,								// compareEnable
-				VK_COMPARE_OP_ALWAYS,					// compareOp
-				0.0f,									// minLod
-				0.0f,									// maxLod
-				VK_BORDER_COLOR_INT_OPAQUE_BLACK,		// borderColor
-				VK_FALSE								// unnormalizedCoordinates
+				.sType {VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO},
+				.pNext {nullptr},
+				.flags {0U},
+				.magFilter {VK_FILTER_LINEAR},
+				.minFilter {VK_FILTER_LINEAR},
+				.mipmapMode {VK_SAMPLER_MIPMAP_MODE_LINEAR},
+				.addressModeU {VK_SAMPLER_ADDRESS_MODE_REPEAT},
+				.addressModeV {VK_SAMPLER_ADDRESS_MODE_REPEAT},
+				.addressModeW {VK_SAMPLER_ADDRESS_MODE_REPEAT},
+				.mipLodBias {0.0f},
+				.anisotropyEnable {VK_FALSE},
+				.maxAnisotropy {Renderer::GetConfig().maxAnisotropy},
+				.compareEnable {VK_FALSE},
+				.compareOp {VK_COMPARE_OP_ALWAYS},
+				.minLod {0.0f},
+				.maxLod {0.0f},
+				.borderColor {VK_BORDER_COLOR_INT_OPAQUE_BLACK},
+				.unnormalizedCoordinates {VK_FALSE}
 			};
 
 			VK_CHECK_RESULT(vkCreateSampler(device, &samplerInfo, nullptr, &mSampler));
@@ -185,34 +187,34 @@ namespace Ilargi
 
 		// 
 		{
-			VkDescriptorSetLayoutBinding binding[1]
+			VkDescriptorSetLayoutBinding binding
 			{
-				0,											// binding
-				VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,	// descriptorType
-				1,											// descriptorCount
-				VK_SHADER_STAGE_FRAGMENT_BIT,				// stageFlags
-				nullptr										// pImmutableSamplers
+				.binding {0U},
+				.descriptorType {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER},
+				.descriptorCount {1U},
+				.stageFlags {VK_SHADER_STAGE_FRAGMENT_BIT},
+				.pImmutableSamplers {nullptr}
 			};
 			
 			if (mDescriptorSet == nullptr)
 			{
 				VkDescriptorSetLayoutCreateInfo info
 				{
-					VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,	// sType
-					nullptr,												// pNext
-					0,														// flags
-					1,														// bindingCount
-					binding													// pBindings
+					.sType {VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO},
+					.pNext {nullptr},
+					.flags {0U},
+					.bindingCount {1U},
+					.pBindings {&binding}
 				};
 				VK_CHECK_RESULT(vkCreateDescriptorSetLayout(device, &info, nullptr, &mDescriptorSetLayout));
 
 				VkDescriptorSetAllocateInfo allocInfo
 				{
-					VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,	// sType
-					nullptr,										// pNext
-					VulkanContext::GetDescriptorPool(),				// descriptorPool
-					1,												// descriptorSetCount
-					&mDescriptorSetLayout							// pSetLayouts
+					.sType {VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO},
+					.pNext {nullptr},
+					.descriptorPool {VulkanGraphicsContext::GetDescriptorPool()},
+					.descriptorSetCount {1U},
+					.pSetLayouts {&mDescriptorSetLayout}
 				};
 
 				VK_CHECK_RESULT(vkAllocateDescriptorSets(device, &allocInfo, &mDescriptorSet));
@@ -220,9 +222,9 @@ namespace Ilargi
 
 			VkDescriptorImageInfo imageInfo
 			{
-				mSampler,									// sampler
-				mColorAttachments[0].imageView,				// imageView
-				VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL	// imageLayout
+				.sampler {mSampler},
+				.imageView {mColorAttachments[0].imageView},
+				.imageLayout {VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL}
 			};
 
 			std::array<VkWriteDescriptorSet, 1> descriptorWrites
@@ -245,9 +247,9 @@ namespace Ilargi
 	
 	void VulkanFramebuffer::Destroy()
 	{
-		auto device{ VulkanContext::GetLogicalDevice() };
+		auto device{ VulkanGraphicsContext::GetLogicalDevice() };
 
-		vkFreeDescriptorSets(device, VulkanContext::GetDescriptorPool(), 1, &mDescriptorSet);
+		vkFreeDescriptorSets(device, VulkanGraphicsContext::GetDescriptorPool(), 1, &mDescriptorSet);
 		vkDestroyDescriptorSetLayout(device, mDescriptorSetLayout, nullptr);
 
 		for (auto colorAttachment : mColorAttachments)
@@ -269,7 +271,7 @@ namespace Ilargi
 		mProperties.Width = aWidth;
 		mProperties.Height = aHeight;
 
-		auto device{ VulkanContext::GetLogicalDevice() };
+		auto device{ VulkanGraphicsContext::GetLogicalDevice() };
 		vkDeviceWaitIdle(device);
 
 		vkDestroyFramebuffer(device, mFramebuffer, nullptr);
@@ -289,8 +291,8 @@ namespace Ilargi
 
 	uint32_t VulkanFramebuffer::ReadFramebufferPixel(uint32_t aX, uint32_t aY)
 	{
-		const auto& device{ VulkanContext::GetLogicalDevice() };
-		VkCommandBuffer commandBuffer{ VulkanContext::BeginSingleCommandBuffer() };
+		const auto& device{ VulkanGraphicsContext::GetLogicalDevice() };
+		VkCommandBuffer commandBuffer{ VulkanGraphicsContext::BeginSingleCommandBuffer() };
 
 		VkBufferCreateInfo stagingBufferInfo
 		{
@@ -323,7 +325,7 @@ namespace Ilargi
 
 		vkCmdCopyImageToBuffer(commandBuffer, mColorAttachments[0].image.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, stagingBuffer.buffer, 1, &region);
 	
-		VulkanContext::EndSingleCommandBuffer(commandBuffer);
+		VulkanGraphicsContext::EndSingleCommandBuffer(commandBuffer);
 
 		uint32_t pixel{ 0U };
 		void* data{ VulkanAllocator::MapMemory(stagingBuffer) };

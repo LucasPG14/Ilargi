@@ -7,10 +7,10 @@ namespace Ilargi
 	{
 	}
 	
-	const std::shared_ptr<Pipeline>& PipelineManager::GetPipeline(const PipelineProperties& aPipelineProperties)
+	const std::shared_ptr<IGraphicsPipeline>& PipelineManager::GetPipeline(const GraphicsPipelineProperties& aPipelineProperties)
 	{
 		if (mPipelines.find(aPipelineProperties) == mPipelines.end())
-			mPipelines[aPipelineProperties] = Pipeline::Create(aPipelineProperties);
+			mPipelines[aPipelineProperties] = IGraphicsPipeline::Create(aPipelineProperties);
 
 		return mPipelines[aPipelineProperties];
 	}

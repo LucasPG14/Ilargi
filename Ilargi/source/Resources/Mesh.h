@@ -8,10 +8,8 @@
 
 namespace Ilargi
 {
-	class VertexBuffer;
-	class IndexBuffer;
-	class Material;
-	class Shader;
+	class IVertexBuffer;
+	class IIndexBuffer;
 
 	struct AABB
 	{
@@ -19,7 +17,7 @@ namespace Ilargi
 		glm::vec3 max;
 	};
 
-	// TODO: Check half floats for normal, tangent and bitangent and think to calculate bitangent on the shader to avoid storing it.
+	// TODO: Check half floats for normal and tangent
 	struct StaticVertex
 	{
 		glm::vec3 position;
@@ -64,19 +62,19 @@ namespace Ilargi
 		* @brief Returns the vertex buffer.
 		* @return Instance of the vertex buffer.
 		*/
-		[[nodiscard]] const std::shared_ptr<VertexBuffer>& GetVertexBuffer() const { return mVertexBuffer; }
+		[[nodiscard]] const std::shared_ptr<IVertexBuffer>& GetVertexBuffer() const { return mVertexBuffer; }
 		
 		/*
 		* @brief Returns the index buffer.
 		* @return Instance of the index buffer.
 		*/
-		[[nodiscard]] const std::shared_ptr<IndexBuffer>& GetIndexBuffer() const { return mIndexBuffer; }
+		[[nodiscard]] const std::shared_ptr<IIndexBuffer>& GetIndexBuffer() const { return mIndexBuffer; }
 
 	private:
 		std::vector<StaticVertex> mVertices; // Container of the vertices.
 		std::vector<uint32_t> indices; // Container of the indices.
 
-		std::shared_ptr<VertexBuffer> mVertexBuffer; // Instance of the vertex buffer.
-		std::shared_ptr<IndexBuffer> mIndexBuffer; // Instance of the index buffer.
+		std::shared_ptr<IVertexBuffer> mVertexBuffer; // Instance of the vertex buffer.
+		std::shared_ptr<IIndexBuffer> mIndexBuffer; // Instance of the index buffer.
 	};
 }

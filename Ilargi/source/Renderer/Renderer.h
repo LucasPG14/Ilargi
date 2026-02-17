@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Shader.h"
+#include "IShader.h"
 #include "PipelineManager.h"
 #include "PipelineLayoutManager.h"
 #include "RenderPassManager.h"
@@ -12,17 +12,16 @@ namespace Ilargi
 		VULKAN = 0,
 	};
 
-	class Render;
+	class IRender;
 	class CommandBuffer;
 	class VertexBuffer;
-	class IndexBuffer;
 	class StaticMesh;
 	class Texture2D;
 	class Material;
-	class Pipeline;
-	class PipelineLayout;
-	class DescriptorSetLayout;
-	class RenderPass;
+	class IGraphicsPipeline;
+	class IPipelineLayout;
+	class IDescriptorSetLayout;
+	class IRenderPass;
 
 	struct RendererConfig
 	{
@@ -69,13 +68,13 @@ namespace Ilargi
 		* @param aCommandBuffer The command buffer to execute the mesh draw call.
 		* @param aMesh The mesh to draw.
 		*/
-		static void SubmitGeometry(const std::shared_ptr<CommandBuffer>& aCommandBuffer, const std::shared_ptr<StaticMesh>& aMesh);
+		static void SubmitGeometry(const std::shared_ptr<ICommandBuffer>& aCommandBuffer, const std::shared_ptr<StaticMesh>& aMesh);
 		
 		/*
 		* @brief Draws a triangle.
 		* @param aCommandBuffer The command buffer to execute the draw call.
 		*/
-		static void DrawDefault(const std::shared_ptr<CommandBuffer>& aCommandBuffer);
+		static void DrawDefault(const std::shared_ptr<ICommandBuffer>& aCommandBuffer);
 		
 		/*
 		* @brief Returns the default white texture.
@@ -124,7 +123,7 @@ namespace Ilargi
 		* @param aName The name of the shader.
 		* @return The instance of the shader.
 		*/
-		[[nodiscard]] static const std::shared_ptr<Shader>& GetShader(const std::string& aName) { return sShaderLibrary->Get(aName); }
+		[[nodiscard]] static const std::shared_ptr<IShader>& GetShader(const std::string& aName) { return sShaderLibrary->Get(aName); }
 
 		/*
 		* @brief Adds an action to the render queue.
@@ -142,28 +141,28 @@ namespace Ilargi
 		* @param aProperties The properties of the pipeline.
 		* @return An instance of the pipeline with the given properties.
 		*/
-		static std::shared_ptr<Pipeline> GetPipeline(const PipelineProperties& aProperties) { return sPipelineManager->GetPipeline(aProperties); }
+		static std::shared_ptr<IGraphicsPipeline> GetPipeline(const GraphicsPipelineProperties& aProperties) { return sPipelineManager->GetPipeline(aProperties); }
 		
 		/*
 		* @brief Gets a pipeline layout with the specified properties.
 		* @param aProperties The properties of the pipeline layout.
 		* @return An instance of the pipeline layout with the given properties.
 		*/
-		static std::shared_ptr<PipelineLayout> GetPipelineLayout(const PipelineLayoutProperties& aProperties) { return sPipelineLayoutManager->GetPipelineLayout(aProperties); }
+		static std::shared_ptr<IPipelineLayout> GetPipelineLayout(const PipelineLayoutProperties& aProperties) { return sPipelineLayoutManager->GetPipelineLayout(aProperties); }
 		
 		/*
 		* @brief Gets a descriptor set layout with the specified properties.
 		* @param aProperties The properties of the descriptor set layout.
 		* @return An instance of the descriptor set layout with the given properties.
 		*/
-		static std::shared_ptr<DescriptorSetLayout> GetDescriptorSetLayout(const DescriptorSetLayoutProperties& aProperties) { return sPipelineLayoutManager->GetDescriptorSetLayout(aProperties); }
+		static std::shared_ptr<IDescriptorSetLayout> GetDescriptorSetLayout(const DescriptorSetLayoutProperties& aProperties) { return sPipelineLayoutManager->GetDescriptorSetLayout(aProperties); }
 		
 		/*
 		* @brief Gets a render pass with the specified properties.
 		* @param aProperties The properties of the render pass.
 		* @return An instance of the render pass with the given properties.
 		*/
-		static std::shared_ptr<RenderPass> GetRenderPass(const RenderPassProperties& aProperties) { return sRenderPassManager->GetRenderPass(aProperties); }
+		static const IRenderPass& GetRenderPass(const RenderPassProperties& aProperties) { return sRenderPassManager->GetRenderPass(aProperties); }
 	
 	private:
 		static std::shared_ptr<Texture2D> sDefaultTexture; // Instance of the default texture.
@@ -172,7 +171,7 @@ namespace Ilargi
 		static std::vector<RenderFn> sRenderQueue; // The render queue.
 
 		static std::unique_ptr<ShaderLibrary> sShaderLibrary; // Instance of the shader library.
-		static std::unique_ptr<Render> sRender; // Instance of the render.
+		static std::unique_ptr<IRender> sRender; // Instance of the render.
 		static std::unique_ptr<PipelineManager> sPipelineManager; // Instance of the pipeline manager.
 		static std::unique_ptr<RenderPassManager> sRenderPassManager; // Instance of the render pass manager.
 		static std::unique_ptr<PipelineLayoutManager> sPipelineLayoutManager; // Instance of the render pass manager.

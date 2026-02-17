@@ -2,7 +2,7 @@
 
 #define VMA_IMPLEMENTATION
 #include "VulkanAllocator.h"
-#include "VulkanContext.h"
+#include "VulkanGraphicsContext.h"
 
 namespace Ilargi
 {
@@ -11,9 +11,9 @@ namespace Ilargi
 	void VulkanAllocator::Init()
 	{
 		VmaAllocatorCreateInfo allocatorInfo = {};
-		allocatorInfo.physicalDevice = VulkanContext::GetPhysicalDevice();
-		allocatorInfo.device = VulkanContext::GetLogicalDevice();
-		allocatorInfo.instance = VulkanContext::GetInstance();
+		allocatorInfo.physicalDevice = VulkanGraphicsContext::GetPhysicalDevice();
+		allocatorInfo.device = VulkanGraphicsContext::GetLogicalDevice();
+		allocatorInfo.instance = VulkanGraphicsContext::GetInstance();
 
 		vmaCreateAllocator(&allocatorInfo, &sAllocator);
 	}

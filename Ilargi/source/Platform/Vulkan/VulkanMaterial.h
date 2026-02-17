@@ -17,7 +17,7 @@ namespace Ilargi
 		* @param aShader Instance of the shader used by the material.
 		* @param aMaterialData The material data.
 		*/
-		VulkanMaterial(const std::shared_ptr<Shader>& aShader, const MaterialData& aMaterialData);
+		VulkanMaterial(const std::shared_ptr<IShader>& aShader, const MaterialData& aMaterialData);
 		
 		/*
 		* @brief Destructor.
@@ -27,7 +27,7 @@ namespace Ilargi
 		/*
 		* @copydoc Material::GetShader().
 		*/
-		const std::shared_ptr<Shader>& GetShader() const override { return mShader; }
+		const std::shared_ptr<IShader>& GetShader() const override { return mShader; }
 
 		/*
 		* @brief Returns the material descriptor set.
