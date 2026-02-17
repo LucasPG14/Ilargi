@@ -9,8 +9,8 @@ namespace Ilargi
 	class SceneHierarchyInspectorPanel;
 	class ResourcesPanel;
 	
-	class VertexBuffer;
-	class IndexBuffer;
+	class IVertexBuffer;
+	class IIndexBuffer;
 
 	enum class EditorMode
 	{
@@ -119,13 +119,13 @@ namespace Ilargi
 		std::shared_ptr<Texture2D> mAppIcon; // Application icon for the editor.
 
 		std::shared_ptr<Scene> mScene; // Instance of the scene.
-		std::shared_ptr<CommandBuffer> mCommandBuffer; // Instance of the editor command buffer.
+		std::shared_ptr<ICommandBuffer> mCommandBuffer; // Instance of the editor command buffer.
 
-		std::shared_ptr<Framebuffer> mFramebuffer; // Instance of the editor framebuffer.
-		std::shared_ptr<Pipeline> mOutlinePipeline; // Instance of the outline pipeline.
+		std::shared_ptr<IFramebuffer> mFramebuffer; // Instance of the editor framebuffer.
+		std::shared_ptr<IGraphicsPipeline> mOutlinePipeline; // Instance of the outline pipeline.
 
-		std::shared_ptr<Framebuffer> mMousePickingFramebuffer; // Instance of the framebuffer for mouse picking.
-		std::shared_ptr<Pipeline> mMousePickingPipeline; // Instance of the pipeline for mouse picking.
+		std::shared_ptr<IFramebuffer> mMousePickingFramebuffer; // Instance of the framebuffer for mouse picking.
+		std::shared_ptr<IGraphicsPipeline> mMousePickingPipeline; // Instance of the pipeline for mouse picking.
 
 		EditorCamera mCamera; // Instance of the editor camera.
 		SceneHierarchyInspectorPanel* mHierarchyInspector; // Instance of the hierarchy/inspector panel.

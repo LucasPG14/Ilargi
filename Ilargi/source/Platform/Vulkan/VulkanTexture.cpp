@@ -2,7 +2,7 @@
 
 #include "VulkanTexture.h"
 #include "Renderer/Renderer.h"
-#include "VulkanContext.h"
+#include "VulkanGraphicsContext.h"
 
 #include <imgui.h>
 #include <backends/imgui_impl_vulkan.h>
@@ -31,7 +31,7 @@ namespace Ilargi
 	VulkanTexture2D::VulkanTexture2D(std::filesystem::path aFilepath) : mWidth(0), mHeight(0), mImage(), 
 		mImageView(VK_NULL_HANDLE), mSampler(VK_NULL_HANDLE), mDescriptorSet(VK_NULL_HANDLE)
 	{
-		auto device{ VulkanContext::GetLogicalDevice() };
+		auto device{ VulkanGraphicsContext::GetLogicalDevice() };
 
 		int w, h, channels;
 
@@ -103,7 +103,7 @@ namespace Ilargi
 		TransitionLayout(mipLevels, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
 		{
-			VkCommandBuffer commandBuffer{ VulkanContext::BeginSingleCommandBuffer() };
+			VkCommandBuffer commandBuffer{ VulkanGraphicsContext::BeginSingleCommandBuffer() };
 
 			VkBufferImageCopy region
 			{
@@ -130,7 +130,7 @@ namespace Ilargi
 
 			vkCmdCopyBufferToImage(commandBuffer, buffer.buffer, mImage.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
-			VulkanContext::EndSingleCommandBuffer(commandBuffer);
+			VulkanGraphicsContext::EndSingleCommandBuffer(commandBuffer);
 		}
 
 		//TransitionLayout(mipLevels, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
@@ -193,7 +193,7 @@ namespace Ilargi
 	VulkanTexture2D::VulkanTexture2D(void* aData, int aWidth, int aHeight, int aChannels) : mWidth(aWidth), mHeight(aHeight), mImage(),
 		mImageView(VK_NULL_HANDLE), mSampler(VK_NULL_HANDLE), mDescriptorSet(VK_NULL_HANDLE)
 	{
-		auto device{ VulkanContext::GetLogicalDevice() };
+		auto device{ VulkanGraphicsContext::GetLogicalDevice() };
 
 		VulkanBuffer buffer;
 
@@ -250,7 +250,7 @@ namespace Ilargi
 		TransitionLayout(mipLevels, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
 		{
-			VkCommandBuffer commandBuffer{ VulkanContext::BeginSingleCommandBuffer() };
+			VkCommandBuffer commandBuffer{ VulkanGraphicsContext::BeginSingleCommandBuffer() };
 
 			VkBufferImageCopy region
 			{
@@ -277,7 +277,7 @@ namespace Ilargi
 
 			vkCmdCopyBufferToImage(commandBuffer, buffer.buffer, mImage.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
-			VulkanContext::EndSingleCommandBuffer(commandBuffer);
+			VulkanGraphicsContext::EndSingleCommandBuffer(commandBuffer);
 		}
 
 		//TransitionLayout(mipLevels, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
@@ -340,7 +340,7 @@ namespace Ilargi
 	
 	VulkanTexture2D::~VulkanTexture2D()
 	{
-		auto device{ VulkanContext::GetLogicalDevice() };
+		auto device{ VulkanGraphicsContext::GetLogicalDevice() };
 
 		ImGui_ImplVulkan_RemoveTexture(mDescriptorSet);
 
@@ -352,7 +352,7 @@ namespace Ilargi
 	void VulkanTexture2D::TransitionLayout(uint32_t aMipLevels, VkImageLayout aOldLayout, VkImageLayout aNewLayout)
 	{
 		// Transitioning image
-		VkCommandBuffer commandBuffer{ VulkanContext::BeginSingleCommandBuffer() };
+		VkCommandBuffer commandBuffer{ VulkanGraphicsContext::BeginSingleCommandBuffer() };
 
 		VkImageMemoryBarrier barrier = {};
 		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -390,12 +390,12 @@ namespace Ilargi
 
 		vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 
-		VulkanContext::EndSingleCommandBuffer(commandBuffer);
+		VulkanGraphicsContext::EndSingleCommandBuffer(commandBuffer);
 	}
 	
 	void VulkanTexture2D::GenerateMipMaps(uint32_t aMipLevels)
 	{
-		VkCommandBuffer commandBuffer{ VulkanContext::BeginSingleCommandBuffer() };
+		VkCommandBuffer commandBuffer{ VulkanGraphicsContext::BeginSingleCommandBuffer() };
 
 		VkImageMemoryBarrier barrier{};
 		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -459,6 +459,6 @@ namespace Ilargi
 		vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, 
 			nullptr, 0, nullptr, 1, &barrier);
 
-		VulkanContext::EndSingleCommandBuffer(commandBuffer);
+		VulkanGraphicsContext::EndSingleCommandBuffer(commandBuffer);
 	}
 }

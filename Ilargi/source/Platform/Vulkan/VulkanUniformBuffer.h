@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Renderer/UniformBuffer.h"
+#include "Renderer/IUniformBuffer.h"
 #include "VulkanAllocator.h"
 
 namespace Ilargi
 {
-	class VulkanUniformBuffer : public UniformBuffer
+	class VulkanUniformBuffer : public IUniformBuffer
 	{
 	public:
 		/*
@@ -17,8 +17,6 @@ namespace Ilargi
 
 		/*
 		* @brief Destructor.
-		* @param aSize The size of the uniform buffer data.
-		* @param aFramesInFlight The number of uniform buffers needed.
 		*/
 		virtual ~VulkanUniformBuffer();
 

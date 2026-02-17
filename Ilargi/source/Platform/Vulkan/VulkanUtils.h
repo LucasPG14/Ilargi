@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Renderer/Framebuffer.h"
-#include "Renderer/DescriptorSetLayout.h"
+#include "Renderer/IFramebuffer.h"
+#include "Renderer/IDescriptorSetLayout.h"
 #include <vulkan/vulkan.h>
 
 #define VK_CHECK_RESULT(x)		{ if (x != VK_SUCCESS) __debugbreak(); }

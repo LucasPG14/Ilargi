@@ -15,7 +15,6 @@ namespace Ilargi
 
 	void TextureImporter::ImportTexture(UUID aUUID, const ResourceMetadata& aMetadata)
 	{
-		BinaryWriter writter(aMetadata.filepath.string());
 		int desiredChannels, channels;
 		TextureHeader textureHeader;
 
@@ -32,6 +31,7 @@ namespace Ilargi
 			return;
 		}
 		
+		BinaryWriter writter(aMetadata.filepath.string());
 		writter.Write(textureHeader);
 		writter.Write(data, textureHeader.width * textureHeader.height * textureHeader.channels);
 

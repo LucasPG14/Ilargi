@@ -14,8 +14,8 @@ namespace Ilargi
 	};
 
 	class Event;
-	class GraphicsContext;
-	class Swapchain;
+	class IGraphicsContext;
+	class ISwapchain;
 
 	using EventCallback = std::function<void(Event&)>;
 
@@ -64,7 +64,7 @@ namespace Ilargi
 		* @brief Gets the pointer to the swapchain.
 		* @return The swapchain pointer.
 		*/
-		[[nodiscard]] const std::shared_ptr<Swapchain> GetSwapchain() const { return mSwapchain; }
+		[[nodiscard]] const std::shared_ptr<ISwapchain> GetSwapchain() const { return mSwapchain; }
 
 		/*
 		* @brief Sets the maximum size for the window or restores the last one.
@@ -92,9 +92,9 @@ namespace Ilargi
 	private:
 		WindowProperties mProperties; // The window properties.
 		GLFWwindow* mWindow; // Instance of the GLFW window.
-		std::unique_ptr<GraphicsContext> mContext; // Instance of the graphics context.
+		std::unique_ptr<IGraphicsContext> mContext; // Instance of the graphics context.
 
-		std::shared_ptr<Swapchain> mSwapchain; // Instance of the swapchain.
+		std::shared_ptr<ISwapchain> mSwapchain; // Instance of the swapchain.
 
 		EventCallback mEventFunc; // The event callback.
 	};

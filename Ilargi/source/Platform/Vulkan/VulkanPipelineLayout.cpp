@@ -1,7 +1,7 @@
 #include "ilargipch.h"
 #include "VulkanPipelineLayout.h"
 
-#include "VulkanContext.h"
+#include "VulkanGraphicsContext.h"
 #include "VulkanDescriptorSetLayout.h"
 #include "Renderer/Renderer.h"
 
@@ -9,7 +9,7 @@ namespace Ilargi
 {
 	VulkanPipelineLayout::VulkanPipelineLayout(const PipelineLayoutProperties& aPipelineLayoutProperties)
 	{
-		const auto& device{ VulkanContext::GetLogicalDevice() };
+		const auto& device{ VulkanGraphicsContext::GetLogicalDevice() };
 		
 		mDescriptorSetLayouts.reserve(aPipelineLayoutProperties.DescriptorSetLayoutsProperties.size());
 
@@ -28,13 +28,13 @@ namespace Ilargi
 
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo
 		{
-			VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,						// sType
-			nullptr,															// pNext
-			0,																	// flags
-			mDescriptorSetLayouts.size(),										// setLayoutCount
-			mDescriptorSetLayouts.data(),										// pSetLayouts
-			pushConstantRanges.size(),											// pushConstantRangeCount
-			pushConstantRanges.empty() ? nullptr : pushConstantRanges.data()	// pPushConstantRanges
+			.sType {VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO},
+			.pNext {nullptr},
+			.flags {0U},
+			.setLayoutCount {static_cast<uint32_t>(mDescriptorSetLayouts.size())},
+			.pSetLayouts {mDescriptorSetLayouts.data()},
+			.pushConstantRangeCount {static_cast<uint32_t>(pushConstantRanges.size())},
+			.pPushConstantRanges {pushConstantRanges.empty() ? nullptr : pushConstantRanges.data()}
 		};
 
 		VK_CHECK_RESULT(vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &mPipelineLayout));
@@ -42,7 +42,7 @@ namespace Ilargi
 	
 	VulkanPipelineLayout::~VulkanPipelineLayout()
 	{
-		const auto& device{ VulkanContext::GetLogicalDevice() };
+		const auto& device{ VulkanGraphicsContext::GetLogicalDevice() };
 
 		vkDestroyPipelineLayout(device, mPipelineLayout, nullptr);
 	}

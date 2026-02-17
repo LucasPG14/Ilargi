@@ -2,7 +2,7 @@
 
 #include "Scene.h"
 #include "Renderer/Renderer.h"
-#include "Renderer/UniformBuffer.h"
+#include "Renderer/IUniformBuffer.h"
 
 #include "Resources/Model.h"
 #include "Resources/Mesh.h"
@@ -15,8 +15,8 @@ namespace Ilargi
 {
 	Scene::Scene()
 	{
-		mSceneDataUBO = UniformBuffer::Create(sizeof(SceneData), Renderer::GetConfig().maxFrames);
-		mCameraDataUBO = UniformBuffer::Create(sizeof(CameraData), Renderer::GetConfig().maxFrames);
+		mSceneDataUBO = IUniformBuffer::Create(sizeof(SceneData), Renderer::GetConfig().maxFrames);
+		mCameraDataUBO = IUniformBuffer::Create(sizeof(CameraData), Renderer::GetConfig().maxFrames);
 	}
 	
 	Scene::~Scene()

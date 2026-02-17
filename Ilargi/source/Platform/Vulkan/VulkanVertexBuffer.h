@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Renderer/VertexBuffer.h"
+#include "Renderer/IVertexBuffer.h"
 #include "VulkanAllocator.h"
 
 namespace Ilargi
 {
-	class VulkanVertexBuffer : public VertexBuffer
+	class VulkanVertexBuffer : public IVertexBuffer
 	{
 	public:
 		/*
@@ -23,7 +23,7 @@ namespace Ilargi
 		/*
 		* @copydoc VertexBuffer::Bind()
 		*/
-		void Bind(const std::shared_ptr<CommandBuffer>& aCommandBuffer) const override;
+		void Bind(const std::shared_ptr<ICommandBuffer>& aCommandBuffer) const override;
 
 		/*
 		* @copydoc VertexBuffer::Destroy()

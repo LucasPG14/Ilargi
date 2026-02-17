@@ -47,7 +47,7 @@ namespace Ilargi
 		const std::shared_ptr<Material>& material{ std::static_pointer_cast<Material>(aResource) };
 		BinaryWriter writer(aMetadata.filepath.string());
 
-		const std::shared_ptr<Shader>& shader{ material->GetShader() };
+		const std::shared_ptr<IShader>& shader{ material->GetShader() };
 		const MaterialData& materialData{ material->GetMaterialData() };
 
 		MaterialHeader materialHeader;

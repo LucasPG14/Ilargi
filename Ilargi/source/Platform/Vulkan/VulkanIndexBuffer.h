@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Renderer/IndexBuffer.h"
+#include "Renderer/IIndexBuffer.h"
 #include "VulkanAllocator.h"
 
 namespace Ilargi
 {
-	class VulkanIndexBuffer : public IndexBuffer
+	class VulkanIndexBuffer : public IIndexBuffer
 	{
 	public:
 		/*
@@ -23,7 +23,7 @@ namespace Ilargi
 		/*
 		* @copydoc IndexBuffer::Bind().
 		*/
-		void Bind(const std::shared_ptr<CommandBuffer>& aCommandBuffer) const override;
+		void Bind(const std::shared_ptr<ICommandBuffer>& aCommandBuffer) const override;
 
 		/*
 		* @copydoc IndexBuffer::Destroy().

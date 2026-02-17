@@ -3,7 +3,7 @@
 #include "Renderer/Renderer.h"
 
 #include "VulkanMaterial.h"
-#include "VulkanContext.h"
+#include "VulkanGraphicsContext.h"
 #include "VulkanTexture.h"
 #include "VulkanShader.h"
 
@@ -11,13 +11,13 @@
 
 namespace Ilargi
 {
-	VulkanMaterial::VulkanMaterial(const std::shared_ptr<Shader>& aShader, const MaterialData& aMaterialData) 
+	VulkanMaterial::VulkanMaterial(const std::shared_ptr<IShader>& aShader, const MaterialData& aMaterialData)
 		: mShader(aShader->As<VulkanShader>()), mDescriptorSet(VK_NULL_HANDLE), mMaterialData(aMaterialData)
 	{
 		auto vulkanShader{ aShader->As<VulkanShader>() };
 		vulkanShader->AllocateDescriptorSet(MATERIAL_SET, mDescriptorSet);
 
-		auto device{ VulkanContext::GetLogicalDevice() };
+		auto device{ VulkanGraphicsContext::GetLogicalDevice() };
 
 		VkBufferCreateInfo bufferInfo
 		{
@@ -64,7 +64,7 @@ namespace Ilargi
 
 	void VulkanMaterial::UpdateDescriptor()
 	{
-		auto device{ VulkanContext::GetLogicalDevice() };
+		auto device{ VulkanGraphicsContext::GetLogicalDevice() };
 
 		memcpy(mMaterialBufferMapped, &mMaterialData, sizeof(MaterialData));
 		VkDescriptorBufferInfo bufferInfo

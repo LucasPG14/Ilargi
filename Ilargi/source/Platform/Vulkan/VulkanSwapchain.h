@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Renderer/Swapchain.h"
+#include "Renderer/ISwapchain.h"
 
 #include "VulkanAllocator.h"
 #include <vulkan/vulkan.h>
 
 namespace Ilargi
 {
-	class VulkanSwapchain : public Swapchain
+	class VulkanSwapchain : public ISwapchain
 	{
 	public:
 		/*

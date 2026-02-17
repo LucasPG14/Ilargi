@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Pipeline.h"
+#include "IGraphicsPipeline.h"
 
 namespace Ilargi
 {
@@ -17,9 +17,9 @@ namespace Ilargi
 		* @param aProperties The properties of the pipeline.
 		* @return An instance of the pipeline with the given properties.
 		*/
-		const std::shared_ptr<Pipeline>& GetPipeline(const PipelineProperties& aPipelineProperties);
+		const std::shared_ptr<IGraphicsPipeline>& GetPipeline(const GraphicsPipelineProperties& aPipelineProperties);
 
 	private:
-		std::unordered_map<PipelineProperties, std::shared_ptr<Pipeline>> mPipelines; // Container of the pipelines.
+		std::unordered_map<GraphicsPipelineProperties, std::shared_ptr<IGraphicsPipeline>> mPipelines; // Container of the pipelines.
 	};
 }

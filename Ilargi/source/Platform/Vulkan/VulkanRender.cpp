@@ -16,7 +16,7 @@ namespace Ilargi
 	{
 	}
 	
-	void VulkanRender::SubmitGeometry(const std::shared_ptr<CommandBuffer>& aCommandBuffer, const std::shared_ptr<VertexBuffer>& aVertexBuffer, const std::shared_ptr<IndexBuffer>& aIndexBuffer) const
+	void VulkanRender::SubmitGeometry(const std::shared_ptr<ICommandBuffer>& aCommandBuffer, const std::shared_ptr<IVertexBuffer>& aVertexBuffer, const std::shared_ptr<IIndexBuffer>& aIndexBuffer) const
 	{
 		Renderer::Submit([aCommandBuffer, aVertexBuffer, aIndexBuffer]()
 			{
@@ -30,7 +30,7 @@ namespace Ilargi
 			});
 	}
 	
-	void VulkanRender::DrawDefault(const std::shared_ptr<CommandBuffer>& aCommandBuffer) const
+	void VulkanRender::DrawDefault(const std::shared_ptr<ICommandBuffer>& aCommandBuffer) const
 	{
 		Renderer::Submit([aCommandBuffer]()
 		{

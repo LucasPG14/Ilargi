@@ -4,7 +4,7 @@ struct GLFWwindow;
 
 namespace Ilargi
 {
-	class Swapchain;
+	class ISwapchain;
 
 	class ImGuiPanel
 	{
@@ -30,6 +30,6 @@ namespace Ilargi
 		* @param aSwapchain A pointer to the swapchain of the window.
 		* @return The ImGui panel created.
 		*/
-		static std::unique_ptr<ImGuiPanel> Create(GLFWwindow* aWindow, const std::shared_ptr<Swapchain>& aSwapchain);
+		static std::unique_ptr<ImGuiPanel> Create(GLFWwindow* aWindow, const std::shared_ptr<ISwapchain>& aSwapchain);
 	};
 }

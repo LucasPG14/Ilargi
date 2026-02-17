@@ -1,7 +1,7 @@
 #include "ilargipch.h"
 
 #include "VulkanUniformBuffer.h"
-#include "VulkanContext.h"
+#include "VulkanGraphicsContext.h"
 #include "VulkanShader.h"
 #include "Renderer/Renderer.h"
 
@@ -9,21 +9,21 @@ namespace Ilargi
 {
 	VulkanUniformBuffer::VulkanUniformBuffer(uint32_t aSize, uint32_t aFramesInFlight) : mSize(aSize)
 	{
-		auto device{ VulkanContext::GetLogicalDevice() };
+		const VkDevice& device{ VulkanGraphicsContext::GetLogicalDevice() };
 
 		mUbos.resize(aFramesInFlight);
 		mUniformBuffersMapped.resize(aFramesInFlight);
 
 		VkBufferCreateInfo bufferInfo
 		{
-			VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,	// sType
-			nullptr,								// pNext
-			0,										// flags
-			mSize,									// size
-			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,		// usage
-			VK_SHARING_MODE_EXCLUSIVE,				// sharingMode
-			0,										// queueFamilyIndexCount
-			nullptr									// pQueueFamilyIndices
+			.sType {VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO},
+			.pNext {nullptr},
+			.flags {0U},
+			.size {mSize},
+			.usage {VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT},
+			.sharingMode {VK_SHARING_MODE_EXCLUSIVE},
+			.queueFamilyIndexCount {0U},
+			.pQueueFamilyIndices {nullptr}
 		};
 
 		for (uint32_t i { 0 }; i < aFramesInFlight; ++i)
@@ -48,7 +48,7 @@ namespace Ilargi
 
 	void VulkanUniformBuffer::Destroy()
 	{
-		vkDeviceWaitIdle(VulkanContext::GetLogicalDevice());
+		vkDeviceWaitIdle(VulkanGraphicsContext::GetLogicalDevice());
 
 		for (uint32_t i { 0U }; i < mUbos.size(); ++i)
 		{
@@ -59,16 +59,16 @@ namespace Ilargi
 	
 	void VulkanUniformBuffer::SetData(void* aData, uint32_t aBinding)
 	{
-		auto device{ VulkanContext::GetLogicalDevice() };
+		auto device{ VulkanGraphicsContext::GetLogicalDevice() };
 		uint32_t currentFrame{ Renderer::GetCurrentFrame() };
 
 		memcpy(mUniformBuffersMapped[currentFrame], aData, mSize);
 
 		VkDescriptorBufferInfo bufferInfo
 		{
-			mUbos[currentFrame].buffer,		// buffer
-			0,								// offset
-			mSize							// range
+			.buffer {mUbos[currentFrame].buffer},
+			.offset {0U},
+			.range {mSize}
 		};
 
 		std::array<VkWriteDescriptorSet, 3> descriptorWrites{};

@@ -10,7 +10,7 @@
 #include "Events/MouseEvents.h"
 
 // Other headers
-#include "Renderer/Context.h"
+#include "Renderer/IGraphicsContext.h"
 #include "Renderer/Swapchain.h"
 
 // 3rd Party headers
@@ -63,8 +63,8 @@ namespace Ilargi
 		glfwSetWindowUserPointer(mWindow, this);
 		SettingCallbacks();
 
-		mContext = GraphicsContext::Create(mWindow, mProperties.appName);
-		mSwapchain = Swapchain::Create();
+		mContext = IGraphicsContext::Create(mWindow, mProperties.appName);
+		mSwapchain = ISwapchain::Create();
 	}
 	
 	Window::~Window()

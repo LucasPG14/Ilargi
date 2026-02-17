@@ -2,7 +2,7 @@
 
 // Main headers
 #include "VulkanSwapchain.h"
-#include "VulkanContext.h"
+#include "VulkanGraphicsContext.h"
 #include "Renderer/Renderer.h"
 
 #include "VulkanCommandBuffer.h"
@@ -26,9 +26,9 @@ namespace Ilargi
 
 	VulkanSwapchain::VulkanSwapchain() : mSwapchain(VK_NULL_HANDLE), mCurrentFrame(0), mCurrentImageIndex(0)
 	{
-		auto device{ VulkanContext::GetLogicalDevice() };
+		auto device{ VulkanGraphicsContext::GetLogicalDevice() };
 
-		QuerySwapchainSupport(VulkanContext::GetPhysicalDevice());
+		QuerySwapchainSupport(VulkanGraphicsContext::GetPhysicalDevice());
 
 		CreateSwapchain();
 
@@ -46,7 +46,7 @@ namespace Ilargi
 			{
 				VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO, // sType
 				nullptr,										// pNext
-				VulkanContext::GetCommandPool(),				// commandPool
+				VulkanGraphicsContext::GetCommandPool(),				// commandPool
 				VK_COMMAND_BUFFER_LEVEL_PRIMARY,				// level
 				static_cast<uint32_t>(mCommandBuffers.size())	// commandBufferCount
 			};
@@ -83,7 +83,7 @@ namespace Ilargi
 				VK_CHECK_RESULT(vkCreateFence(device, &fenceInfo, nullptr, &mFences[i]));
 			}
 
-			vkGetDeviceQueue(device, VulkanContext::GetQueueIndices().presentFamily, 0, &mPresentQueue);
+			vkGetDeviceQueue(device, VulkanGraphicsContext::GetQueueIndices().presentFamily, 0, &mPresentQueue);
 		}
 	}
 	
@@ -93,32 +93,32 @@ namespace Ilargi
 
 	void VulkanSwapchain::StartFrame()
 	{
-		auto device{ VulkanContext::GetLogicalDevice() };
+		auto device{ VulkanGraphicsContext::GetLogicalDevice() };
 
 		vkAcquireNextImageKHR(device, mSwapchain, UINT64_MAX, mImageAvailable[mCurrentFrame], VK_NULL_HANDLE, &mCurrentImageIndex);
 	}
 
 	void VulkanSwapchain::EndFrame()
 	{
-		auto device{ VulkanContext::GetLogicalDevice() };
+		auto device{ VulkanGraphicsContext::GetLogicalDevice() };
 
 		VkPipelineStageFlags waitStages[] { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 		
 		VkSubmitInfo submitInfo
 		{
-			VK_STRUCTURE_TYPE_SUBMIT_INFO,		// sType
-			nullptr,							// pNext
-			1,									// waitSemaphoreCount
-			&mImageAvailable[mCurrentFrame],	// pWaitSemaphores
-			waitStages,							// pWaitDstStageMask
-			1,									// commandBufferCount
-			&mCommandBuffers[mCurrentFrame],	// pCommandBuffers
-			1,									// signalSemaphoreCount
-			&mRenderFinished[mCurrentFrame]		// pSignalSemaphores
+			.sType {VK_STRUCTURE_TYPE_SUBMIT_INFO},
+			.pNext {nullptr},
+			.waitSemaphoreCount {1U},
+			.pWaitSemaphores {&mImageAvailable[mCurrentFrame]},
+			.pWaitDstStageMask {waitStages},
+			.commandBufferCount {1U},
+			.pCommandBuffers {&mCommandBuffers[mCurrentFrame]},
+			.signalSemaphoreCount {1U},
+			.pSignalSemaphores {&mRenderFinished[mCurrentFrame]}
 		};
 
 		VK_CHECK_RESULT(vkResetFences(device, 1, &mFences[mCurrentFrame]));
-		VK_CHECK_RESULT(vkQueueSubmit(VulkanContext::GetGraphicsQueue(), 1, &submitInfo, mFences[mCurrentFrame]));
+		VK_CHECK_RESULT(vkQueueSubmit(VulkanGraphicsContext::GetGraphicsQueue(), 1, &submitInfo, mFences[mCurrentFrame]));
 
 		Present(device, mRenderFinished[mCurrentFrame]);
 	}
@@ -127,14 +127,14 @@ namespace Ilargi
 	{
 		VkPresentInfoKHR presentInfo
 		{
-			VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,		// sType
-			nullptr,								// pNext
-			1,										// waitSemaphoreCount
-			&aRenderFinish,							// pWaitSemaphores
-			1,										// swapchainCount
-			&mSwapchain,							// pSwapchains
-			&mCurrentImageIndex,					// pImageIndices
-			nullptr									// pResults
+			.sType {VK_STRUCTURE_TYPE_PRESENT_INFO_KHR},
+			.pNext {nullptr},
+			.waitSemaphoreCount {1U},
+			.pWaitSemaphores {&aRenderFinish},
+			.swapchainCount {1U},
+			.pSwapchains {&mSwapchain},
+			.pImageIndices {&mCurrentImageIndex},
+			.pResults {nullptr}
 		};
 
 		VkResult result{ vkQueuePresentKHR(mPresentQueue, &presentInfo) };
@@ -155,7 +155,7 @@ namespace Ilargi
 
 	void VulkanSwapchain::Destroy()
 	{
-		auto device{ VulkanContext::GetLogicalDevice() };
+		auto device{ VulkanGraphicsContext::GetLogicalDevice() };
 
 		vkDeviceWaitIdle(device);
 
@@ -173,20 +173,20 @@ namespace Ilargi
 	
 	void VulkanSwapchain::RecreateSwapchain()
 	{
-		vkDeviceWaitIdle(VulkanContext::GetLogicalDevice());
+		vkDeviceWaitIdle(VulkanGraphicsContext::GetLogicalDevice());
 		CleanUpSwapchain();
 
 		CreateSwapchain();
 		CreateFramebuffers();
 
-		vkDeviceWaitIdle(VulkanContext::GetLogicalDevice());
+		vkDeviceWaitIdle(VulkanGraphicsContext::GetLogicalDevice());
 	}
 
 	void VulkanSwapchain::CreateSwapchain()
 	{
-		auto device{ VulkanContext::GetLogicalDevice() };
-		auto physicalDevice{ VulkanContext::GetPhysicalDevice() };
-		auto surface{ VulkanContext::GetSurface() };
+		auto device{ VulkanGraphicsContext::GetLogicalDevice() };
+		auto physicalDevice{ VulkanGraphicsContext::GetPhysicalDevice() };
+		auto surface{ VulkanGraphicsContext::GetSurface() };
 		
 		VkPhysicalDeviceProperties physicalDeviceProperties;
 		vkGetPhysicalDeviceProperties(physicalDevice, &physicalDeviceProperties);
@@ -200,7 +200,7 @@ namespace Ilargi
 		VkSurfaceCapabilitiesKHR capabilities;
 		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &capabilities);
 
-		QuerySwapchainSupport(VulkanContext::GetPhysicalDevice());
+		QuerySwapchainSupport(VulkanGraphicsContext::GetPhysicalDevice());
 		mExtent = capabilities.currentExtent;
 		
 		uint32_t imageCount{ capabilities.minImageCount + 1 };
@@ -215,7 +215,7 @@ namespace Ilargi
 
 		VkSwapchainCreateInfoKHR swapchainInfo {};
 		swapchainInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-		swapchainInfo.surface = VulkanContext::GetSurface();
+		swapchainInfo.surface = VulkanGraphicsContext::GetSurface();
 
 		swapchainInfo.minImageCount = imageCount;
 		swapchainInfo.imageFormat = mSurfaceFormat.format;
@@ -224,7 +224,7 @@ namespace Ilargi
 		swapchainInfo.imageArrayLayers = 1;
 		swapchainInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-		QueueFamilyIndices indices{ VulkanContext::GetQueueIndices() };
+		QueueFamilyIndices indices{ VulkanGraphicsContext::GetQueueIndices() };
 		uint32_t queueFamilyIndices[] { indices.graphicsFamily, indices.presentFamily };
 
 		if (indices.graphicsFamily != indices.presentFamily)
@@ -342,7 +342,7 @@ namespace Ilargi
 
 	void VulkanSwapchain::CreateFramebuffers()
 	{
-		auto device{ VulkanContext::GetLogicalDevice() };
+		auto device{ VulkanGraphicsContext::GetLogicalDevice() };
 		// Creating the framebuffers
 		{
 			mFramebuffers.resize(mImageViews.size());
@@ -353,15 +353,15 @@ namespace Ilargi
 
 				VkFramebufferCreateInfo framebufferInfo
 				{
-					VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,	// sType
-					nullptr,									// pNext
-					0,											// flags
-					mRenderPass,								// renderPass
-					static_cast<uint32_t>(attachments.size()),	// attachmentCount
-					attachments.data(),							// pAttachments
-					mExtent.width,								// width
-					mExtent.height,								// height
-					1											// layers
+					.sType {VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO},
+					.pNext {nullptr},
+					.flags {0U},
+					.renderPass {mRenderPass},
+					.attachmentCount {static_cast<uint32_t>(attachments.size())},
+					.pAttachments {attachments.data()},
+					.width {mExtent.width},
+					.height {mExtent.height},
+					.layers {1U}
 				};
 
 				VK_CHECK_RESULT(vkCreateFramebuffer(device, &framebufferInfo, nullptr, &mFramebuffers[i]));
@@ -371,7 +371,7 @@ namespace Ilargi
 
 	void VulkanSwapchain::CleanUpSwapchain()
 	{
-		auto device{ VulkanContext::GetLogicalDevice() };
+		auto device{ VulkanGraphicsContext::GetLogicalDevice() };
 
 		VulkanAllocator::DestroyImage(mDepthImage);
 		for (uint32_t i { 0 }; i < mFramebuffers.size(); ++i)
@@ -388,79 +388,79 @@ namespace Ilargi
 	{
 		VkAttachmentDescription colorAttachment
 		{
-			0,									// flags
-			mSurfaceFormat.format,				// format
-			VK_SAMPLE_COUNT_1_BIT,				// samples
-			VK_ATTACHMENT_LOAD_OP_CLEAR,		// loadOp
-			VK_ATTACHMENT_STORE_OP_STORE,		// storeOp
-			VK_ATTACHMENT_LOAD_OP_DONT_CARE,	// stencilLoadOp
-			VK_ATTACHMENT_STORE_OP_DONT_CARE,	// stencilStoreOp
-			VK_IMAGE_LAYOUT_UNDEFINED,			// initialLayout
-			VK_IMAGE_LAYOUT_PRESENT_SRC_KHR		// finalLayout
+			.flags {0U},
+			.format {mSurfaceFormat.format},
+			.samples {VK_SAMPLE_COUNT_1_BIT},
+			.loadOp {VK_ATTACHMENT_LOAD_OP_CLEAR},
+			.storeOp {VK_ATTACHMENT_STORE_OP_STORE},
+			.stencilLoadOp {VK_ATTACHMENT_LOAD_OP_DONT_CARE},
+			.stencilStoreOp {VK_ATTACHMENT_STORE_OP_DONT_CARE},
+			.initialLayout {VK_IMAGE_LAYOUT_UNDEFINED},
+			.finalLayout {VK_IMAGE_LAYOUT_PRESENT_SRC_KHR}
 		};
 
 		VkAttachmentReference colorAttachmentRef
 		{
-			0,											// attachment
-			VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL	// layout
+			.attachment {0U},
+			.layout {VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL}
 		};
 
 		VkAttachmentDescription depthAttachment
 		{
-			0,													// flags
-			VK_FORMAT_D32_SFLOAT,								// format
-			VK_SAMPLE_COUNT_1_BIT,								// samples
-			VK_ATTACHMENT_LOAD_OP_CLEAR,						// loadOp
-			VK_ATTACHMENT_STORE_OP_DONT_CARE,					// storeOp
-			VK_ATTACHMENT_LOAD_OP_DONT_CARE,					// stencilLoadOp
-			VK_ATTACHMENT_STORE_OP_DONT_CARE,					// stencilStoreOp
-			VK_IMAGE_LAYOUT_UNDEFINED,							// initialLayout
-			VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL	// finalLayout
+			.flags {0U},
+			.format {VK_FORMAT_D32_SFLOAT},
+			.samples {VK_SAMPLE_COUNT_1_BIT},
+			.loadOp {VK_ATTACHMENT_LOAD_OP_CLEAR},
+			.storeOp {VK_ATTACHMENT_STORE_OP_DONT_CARE},
+			.stencilLoadOp {VK_ATTACHMENT_LOAD_OP_DONT_CARE},
+			.stencilStoreOp {VK_ATTACHMENT_STORE_OP_DONT_CARE},
+			.initialLayout {VK_IMAGE_LAYOUT_UNDEFINED},
+			.finalLayout {VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL}
 		};
 
 		VkAttachmentReference depthAttachmentRef
 		{
-			1,													// attachment
-			VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL	// layout
+			.attachment {1U},
+			.layout {VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL}
 		};
 
 		VkSubpassDescription subpass
 		{
-			0,									// flags
-			VK_PIPELINE_BIND_POINT_GRAPHICS,	// pipelineBindPoint
-			0,									// inputAttachmentCount
-			nullptr,							// pInputAttachments
-			1,									// colorAttachmentCount
-			&colorAttachmentRef,				// pColorAttachments
-			nullptr,							// pResolveAttachments
-			&depthAttachmentRef,				// pDepthStencilAttachment
-			0,									// preserveAttachmentCount
-			nullptr								// pPreserveAttachments
+			.flags {0U},
+			.pipelineBindPoint {VK_PIPELINE_BIND_POINT_GRAPHICS},
+			.inputAttachmentCount {0U},
+			.pInputAttachments {nullptr},
+			.colorAttachmentCount {1U},
+			.pColorAttachments {&colorAttachmentRef},
+			.pResolveAttachments {nullptr},
+			.pDepthStencilAttachment {&depthAttachmentRef},
+			.preserveAttachmentCount {0U},
+			.pPreserveAttachments {nullptr}
 		};
 
 		VkSubpassDependency dependency
 		{
-			VK_SUBPASS_EXTERNAL,																			// srcSubpass
-			0,																								// dstSubpass
-			VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,		// srcStageMask
-			VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,		// dstStageMask
-			0,																								// srcAccessMask
-			VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,			// dstAccessMask
-			0																								// dependencyFlags
+			.srcSubpass {VK_SUBPASS_EXTERNAL},
+			.dstSubpass {0U},
+			.srcStageMask {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT},
+			.dstStageMask {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT},
+			.srcAccessMask {0U},
+			.dstAccessMask {VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT},
+			.dependencyFlags {0U}
 		};
 
 		std::array<VkAttachmentDescription, 2> attachments { colorAttachment, depthAttachment };
 		VkRenderPassCreateInfo renderPassInfo
 		{
-			VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,	// sType
-			nullptr,									// pNext
-			0,											// flags
-			static_cast<uint32_t>(attachments.size()),	// attachmentCount
-			attachments.data(),							// pAttachments
-			1,											// subpassCount
-			&subpass,									// pSubpasses
-			1,											// dependencyCount
-			&dependency									// pDependencies
+			.sType {VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO},
+			.pNext {nullptr},
+			.flags {0U},
+			.attachmentCount {static_cast<uint32_t>(attachments.size())},
+			.pAttachments {attachments.data()},
+			.subpassCount {1U},
+			.pSubpasses {&subpass},
+			.dependencyCount {1U},
+			.pDependencies {&dependency}
 		};
 
 		VK_CHECK_RESULT(vkCreateRenderPass(aDevice, &renderPassInfo, nullptr, &mRenderPass));
@@ -468,7 +468,7 @@ namespace Ilargi
 
 	void VulkanSwapchain::QuerySwapchainSupport(VkPhysicalDevice aDevice)
 	{
-		auto surface{ VulkanContext::GetSurface() };
+		auto surface{ VulkanGraphicsContext::GetSurface() };
 
 		uint32_t formatCount;
 		vkGetPhysicalDeviceSurfaceFormatsKHR(aDevice, surface, &formatCount, nullptr);

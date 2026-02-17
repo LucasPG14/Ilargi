@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Renderer/Render.h"
+#include "Renderer/IRender.h"
 
 namespace Ilargi
 {
-	class VulkanRender : public Render
+	class VulkanRender : public IRender
 	{
 	public:
 		/*
@@ -20,11 +20,11 @@ namespace Ilargi
 		/*
 		* @copydoc VulkanRender::SubmitGeometry() 
 		*/
-		void SubmitGeometry(const std::shared_ptr<CommandBuffer>& aCommandBuffer, const std::shared_ptr<VertexBuffer>& aVertexBuffer, const std::shared_ptr<IndexBuffer>& aIndexBuffer) const override;
+		void SubmitGeometry(const std::shared_ptr<ICommandBuffer>& aCommandBuffer, const std::shared_ptr<IVertexBuffer>& aVertexBuffer, const std::shared_ptr<IIndexBuffer>& aIndexBuffer) const override;
 		
 		/*
 		* @copydoc VulkanRender::DrawDefault()
 		*/
-		void DrawDefault(const std::shared_ptr<CommandBuffer>& aCommandBuffer) const override;
+		void DrawDefault(const std::shared_ptr<ICommandBuffer>& aCommandBuffer) const override;
 	};
 }

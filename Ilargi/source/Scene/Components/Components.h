@@ -11,8 +11,8 @@
 
 namespace Ilargi
 {
-	class VertexBuffer;
-	class IndexBuffer;
+	class IVertexBuffer;
+	class IIndexBuffer;
 	class StaticMesh;
 	class Material;
 	

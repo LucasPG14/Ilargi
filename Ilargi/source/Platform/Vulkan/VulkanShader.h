@@ -1,14 +1,17 @@
 #pragma once
 
-#include "Renderer/Shader.h"
+#include "Renderer/IShader.h"
+#include "Renderer/IGraphicsPipeline.h"
 #include "VulkanPipelineLayout.h"
 #include <vulkan/vulkan.h>
 
 namespace Ilargi
 {
+	struct VertexLayout;
+
 	using ShadersMap = std::vector<std::pair<VkShaderStageFlagBits, VkShaderModule>>;
 
-	class VulkanShader : public Shader
+	class VulkanShader : public IShader
 	{
 	public:
 		/*
@@ -26,6 +29,8 @@ namespace Ilargi
 		* @copydoc Shader::Destroy()
 		*/
 		void Destroy() override;
+
+		const uint32_t GetVertexInputsCount() const override { return mVertexInputsCount; }
 
 		/*
 		* @brief Allocates the passed descriptor set.
@@ -89,6 +94,7 @@ namespace Ilargi
 		std::string mFilepath; // The shader filepath.
 		std::string mName; // The name of the shader.
 
+		uint32_t mVertexInputsCount;
 		ShadersMap mShaders; // Map with the shaders based on their type(vertex, fragment, compute...).
 		
 		std::shared_ptr<VulkanPipelineLayout> mPipelineLayout; // Instance of the pipeline layout.

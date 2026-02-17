@@ -1,1 +1,20 @@
-[]
+[
+  {
+    "UUID": 7906576087925479096,
+    "Type": 1,
+    "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\Resources\\models\\viking_room.obj",
+    "Filepath": "Resources\\viking_room.imodel"
+  },
+  {
+    "UUID": 16486374659514970332,
+    "Type": 2,
+    "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\Resources\\models\\viking_room.obj",
+    "Filepath": "Resources\\mesh_all1_Texture1_0.imesh"
+  },
+  {
+    "UUID": 17719512260815518270,
+    "Type": 4,
+    "SourceFile": "C:\\Users\\lucas\\Documents\\GitHub\\Ilargi\\IlargiEditor\\Resources\\models\\viking_room.obj",
+    "Filepath": "Resources\\Texture1.imat"
+  }
+]
