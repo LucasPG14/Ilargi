@@ -10,8 +10,8 @@
 
 namespace Ilargi
 {
-	constexpr std::array<const char*, 1> validationLayers { "VK_LAYER_KHRONOS_validation" };
-	constexpr std::array<const char*, 1> deviceExtensions { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+	constexpr std::array<const char*, 1> validationLayers{ "VK_LAYER_KHRONOS_validation" };
+	constexpr std::array<const char*, 1> deviceExtensions{ VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 
 	static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 		VkDebugUtilsMessageTypeFlagsEXT messageType,
@@ -44,13 +44,13 @@ namespace Ilargi
 
 		return VK_FALSE;
 	}
-	
+
 	VkInstance VulkanGraphicsContext::sInstance{ VK_NULL_HANDLE };
 	VkSurfaceKHR VulkanGraphicsContext::sSurface{ VK_NULL_HANDLE };
 	VkPhysicalDevice VulkanGraphicsContext::sPhysicalDevice{ VK_NULL_HANDLE };
 	VkDevice VulkanGraphicsContext::sLogicalDevice{ VK_NULL_HANDLE };
-	QueueFamilyIndices VulkanGraphicsContext::sIndices {};
-	SwapchainSupportDetails VulkanGraphicsContext::sSwapchainSupport {};
+	QueueFamilyIndices VulkanGraphicsContext::sIndices{};
+	SwapchainSupportDetails VulkanGraphicsContext::sSwapchainSupport{};
 	VkCommandPool VulkanGraphicsContext::sCommandPool{ VK_NULL_HANDLE };
 	VkQueue VulkanGraphicsContext::sGraphicsQueue{ VK_NULL_HANDLE };
 	VkDescriptorPool VulkanGraphicsContext::sDescriptorPool{ VK_NULL_HANDLE };
@@ -61,60 +61,60 @@ namespace Ilargi
 		{
 			VkApplicationInfo applicationInfo
 			{
-				VK_STRUCTURE_TYPE_APPLICATION_INFO, // sType
-				nullptr,							// pNext
-				aAppName.data(),					// pApplicationName
-				VK_MAKE_VERSION(1, 0, 0),			// applicationVersion
-				"Ilargi",							// pEngineName
-				VK_MAKE_VERSION(1, 0, 0),			// engineVersion
-				VK_API_VERSION_1_0,					// apiVersion
+				.sType {VK_STRUCTURE_TYPE_APPLICATION_INFO},
+				.pNext {nullptr},
+				.pApplicationName {aAppName.data()},
+				.applicationVersion {VK_MAKE_VERSION(1, 0, 0)},
+				.pEngineName {"Ilargi"},
+				.engineVersion {VK_MAKE_VERSION(1, 0, 0)},
+				.apiVersion {VK_API_VERSION_1_0},
 			};
 
 			auto extensions{ GetRequiredExtensions() };
 			VkInstanceCreateInfo instanceInfo
 			{
-				VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,				// sType
-				nullptr,											// pNext
-				0,													// flags
-				&applicationInfo,									// pApplicationInfo
+				.sType {VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO},
+				.pNext {nullptr},
+				.flags {0U},
+				.pApplicationInfo {&applicationInfo},
 				#ifdef ILG_DEBUG
-					static_cast<uint32_t>(validationLayers.size()), // enabledLayerCount
-					validationLayers.data(),						// ppEnabledLayerNames
+					.enabledLayerCount {static_cast<uint32_t>(validationLayers.size())},
+					.ppEnabledLayerNames {validationLayers.data()},
 				#else
-					0,												// enabledLayerCount
-					nullptr,										// ppEnabledLayerNames
+					.enabledLayerCount {0U},
+					.ppEnabledLayerNames {nullptr},
 				#endif
-				static_cast<uint32_t>(extensions.size()),			// enabledExtensionCount
-				extensions.data()									// ppEnabledExtensionNames
+				.enabledExtensionCount {static_cast<uint32_t>(extensions.size())},
+				.ppEnabledExtensionNames {extensions.data()}
 			};
 
 			VK_CHECK_RESULT(vkCreateInstance(&instanceInfo, nullptr, &sInstance));
 		}
 
-		#ifdef ILG_DEBUG
+#ifdef ILG_DEBUG
 		// Creating the validation layer debugger
 		{
 			mDebugMessenger = VK_NULL_HANDLE;
 
 			VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo
 			{
-				VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,												// sType
-				nullptr,																								// pNext
-				0,																										// flags
-				VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | 
-					VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,														// messageSeverity
-				VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |			// messageType
-					VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
-				VulkanDebugCallback,																					// pfnUserCallback
-				nullptr																									// pUserData
+				.sType {VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT},
+				.pNext {nullptr},
+				.flags {0U},
+				.messageSeverity {VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+					VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT},
+				.messageType {VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+					VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT},
+				.pfnUserCallback {VulkanDebugCallback},
+				.pUserData {nullptr}
 			};
 
 			auto func{ (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(sInstance, "vkCreateDebugUtilsMessengerEXT") };
 			ILG_ASSERT(func != nullptr, "Vulkan function to enable validation layers not found!");
-			
+
 			func(sInstance, &debugCreateInfo, nullptr, &mDebugMessenger);
 		}
-		#endif
+#endif
 
 		// TODO: Maybe this should be done in another way if we need to change GLFW to support other platforms
 		VK_CHECK_RESULT(glfwCreateWindowSurface(sInstance, aWindow, nullptr, &sSurface));
@@ -145,10 +145,10 @@ namespace Ilargi
 		{
 			sIndices = FindQueueFamilies();
 
-			VkPhysicalDeviceFeatures deviceFeatures {};
+			VkPhysicalDeviceFeatures deviceFeatures{};
 
 			std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-			std::set<uint32_t> uniqueQueueFamilies { sIndices.graphicsFamily, sIndices.presentFamily };
+			std::set<uint32_t> uniqueQueueFamilies{ sIndices.graphicsFamily, sIndices.presentFamily };
 
 			float queuePriority{ 1.0f };
 			for (uint32_t queueFamily : uniqueQueueFamilies)
@@ -163,23 +163,23 @@ namespace Ilargi
 
 			VkDeviceCreateInfo deviceInfo
 			{
-				VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,						// sType
-				nullptr,													// pNext
-				0,															// flags
-				static_cast<uint32_t>(queueCreateInfos.size()),				// queueCreateInfoCount
-				deviceInfo.pQueueCreateInfos = queueCreateInfos.data(),		// pQueueCreateInfos
+				.sType {VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO},
+				.pNext {nullptr},
+				.flags {0U},
+				.queueCreateInfoCount {static_cast<uint32_t>(queueCreateInfos.size())},
+				.pQueueCreateInfos {queueCreateInfos.data()},
 				#ifdef ILG_DEBUG
-					static_cast<uint32_t>(validationLayers.size()),			// enabledLayerCount
-					validationLayers.data(),								// ppEnabledLayerNames
+					.enabledLayerCount {static_cast<uint32_t>(validationLayers.size())},
+					.ppEnabledLayerNames {validationLayers.data()},
 				#else
-					0,														// enabledLayerCount
-					nullptr,												// ppEnabledLayerNames
+					.enabledLayerCount {0U},
+					.ppEnabledLayerNames {nullptr},
 				#endif
-				static_cast<uint32_t>(deviceExtensions.size()),				// enabledExtensionCount
-				deviceExtensions.data(),									// ppEnabledExtensionNames
-				&deviceFeatures												// pEnabledFeatures
+				.enabledExtensionCount {static_cast<uint32_t>(deviceExtensions.size())},
+				.ppEnabledExtensionNames {deviceExtensions.data()},
+				.pEnabledFeatures {&deviceFeatures}
 			};
-			
+
 			VK_CHECK_RESULT(vkCreateDevice(sPhysicalDevice, &deviceInfo, nullptr, &sLogicalDevice));
 		}
 
@@ -189,10 +189,10 @@ namespace Ilargi
 		{
 			VkCommandPoolCreateInfo poolInfo
 			{
-				VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,			// sType
-				nullptr,											// pNext
-				VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,	// flags
-				sIndices.graphicsFamily								// queueFamilyIndex
+				.sType {VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO},
+				.pNext {nullptr},
+				.flags {VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT},
+				.queueFamilyIndex {sIndices.graphicsFamily}
 			};
 
 			VK_CHECK_RESULT(vkCreateCommandPool(sLogicalDevice, &poolInfo, nullptr, &sCommandPool));
@@ -203,37 +203,37 @@ namespace Ilargi
 		{
 			VkDescriptorPoolSize poolSizes[]
 			{
-				{ VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
-				{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
-				{ VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
-				{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
-				{ VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
-				{ VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
-				{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
-				{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
-				{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
-				{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
-				{ VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
+				{ VK_DESCRIPTOR_TYPE_SAMPLER, 1000U },
+				{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000U },
+				{ VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000U },
+				{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000U },
+				{ VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000U },
+				{ VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000U },
+				{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000U },
+				{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000U },
+				{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000U },
+				{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000U },
+				{ VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000U }
 			};
 
 			VkDescriptorPoolCreateInfo poolInfo
 			{
-				VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,		// sType
-				nullptr,											// pNext
-				VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT,	// flags
-				1000,												// maxSets
-				static_cast<uint32_t>(std::size(poolSizes)),		// poolSizeCount
-				poolSizes											// pPoolSizes
+				.sType {VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO},
+				.pNext {nullptr},
+				.flags {VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT},
+				.maxSets {1000U},
+				.poolSizeCount {static_cast<uint32_t>(std::size(poolSizes))},
+				.pPoolSizes {poolSizes}
 			};
 
 			VK_CHECK_RESULT(vkCreateDescriptorPool(sLogicalDevice, &poolInfo, nullptr, &sDescriptorPool));
 		}
 	}
-	
+
 	VulkanGraphicsContext::~VulkanGraphicsContext()
 	{
 	}
-	
+
 	void VulkanGraphicsContext::Destroy() const
 	{
 		VulkanAllocator::Destroy();
@@ -246,24 +246,24 @@ namespace Ilargi
 
 		vkDestroySurfaceKHR(sInstance, sSurface, nullptr);
 
-		#ifdef ILG_DEBUG
-			auto func{ (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(sInstance, "vkDestroyDebugUtilsMessengerEXT") };
-			ILG_ASSERT(func, "");
-			func(sInstance, mDebugMessenger, nullptr);
-		#endif
+#ifdef ILG_DEBUG
+		auto func{ (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(sInstance, "vkDestroyDebugUtilsMessengerEXT") };
+		ILG_ASSERT(func, "");
+		func(sInstance, mDebugMessenger, nullptr);
+#endif
 
 		vkDestroyInstance(sInstance, nullptr);
 	}
-	
+
 	const VkCommandBuffer VulkanGraphicsContext::BeginSingleCommandBuffer()
 	{
 		VkCommandBufferAllocateInfo allocInfo
 		{
-			VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO, // sType
-			nullptr,										// pNext
-			sCommandPool,									// commandPool
-			VK_COMMAND_BUFFER_LEVEL_PRIMARY,				// level
-			1,												// commandBufferCount
+			.sType {VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO},
+			.pNext {nullptr},
+			.commandPool {sCommandPool},
+			.level {VK_COMMAND_BUFFER_LEVEL_PRIMARY},
+			.commandBufferCount {1U},
 		};
 
 		VkCommandBuffer commandBuffer;
@@ -271,10 +271,10 @@ namespace Ilargi
 
 		VkCommandBufferBeginInfo beginInfo
 		{
-			VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,	// sType
-			nullptr,										// pNext
-			VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,	// flags
-			nullptr											// pInheritanceInfo
+			.sType {VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO},
+			.pNext {nullptr},
+			.flags {VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT},
+			.pInheritanceInfo {nullptr}
 		};
 
 		vkBeginCommandBuffer(commandBuffer, &beginInfo);
@@ -288,15 +288,15 @@ namespace Ilargi
 
 		VkSubmitInfo submitInfo
 		{
-			VK_STRUCTURE_TYPE_SUBMIT_INFO,	// sType
-			nullptr,						// pNext
-			0,								// waitSemaphoreCount
-			nullptr,						// pWaitSemaphores
-			nullptr,						// pWaitDstStageMask
-			1,								// commandBufferCount
-			&aCommandBuffer,				// pCommandBuffers
-			0,								// signalSemaphoreCount
-			nullptr							// pSignalSemaphores
+			.sType {VK_STRUCTURE_TYPE_SUBMIT_INFO},
+			.pNext {nullptr},
+			.waitSemaphoreCount {0U},
+			.pWaitSemaphores {nullptr},
+			.pWaitDstStageMask {nullptr},
+			.commandBufferCount {1U},
+			.pCommandBuffers {&aCommandBuffer},
+			.signalSemaphoreCount {0U},
+			.pSignalSemaphores {nullptr}
 		};
 
 		vkQueueSubmit(sGraphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
@@ -312,9 +312,9 @@ namespace Ilargi
 
 		std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
-		#ifdef ILG_DEBUG
-			extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-		#endif
+#ifdef ILG_DEBUG
+		extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+#endif
 
 		return extensions;
 	}
@@ -331,7 +331,7 @@ namespace Ilargi
 		return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU &&
 			deviceFeatures.geometryShader && swapChainAdequate;
 	}
-	
+
 	bool VulkanGraphicsContext::CanCreateSwapchain(VkPhysicalDevice aDevice) const
 	{
 		uint32_t formatCount;
@@ -342,10 +342,10 @@ namespace Ilargi
 
 		return formatCount > 0 && presentModeCount > 0;
 	}
-	
+
 	const QueueFamilyIndices VulkanGraphicsContext::FindQueueFamilies() const
 	{
-		QueueFamilyIndices indices {};
+		QueueFamilyIndices indices{};
 		// Logic to find queue family indices to populate struct with
 
 		uint32_t queueFamilyCount{ 0U };

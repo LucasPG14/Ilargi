@@ -2,15 +2,19 @@
 
 #include "Renderer/IRender.h"
 
+struct GLFWwindow;
+
 namespace Ilargi
 {
+	class VulkanGraphicsContext;
+
 	class VulkanRender : public IRender
 	{
 	public:
 		/*
 		* @brief Constructor.
 		*/
-		VulkanRender();
+		VulkanRender(GLFWwindow* aWindow, std::string_view aAppName);
 
 		/*
 		* @brief Destructor.
@@ -26,5 +30,8 @@ namespace Ilargi
 		* @copydoc VulkanRender::DrawDefault()
 		*/
 		void DrawDefault(const std::shared_ptr<ICommandBuffer>& aCommandBuffer) const override;
+
+	private:
+		std::unique_ptr<VulkanGraphicsContext> mGraphicsContext;
 	};
 }

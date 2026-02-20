@@ -335,14 +335,16 @@ namespace Ilargi
 			VK_CHECK_RESULT(vkCreateSampler(device, &samplerInfo, nullptr, &mSampler));
 		}
 
-		mDescriptorSet = ImGui_ImplVulkan_AddTexture(mSampler, mImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		// TODO: This should not be here, it's only for thumbnails.
+		//mDescriptorSet = ImGui_ImplVulkan_AddTexture(mSampler, mImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 	}
 	
 	VulkanTexture2D::~VulkanTexture2D()
 	{
 		auto device{ VulkanGraphicsContext::GetLogicalDevice() };
 
-		ImGui_ImplVulkan_RemoveTexture(mDescriptorSet);
+		// TODO: This should not be here, it's only for thumbnails.
+		//ImGui_ImplVulkan_RemoveTexture(mDescriptorSet);
 
 		VulkanAllocator::DestroyImage(mImage);
 		vkDestroySampler(device, mSampler, nullptr);

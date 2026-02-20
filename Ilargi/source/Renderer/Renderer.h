@@ -5,6 +5,8 @@
 #include "PipelineLayoutManager.h"
 #include "RenderPassManager.h"
 
+struct GLFWwindow;
+
 namespace Ilargi
 {
 	enum class GraphicsAPI
@@ -13,6 +15,7 @@ namespace Ilargi
 	};
 
 	class IRender;
+	class IGraphicsContext;
 	class CommandBuffer;
 	class VertexBuffer;
 	class StaticMesh;
@@ -44,7 +47,7 @@ namespace Ilargi
 		/*
 		* @brief Initializes the renderer data.
 		*/
-		static void Init();
+		static void Init(GLFWwindow* aWindow, std::string_view aAppName);
 
 		/*
 		* @brief Destroys the renderer data.

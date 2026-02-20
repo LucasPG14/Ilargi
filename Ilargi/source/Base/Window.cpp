@@ -1,7 +1,8 @@
 #include "ilargipch.h"
+#include "Window.h"
 
 // Main headers
-#include "Window.h"
+#include "Application.h"
 #include "Input.h"
 
 // Event headers
@@ -11,7 +12,7 @@
 
 // Other headers
 #include "Renderer/IGraphicsContext.h"
-#include "Renderer/Swapchain.h"
+#include "Renderer/ISwapchain.h"
 
 // 3rd Party headers
 #include <GLFW/glfw3.h>
@@ -19,8 +20,8 @@
 
 namespace Ilargi
 {
-	Window::Window(const WindowProperties& aProps, EventCallback aEventCallback)
-		: mEventFunc(aEventCallback), mProperties(aProps), mContext(nullptr)
+	Window::Window(const ApplicationProperties& aProps, EventCallback aEventCallback)
+		: mEventFunc(aEventCallback)
 	{
 		int success{ glfwInit() };
 
@@ -29,7 +30,7 @@ namespace Ilargi
 		ILG_CORE_INFO("GLFW library initialized");
 
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-		glfwWindowHint(GLFW_MAXIMIZED, mProperties.fullscreen);
+		glfwWindowHint(GLFW_MAXIMIZED, aProps.fullscreen);
 		glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
 
 		GLFWmonitor* primaryMonitor{ glfwGetPrimaryMonitor() };
@@ -38,22 +39,22 @@ namespace Ilargi
 		int monitorX, monitorY;
 		glfwGetMonitorPos(primaryMonitor, &monitorX, &monitorY);
 		
-		mWindow = glfwCreateWindow(mProperties.width, mProperties.height, mProperties.appName.c_str(), nullptr, nullptr);
+		mWindow = glfwCreateWindow(aProps.width, aProps.height, aProps.appName.c_str(), nullptr, nullptr);
 
 		ILG_ASSERT(mWindow, "Error while creating the GLFW window");
 		
 		glfwShowWindow(mWindow);
 
-		if (!mProperties.fullscreen)
-			glfwSetWindowPos(mWindow, (int)(monitorX + (videoMode->width - mProperties.width) * 0.5f), (int)(monitorY + (videoMode->height - mProperties.height) * 0.5f));
+		if (!aProps.fullscreen)
+			glfwSetWindowPos(mWindow, (int)(monitorX + (videoMode->width - aProps.width) * 0.5f), (int)(monitorY + (videoMode->height - aProps.height) * 0.5f));
 
-		ILG_CORE_INFO("Window created with name: {0} and size: {1}, {2}", mProperties.appName, mProperties.width, mProperties.height);
+		ILG_CORE_INFO("Window created with name: {0} and size: {1}, {2}", aProps.appName, aProps.width, aProps.height);
 
 		GLFWimage icon;
 		int channels;
-		if (!mProperties.iconPath.empty())
+		if (!aProps.iconPath.empty())
 		{
-			icon.pixels = stbi_load(mProperties.iconPath.c_str(), &icon.width, &icon.height, &channels, 4);
+			icon.pixels = stbi_load(aProps.iconPath.c_str(), &icon.width, &icon.height, &channels, 4);
 			glfwSetWindowIcon(mWindow, 1, &icon);
 			stbi_image_free(icon.pixels);
 		}
@@ -62,9 +63,6 @@ namespace Ilargi
 
 		glfwSetWindowUserPointer(mWindow, this);
 		SettingCallbacks();
-
-		mContext = IGraphicsContext::Create(mWindow, mProperties.appName);
-		mSwapchain = ISwapchain::Create();
 	}
 	
 	Window::~Window()
@@ -73,20 +71,8 @@ namespace Ilargi
 
 	void Window::Destroy()
 	{
-		mSwapchain->Destroy();
-		mContext->Destroy();
 		glfwDestroyWindow(mWindow);
 		glfwTerminate();
-	}
-
-	void Window::StartFrame() const
-	{
-		mSwapchain->StartFrame();
-	}
-
-	void Window::EndFrame() const
-	{
-		mSwapchain->EndFrame();
 	}
 	
 	void Window::PollEvents() const

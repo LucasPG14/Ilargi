@@ -9,11 +9,11 @@
 
 namespace Ilargi
 {
-	std::unique_ptr<IRender> IRender::Create()
+	std::unique_ptr<IRender> IRender::Create(GLFWwindow* aWindow, std::string_view aAppName)
 	{
 		switch (Renderer::GetGraphicsAPI())
 		{
-		case GraphicsAPI::VULKAN:	return std::make_unique<VulkanRender>();
+		case GraphicsAPI::VULKAN:	return std::make_unique<VulkanRender>(aWindow, aAppName);
 		}
 
 		ILG_ASSERT(nullptr, "The platform specified is not supported");

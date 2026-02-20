@@ -4,14 +4,7 @@ struct GLFWwindow;
 
 namespace Ilargi
 {
-	struct WindowProperties
-	{
-		std::string appName{ "" };
-		std::string iconPath{ "" };
-		int width{ 0 };
-		int height{ 0 };
-		bool fullscreen{ false };
-	};
+	struct ApplicationProperties;
 
 	class Event;
 	class IGraphicsContext;
@@ -27,7 +20,7 @@ namespace Ilargi
 		* @param aProps The properties of the window.
 		* @param aEventCallback The callback used to manage the events from the window.
 		*/
-		Window(const WindowProperties& aProps, EventCallback aEventCallback);
+		Window(const ApplicationProperties& aProps, EventCallback aEventCallback);
 
 		/*
 		* @brief The window destructor.
@@ -40,16 +33,6 @@ namespace Ilargi
 		void Destroy();
 
 		/*
-		* @brief Used to start the frame of the swapchain.
-		*/
-		void StartFrame() const;
-
-		/*
-		* @brief Used to end the frame of the swapchain.
-		*/
-		void EndFrame() const;
-
-		/*
 		* @brief Updates the events from GLFW.
 		*/
 		void PollEvents() const;
@@ -59,12 +42,6 @@ namespace Ilargi
 		* @return The pointer to the GLFW window.
 		*/
 		[[nodiscard]] GLFWwindow* GetWindow() const { return mWindow; }
-
-		/*
-		* @brief Gets the pointer to the swapchain.
-		* @return The swapchain pointer.
-		*/
-		[[nodiscard]] const std::shared_ptr<ISwapchain> GetSwapchain() const { return mSwapchain; }
 
 		/*
 		* @brief Sets the maximum size for the window or restores the last one.
@@ -90,11 +67,7 @@ namespace Ilargi
 		void SettingCallbacks() const;
 	
 	private:
-		WindowProperties mProperties; // The window properties.
 		GLFWwindow* mWindow; // Instance of the GLFW window.
-		std::unique_ptr<IGraphicsContext> mContext; // Instance of the graphics context.
-
-		std::shared_ptr<ISwapchain> mSwapchain; // Instance of the swapchain.
 
 		EventCallback mEventFunc; // The event callback.
 	};

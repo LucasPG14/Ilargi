@@ -31,13 +31,13 @@ namespace Ilargi
 		* @brief Returns the real delta time.
 		* @return The real delta time.
 		*/
-		inline const float GetRealTime() const { return mRealTime; }
+		inline constexpr float GetRealTime() const noexcept { return mRealTime; }
 
 		/*
 		* @brief Returns the delta time.
 		* @return The delta time.
 		*/
-		inline const float GetDeltaTime() const { return mDeltaTime; }
+		inline constexpr float GetDeltaTime() const noexcept { return mDeltaTime; }
 
 		/*
 		* @brief Sets the time scale.

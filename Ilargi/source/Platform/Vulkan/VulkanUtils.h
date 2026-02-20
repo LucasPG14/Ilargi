@@ -15,31 +15,41 @@ namespace Ilargi
 		* @param aFormat The format of the image.
 		* @return The vulkan format.
 		*/
-		[[nodiscard]] const VkFormat GetFormatFromImageFormat(ImageFormat aFormat);
+		[[nodiscard]] const VkFormat GetFormatFromImageFormat(ImageFormat aFormat) noexcept;
 
 		/*
 		* @brief Returns if the format passed is depth or not.
 		* @param aFormat The format of the image.
 		* @return True if is depth, false otherwise.
 		*/
-		[[nodiscard]] bool IsDepth(ImageFormat aFormat);
+		[[nodiscard]] const bool IsDepth(ImageFormat aFormat) noexcept;
 
 		/*
 		* @brief Returns the descriptor type as VkDescriptorType.
 		* @param aType The type of the descriptor.
 		* @return The type of vulkan descriptor.
 		*/
-		[[nodiscard]] VkDescriptorType GetVulkanDescriptorType(DescriptorType aType);
+		[[nodiscard]] const VkDescriptorType GetVulkanDescriptorType(DescriptorType aType) noexcept;
 
 		/*
 		* @brief Returns the descriptor type from VkDescriptorType.
 		* @param aType The vulkan descriptor type.
 		* @return The type of descriptor.
 		*/
-		[[nodiscard]] DescriptorType GetDescriptorTypeFromVulkan(VkDescriptorType aType);
+		[[nodiscard]] constexpr DescriptorType GetDescriptorTypeFromVulkan(VkDescriptorType aType) noexcept;
 
-		[[nodiscard]] VkShaderStageFlags GetVulkanShaderStage(const ShaderStage aShaderStage);
+		/*
+		* @brief Returns the vulkan shader stage from ShaderStage.
+		* @param aShaderStage The shader stage type.
+		* @return The vulkan shader stage.
+		*/
+		[[nodiscard]] constexpr VkShaderStageFlags GetVulkanShaderStage(ShaderStage aShaderStage) noexcept;
 
-		[[nodiscard]] ShaderStage GetShaderStage(const VkShaderStageFlags aShaderStage);
+		/*
+		* @brief Returns the shader stage from VkShaderStageFlags.
+		* @param aShaderStage The vulkan shader stage.
+		* @return The shader stage.
+		*/
+		[[nodiscard]] const ShaderStage GetShaderStage(VkShaderStageFlags aShaderStage) noexcept;
 	}
 }
