@@ -1,5 +1,7 @@
 #pragma once
 
+struct GLFWwindow;
+
 namespace Ilargi
 {
 	class ICommandBuffer;
@@ -27,6 +29,6 @@ namespace Ilargi
 		* @brief Creates the render.
 		* @return An instance of the render created.
 		*/
-		static std::unique_ptr<IRender> Create();
+		static std::unique_ptr<IRender> Create(GLFWwindow* aWindow, std::string_view aAppName);
 	};
 }

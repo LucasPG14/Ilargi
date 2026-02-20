@@ -2,18 +2,21 @@
 
 #include "VulkanRender.h"
 #include "Renderer/Renderer.h"
+#include "VulkanGraphicsContext.h"
 #include "VulkanVertexBuffer.h"
 #include "VulkanCommandBuffer.h"
 #include "VulkanIndexBuffer.h"
 
 namespace Ilargi
 {
-	VulkanRender::VulkanRender()
+	VulkanRender::VulkanRender(GLFWwindow* aWindow, std::string_view aAppName)
 	{
+		mGraphicsContext = std::make_unique<VulkanGraphicsContext>(aWindow, "Ilargi");
 	}
 	
 	VulkanRender::~VulkanRender()
 	{
+		mGraphicsContext.reset();
 	}
 	
 	void VulkanRender::SubmitGeometry(const std::shared_ptr<ICommandBuffer>& aCommandBuffer, const std::shared_ptr<IVertexBuffer>& aVertexBuffer, const std::shared_ptr<IIndexBuffer>& aIndexBuffer) const

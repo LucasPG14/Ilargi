@@ -4,6 +4,7 @@
 #include "Application.h"
 #include "Panel.h"
 #include "Timer.h"
+#include "Renderer/ISwapchain.h"
 #include "Renderer/Renderer.h"
 #include "ImGUI/ImGuiPanel.h"
 
@@ -21,16 +22,12 @@ namespace Ilargi
 		
 		Log::SetClientName(aProps.appName);
 
-		WindowProperties windowProps;
-		windowProps.appName = aProps.appName;
-		windowProps.width = aProps.width;
-		windowProps.height = aProps.height;
-		windowProps.fullscreen = aProps.fullscreen;
-		windowProps.iconPath = aProps.iconPath;
-		mWindow = std::make_unique<Window>(windowProps, ILG_BIND_FN(Application::OnEvent));
-		mImGuiPanel = ImGuiPanel::Create(mWindow->GetWindow(), mWindow->GetSwapchain());
+		mWindow = std::make_unique<Window>(aProps, ILG_BIND_FN(Application::OnEvent));
 
-		Renderer::Init();
+		Renderer::Init(mWindow->GetWindow(), aProps.appName);
+		mSwapchain = ISwapchain::Create();
+		
+		mImGuiPanel = ImGuiPanel::Create(mWindow->GetWindow(), mSwapchain);
 	}
 	
 	Application::~Application()
@@ -38,9 +35,9 @@ namespace Ilargi
 		for (Panel* panel : mPanels)
 			panel->OnDestroy();
 
-		Renderer::Destroy();
-
 		mImGuiPanel->Destroy();
+		mSwapchain->Destroy();
+		Renderer::Destroy();
 		mWindow->Destroy();
 	}
 	
@@ -65,9 +62,9 @@ namespace Ilargi
 				});
 			Renderer::Submit([this]() { mImGuiPanel->End(); });
 			
-			mWindow->StartFrame();
+			mSwapchain->StartFrame();
 			Renderer::RenderQueue();
-			mWindow->EndFrame();
+			mSwapchain->EndFrame();
 		}
 	}
 

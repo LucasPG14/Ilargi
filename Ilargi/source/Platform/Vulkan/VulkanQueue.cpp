@@ -7,7 +7,7 @@ namespace Ilargi
 {
 	VulkanQueue::VulkanQueue(uint32_t aQueueFamilyIndex) : mQueue(VK_NULL_HANDLE)
 	{
-		const auto& device{ VulkanGraphicsContext::GetLogicalDevice() };
+		const VkDevice& device{ VulkanGraphicsContext::GetLogicalDevice() };
 		vkGetDeviceQueue(device, aQueueFamilyIndex, 0, &mQueue);
 	}
 	

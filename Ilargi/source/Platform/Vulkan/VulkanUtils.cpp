@@ -6,7 +6,7 @@ namespace Ilargi
 {
 	namespace Utils
 	{
-		const VkFormat GetFormatFromImageFormat(ImageFormat aFormat)
+		const VkFormat GetFormatFromImageFormat(ImageFormat aFormat) noexcept
 		{
 			switch (aFormat)
 			{
@@ -25,7 +25,7 @@ namespace Ilargi
 			return VkFormat();
 		}
 
-		bool IsDepth(ImageFormat aFormat)
+		const bool IsDepth(ImageFormat aFormat) noexcept
 		{
 			if (aFormat == ImageFormat::DEPTH32 || aFormat == ImageFormat::DEPTH24_STENCIL8)
 				return true;
@@ -33,7 +33,7 @@ namespace Ilargi
 			return false;
 		}
 		
-		VkDescriptorType GetVulkanDescriptorType(DescriptorType aType)
+		const VkDescriptorType GetVulkanDescriptorType(DescriptorType aType) noexcept
 		{
 			switch (aType)
 			{
@@ -44,7 +44,7 @@ namespace Ilargi
 			return VK_DESCRIPTOR_TYPE_MAX_ENUM;
 		}
 		
-		DescriptorType GetDescriptorTypeFromVulkan(VkDescriptorType aType)
+		constexpr DescriptorType GetDescriptorTypeFromVulkan(VkDescriptorType aType) noexcept
 		{
 			switch (aType)
 			{			
@@ -55,7 +55,7 @@ namespace Ilargi
 			return DescriptorType();
 		}
 
-		VkShaderStageFlags GetVulkanShaderStage(const ShaderStage aShaderStage)
+		constexpr VkShaderStageFlags GetVulkanShaderStage(ShaderStage aShaderStage) noexcept
 		{
 			switch (aShaderStage)
 			{
@@ -66,7 +66,7 @@ namespace Ilargi
 			return VK_SHADER_STAGE_VERTEX_BIT;
 		}
 
-		ShaderStage GetShaderStage(const VkShaderStageFlags aShaderStage)
+		const ShaderStage GetShaderStage(VkShaderStageFlags aShaderStage) noexcept
 		{
 			switch (aShaderStage)
 			{

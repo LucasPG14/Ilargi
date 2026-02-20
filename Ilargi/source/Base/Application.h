@@ -86,6 +86,7 @@ namespace Ilargi
 		std::vector<Panel*> mPanels; // Container of all the panels of the application.
 
 		std::unique_ptr<Window> mWindow; // Unique pointer of the window.
+		std::shared_ptr<ISwapchain> mSwapchain; // Unique pointer of the swapchain.
 		std::unique_ptr<ImGuiPanel> mImGuiPanel; // Pointer of the ImGuiPanel(used for the editor).
 		static Application* sApp; // Pointer of the application.
 

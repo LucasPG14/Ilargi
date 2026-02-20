@@ -1,6 +1,7 @@
 #include "ilargipch.h"
 
 #include "Renderer.h"
+#include "IGraphicsContext.h"
 #include "IRender.h"
 #include "Resources/Mesh.h"
 #include "Resources/Texture.h"
@@ -9,7 +10,7 @@
 namespace Ilargi
 {
 	GraphicsAPI Renderer::sGraphicsAPI{ GraphicsAPI::VULKAN };
-	std::unique_ptr<IRender> Renderer::sRender{ IRender::Create() };
+	std::unique_ptr<IRender> Renderer::sRender{ nullptr };
 	std::unique_ptr<ShaderLibrary> Renderer::sShaderLibrary{ std::make_unique<ShaderLibrary>() };
 	std::unique_ptr<PipelineManager> Renderer::sPipelineManager{ std::make_unique<PipelineManager>() };
 	std::unique_ptr<PipelineLayoutManager> Renderer::sPipelineLayoutManager{ std::make_unique<PipelineLayoutManager>() };
@@ -22,8 +23,12 @@ namespace Ilargi
 	uint32_t Renderer::sCurrentFrame{ 0U };
 	std::vector<std::function<void()>> Renderer::sRenderQueue {};
 
-	void Renderer::Init()
+	void Renderer::Init(GLFWwindow* aWindow, std::string_view aAppName)
 	{
+		// TODO: Application name.
+		sRender = IRender::Create(aWindow, aAppName);
+		//sGraphicsContext = IGraphicsContext::Create(aWindow, aAppName);
+
 		uint32_t data{ 0xffffffff };
 		sDefaultTexture = Texture2D::Create(&data, 1, 1, 4);
 
@@ -47,6 +52,8 @@ namespace Ilargi
 		sPipelineLayoutManager.reset();
 		sPipelineManager.reset();
 		sRenderPassManager.reset();
+
+		sRender.reset();
 	}
 
 	void Renderer::SubmitGeometry(const std::shared_ptr<ICommandBuffer>& aCommandBuffer, const std::shared_ptr<StaticMesh>& aMesh)
